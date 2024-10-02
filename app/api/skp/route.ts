@@ -15,18 +15,39 @@ const skpSchema = Joi.object({
     periode_akhir: Joi.date().required().label('Periode Akhir'),
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
     keterangan: Joi.string().allow('').label('Keterangan'),
-    user_id: Joi.string().required().label('user_id'),
-    skp: Joi.array().items(Joi.string().optional()).optional().label('SKP'), // skp menjadi array
+    user_id: Joi.string().required().label('User ID'),
+    skp: Joi.array().items(Joi.string().optional()).optional().label('SKP'),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
-    unit: Joi.array().items(Joi.object().required()).required().label('Unit'), // unit menjadi array of objects
-    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'), // jabatan menjadi array of objects
-    atasan: Joi.array().items(Joi.alternatives().try(atasanSchema, Joi.valid(null)).optional()).optional().label('Atasan'), // atasan menjadi array
+    unit: Joi.array().items(Joi.object().required()).required().label('Unit'),
+    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
+    atasan: Joi.array().items(Joi.alternatives().try(atasanSchema, Joi.valid(null)).optional()).optional().label('Atasan'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional(),
+}).messages({
+    'any.required': '{{#label}} wajib diisi.',
+    'date.base': '{{#label}} harus berupa tanggal yang valid.',
+    'date.empty': '{{#label}} tidak boleh kosong.',
+    'string.base': '{{#label}} harus berupa teks.',
+    'string.empty': '{{#label}} tidak boleh kosong.',
+    'string.valid': '{{#label}} harus salah satu dari {{#valids}}.',
+    'array.base': '{{#label}} harus berupa array.',
+    'object.base': '{{#label}} harus berupa objek.',
+    'string.min': '{{#label}} harus memiliki minimal {{#limit}} karakter.',
+    'string.max': '{{#label}} tidak boleh melebihi {{#limit}} karakter.',
+    'array.min': '{{#label}} harus memiliki setidaknya {{#limit}} item.',
+    'array.max': '{{#label}} tidak boleh melebihi {{#limit}} item.',
+    'any.only': '{{#label}} harus bernilai salah satu dari {{#valids}}.',
+    'string.pattern.base': '{{#label}} memiliki format yang tidak valid.',
+    'string.alphanum': '{{#label}} hanya boleh berisi karakter alfanumerik.',
+    'alternatives.match': '{{#label}} tidak valid.',
+    'any.invalid': '{{#label}} tidak valid.',
+    'date.less': '{{#label}} harus sebelum {{#limit}}.',
+    'date.greater': '{{#label}} harus setelah {{#limit}}.'
 });
+
 
 function validateSKPData(data: any) {
     const { error } = skpSchema.validate(data, { abortEarly: false });

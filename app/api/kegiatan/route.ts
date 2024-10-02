@@ -6,8 +6,8 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const kegiatanSchema = Joi.object({
-  program: Joi.string().hex().length(24).required().label('Program'), // Assuming this is an ObjectId reference
-  name: Joi.string().required().label('Name'),
+  program: Joi.string().hex().length(24).required().label('Program'), // Mengasumsikan ini adalah referensi ObjectId
+  name: Joi.string().required().label('Nama Kegiatan'),
   indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
   target_indikator: Joi.string().required().label('Target Indikator'),
   satuan: Joi.string().required().label('Satuan'),
@@ -15,7 +15,16 @@ const kegiatanSchema = Joi.object({
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
+}).messages({
+  'any.required': '{{#label}} wajib diisi.',
+  'string.base': '{{#label}} harus berupa teks.',
+  'string.empty': '{{#label}} tidak boleh kosong.',
+  'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
+  'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
+  'number.base': '{{#label}} harus berupa angka.',
+  'number.empty': '{{#label}} tidak boleh kosong.',
 });
+
 
 function validateKegiatanData(data: any) {
   const { error } = kegiatanSchema.validate(data, { abortEarly: false });

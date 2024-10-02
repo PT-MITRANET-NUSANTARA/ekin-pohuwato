@@ -7,15 +7,24 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const renstraSchema = Joi.object({
-  name: Joi.string().required().label('Name'),
-  periode_start: Joi.date().required().label('Periode Start'),
-  periode_end: Joi.date().required().label('Periode End'),
-  programs: Joi.array().items(Joi.string().hex().length(24)).label('Programs'), // Expecting an array of ObjectId strings
+  name: Joi.string().required().label('Nama'),
+  periode_start: Joi.date().required().label('Periode Mulai'),
+  periode_end: Joi.date().required().label('Periode Selesai'),
+  programs: Joi.array().items(Joi.string().hex().length(24)).label('Program'), // Mengharapkan array string ObjectId
   __v: Joi.optional(),
   _id: Joi.optional(),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
+}).messages({
+  'any.required': '{{#label}} wajib diisi.',
+  'string.base': '{{#label}} harus berupa teks.',
+  'string.empty': '{{#label}} tidak boleh kosong.',
+  'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
+  'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
+  'date.base': '{{#label}} harus berupa tanggal yang valid.',
+  'array.base': '{{#label}} harus berupa array.',
 });
+
 
 function validateRenstraData(data: any) {
   const { error } = renstraSchema.validate(data, { abortEarly: false });

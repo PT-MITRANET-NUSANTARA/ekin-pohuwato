@@ -5,21 +5,29 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const harianSchema = Joi.object({
-    date: Joi.date().required().label('Date'),
-    startDateTime: Joi.date().required().label('Start DateTime'),
-    endDateTime: Joi.date().required().label('End DateTime'),
+    date: Joi.date().required().label('Tanggal'),
+    startDateTime: Joi.date().required().label('Waktu Mulai'),
+    endDateTime: Joi.date().required().label('Waktu Selesai'),
     rhk: Joi.string().required().label('RHK'),
     namaKegiatan: Joi.string().required().label('Nama Kegiatan'),
     deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),
     tautan: Joi.string().uri().optional().label('Tautan'),
-    files: Joi.array().items(Joi.string()).optional().label('Files'),
-    user_id: Joi.string().required().label('User ID'), // Added user_id to schema
+    files: Joi.array().items(Joi.string()).optional().label('Berkas'),
+    user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional()
+}).messages({
+    'any.required': '{{#label}} wajib diisi.',
+    'string.base': '{{#label}} harus berupa teks.',
+    'string.empty': '{{#label}} tidak boleh kosong.',
+    'date.base': '{{#label}} harus berupa tanggal yang valid.',
+    'string.uri': '{{#label}} harus berupa tautan URL yang valid.',
+    'array.base': '{{#label}} harus berupa array.',
 });
+
 
 function validateHarianData(data: any) {
     const { error } = harianSchema.validate(data, { abortEarly: false });

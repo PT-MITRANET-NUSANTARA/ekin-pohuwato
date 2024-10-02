@@ -6,17 +6,26 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const programSchema = Joi.object({
-  name: Joi.string().required().label('Name'),
+  name: Joi.string().required().label('Nama Program'),
   sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
   indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
   target_indikator: Joi.string().required().label('Target Indikator'),
   satuan: Joi.string().required().label('Satuan'),
   total_anggaran: Joi.number().required().label('Total Anggaran'),
-  renstra: Joi.string().hex().length(24).required().label('renstra'), 
+  renstra: Joi.string().hex().length(24).required().label('Renstra'), // Mengharapkan ObjectId (24 karakter heksadesimal)
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
+}).messages({
+  'any.required': '{{#label}} wajib diisi.',
+  'string.base': '{{#label}} harus berupa teks.',
+  'string.empty': '{{#label}} tidak boleh kosong.',
+  'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
+  'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
+  'number.base': '{{#label}} harus berupa angka.',
+  'number.empty': '{{#label}} tidak boleh kosong.',
 });
+
 
 function validateProgramData(data: any) {
   const { error } = programSchema.validate(data, { abortEarly: false });

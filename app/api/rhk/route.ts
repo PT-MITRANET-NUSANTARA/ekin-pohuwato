@@ -12,7 +12,13 @@ const rhkSchema = Joi.object({
   klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),
   __v: Joi.optional(),
   _id: Joi.optional(),
+}).messages({
+  'any.required': '{{#label}} wajib diisi.',
+  'string.base': '{{#label}} harus berupa teks.',
+  'string.empty': '{{#label}} tidak boleh kosong.',
+  'string.valid': '{{#label}} harus salah satu dari {{#valids}}.',
 });
+
 
 function validateRHKData(data: any) {
   const { error } = rhkSchema.validate(data, { abortEarly: false });

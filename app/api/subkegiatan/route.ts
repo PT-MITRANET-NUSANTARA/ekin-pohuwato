@@ -5,8 +5,8 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const subKegiatanSchema = Joi.object({
-  kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), // Assuming this is an ObjectId reference
-  name: Joi.string().required().label('Name'),
+  kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), // Mengasumsikan ini adalah referensi ObjectId
+  name: Joi.string().required().label('Nama'),
   indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
   target_indikator: Joi.string().required().label('Target Indikator'),
   satuan: Joi.string().required().label('Satuan'),
@@ -14,7 +14,18 @@ const subKegiatanSchema = Joi.object({
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
+}).messages({
+  'any.required': '{{#label}} wajib diisi.',
+  'string.base': '{{#label}} harus berupa teks.',
+  'string.empty': '{{#label}} tidak boleh kosong.',
+  'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
+  'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
+  'number.base': '{{#label}} harus berupa angka.',
+  'number.empty': '{{#label}} tidak boleh kosong.',
+  'number.min': '{{#label}} harus memiliki nilai minimal {{#limit}}.',
+  'number.max': '{{#label}} tidak boleh melebihi {{#limit}}.',
 });
+
 
 function validateSubKegiatanData(data: any) {
   const { error } = subKegiatanSchema.validate(data, { abortEarly: false });
