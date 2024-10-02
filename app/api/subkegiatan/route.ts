@@ -1,0 +1,119 @@
+import { NextRequest, NextResponse } from 'next/server';
+import SubKegiatan from '../../../models/SubKegiatan';
+import Joi from 'joi';
+import dbConnect from '@/utils/db';
+import { createResponse } from '@/utils/api';
+
+const subKegiatanSchema = Joi.object({
+  kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), // Assuming this is an ObjectId reference
+  name: Joi.string().required().label('Name'),
+  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
+  target_indikator: Joi.string().required().label('Target Indikator'),
+  satuan: Joi.string().required().label('Satuan'),
+  total_anggaran: Joi.number().required().label('Total Anggaran'),
+  __v: Joi.optional(),
+  _id: Joi.optional(),
+  id: Joi.optional(),
+});
+
+function validateSubKegiatanData(data: any) {
+  const { error } = subKegiatanSchema.validate(data, { abortEarly: false });
+  if (error) {
+    return error.details.map((err) => err.message);
+  }
+  return [];
+}
+
+export async function GET(req: NextRequest) {
+  await dbConnect();
+
+  try {
+    const id = req.nextUrl.searchParams.get('id');
+    let subKegiatans = [];
+
+    if (id) {
+      subKegiatans = await SubKegiatan.findOne({ _id: id });
+    } else {
+      subKegiatans = await SubKegiatan.find({});
+    }
+
+    return NextResponse.json(createResponse(200, 'Success', subKegiatans));
+  } catch (error) {
+    console.error('GET error:', error);
+    return NextResponse.json({ error: 'Failed to fetch SubKegiatan data' }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  await dbConnect();
+
+  try {
+    const body = await req.json();
+    const errors = validateSubKegiatanData(body);
+
+    if (errors.length > 0) {
+      return NextResponse.json(createResponse(400, 'Failed', errors));
+    }
+    
+
+    const newSubKegiatan = new SubKegiatan(body);
+    await newSubKegiatan.save();
+    return NextResponse.json(createResponse(201, 'Success', newSubKegiatan));
+  } catch (error) {
+    console.error('POST error:', error); // Added error logging
+    return NextResponse.json({ error: 'Failed to create SubKegiatan' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  await dbConnect();
+
+  try {
+    const body = await req.json();
+    const id = req.nextUrl.searchParams.get('id');
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+    }
+
+    const errors = validateSubKegiatanData(body);
+    if (errors.length > 0) {
+      return NextResponse.json(createResponse(400, 'Failed', errors));
+    }
+
+    const updatedSubKegiatan = await SubKegiatan.findOneAndUpdate(
+      { _id: id },
+      body,
+      { new: true }
+    );
+
+    if (!updatedSubKegiatan) {
+      return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
+    }
+
+    return NextResponse.json(createResponse(200, 'Success', updatedSubKegiatan));
+  } catch (error) {
+    console.error('PUT error:', error); 
+    return NextResponse.json({ error: 'Failed to update SubKegiatan' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  await dbConnect();
+
+  try {
+    const id = req.nextUrl.searchParams.get('id');
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+    }
+
+    const deletedSubKegiatan = await SubKegiatan.findByIdAndDelete(id);
+    if (!deletedSubKegiatan) {
+      return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
+    }
+
+    return NextResponse.json(createResponse(200, 'Success', deletedSubKegiatan));
+  } catch (error) {
+    console.error('DELETE error:', error); // Added error logging
+    return NextResponse.json({ error: 'Failed to delete SubKegiatan' }, { status: 500 });
+  }
+}

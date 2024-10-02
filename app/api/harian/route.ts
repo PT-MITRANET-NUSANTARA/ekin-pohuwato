@@ -1,0 +1,135 @@
+import { NextRequest, NextResponse } from 'next/server';
+import Harian from '../../../models/Harian';
+import Joi from 'joi';
+import dbConnect from '@/utils/db';
+import { createResponse } from '@/utils/api';
+
+const harianSchema = Joi.object({
+    date: Joi.date().required().label('Date'),
+    startDateTime: Joi.date().required().label('Start DateTime'),
+    endDateTime: Joi.date().required().label('End DateTime'),
+    rhk: Joi.string().required().label('RHK'),
+    namaKegiatan: Joi.string().required().label('Nama Kegiatan'),
+    deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),
+    tautan: Joi.string().uri().optional().label('Tautan'),
+    files: Joi.array().items(Joi.string()).optional().label('Files'),
+    user_id: Joi.string().required().label('User ID'), // Added user_id to schema
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional(),
+    __v: Joi.optional(),
+    _id: Joi.optional(),
+    id: Joi.optional()
+});
+
+function validateHarianData(data: any) {
+    const { error } = harianSchema.validate(data, { abortEarly: false });
+    if (error) {
+        return error.details.map((err) => err.message);
+    }
+    return [];
+}
+
+export async function GET(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const user_id = req.headers.get('user-id');
+        const id = req.nextUrl.searchParams.get('id');
+        const rhk = req.nextUrl.searchParams.get('rhk');
+        let harian = [];
+
+        if (id) {
+            harian = await Harian.findOne({ _id: id, user_id });
+        } else if (rhk && user_id) {
+            harian = await Harian.find({ rhk, user_id }).populate('rhk');
+        } else if (user_id) {
+            harian = await Harian.find({ user_id }).populate('rhk');
+        } else {
+            harian = await Harian.find({});
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', harian));
+    } catch (error) {
+        console.error('GET error:', error);
+        return NextResponse.json({ error: 'Failed to fetch Harian data' }, { status: 500 });
+    }
+}
+
+export async function POST(req: NextRequest) {
+    await dbConnect();
+    try {
+        const user_id = req.headers.get('user-id');
+
+        if (!user_id) {
+            return NextResponse.json(createResponse(400, 'User ID is required', null));
+        }
+
+        const body = await req.json();
+        const bodyWithUser = { ...body, user_id };
+
+        const errors = validateHarianData(bodyWithUser);
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+
+        const newHarian = new Harian(bodyWithUser);
+        await newHarian.save();
+        return NextResponse.json(createResponse(201, 'Success', newHarian));
+    } catch (error) {
+        console.error('POST error:', error);
+        return NextResponse.json({ error: 'Failed to create Harian' }, { status: 500 });
+    }
+}
+
+export async function PUT(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const user_id = req.headers.get('user-id');
+        const body = await req.json();
+        const id = req.nextUrl.searchParams.get('id');
+
+        if (!id || typeof id !== 'string') {
+            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+        }
+
+        const errors = validateHarianData({ ...body, user_id });
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+
+        const updatedHarian = await Harian.findOneAndUpdate({ _id: id, user_id }, body, { new: true });
+
+        if (!updatedHarian) {
+            return NextResponse.json(createResponse(404, 'Harian not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', updatedHarian));
+    } catch (error) {
+        console.error('PUT error:', error);
+        return NextResponse.json({ error: 'Failed to update Harian' }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const user_id = req.headers.get('user-id');
+        const id = req.nextUrl.searchParams.get('id');
+
+        if (!id || typeof id !== 'string') {
+            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+        }
+
+        const deletedHarian = await Harian.findOneAndDelete({ _id: id, user_id });
+        if (!deletedHarian) {
+            return NextResponse.json(createResponse(404, 'Harian not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', deletedHarian));
+    } catch (error) {
+        console.error('DELETE error:', error);
+        return NextResponse.json({ error: 'Failed to delete Harian' }, { status: 500 });
+    }
+}

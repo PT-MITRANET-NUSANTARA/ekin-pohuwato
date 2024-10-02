@@ -1,0 +1,136 @@
+import { NextRequest, NextResponse } from 'next/server';
+import SKP from '../../../models/SKP';
+import RHK from '../../../models/RHK';
+import Joi from 'joi';
+import dbConnect from '@/utils/db';
+import { createResponse } from '@/utils/api';
+
+const atasanSchema = Joi.object({
+    id: Joi.string().required(),
+    nama: Joi.string().required()
+}).allow(null);
+
+const skpSchema = Joi.object({
+    periode_awal: Joi.date().required().label('Periode Awal'),
+    periode_akhir: Joi.date().required().label('Periode Akhir'),
+    pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
+    keterangan: Joi.string().allow('').label('Keterangan'),
+    user_id: Joi.string().required().label('user_id'),
+    skp: Joi.array().items(Joi.string().optional()).optional().label('SKP'), // skp menjadi array
+    __v: Joi.optional(),
+    _id: Joi.optional(),
+    id: Joi.optional(),
+    unit: Joi.array().items(Joi.object().required()).required().label('Unit'), // unit menjadi array of objects
+    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'), // jabatan menjadi array of objects
+    atasan: Joi.array().items(Joi.alternatives().try(atasanSchema, Joi.valid(null)).optional()).optional().label('Atasan'), // atasan menjadi array
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional(),
+    status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional(),
+});
+
+function validateSKPData(data: any) {
+    const { error } = skpSchema.validate(data, { abortEarly: false });
+    if (error) {
+        return error.details.map((err) => err.message);
+    }
+    return [];
+}
+
+export async function GET(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const user_id = req.headers.get('user-id');
+        const id = req.nextUrl.searchParams.get('id');
+        let skps = [];
+        
+        if (user_id) {
+            skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks') : await SKP.find({ user_id });
+        } else {
+            skps = await SKP.find({});
+        }
+        
+        return NextResponse.json(createResponse(200, 'Success', skps));
+    } catch (error) {
+        console.error('GET error:', error);
+        return NextResponse.json({ error: 'Failed to fetch SKP data' }, { status: 500 });
+    }
+}
+
+export async function POST(req: NextRequest) {
+    await dbConnect();
+    try {
+        const user_id = req.headers.get('user-id');
+
+        if (!user_id) {
+            return NextResponse.json(createResponse(400, 'User ID is required', null));
+        }
+
+        const body = await req.json();
+        const bodyWithUser = { ...body, user_id };
+
+        const errors = validateSKPData(bodyWithUser);
+
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+
+        const newSKP = new SKP(bodyWithUser);
+        await newSKP.save();
+        return NextResponse.json(createResponse(201, 'Success', newSKP));
+    } catch (error) {
+        console.error('POST error:', error); // Added error logging
+        return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
+    }
+}
+
+export async function PUT(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const body = await req.json();
+        const id = req.nextUrl.searchParams.get('id');
+        if (!id || typeof id !== 'string') {
+            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+        }
+
+        const errors = validateSKPData(body);
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+        const updatedSKP = await SKP.findOneAndUpdate({ _id: id }, body, { new: true });
+
+        if (!updatedSKP) {
+            return NextResponse.json(createResponse(404, 'SKP not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', updatedSKP));
+    } catch (error) {
+        console.error('PUT error:', error); // Added error logging
+        return NextResponse.json({ error: 'Failed to update SKP' }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: NextRequest) {
+    await dbConnect();
+
+    try {
+        const id = req.nextUrl.searchParams.get('id');
+
+        if (!id || typeof id !== 'string') {
+            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
+        }
+
+        const deletedSKP = await SKP.findByIdAndDelete(id);
+        if (!deletedSKP) {
+            return NextResponse.json(createResponse(404, 'SKP not found', null));
+        }
+
+        await RHK.deleteMany({ skp: id });
+
+        return NextResponse.json(createResponse(200, 'Success', deletedSKP));
+    } catch (error) {
+        console.error('DELETE error:', error); // Added error logging
+        return NextResponse.json({ error: 'Failed to delete SKP' }, { status: 500 });
+    }
+}
