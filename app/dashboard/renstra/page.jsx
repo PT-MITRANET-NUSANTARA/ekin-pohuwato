@@ -1,12 +1,13 @@
 'use client';
 
-import { Alert, Button, Card, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const { Title } = Typography;
 
@@ -101,35 +102,33 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    
-                    <Button 
+                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
                         // type='primary'
-                        size='middle'
+                        size="middle"
                         icon={<EditOutlined />}
-
                     />
-                    <Button 
+                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
                         // type='primary'
-                        size='middle'
-                        color='default'
+                        size="middle"
+                        color="default"
                         icon={<EyeOutlined />}
                     />
-                  
-                    <Button 
+
+                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
                         // type='primary'
-                        size='middle'
-                        color='danger'
+                        size="middle"
+                        color="danger"
                         icon={<DeleteOutlined />}
                     />
 
-                    <Button 
-                        onClick={() => router.push(`/dashboard/renstra/${record._id}/programs`)}
+                    <Button
+                        onClick={() => router.push(`/dashboard/programs/${record._id}`)}
                         // type='primary'
-                        size='middle'
-                        color='danger'
+                        size="middle"
+                        color="danger"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -184,7 +183,17 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-            <Card className=''>
+            <Breadcrumb
+                items={[
+                    {
+                        title: 'Dashboard'
+                    },
+                    {
+                        title: <Link href="/dashboard/renstra">Renstra</Link>
+                    },
+                ]}
+            />
+            <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>

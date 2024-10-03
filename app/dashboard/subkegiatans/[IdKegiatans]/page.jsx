@@ -6,15 +6,13 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { IdRenstra } = useParams();
-    console.log(IdRenstra);
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -127,7 +125,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => router.push(`/dashboard/kegiatans/${record._id}`)}
+                        onClick={() => router.push(`/dashboard/programs/${record._id}`)}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -192,17 +190,14 @@ const page = () => {
                     },
                     {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
-                    },
-                    {
-                        title: <Link href={`dashboard/kegiatans`}>Programs {IdRenstra}</Link>
-                    },
+                    }
                 ]}
             />
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Program
+                            Data Renstra
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
