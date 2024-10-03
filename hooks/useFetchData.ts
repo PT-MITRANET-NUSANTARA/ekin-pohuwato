@@ -11,6 +11,8 @@ const useFetchData = <T, F extends () => Promise<T>>(fetchFunction: F) => {
     const fetchData = async () => {
       try {
         const response = await fetchFunction();
+        console.log(response);
+        
         setData(response.data);
         setMsg(response.msg);
         setStatus(response.status); 
