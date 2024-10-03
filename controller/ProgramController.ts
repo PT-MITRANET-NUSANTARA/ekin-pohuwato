@@ -8,6 +8,16 @@ export const getById = async (id: string) => {
     return response;
 }
 
+export const getByRenstraId = async (id: string) => {
+    const response = await apiRequest(`/api/program`, {
+        method: 'GET',
+        headers: {
+            'renstra-id': id,
+        }
+    });
+    return response;
+}
+
 // Fetch all Program records
 export const getAll = async () => {
     const response = await apiRequest('/api/program', {

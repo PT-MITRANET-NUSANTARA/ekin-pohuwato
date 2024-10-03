@@ -12,7 +12,7 @@ interface Response {
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_API_KEY as string;
 
 if (!apiUrl) {
     throw new Error('Please define the NEXT_PUBLIC_API_URL environment variable inside .env.local');
