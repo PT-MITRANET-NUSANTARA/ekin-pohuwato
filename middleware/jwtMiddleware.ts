@@ -10,10 +10,10 @@ export async function verifyJWT(req: NextRequest) {
   try {
     // Lakukan fetch ke API menggunakan URL absolut
     const response = await verifyToken(cookie, req);
-
     if (response.status === 200) {
       const data = await response.json();
       // console.log(data);
+      console.log(data);
       
       const result =  NextResponse.next();
       result.headers.set('Set-Cookie', data.user);
