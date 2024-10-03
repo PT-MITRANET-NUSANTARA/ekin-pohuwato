@@ -37,16 +37,22 @@ function validateProgramData(data: any) {
 
 export async function GET(req: NextRequest) {
   await dbConnect();
-  await Kegiatan.find({});
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const renstra_id = req.headers.get('renstra-id');
     let programs;
 
     if (id) {
       programs = await Program.findOne({ _id: id })
         .populate('kegiatans')
         .populate('renstra'); 
-    } else {
+    }
+    else if (renstra_id) {
+      programs = await Program.find({ renstra: renstra_id })
+        .populate('kegiatans')
+        .populate('renstra'); 
+    } 
+    else {
       programs = await Program.find({})
     }
 
