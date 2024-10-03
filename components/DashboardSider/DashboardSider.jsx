@@ -8,6 +8,7 @@ import Sider from 'antd/es/layout/Sider';
 const DashboardSider = ({ collapsed }) => {
     const router = useRouter();
 
+
     return (
         <Sider
             theme="light"

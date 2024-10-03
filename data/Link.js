@@ -1,10 +1,10 @@
-import { DatabaseOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined } from '@ant-design/icons';
 import path from 'path';
 
 
 export const DashboardLink = [
     {
-      icon: DatabaseOutlined,
+      icon: DashboardOutlined,
       label: 'Dashboard',
       path: "/dashboard",
     },
@@ -29,5 +29,20 @@ export const DashboardLink = [
           path: "/dashboard/subkegiatans"
         }
       ]
+    },
+    {
+      icon: CalendarOutlined,
+      label: 'RKT',
+      path: "/dashboard/rkt",
+    },
+    {
+      icon: FieldTimeOutlined,
+      label: 'Harians',
+      path: "/dashboard/harians",
+    },
+    {
+      icon: AuditOutlined,
+      label: 'SKP',
+      path: "/dashboard/skp",
     },
 ];
