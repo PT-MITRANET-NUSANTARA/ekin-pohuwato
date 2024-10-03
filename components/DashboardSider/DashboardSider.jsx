@@ -1,7 +1,7 @@
 "use client"
 import { Menu } from 'antd';
 import React, { useState } from 'react'
-import { DashboardLink } from '../../data/Link';
+import { DashboardLink } from "@/data"
 import { useRouter } from 'next/navigation';
 import Sider from 'antd/es/layout/Sider';
 
