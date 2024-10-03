@@ -96,15 +96,29 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })} color="danger" size="small">
-                        Show
-                    </Button>
-                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })} color="danger" size="small">
-                        Edit
-                    </Button>
-                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })} color="danger" size="small">
-                        Delete
-                    </Button>
+                    
+                    <Button 
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        // type='primary'
+                        size='middle'
+                        icon={<EditOutlined />}
+
+                    />
+                    <Button 
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        // type='primary'
+                        size='middle'
+                        color='default'
+                        icon={<EyeOutlined />}
+                    />
+                  
+                    <Button 
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        // type='primary'
+                        size='middle'
+                        color='danger'
+                        icon={<DeleteOutlined />}
+                    />
                 </Space>
             )
         }
@@ -146,7 +160,7 @@ const page = () => {
                 }
             ],
             min: 1,
-            max: 3000
+            max: 3000,
         }
     ];
 

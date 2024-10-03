@@ -88,7 +88,7 @@ const page = () => {
                 </Card>
             </div>
             <div className="col-span-2">
-                <Avatar src="/profil.jpg" shape="square" size={200} className="border-4 border-blue-500" />
+                <Avatar src="/profil.jpg" shape="square"  className="w-full h-auto aspect-square border-4 border-blue-500" />
             </div>
             <div className="col-span-6">
                 <Card>
