@@ -1,7 +1,12 @@
-import { log } from 'console';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
-const useFetchData = <T, F extends () => Promise<T>>(fetchFunction: F) => {
+interface ApiResponse<T> {
+  data: T;
+  msg: string;
+  status: number;
+}
+
+const useFetchData = <T, F extends () => Promise<ApiResponse<T>>>(fetchFunction: F) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
@@ -12,10 +17,10 @@ const useFetchData = <T, F extends () => Promise<T>>(fetchFunction: F) => {
       try {
         const response = await fetchFunction();
         console.log(response);
-        
+
         setData(response.data);
         setMsg(response.msg);
-        setStatus(response.status); 
+        setStatus(response.status);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -24,9 +29,9 @@ const useFetchData = <T, F extends () => Promise<T>>(fetchFunction: F) => {
     };
 
     fetchData();
-  }, []);
+  }, [fetchFunction]);
 
-  return {  data, setData, loading , msg, status };
+  return { data, setData, loading, msg, status };
 };
 
 export default useFetchData;

@@ -7,10 +7,10 @@ import jwksClient from 'jwks-rsa';
 import { createResponse } from '@/utils/api';
 
 const client = jwksClient({
-    jwksUri: process.env.NEXT_PUBLIC_API_JWT_URL
+    jwksUri: process.env.NEXT_PUBLIC_API_JWT_URL || 'default_jwks_uri'
 });
 
-const getKey = (header, callback) => {
+const getKey = (header: any, callback: any) => {
     client.getSigningKey(header.kid, (err, key) => {
         if (err) {
             return callback(err);
@@ -20,7 +20,7 @@ const getKey = (header, callback) => {
             return callback(new Error('Invalid token'), null);
         }
 
-        const signingKey = key.publicKey || key.rsaPublicKey;
+        const signingKey = key.getPublicKey() ;
 
         callback(null, signingKey);
     });
@@ -29,7 +29,7 @@ const getKey = (header, callback) => {
 export async function GET(req: NextRequest) {
     try {
         const token = cookies().get('token')?.value;
-        const dt = cookies().get('user')?.value;
+        const dt: any = cookies().get('user')?.value;
 
         const data = {
             token: token,
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Verifikasi token menggunakan JWKS
-        const decoded = await new Promise((resolve, reject) => {
+        const decoded: any = await new Promise((resolve, reject) => {
             jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
                 if (err) {
                     return reject(err);
