@@ -194,7 +194,7 @@ const page = () => {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
                     },
                     {
-                        title: <Link href={`dashboard/kegiatans`}>Programs {IdRenstra}</Link>
+                        title: <Link href={`dashboard/renstra/${IdRenstra}/programs`}>Programs {IdRenstra}</Link>
                     },
                 ]}
             />
@@ -202,7 +202,7 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Program
+                            Data Programs {IdRenstra}
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>

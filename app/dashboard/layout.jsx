@@ -22,7 +22,7 @@ const layout = ({ children }) => {
         {
             key: '2',
             label: (
-                <button className="flex items-center gap-x-2 text-color-danger-500 min-w-32">
+                <button className="flex items-center gap-x-2 text-red-500 min-w-32">
                     <LogoutOutlined />
                     Logout
                 </button>

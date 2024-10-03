@@ -19,6 +19,14 @@ export const DashboardLink = [
         {
           label: "Programs",
           path: "/dashboard/programs"
+        },
+        {
+          label: "Kegiatans",
+          path: "/dashboard/kegiatans"
+        },
+        {
+          label: "Sub Kegiatans",
+          path: "/dashboard/subkegiatans"
         }
       ]
     },

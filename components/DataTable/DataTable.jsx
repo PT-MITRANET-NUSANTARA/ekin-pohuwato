@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useRef, useState } from 'react';
 import { Button, Input, Skeleton, Space, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Button, Card, Tabs, Typography } from 'antd';
+import { Avatar, Button, Card, Image, Tabs, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { dummyAtasan, dummyBawahan } from '@/data';
 import React, { useEffect, useState } from 'react';
@@ -15,26 +15,26 @@ const page = () => {
     const { data, loading } = useFetchData(getData); // Assuming getData is the function fetching the token and NIP
     const [user, setUser] = useState(null);
     const [foto, setFoto] = useState(null);
-  
+
     useEffect(() => {
-      if (data) {
-        fetchData(); // You're fetching data when `data` changes
-      }
+        if (data) {
+            fetchData(); // You're fetching data when `data` changes
+        }
     }, [data]);
-  
+
     const fetchData = async () => {
-      try {
-        const dt = await getByNIP(data?.token, data?.user.nipBaru);
-        const jabatan = await getJabatanByNIP(data?.token, data?.user.nipBaru);
-        setUser({
-          user: dt.mapData.DataUtama,
-          jabatan: jabatan.mapData.data[0],
-        });
-        const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
-        setFoto(foto)
-      } catch (error) {
-        console.error(error);
-      }
+        try {
+            const dt = await getByNIP(data?.token, data?.user.nipBaru);
+            const jabatan = await getJabatanByNIP(data?.token, data?.user.nipBaru);
+            setUser({
+                user: dt.mapData.DataUtama,
+                jabatan: jabatan.mapData.data[0]
+            });
+            const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
+            setFoto(foto);
+        } catch (error) {
+            console.error(error);
+        }
     };
     console.log(user);
 
@@ -116,7 +116,8 @@ const page = () => {
                 </Card>
             </div>
             <div className="col-span-2">
-                <Avatar src={foto} shape="square" size={200} className="border-4 border-blue-500" />
+                {/* <Avatar src={foto} shape="square" size={200} className="border-4 border-blue-500" /> */}
+                <Image src={foto}  className="w-full border-4 border-blue-500 rounded-lg"  />
             </div>
             <div className="col-span-6">
                 <Card>
@@ -199,7 +200,7 @@ const page = () => {
                             <div className="flex items-start justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja pns</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                <p>{user?.jabatan.unor.nama} </p>
+                                    <p>{user?.jabatan.unor.nama} </p>
                                     <small>ID : {user?.jabatan.unor.id}</small>
                                     <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                                 </div>

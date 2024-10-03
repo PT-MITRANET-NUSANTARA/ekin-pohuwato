@@ -1,3 +1,5 @@
+"use client"
+
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
