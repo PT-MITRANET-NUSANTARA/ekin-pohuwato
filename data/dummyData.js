@@ -1,11 +1,23 @@
 import dayjs from "dayjs";
 
-export const dummyData = Array.from({ length: 100 }, (_, index) => ({
-    key: (index + 1).toString(),
-    name: 'John Brown',
-    age: 32,
-    address: `New York No. ${index + 1} Lake Park`,
-    gender: 'male',
-    country: 'indonesia',
-    date_birth: dayjs('2022-01-01'),
+export const  dummyRenstra = Array.from({ length: 100 }, (_, index) => ({
+    _id: (index + 1).toString(),
+    name: 'dummy name',
+    periode_start: (index + 1),
+    periode_end: 12,
+    programs: 'Dummy Program',
+}));
+
+export const dummyAtasan = Array.from({ length: 10 }, (_, index) => ({
+    nip: (index + 197904012005011015),
+    name: `atasan no ${index}`,
+    jabatan: 'pendamping',
+    golru: '3/C'
+}));
+
+export const dummyBawahan = Array.from({ length: 10 }, (_, index) => ({
+    nip: (index + 197904012005011015),
+    name: `atasan no ${index}`,
+    jabatan: 'pendamping',
+    golru: '3/C'
 }));

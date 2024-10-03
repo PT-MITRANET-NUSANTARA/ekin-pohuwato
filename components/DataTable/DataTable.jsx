@@ -122,6 +122,7 @@ const DataTable = ({ columns, data, loading }) => {
             ...(col.searchable ? getColumnSearchProps(col.dataIndex) : {})
         }));
 
+
     return (
         <>
             {loading ? (

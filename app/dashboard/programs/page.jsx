@@ -1,18 +1,13 @@
 'use client';
-
-import { Alert, Button, Card, Space, Table, Typography } from 'antd';
+import { Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
-import { dummyRenstra } from '@/data';
 import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
-import useFetchData from '@/hooks/useFetchData';
-
+import { CrudModal, DataTable } from '@/components';
+import { dummyRenstra } from '@/data';
 const { Title } = Typography;
 
 const page = () => {
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
-
+    const loading = false;
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
@@ -101,25 +96,13 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
-                        color='danger'
-                        size='small'
-                    >
+                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })} color="danger" size="small">
                         Show
                     </Button>
-                    <Button 
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
-                        color='danger'
-                        size='small'
-                    >
+                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })} color="danger" size="small">
                         Edit
                     </Button>
-                    <Button 
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
-                        color='danger'
-                        size='small'
-                    >
+                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })} color="danger" size="small">
                         Delete
                     </Button>
                 </Space>
@@ -170,15 +153,14 @@ const page = () => {
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-            <Card className=''>
+            <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Renstra
+                            Data Programs
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
@@ -186,7 +168,7 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <DataTable columns={Column} data={dummyRenstra} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

@@ -1,11 +1,18 @@
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React from 'react';
+import React, { useEffect } from 'react';
 import dayjs from 'dayjs';
 
 const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show' }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
+
+    useEffect(() => {
+        if (isModalOpen) {
+            form.resetFields();
+            form.setFieldsValue(data ?? {});  // Reset form with the provided data or empty object
+        }
+    }, [isModalOpen, data, form]);
 
     // Render input sesuai dengan type field
     const renderFormInput = (field) => {
@@ -40,7 +47,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     return (
         <Modal title={title} open={isModalOpen} onClose={onClose} onCancel={onClose} footer={null}>
-            <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit} initialValues={data}>
+            <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit}>
                 {formFields.map((field, index) => (
                     <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={field.rules}>
                         {renderFormInput(field)}

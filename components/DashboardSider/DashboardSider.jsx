@@ -1,46 +1,57 @@
-"use client"
+'use client';
 import { Menu } from 'antd';
-import React, { useState } from 'react'
-import { DashboardLink } from "@/data"
+import React from 'react';
+import { DashboardLink } from '@/data';
 import { useRouter } from 'next/navigation';
 import Sider from 'antd/es/layout/Sider';
 
 const DashboardSider = ({ collapsed }) => {
-  const router = useRouter();  
+    const router = useRouter();
 
-  return (
-    <Sider
-          theme="light"
-          breakpoint="lg"
-          trigger={null}
-          collapsed={collapsed}
-          collapsedWidth="0"
-          onBreakpoint={(broken) => {
-            console.log(broken);
-          }}
-          onCollapse={(collapsed, type) => {
-            console.log(collapsed, type);
-          }}
-        >
-          <div className="w-full flex items-center justify-center mb-6">
-            <div className="w-16 h-16 flex items-center justify-center gap-x-2">
-              Brand
-            </div>
-          </div>
-          <Menu
-            className="px-2 font-semibold"
+    return (
+        <Sider
             theme="light"
-            mode="inline"
-            defaultSelectedKeys={["0"]}
-            items={DashboardLink.map((item, index) => ({
-              key: item.path, // Gunakan path sebagai key agar unik
-              icon: React.createElement(item.icon), // Pastikan ikonnya di-render dengan benar
-              label: item.label,
-              onClick: () => router.push(item.path), // Gunakan router.push langsung
-            }))}
-          />
-        </Sider>
-  )
-}
+            breakpoint="lg"
+            trigger={null}
+            collapsed={collapsed}
+            collapsedWidth="0"
+            onBreakpoint={(broken) => {
+                console.log(broken);
+            }}
+            onCollapse={(collapsed, type) => {
+                console.log(collapsed, type);
+            }}
+        >
+            <div className="w-full flex items-center justify-center mb-6">
+                <div className="w-16 h-16 flex items-center justify-center gap-x-2">Brand</div>
+            </div>
+            <Menu
+                className="px-2 font-semibold"
+                theme="light"
+                mode="inline"
+                items={DashboardLink.map((item) => {
+                    // If item has children, do not set a path for the parent
+                    const hasChildren = !!item.children;
 
-export default DashboardSider
+                    return {
+                        key: item.path , // Use path or label as key
+                        icon: item.icon ? React.createElement(item.icon) : null,
+                        label: item.label,
+                        onClick: hasChildren ? undefined : () => router.push(item.path), // Only allow navigation if no children
+                        children: hasChildren
+                            ? item.children.map((child) => {
+                                  return {
+                                      key: child.path,
+                                      label: child.label,
+                                      onClick: () => router.push(child.path),
+                                  };
+                              })
+                            : undefined,
+                    };
+                }).filter(Boolean)} // Filter out null values
+            />
+        </Sider>
+    );
+};
+
+export default DashboardSider;

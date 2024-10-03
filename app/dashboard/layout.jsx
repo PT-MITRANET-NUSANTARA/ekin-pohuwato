@@ -3,30 +3,32 @@ import React, { useState } from 'react';
 import { DashboardSider, DashboardFooter } from '../../components';
 import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Dropdown, Layout, Space, theme } from 'antd';
+import { useRouter } from 'next/navigation';
 const { Header, Content } = Layout;
 
-const items = [
-    {
-        key: '1',
-        label: (
-            <button className="flex items-center gap-x-2 min-w-32">
-                <UserOutlined />
-                Pengaturan Profil
-            </button>
-        )
-    },
-    {
-        key: '2',
-        label: (
-            <button className="flex items-center gap-x-2 text-color-danger-500 min-w-32">
-                <LogoutOutlined />
-                Logout
-            </button>
-        )
-    }
-];
-
 const layout = ({ children }) => {
+    const router = useRouter();
+
+    const items = [
+        {
+            key: '1',
+            label: (
+                <button className="flex items-center gap-x-2 min-w-32" onClick={() => router.push('/dashboard/profil')}>
+                    <UserOutlined />
+                     Profil
+                </button>
+            )
+        },
+        {
+            key: '2',
+            label: (
+                <button className="flex items-center gap-x-2 text-color-danger-500 min-w-32">
+                    <LogoutOutlined />
+                    Logout
+                </button>
+            )
+        }
+    ];
     const [collapsed, setCollapsed] = useState(false);
 
     return (
@@ -35,7 +37,7 @@ const layout = ({ children }) => {
             <Layout>
                 <Header className="bg-blue-500 p-0">
                     <div className="w-full h-full flex px-4 items-center justify-between">
-                        <Button className='text-white' type="text" icon={<MenuOutlined />} onClick={() => setCollapsed(!collapsed)} color="default"></Button>
+                        <Button className="text-white " type="text" icon={<MenuOutlined />} onClick={() => setCollapsed(!collapsed)} color="default"></Button>
                         <div className="flex items-center gap-x-2">
                             <Dropdown menu={{ items }}>
                                 <a onClick={(e) => e.preventDefault()}>

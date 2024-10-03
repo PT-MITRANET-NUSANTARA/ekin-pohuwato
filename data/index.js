@@ -1,2 +1,2 @@
 export { DashboardLink } from "./Link";
-export { dummyData } from "./dummyData";
+export { dummyRenstra, dummyAtasan, dummyBawahan } from "./dummyData";
