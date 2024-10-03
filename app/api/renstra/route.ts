@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
       renstras = await Renstra.find({}).populate('programs');
     }
 
-    return NextResponse.json(createResponse(200, 'Success', renstras));
+    return NextResponse.json(createResponse(200, 'Success', renstras, true));
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch Renstra data' }, { status: 500 });
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     const newRenstra = new Renstra(body);
     await newRenstra.save();
-    return NextResponse.json(createResponse(201, 'Success', newRenstra));
+    return NextResponse.json(createResponse(201, 'Success', newRenstra, true));
   } catch (error) {
     console.error('POST error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to create Renstra' }, { status: 500 });
@@ -99,7 +99,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Renstra not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedRenstra));
+    return NextResponse.json(createResponse(200, 'Success', updatedRenstra, true));
   } catch (error) {
     console.error('PUT error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to update Renstra' }, { status: 500 });
@@ -120,7 +120,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Renstra not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedRenstra));
+    return NextResponse.json(createResponse(200, 'Success', deletedRenstra, true));
   } catch (error) {
     console.error('DELETE error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to delete Renstra' }, { status: 500 });

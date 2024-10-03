@@ -8,6 +8,7 @@ interface Response {
     status: number;
     msg: string;
     data: any;
+    ok: boolean;
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -79,10 +80,11 @@ export async function del<T>(url: string): Promise<T> {
     return apiRequest<T>(url, options);
 }
 
-export function createResponse(status: number, message: string, data: any): Response {
+export function createResponse(status: number, message: string, data: any, ok: boolean = false): Response {
     return {
         status,
         msg: message,
-        data
+        data,
+        ok,
     };
 }

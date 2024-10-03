@@ -3,71 +3,66 @@ import TextArea from 'antd/es/input/TextArea';
 import React from 'react';
 import dayjs from 'dayjs';
 
-const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit }) => {
+const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show' }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
 
-    console.log(dayjs('2015-01-01'));
+    // Render input sesuai dengan type field
     const renderFormInput = (field) => {
+        const isDisabled = type === 'show' || type === 'delete'; // Disable input ketika show atau delete
         switch (field.type) {
             case 'text':
-                return <Input size="large" />;
+                return <Input size="large" disabled={isDisabled} />;
             case 'number':
-                return <InputNumber min={field.min} max={field.max} className="w-full" size="large" />;
+                return <InputNumber min={field.min} max={field.max} className="w-full" size="large" disabled={isDisabled} />;
             case 'longtext':
-                return <TextArea rows={4} />;
+                return <TextArea rows={4} disabled={isDisabled} />;
             case 'date':
-                return <DatePicker className='w-full' size='large' />;
+                return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'select':
                 return (
-                    <>
-                        <Select size='large' placeholder="Select a option and change input text above" allowClear>
-                            {field.options.map((option, index) => (
-                                <Option key={index} value={option.value}>
-                                    {option.label}
-                                </Option>
-                            ))}
-                        </Select>
-                    </>
+                    <Select size="large" placeholder="Select a option and change input text above" allowClear disabled={isDisabled}>
+                        {field.options.map((option, index) => (
+                            <Option key={index} value={option.value}>
+                                {option.label}
+                            </Option>
+                        ))}
+                    </Select>
                 );
             default:
                 return null;
         }
     };
 
+    const handleSubmit = (values) => {
+        onSubmit(values, type, data?._id);
+    };
+
     return (
-        <Modal title={title} open={isModalOpen} onClose={onClose} onCancel={onClose}  footer={null}>
-            {data ? ( // Check if data is not null
-                <>
-                    <Form form={form} layout="vertical" name="jhgjhg" className="flex flex-col gap-y-2 mt-6" onFinish={onSubmit} initialValues={data}>
-                        {formFields.map((field, index) => (
-                            <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={formFields.rules}>
-                                {renderFormInput(field)}
-                            </Form.Item>
-                        ))}
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                                Kirim
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </>
-            ) : (
-                <>
-                    <Form form={form} layout="vertical" name="jhgjhg" className="flex flex-col gap-y-2 mt-6" onFinish={onSubmit}>
-                        {formFields.map((field, index) => (
-                            <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={formFields.rules}>
-                                {renderFormInput(field)}
-                            </Form.Item>
-                        ))}
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                                Kirim
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </>
-            )}
+        <Modal title={title} open={isModalOpen} onClose={onClose} onCancel={onClose} footer={null}>
+            <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit} initialValues={data}>
+                {formFields.map((field, index) => (
+                    <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={field.rules}>
+                        {renderFormInput(field)}
+                    </Form.Item>
+                ))}
+                {/* Tampilkan tombol "Kirim" hanya jika type bukan 'show' atau 'delete' */}
+                {type !== 'show' && type !== 'delete' && (
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Kirim
+                        </Button>
+                    </Form.Item>
+                )}
+                {/* Tampilkan tombol "Delete" jika type adalah 'delete' */}
+                {type === 'delete' && (
+                    <Form.Item>
+                        <Button type="primary" danger htmlType="submit">
+                            Delete
+                        </Button>
+                    </Form.Item>
+                )}
+            </Form>
         </Modal>
     );
 };

@@ -4,31 +4,76 @@ import { Alert, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
-import { dummyData } from '@/data';
+import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import useFetchData from '@/hooks/useFetchData';
 
 const { Title } = Typography;
 
 const page = () => {
-    const loading = false;
+    const { data, setData, loading, msg, status } = useFetchData(getAll);
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const handleEdit = (record) => {
-        setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record.name}` });
-    };
+    const onSubmit = async (values, type, id) => {
+        try {
+            let response;
 
-    const onSubmit = (values) => {
-        setAlert({ show: true, message: 'Aksi Sukses', description: 'sukses', type: 'success' });
+            switch (type) {
+                case 'create':
+                    response = await store(values);
+                    break;
+
+                case 'edit':
+                    response = await update(id, values);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+
+            if (response.ok) {
+                const data = await getAll();
+                setData(data.data);
+                setAlert({
+                    show: true,
+                    message: response.msg,
+                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    type: 'success'
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: 'Gagal',
+                    description: response.msg,
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error',
+                description: error.message,
+                type: 'error'
+            });
+        }
+
+        console.log('Operation completed');
         handleClose();
     };
 
-    const handleDelete = (key) => {
-        console.log('Delete:', key);
-        // Add your delete logic here
-    };
-
-    const dummyColumn = [
+    const Column = [
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            key: '_id',
+            sorter: (a, b) => a.address.length - b.address.length,
+            width: '30%'
+        },
         {
             title: 'Name',
             dataIndex: 'name',
@@ -37,35 +82,27 @@ const page = () => {
             width: '30%'
         },
         {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
+            title: 'Peroide Mulai',
+            dataIndex: 'periode_start',
+            key: 'periode_start',
             sorter: (a, b) => a.address.length - b.address.length,
-            width: '20%'
+            width: '30%'
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: 'Periode Selesai',
+            dataIndex: 'periode_end',
+            key: 'periode_end',
             sorter: (a, b) => a.address.length - b.address.length,
-            sortDirections: ['descend', 'ascend'],
-            searchable: true
-        },
-        {
-            title: 'Gender',
-            dataIndex: 'gender',
-            key: 'gender',
-            sorter: (a, b) => a.address.length - b.address.length,
-            sortDirections: ['descend', 'ascend'],
-            searchable: true
+            width: '30%'
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a onClick={() => handleEdit(record)}>Edit</a>
-                    <a onClick={() => handleDelete(record.key)}>Delete</a>
+                    <a onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}>Show</a>
+                    <a onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}>Edit</a>
+                    <a onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}>Delete</a>
                 </Space>
             )
         }
@@ -84,75 +121,30 @@ const page = () => {
             ]
         },
         {
-            label: 'Age',
-            name: 'age',
+            label: 'Periode Mulai',
+            name: 'periode_start',
             type: 'number',
             rules: [
                 {
                     required: true,
-                    message: 'Field age wajib di isi'
+                    message: 'Field periode mulai wajib di isi'
                 }
             ],
-            min: 1,
-            max: 12
+            min: 2000,
+            max: 3000
         },
         {
-            label: 'Address',
-            name: 'address',
-            type: 'longtext',
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'number',
             rules: [
                 {
                     required: true,
-                    message: 'Field address wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Gender',
-            name: 'gender',
-            type: 'select',
-            options: [
-                {
-                    label: 'female',
-                    value: 'female'
-                },
-                {
-                    label: 'male',
-                    value: 'male'
+                    message: 'Field periode selesai wajib di isi'
                 }
             ],
-            rules: [
-                {
-                    required: true,
-                    message: 'Field address wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Country',
-            name: 'country',
-            type: 'select',
-            options: [
-                {
-                    label: 'indonesia',
-                    value: 'indonesia'
-                },
-                {
-                    label: 'belanda',
-                    value: 'belanda'
-                }
-            ],
-            rules: [
-                {
-                    required: true,
-                    message: 'Field address wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Date Birth',
-            name: 'date_birth',
-            type: 'date'
+            min: 2000,
+            max: 3000
         }
     ];
 
@@ -162,7 +154,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon/>}
+            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon />}
             <Card>
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
@@ -170,13 +162,13 @@ const page = () => {
                             Data Renstra
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: "Tambah Data", trigger: true })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={dummyColumn} data={dummyData} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} />
+                    <DataTable columns={Column} data={data} loading={loading} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>
         </div>
