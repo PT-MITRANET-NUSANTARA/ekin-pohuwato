@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       programs = await Program.find({})
     }
 
-    return NextResponse.json(createResponse(200, 'Success', programs));
+    return NextResponse.json(createResponse(200, 'Success', programs, true));
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch Program data' }, { status: 500 });
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     const newProgram = new Program(body);
     await newProgram.save();
-    return NextResponse.json(createResponse(201, 'Success', newProgram));
+    return NextResponse.json(createResponse(201, 'Success', newProgram, true));
   } catch (error) {
     console.error('POST error:', error); 
     return NextResponse.json({ error: 'Failed to create Program' }, { status: 500 });
@@ -112,7 +112,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Program not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedProgram));
+    return NextResponse.json(createResponse(200, 'Success', updatedProgram, true));
   } catch (error) {
     console.log(error);
     
@@ -135,7 +135,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Program not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedProgram));
+    return NextResponse.json(createResponse(200, 'Success', deletedProgram, true));
   } catch (error) {
     console.error('DELETE error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to delete Program' }, { status: 500 });

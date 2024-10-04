@@ -31,7 +31,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             case 'select':
                 return (
                     <Select size="large" placeholder="Select a option and change input text above" allowClear disabled={isDisabled}>
-                        {field.options.map((option, index) => (
+                        {field.options?.map((option, index) => (
                             <Option key={index} value={option.value}>
                                 {option.label}
                             </Option>

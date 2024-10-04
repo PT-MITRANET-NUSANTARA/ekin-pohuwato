@@ -39,11 +39,15 @@ export async function GET(req: NextRequest) {
   await SubKegiatan.find({});
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const program_id = req.headers.get('program-id');
     let kegiatans = [];
 
     if (id) {
       kegiatans = await Kegiatan.findOne({ _id: id }).populate('subKegiatans');
-    } else {
+    } else if (program_id) {
+      kegiatans = await Kegiatan.find({ program: program_id }).populate('program').populate('subKegiatans');
+    } 
+    else {
       kegiatans = await Kegiatan.find({})
     }
 

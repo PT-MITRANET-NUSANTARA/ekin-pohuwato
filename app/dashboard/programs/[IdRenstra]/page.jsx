@@ -3,8 +3,9 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import React, { useCallback, useEffect, useState } from 'react';
+import { destroy, getAll, store, update, getByRenstraId } from '@/controller/ProgramController';
+import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -14,10 +15,29 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdRenstra } = useParams();
-    console.log(IdRenstra);
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const fetchByRenstraId = useCallback(() => getByRenstraId(IdRenstra), [IdRenstra]);
+
+    const { data, setData, loading, msg, status } = useFetchData(fetchByRenstraId);
+
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+
+    const [renstra, setRenstra] = useState(null);
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const data = await getByRenstraId(IdRenstra);
+            setRenstra(data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -79,26 +99,48 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Name',
+            title: 'Renstra',
+            dataIndex: 'renstra',
+            key: 'renstra',
+            sorter: (a, b) => a.name.length - b.name.length,
+            width: '30%'
+        },
+        {
+            title: 'Nama',
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
         {
-            title: 'Peroide Mulai',
-            dataIndex: 'periode_start',
-            key: 'periode_start',
+            title: 'Sasaran Strategis',
+            dataIndex: 'sasaran_strategis',
+            key: 'sasaran_strategis',
             sorter: (a, b) => a.periode_start.length - b.periode_start.length,
             width: '30%'
         },
         {
-            title: 'Periode Selesai',
-            dataIndex: 'periode_end',
-            key: 'periode_end',
+            title: 'Satuan',
+            dataIndex: 'satuan',
+            key: 'satuan',
             sorter: (a, b) => a.periode_end.length - b.periode_end.length,
             width: '30%'
         },
+        {
+            title: 'Target Indikator',
+            dataIndex: 'target_indikator',
+            key: 'target_indikator',
+            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            width: '30%'
+        },
+        {
+            title: 'Total Anggaran',
+            dataIndex: 'total_anggaran',
+            key: 'satuan',
+            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            width: '30%'
+        },
+
         {
             title: 'Action',
             key: 'action',
@@ -140,6 +182,18 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({ value: item._id, label: item.name }))
+        },
+        {
             label: 'Nama',
             name: 'name',
             type: 'text',
@@ -151,21 +205,53 @@ const page = () => {
             ]
         },
         {
-            label: 'Periode Mulai',
-            name: 'periode_start',
-            type: 'number',
+            label: 'Sasaran Stragetis',
+            name: 'sasaran_strategis',
+            type: 'text',
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field nama wajib di isi'
                 }
-            ],
-            min: 1,
-            max: 3000
+            ]
         },
         {
-            label: 'Periode Selesai',
-            name: 'periode_end',
+            label: 'Indikator Kinerja',
+            name: 'indikator_kinerja',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Target Indikator',
+            name: 'target_indikator',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Satuan',
+            name: 'satuan',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+
+        {
+            label: 'Total Anggaran',
+            name: 'total_anggaran',
             type: 'number',
             rules: [
                 {
@@ -173,8 +259,7 @@ const page = () => {
                     message: 'Field periode selesai wajib di isi'
                 }
             ],
-            min: 1,
-            max: 3000
+            min: 0
         }
     ];
 
@@ -194,8 +279,11 @@ const page = () => {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
                     },
                     {
-                        title: <Link href={`dashboard/renstra/${IdRenstra}/programs`}>Programs {IdRenstra}</Link>
+                        title: <Link href={`/dashboard/programs`}>Programs</Link>
                     },
+                    {
+                        title: <Link href={`/dashboard/programs/${IdRenstra}`}>{IdRenstra}</Link>
+                    }
                 ]}
             />
             <Card className="">

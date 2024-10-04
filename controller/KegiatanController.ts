@@ -8,6 +8,16 @@ export const getById = async (id: string) => {
     return response;
 }
 
+export const getByProgramId = async (id: string) => {
+    const response = await apiRequest(`/api/kegiatan`, {
+        method: 'GET',
+        headers: {
+            'program-id': id,
+        }
+    });
+    return response;
+}
+
 // Fetch all Kegiatan records
 export const getAll = async () => {
     const response = await apiRequest('/api/kegiatan', {
