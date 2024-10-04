@@ -6,6 +6,7 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
+import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -151,7 +152,7 @@ const page = () => {
         {
             label: 'Periode Mulai',
             name: 'periode_start',
-            type: 'number',
+            type: 'date',
             rules: [
                 {
                     required: true,
@@ -164,7 +165,7 @@ const page = () => {
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'number',
+            type: 'date',
             rules: [
                 {
                     required: true,
@@ -205,7 +206,7 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <DataTable columns={Column} data={dummyRenstra} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

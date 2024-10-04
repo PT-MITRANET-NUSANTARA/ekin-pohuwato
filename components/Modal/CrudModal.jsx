@@ -2,10 +2,10 @@
 
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React, { useEffect } from 'react';
 import dayjs from 'dayjs';
+import React, { useEffect } from 'react';
 
-const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show' }) => {
+const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
 
@@ -21,16 +21,16 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         const isDisabled = type === 'show' || type === 'delete'; // Disable input ketika show atau delete
         switch (field.type) {
             case 'text':
-                return <Input size="large" disabled={isDisabled} />;
+                return <Input placeholder={`Masukan ${field.label}`} size="large" disabled={isDisabled} />;
             case 'number':
-                return <InputNumber min={field.min} max={field.max} className="w-full" size="large" disabled={isDisabled} />;
+                return <InputNumber placeholder={`Masukan ${field.label}`} min={field.min} max={field.max} className="w-full" size="large" disabled={isDisabled} />;
             case 'longtext':
-                return <TextArea rows={4} disabled={isDisabled} />;
+                return <TextArea placeholder={field.label} rows={4} disabled={isDisabled} />;
             case 'date':
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'select':
                 return (
-                    <Select size="large" placeholder="Select a option and change input text above" allowClear disabled={isDisabled}>
+                    <Select size="large" placeholder={`Pilih ${field.label}`} allowClear disabled={isDisabled}>
                         {field.options.map((option, index) => (
                             <Option key={index} value={option.value}>
                                 {option.label}
@@ -47,8 +47,17 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         onSubmit(values, type, data?._id);
     };
 
+    const extraContent = React.Children.map(children, (child) => {
+        if(child?.type === CrudModal.Extra) {
+            return child;
+        }
+
+        return null
+    } )
+
     return (
-        <Modal title={title} open={isModalOpen} onClose={onClose} onCancel={onClose} footer={null}>
+        <Modal width={width} title={title} open={isModalOpen} onClose={onClose} onCancel={onClose} footer={null}>
+            {extraContent}
             <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit}>
                 {formFields.map((field, index) => (
                     <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={field.rules}>
@@ -57,7 +66,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 ))}
                 {/* Tampilkan tombol "Kirim" hanya jika type bukan 'show' atau 'delete' */}
                 {type !== 'show' && type !== 'delete' && (
-                    <Form.Item>
+                    <Form.Item className='mt-2'>
                         <Button type="primary" htmlType="submit">
                             Kirim
                         </Button>
@@ -65,7 +74,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 )}
                 {/* Tampilkan tombol "Delete" jika type adalah 'delete' */}
                 {type === 'delete' && (
-                    <Form.Item>
+                    <Form.Item className='mt-2'>
                         <Button type="primary" danger htmlType="submit">
                             Delete
                         </Button>
@@ -75,5 +84,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         </Modal>
     );
 };
+
+CrudModal.Extra = ({children}) => {
+    return <div>{children}</div>
+}
 
 export default CrudModal;

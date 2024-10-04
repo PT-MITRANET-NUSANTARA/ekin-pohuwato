@@ -2,4 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-
+@layer base {
+    table.normaltable{
+        width: 100%;
+        border: 1px solid black;
+    }
+    table.normaltable thead tr th{
+        border: 1px solid black;
+    }
+    table.normaltable tbody tr td{
+        border: 1px solid black;
+        font-weight: 500;
+        padding-inline: 2px;
+    }
+}

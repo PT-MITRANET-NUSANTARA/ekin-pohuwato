@@ -75,6 +75,7 @@ const page = () => {
     return (
         <div className="w-full grid grid-cols-12 gap-2">
             <div className="col-span-12 mb-6">
+            
                 <Card>
                     <Tabs defaultActiveKey="1" type="card">
                         <Tabs.Items tab="Data Atasan" key="1">

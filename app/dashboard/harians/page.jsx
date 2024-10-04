@@ -206,7 +206,7 @@ const page = () => {
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} ></CrudModal>
                 </div>
             </Card>
         </div>
