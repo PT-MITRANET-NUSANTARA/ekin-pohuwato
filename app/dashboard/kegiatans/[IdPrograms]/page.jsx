@@ -3,8 +3,9 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import React, { useCallback, useEffect, useState } from 'react';
+import { destroy, getAll, store, update, getByProgramId } from '@/controller/KegiatanController';
+import { getAll as getAllProgram } from '@/controller/ProgramController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,12 +14,27 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { IdRenstra } = useParams();
-    console.log(IdRenstra);
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const { IdPrograms } = useParams();
+    const fetchByRenstraId = useCallback(() => getByProgramId(IdPrograms), [IdPrograms]);
+    const { data, setData, loading, msg, status } = useFetchData(fetchByRenstraId);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [ program, setProgram ] = useState(null);
 
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const data = await getAllProgram();
+            setProgram(data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const onSubmit = async (values, type, id) => {
         try {
             let response;
@@ -79,26 +95,41 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
+            title: 'Program',
+            dataIndex: 'program',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
         {
-            title: 'Peroide Mulai',
-            dataIndex: 'periode_start',
-            key: 'periode_start',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            title: 'Indikator Kinerja',
+            dataIndex: 'indikator_kinerja',
+            key: 'indikator_kinerja',
+            sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
         {
-            title: 'Periode Selesai',
-            dataIndex: 'periode_end',
-            key: 'periode_end',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            title: 'Target Indikator',
+            dataIndex: 'target_indikator',
+            key: 'target_indikator',
+            sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
+        {
+            title: 'Satuan',
+            dataIndex: 'satuan',
+            key: 'satuan',
+            sorter: (a, b) => a.name.length - b.name.length,
+            width: '30%'
+        },
+        {
+            title: 'Total Anggaran',
+            dataIndex: 'total_anggaran',
+            key: 'total_anggaran',
+            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            width: '30%'
+        },
+
         {
             title: 'Action',
             key: 'action',
@@ -137,8 +168,21 @@ const page = () => {
             )
         }
     ];
-
+    console.log(program);
+    
     const formFields = [
+        {
+            label: 'Program',
+            name: 'program',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options: program?.map((item) => ({ value: item._id, label: item.name }))
+        },
         {
             label: 'Nama',
             name: 'name',
@@ -150,22 +194,44 @@ const page = () => {
                 }
             ]
         },
+      
         {
-            label: 'Periode Mulai',
-            name: 'periode_start',
-            type: 'number',
+            label: 'Indikator Kinerja',
+            name: 'indikator_kinerja',
+            type: 'text',
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field nama wajib di isi'
                 }
-            ],
-            min: 1,
-            max: 3000
+            ]
         },
         {
-            label: 'Periode Selesai',
-            name: 'periode_end',
+            label: 'Target Indikator',
+            name: 'target_indikator',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Satuan',
+            name: 'satuan',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+
+        {
+            label: 'Total Anggaran',
+            name: 'total_anggaran',
             type: 'number',
             rules: [
                 {
@@ -173,8 +239,7 @@ const page = () => {
                     message: 'Field periode selesai wajib di isi'
                 }
             ],
-            min: 1,
-            max: 3000
+            min: 0
         }
     ];
 
@@ -194,15 +259,18 @@ const page = () => {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
                     },
                     {
-                        title: <Link href={`dashboard/renstra/${IdRenstra}/programs`}>Programs {IdRenstra}</Link>
+                        title: <Link href={`/dashboard/kegiatans`}>Kegiatan</Link>
                     },
+                    {
+                        title: <Link href={`/dashboard/kegiatans/${IdPrograms}`}>{IdPrograms}</Link>
+                    }
                 ]}
             />
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Kegiatans {IdRenstra}
+                            Data Kegiatans {IdPrograms}
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>

@@ -1,14 +1,68 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Tag, Typography } from 'antd';
-import { ReloadOutlined, PlusOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Collapse, Space, Tag, Typography } from 'antd';
+import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
 import Link from 'next/link';
-import React from 'react';
-import { TruncateText } from '@/components';
+import React, { useState } from 'react';
+import { DataTable, SearchPegawai, TambahPegawai, TruncateText } from '@/components';
+import { dummyIntervensiRhk } from '@/data';
 
 const { Title } = Typography;
 
 const page = () => {
+
+    const loading = false;
+
+    const [pegawaiModal, setPegawaiModal] = useState(false)
+
+    const Column = [
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            key: '_id',
+            sorter: (a, b) => a._id.length - b._id.length,
+            width: '10%'
+        },
+        {
+            title: 'Name',
+            dataIndex: 'nama_rhk',
+            key: 'nama_rhk',
+            sorter: (a, b) => a.nama_rhk.length - b.nama_rhk.length,
+            width: '30%'
+        },
+        {
+            title: 'Name',
+            dataIndex: 'intervensi',
+            key: 'intervensi',
+            sorter: (a, b) => a.intervensi.length - b.intervensi.length,
+            width: '30%'
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+                    
+
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+
+                 
+                </Space>
+            )
+        }
+    ];
+
+    
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -30,7 +84,7 @@ const page = () => {
                         <Button type="primary" icon={<ReloadOutlined />}>
                             Sinkronisasi SKP Bawahan
                         </Button>
-                        <Button type="default" icon={<PlusOutlined />}>
+                        <Button type="default" icon={<PlusOutlined />} onClick={() => setPegawaiModal(true)}>
                             Tambah Pegawai
                         </Button>
                         <Button type="default" icon={<PrinterOutlined />}>
@@ -48,7 +102,7 @@ const page = () => {
                         <p className="text-right uppercase">BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
                     </div>
                 </div>
-                <table className="normaltable">
+                {/* <table className="normaltable">
                     <thead>
                         <tr>
                             <th className="uppercase">syaiful luma</th>
@@ -105,8 +159,71 @@ const page = () => {
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </table> */}
+                <div className="w-full flex flex-col gap-y-4">
+                    <Card type="inner" title="taruh title disini">
+                        <div className="grid grid-flow-row divide-y text-xs ">
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">nama</span>
+                                <p className="text-right uppercase">YAHYA S MALABAR NOOR</p>
+                            </div>
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">jabatan</span>
+                                <div className="flex flex-col gap-y-2 text-right items-end">
+                                    <p>PRANATA KEARSIPAN</p>
+                                    <small>ID : 197801012007011026</small>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-y-4 py-2 pt-4">
+                                <div className="flex items-center gap-x-2">
+                                    <Button className="w-fit" type="primary">
+                                        Buat SKP
+                                    </Button>
+                                </div>
+                                <Collapse  bordered>
+                                    <Collapse.Panel key="1" header="RHK Yang di Intervensi">
+                                        <DataTable columns={Column} data={[]} loading={false} />
+                                    </Collapse.Panel>
+                                </Collapse>
+                            </div>
+                        </div>
+                    </Card>
+                    <Card type="inner" title="taruh title disini">
+                        <div className="grid grid-flow-row divide-y text-xs ">
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">nama</span>
+                                <p className="text-right uppercase">YAHYA S MALABAR NOOR</p>
+                            </div>
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">jabatan</span>
+                                <div className="flex flex-col gap-y-2 text-right items-end">
+                                    <p>PRANATA KEARSIPAN</p>
+                                    <small>ID : 197801012007011026</small>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-y-4 py-2 pt-4">
+                                <div className="flex items-center gap-x-2">
+                                    <Button className="w-fit" type="primary">
+                                        Lihat SKP
+                                    </Button>
+                                    <Button className="w-fit" type="primary">
+                                        Tambah RHK
+                                    </Button>
+                                    <Button danger className="w-fit" type="primary">
+                                        Hapus
+                                    </Button>
+                                </div>
+                                <Collapse bordered>
+                                    <Collapse.Panel key="1" header="RHK Yang di Intervensi">
+                                        <DataTable columns={Column} data={dummyIntervensiRhk} loading={false} />
+                                    </Collapse.Panel>
+                                </Collapse>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
             </Card>
+            <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)}/>
         </div>
     );
 };

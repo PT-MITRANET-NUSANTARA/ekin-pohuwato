@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IRenstra } from './Renstra';  // Assuming the Renstra model is in a separate file
 import { IKegiatan } from './Kegiatan';
+import Kegiatan  from './Kegiatan';
 
 export interface IProgram extends Document {
   name: string; // Name of the program
@@ -11,6 +12,9 @@ export interface IProgram extends Document {
   total_anggaran: number; // Total budget
   renstra: mongoose.Types.ObjectId | IRenstra; // Reference to the associated Renstra
   kegiatan: IKegiatan[]; // Array of Kegiatan documents
+  programs: mongoose.Types.ObjectId[] | IProgram[];  // Array of ObjectId references to Program documents or populated Program documents
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const ProgramSchema: Schema = new Schema({
@@ -43,7 +47,7 @@ const ProgramSchema: Schema = new Schema({
     ref: 'Renstra',
     required: true
   }
-});
+}, { timestamps: true });
 
 ProgramSchema.virtual('kegiatans', {
     ref: 'Kegiatan',

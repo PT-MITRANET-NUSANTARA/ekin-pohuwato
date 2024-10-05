@@ -40,15 +40,20 @@ export async function GET(req: NextRequest) {
 
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const kegiatan_id = req.headers.get('kegiatan-id');
     let subKegiatans = [];
 
     if (id) {
       subKegiatans = await SubKegiatan.findOne({ _id: id });
-    } else {
+    } 
+    else if (kegiatan_id) {
+      subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
+    }
+    else {
       subKegiatans = await SubKegiatan.find({});
     }
 
-    return NextResponse.json(createResponse(200, 'Success', subKegiatans));
+    return NextResponse.json(createResponse(200, 'Success', subKegiatans, true));
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch SubKegiatan data' }, { status: 500 });
@@ -69,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const newSubKegiatan = new SubKegiatan(body);
     await newSubKegiatan.save();
-    return NextResponse.json(createResponse(201, 'Success', newSubKegiatan));
+    return NextResponse.json(createResponse(201, 'Success', newSubKegiatan, true));
   } catch (error) {
     console.error('POST error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to create SubKegiatan' }, { status: 500 });
@@ -101,7 +106,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedSubKegiatan));
+    return NextResponse.json(createResponse(200, 'Success', updatedSubKegiatan, true));
   } catch (error) {
     console.error('PUT error:', error); 
     return NextResponse.json({ error: 'Failed to update SubKegiatan' }, { status: 500 });
@@ -122,7 +127,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedSubKegiatan));
+    return NextResponse.json(createResponse(200, 'Success', deletedSubKegiatan, true));
   } catch (error) {
     console.error('DELETE error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to delete SubKegiatan' }, { status: 500 });

@@ -8,6 +8,16 @@ export const getById = async (id: string) => {
     return response;
 }
 
+export const getByKegiatanId = async (id: string) => {
+    const response = await apiRequest(`/api/kegiatan`, {
+        method: 'GET',
+        headers: {
+            'kegiatan-id': id,
+        }
+    });
+    return response;
+}
+
 // Fetch all SubKegiatan records
 export const getAll = async () => {
     const response = await apiRequest('/api/subkegiatan', {

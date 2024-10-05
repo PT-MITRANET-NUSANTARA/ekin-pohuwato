@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import React, { useRef, useState } from 'react';
 import { Button, Input, Skeleton, Space, Table } from 'antd';
@@ -6,7 +6,6 @@ import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 
 const DataTable = ({ columns, data, loading }) => {
-    
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -22,7 +21,7 @@ const DataTable = ({ columns, data, loading }) => {
         setSearchText('');
     };
 
-    const getColumnSearchProps = (dataIndex) => ({
+    const getColumnSearchProps = (dataIndex, customRender) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
                 style={{
@@ -100,20 +99,25 @@ const DataTable = ({ columns, data, loading }) => {
                 setTimeout(() => searchInput.current?.select(), 100);
             }
         },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            )
+        render: (text, record) => {
+            const highlightText =
+                searchedColumn === dataIndex ? (
+                    <Highlighter
+                        highlightStyle={{
+                            backgroundColor: '#ffc069',
+                            padding: 0
+                        }}
+                        searchWords={[searchText]}
+                        autoEscape
+                        textToHighlight={text ? text.toString() : ''}
+                    />
+                ) : (
+                    text
+                );
+
+            // If there's a custom render function (like for the status), apply it here
+            return customRender ? customRender(text, record) : highlightText;
+        }
     });
 
     // Exclude the action column from search props
@@ -121,9 +125,8 @@ const DataTable = ({ columns, data, loading }) => {
         .filter((col) => col.searchable !== false) // Exclude non-searchable columns
         .map((col) => ({
             ...col,
-            ...(col.searchable ? getColumnSearchProps(col.dataIndex) : {})
+            ...(col.searchable ? getColumnSearchProps(col.dataIndex, col.render) : {})
         }));
-
 
     return (
         <>
