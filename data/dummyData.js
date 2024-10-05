@@ -61,3 +61,9 @@ export const dummyHarian = Array.from({ length: 10}, (_, index) => ({
     tanggal: '1',
     status: (index === 6 ? 'hadir' : index === 1 ? "alpa" : "izin"),
 }))
+
+export const dummyUnit = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    name: 'Mohamad Rafiq Daud',
+    role: (index === 6 ? 'Admin UMPEG' : index === 1 ? "Petugas" : "User"),
+}))

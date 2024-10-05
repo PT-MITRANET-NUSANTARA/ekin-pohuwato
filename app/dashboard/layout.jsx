@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { DashboardSider, DashboardFooter } from '../../components';
-import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
+import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Dropdown, Layout, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
 const { Header, Content } = Layout;
@@ -22,12 +22,21 @@ const layout = ({ children }) => {
         {
             key: '2',
             label: (
+                <button className="flex items-center gap-x-2  min-w-32" onClick={() => router.push('/dashboard/web_settings')}>
+                    <SettingOutlined />
+                    Settings
+                </button>
+            )
+        },
+        {
+            key: '3',
+            label: (
                 <button className="flex items-center gap-x-2 text-red-500 min-w-32">
                     <LogoutOutlined />
                     Logout
                 </button>
             )
-        }
+        },
     ];
     const [collapsed, setCollapsed] = useState(false);
 

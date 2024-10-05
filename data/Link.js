@@ -1,4 +1,4 @@
-import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined } from '@ant-design/icons';
 import path from 'path';
 
 
@@ -44,5 +44,10 @@ export const DashboardLink = [
       icon: AuditOutlined,
       label: 'SKP',
       path: "/dashboard/skp",
+    },
+    {
+      icon: SettingOutlined,
+      label: 'Admin Settings',
+      path: "/dashboard/admin_settings",
     },
 ];
