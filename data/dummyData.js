@@ -100,3 +100,20 @@ export const dummyBuktiDukung = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 
     content: 'dummy'
 }))
+
+export const dummyAktivitas = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    content: 'dummy'
+}))
+
+export const dummyOrganisasi = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    nama: "Kelompok Studi Linux",
+    anggota: 12
+}))
+
+export const dummyTanggal = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    tanggal: "12-12-2022",
+}))
+

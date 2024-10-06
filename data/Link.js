@@ -56,6 +56,10 @@ export const DashboardLink = [
         {
           label: "Web Settings",
           path: "/dashboard/web_settings"
+        },
+        {
+          label: "Monitoring Kinerja",
+          path: "/dashboard/monitoring_kinerja"
         }
       ]
     },
