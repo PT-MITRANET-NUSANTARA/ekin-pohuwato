@@ -1,16 +1,74 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Tabs, Tag, Typography } from 'antd';
-import { PlusOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
+import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { DataTable } from '@/components';
+import { dummyBawahan } from '@/data';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const { IdSkp } = useParams();
+
+    const Column = [
+        {
+            title: 'NIP',
+            dataIndex: 'nip',
+            key: 'nip',
+            sorter: (a, b) => a.nip.length - b.nip.length,
+            width: '10%'
+        },
+        {
+            title: 'RHK Yang di Intervensi',
+            dataIndex: 'name',
+            key: 'name',
+            sorter: (a, b) => a.name.length - b.name.length,
+            width: '30%'
+        },
+        {
+            title: 'Hasil RHK',
+            dataIndex: 'jabatan',
+            key: 'jabatan',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            width: '30%'
+        },
+        {
+            title: 'Hasil RHK',
+            dataIndex: 'golru',
+            key: 'golru',
+            sorter: (a, b) => a.golru.length - b.golru.length,
+            width: '30%'
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/penilaian_rhk`)}
+                    >
+                        Penilaian
+                    </Button>
+
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        color="danger"
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/feedback_perilaku`)}
+                    >
+                        Feedback Perilaku
+                    </Button>
+                </Space>
+            )
+        }
+    ];
+
     return (
         <div className="flex flex-col gap-y-4">
             <Breadcrumb
@@ -58,14 +116,11 @@ const page = () => {
                     <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
-                    <Button type="primary">
-                        Lihat Kurva
-                    </Button>
-                    <Button type="primary">
-                        Pembinaan Bawahan
-                    </Button>
+                    <Button type="primary">Lihat Kurva</Button>
+                    <Button type="primary">Pembinaan Bawahan</Button>
                 </div>
-                <Tabs defaultActiveKey="1" type="card">
+                <DataTable columns={Column} data={dummyBawahan} loading={false} />
+                {/* <Tabs defaultActiveKey="1" type="card">
                     <Tabs.Items tab="Pelaksanaan Kinerja" key="1">
                         <table className="normaltable">
                             <thead>
@@ -129,37 +184,8 @@ const page = () => {
                             </tbody>
                         </table>
                     </Tabs.Items>
-                    {/* <Tabs.Items tab="Pemantauan dan Evaluasi" key="2">
-                        <table className="normaltable">
-                            <thead>
-                                <tr>
-                                    <th>Periode Penilaian</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div className="p-2">Januari</div>
-                                    </td>
-                                    <td>
-                                        <div className="p-2 flex flex-col gap-y-2">
-                                            <Button type="default" className="w-fit">
-                                                Rencana Aksi
-                                            </Button>
-                                            <Button type="default" className="w-fit">
-                                                Pengisian Bukti Dukung dan Lihat Hasil
-                                            </Button>
-                                            <Button type="default" className="w-fit">
-                                                Feedback Perilaku
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </Tabs.Items> */}
-                </Tabs>
+                  
+                </Tabs> */}
             </Card>
         </div>
     );

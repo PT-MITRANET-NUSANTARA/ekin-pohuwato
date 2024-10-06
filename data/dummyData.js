@@ -44,7 +44,19 @@ export const dummyTimKerja = Array.from({ length: 10}, (_, index) => ({
 export const dummyIntervensiRhk = Array.from({ length: 2}, (_, index) => ({
     _id: (index + 1), 
     nama_rhk: 'Terlaksananya Pengembangan',
-    intervensi: 'Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian'
+    intervensi: 'Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian',
+    rencana_aksi: [
+        {
+            content: 'dummy content'
+        },
+        {
+            content: 'dummy content'
+        },
+        {
+            content: 'dummy content'
+        }
+    ],
+    jenis_rhk: 'ogranisasi',
 }))
 
 export const dummySkpBawahan = Array.from({ length: 10}, (_, index) => ({
@@ -82,4 +94,9 @@ export const dummyRekapPenilaian = Array.from({ length: 10}, (_, index) => ({
     rating_hasil_kinerja: '-',
     rating_perilaku_kerja: '-',
     predikat_kinerja_periodik: '-',
+}))
+
+export const dummyBuktiDukung = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    content: 'dummy'
 }))

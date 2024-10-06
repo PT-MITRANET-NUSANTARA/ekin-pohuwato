@@ -1,17 +1,17 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, Select, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Form, InputNumber, Modal, Select, Tag, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { CrudModal } from '@/components';
 import { dummyFeedback } from '@/data';
 import { title } from 'process';
 const { Title } = Typography;
-const {Option} = Select;
+const { Option } = Select;
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-
+    const [ratingPerilakuModal, setRatingPerilakuModal] = useState(false);
 
     const formFields = [
         {
@@ -38,25 +38,23 @@ const page = () => {
             options: [
                 {
                     label: 'baik',
-                    value: 'baik',
+                    value: 'baik'
                 },
                 {
                     label: 'meri gaming',
-                    value: 'meri gaming',
-                },
+                    value: 'meri gaming'
+                }
             ]
-        },
+        }
     ];
 
     const onSubmit = () => {
-        setModal(prev => ({ ...prev, trigger: false }));
-    }   
+        setModal((prev) => ({ ...prev, trigger: false }));
+    };
 
     const onClose = () => {
-        setModal(prev => ({ ...prev, trigger: false }));
-    }   
-
-
+        setModal((prev) => ({ ...prev, trigger: false }));
+    };
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -71,12 +69,10 @@ const page = () => {
                 ]}
             />
             <Card>
-                <Form layout='vertical' className='flex flex-col gap-y-2'>
-                    <Form.Item name="pilihskp" label="SKP Yang Akan Dinilai" className='m-0'>
+                <Form layout="vertical" className="flex flex-col gap-y-2">
+                    <Form.Item name="pilihskp" label="SKP Yang Akan Dinilai" className="m-0">
                         <Select>
-                            <Option>
-                                Something
-                            </Option>
+                            <Option>Something</Option>
                         </Select>
                     </Form.Item>
                 </Form>
@@ -93,6 +89,9 @@ const page = () => {
                             </Button>
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
+                            </Button>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setRatingPerilakuModal(true)}>
+                                Buat Rating Perilaku Kerja
                             </Button>
                         </div>
                     </div>
@@ -371,8 +370,8 @@ const page = () => {
                             </td>
                             <td></td>
                             <td>
-                                <div className='flex items-center justify-center'>
-                                    <Button type='primary' onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: "Tambah Feedback" })}>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback' })}>
                                         Tambah
                                     </Button>
                                 </div>
@@ -390,7 +389,17 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}  ></CrudModal>
+                <CrudModal type="create" onClose={onClose} formFields={formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                <Modal open={ratingPerilakuModal} onClose={() => setRatingPerilakuModal(false)} onCancel={() => setRatingPerilakuModal(false)}>
+                    <Form className="mt-6 " layout="vertical">
+                        <Form.Item name="prilaku_kerja" label="Masukan Rating Perilaku Kerja">
+                            <div className="flex flex-col gap-y-1 w-full">
+                                <InputNumber className="w-full" min={1} max={50} />
+                                <small>Rating dari skala 1-50</small>
+                            </div>
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </Card>
         </div>
     );

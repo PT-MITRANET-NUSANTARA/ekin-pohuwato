@@ -9,6 +9,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { dummyBuktiDukung } from '@/data/dummyData';
 
 const { Title } = Typography;
 
@@ -79,23 +80,9 @@ const page = () => {
         },
         {
             title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
-        },
-        {
-            title: 'Peroide Mulai',
-            dataIndex: 'periode_start',
-            key: 'periode_start',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
-        },
-        {
-            title: 'Periode Selesai',
-            dataIndex: 'periode_end',
-            key: 'periode_end',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            dataIndex: 'content',
+            key: 'content',
+            sorter: (a, b) => a.content.length - b.content.length,
             width: '30%'
         },
         {
@@ -124,14 +111,6 @@ const page = () => {
                         color="danger"
                         icon={<DeleteOutlined />}
                     />
-
-                    <Button
-                        onClick={() => router.push(`/dashboard/programs/${record._id}`)}
-                        // type='primary'
-                        size="middle"
-                        color="danger"
-                        icon={<DatabaseOutlined />}
-                    />
                 </Space>
             )
         }
@@ -139,8 +118,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama',
-            name: 'name',
+            label: 'Content',
+            name: 'conent',
             type: 'text',
             rules: [
                 {
@@ -149,32 +128,6 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Periode Mulai',
-            name: 'periode_start',
-            type: 'date',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode mulai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'date',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode selesai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
-        }
     ];
 
     const handleClose = () => {
@@ -191,14 +144,14 @@ const page = () => {
                     },
                     {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
-                    },
+                    }
                 ]}
             />
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Renstra
+                            Data Bukti Dukung
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
@@ -206,7 +159,7 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <DataTable columns={Column} data={dummyBuktiDukung} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

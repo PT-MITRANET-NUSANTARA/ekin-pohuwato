@@ -1,11 +1,15 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import React from 'react';
+import { Breadcrumb, Button, Card, Form, Input, InputNumber, Modal, Tag, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 const { Title } = Typography;
 const page = () => {
+    const router = useRouter();
+    const {IdSkp, IdRhk} = useParams();
+    const [ratingModal, setRatingModal] = useState(false);
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -25,12 +29,14 @@ const page = () => {
                             Sasaran Kinerja Pegawai
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Form Penilaian
                             </Button>
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
+                            </Button>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setRatingModal(true)}>
+                                Buat Rating Hasil Kinerja
                             </Button>
                         </div>
                     </div>
@@ -180,7 +186,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/${IdRhk}/penilaian_rhk/1/bukti_dukung`)}>Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -195,7 +205,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary">Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -210,7 +224,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary">Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -245,7 +263,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary">Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -260,7 +282,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary">Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -275,7 +301,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    <Button type="primary">Lihat</Button>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -296,7 +326,7 @@ const page = () => {
                     </thead>
                     <tbody className="capitalize">
                         <tr>
-                            <td style={{maxWidth: '12px'}}>1</td>
+                            <td style={{ maxWidth: '12px' }}>1</td>
                             <td className="" style={{ padding: '8px' }}>
                                 <div className="flex flex-col gap-y-2 text-left">
                                     <b>Berorientasi Pelayanan</b>
@@ -322,6 +352,16 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
+                <Modal open={ratingModal} onClose={() => setRatingModal(false)} onCancel={() => setRatingModal(false)}>
+                    <Form className="mt-6 " layout="vertical">
+                        <Form.Item name="jenis_rhk" label="Masukan Rating Hasil Kinerja">
+                            <div className="flex flex-col gap-y-1 w-full">
+                                <InputNumber className="w-full" min={1} max={50} />
+                                <small>Rating dari skala 1-50</small>
+                            </div>
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </Card>
         </div>
     );

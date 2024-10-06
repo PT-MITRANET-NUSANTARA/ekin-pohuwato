@@ -1,19 +1,22 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Collapse, Space, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input } from 'antd';
 import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { DataTable, SearchPegawai, TambahPegawai, TruncateText } from '@/components';
 import { dummyIntervensiRhk } from '@/data';
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const page = () => {
 
     const loading = false;
 
-    const [pegawaiModal, setPegawaiModal] = useState(false)
+    const [pegawaiModal, setPegawaiModal] = useState(false);
+    const [jenisRhkModal, setJenisRhkModal] = useState(false);
+    const [rencanaAksiModal, setRencanaAksiModal] = useState(false);
 
     const Column = [
         {
@@ -24,18 +27,52 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Name',
+            title: 'RHK Yang di Intervensi',
             dataIndex: 'nama_rhk',
             key: 'nama_rhk',
             sorter: (a, b) => a.nama_rhk.length - b.nama_rhk.length,
             width: '30%'
         },
         {
-            title: 'Name',
+            title: 'Hasil RHK',
             dataIndex: 'intervensi',
             key: 'intervensi',
             sorter: (a, b) => a.intervensi.length - b.intervensi.length,
             width: '30%'
+        },
+        {
+            title: 'Rencana Aksi',
+            dataIndex: 'rencana_aksi',
+            key: 'rencana_aksi',
+            sorter: (a, b) => a.rencana_aksi.length - b.rencana_aksi.length,
+            width: '30%',
+            render: (_, record) => (
+                <div className='flex flex-col gap-y-2'>
+                    <ul className='list-disc list-inside'>
+                        {record.rencana_aksi.map((item) => (
+                            <li>{item.content}</li>
+                        ))}
+                    </ul>
+                    <Button type='primary' className='w-fit' onClick={() => setRencanaAksiModal(true)}>
+                        Tambah 
+                    </Button>
+                </div>
+            ) 
+        },
+        {
+            title: 'Rencana Aksi',
+            dataIndex: 'jenis_rhk',
+            key: 'jenis_rhk',
+            sorter: (a, b) => a.jenis_rhk.length - b.jenis_rhk.length,
+            width: '30%',
+            render: (_, record) => (
+                <div className='flex flex-col gap-y-2'>
+                    <Tag color='blue' className='w-fit'>{record.jenis_rhk}</Tag>
+                    <Button type='default' className='w-fit' onClick={() => setJenisRhkModal(true)}>
+                        Ubah Jenis 
+                    </Button>
+                </div>
+            ) 
         },
         {
             title: 'Action',
@@ -102,64 +139,6 @@ const page = () => {
                         <p className="text-right uppercase">BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
                     </div>
                 </div>
-                {/* <table className="normaltable">
-                    <thead>
-                        <tr>
-                            <th className="uppercase">syaiful luma</th>
-                            <th>
-                                <TruncateText maxLength={50}>
-                                    In the process of internal desktop applications development, many different design specs and implementations would be involved, which might cause designers and developers difficulties and duplication and reduce the
-                                    efficiency of development.
-                                </TruncateText>
-                            </th>
-                            <th>
-                                <TruncateText maxLength={50}>
-                                    In the process of internal desktop applications development, many different design specs and implementations would be involved, which might cause designers and developers difficulties and duplication and reduce the
-                                    efficiency of development.
-                                </TruncateText>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style={{ maxWidth: '12rem', padding: '12px', border: '1px solid black' }}>
-                                <div className="flex flex-col gap-y-1">
-                                    <b>YAHYA S MALABAR NOOR</b>
-                                    <p>PRANATA KEARSIPAN</p>
-                                    <small>197801012007011026</small>
-                                    <Tag color="blue" className="w-fit mt-1">
-                                        2024-01-01 s/d 2024-12-31
-                                    </Tag>
-                                    <Button className="w-fit" type="primary">
-                                        Lihat SKP
-                                    </Button>
-                                    <Button className="w-fit" type="primary">
-                                        Tambah RHK
-                                    </Button>
-                                    <Button danger className="w-fit" type="primary">
-                                        Hapus
-                                    </Button>
-                                </div>
-                            </td>
-                            <td style={{ maxWidth: '12rem', padding: '12px', border: '1px solid black' }}>-</td>
-                            <td style={{ maxWidth: '12rem', padding: '12px', border: '1px solid black' }}>
-                                <div className="flex flex-col gap-y-1">
-                                    <ul className='list-disc list-inside'>
-                                        <li>Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian</li>
-                                        <li>Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian</li>
-                                        <li>Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian</li>
-                                    </ul>
-                                    <Button className="w-fit" type="primary">
-                                        Edit
-                                    </Button>
-                                    <Button danger className="w-fit" type="primary">
-                                        Hapus
-                                    </Button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table> */}
                 <div className="w-full flex flex-col gap-y-4">
                     <Card type="inner" title="taruh title disini">
                         <div className="grid grid-flow-row divide-y text-xs ">
@@ -224,6 +203,23 @@ const page = () => {
                 </div>
             </Card>
             <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)}/>
+            <Modal open={jenisRhkModal} onClose={() => setJenisRhkModal(false)} onCancel={() => setJenisRhkModal(false)}>
+                <Form className='mt-6 ' layout='vertical'>
+                    <Form.Item name="jenis_rhk" label="Ubah Jenis RHK">
+                        <Select size='large'>
+                            <Option>Organisasi</Option>
+                            <Option>Lainnya</Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Modal open={rencanaAksiModal} onClose={() => setRencanaAksiModal(false)} onCancel={() => setRencanaAksiModal(false)}>
+                <Form className='mt-6 ' layout='vertical'>
+                    <Form.Item name="rencana_aksi" label="Tambah Rencana Aksi">
+                       <Input size='large'></Input>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };
