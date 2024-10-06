@@ -47,7 +47,16 @@ export const DashboardLink = [
     },
     {
       icon: SettingOutlined,
-      label: 'Admin Settings',
-      path: "/dashboard/admin_settings",
+      label: 'Settings',
+      children: [
+        {
+          label: "UMPEG Settings",
+          path: "/dashboard/umpeg_settings"
+        },
+        {
+          label: "Web Settings",
+          path: "/dashboard/web_settings"
+        }
+      ]
     },
 ];

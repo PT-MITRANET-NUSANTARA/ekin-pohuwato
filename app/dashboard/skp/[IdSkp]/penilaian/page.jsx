@@ -4,10 +4,13 @@ import { Breadcrumb, Button, Card, Tabs, Tag, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 
 const page = () => {
+    const router = useRouter();
+    const { IdSkp } = useParams();
     return (
         <div className="flex flex-col gap-y-4">
             <Breadcrumb
@@ -25,14 +28,6 @@ const page = () => {
                     <Title className="mt-2" level={5}>
                         Penilaian SKP
                     </Title>
-                    <div className="flex items-center gap-x-2">
-                        <Button type="default" icon={<PlusOutlined />}>
-                            Tambah Periode Penilaian
-                        </Button>
-                        <Button type="primary" icon={<DeleteOutlined />}>
-                            Hapus Periode Duplikat
-                        </Button>
-                    </div>
                 </div>
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
@@ -58,6 +53,14 @@ const page = () => {
                             <small>ID : 8ae482855a71b686015a74eabbde7454</small>
                         </div>
                     </div>
+                </div>
+                <div className="flex items-center gap-x-2 mb-4">
+                    <Button type="default" icon={<PlusOutlined />}>
+                        Rekap Penilaian Bawahan
+                    </Button>
+                    <Button type="primary" icon={<DeleteOutlined />}>
+                        Hapus Periode Duplikat
+                    </Button>
                 </div>
                 <Tabs defaultActiveKey="1" type="card">
                     <Tabs.Items tab="Pelaksanaan Kinerja" key="1">
@@ -111,13 +114,10 @@ const page = () => {
                                     <td>-</td>
                                     <td>
                                         <div className="flex flex-col p-4 gap-y-2">
-                                            <Button type="default" className="w-fit">
-                                                Rencana Aksi
+                                            <Button type="default" className="w-fit" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/penilaian_rhk`)}>
+                                                Penilaian SKP
                                             </Button>
-                                            <Button type="default" className="w-fit">
-                                                Pengisian Bukti Dukung dan Lihat Hasil
-                                            </Button>
-                                            <Button type="default" className="w-fit">
+                                            <Button type="default" className="w-fit" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/feedback_perilaku`)}>
                                                 Feedback Perilaku
                                             </Button>
                                         </div>
@@ -126,7 +126,7 @@ const page = () => {
                             </tbody>
                         </table>
                     </Tabs.Items>
-                    <Tabs.Items tab="Pemantauan dan Evaluasi" key="2">
+                    {/* <Tabs.Items tab="Pemantauan dan Evaluasi" key="2">
                         <table className="normaltable">
                             <thead>
                                 <tr>
@@ -155,7 +155,7 @@ const page = () => {
                                 </tr>
                             </tbody>
                         </table>
-                    </Tabs.Items>
+                    </Tabs.Items> */}
                 </Tabs>
             </Card>
         </div>

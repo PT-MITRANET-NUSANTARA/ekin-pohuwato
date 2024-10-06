@@ -25,14 +25,12 @@ const page = () => {
                             Sasaran Kinerja Pegawai
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="primary" icon={<UserOutlined />}>
-                                Lihat Data Profil
-                            </Button>
-                            <Button type="default" icon={<DotChartOutlined />}>
-                                Lihat Matriks
+                            
+                            <Button type="default" icon={<PrinterOutlined />}>
+                                Cetak Form Penilaian
                             </Button>
                             <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak
+                                Cetak Dokumen Evaluasi Kinerja
                             </Button>
                         </div>
                     </div>
@@ -145,6 +143,9 @@ const page = () => {
                             <th>ASPEK</th>
                             <th>INDIKATOR KINERJA INDIVIDU</th>
                             <th>TARGET TAHUNAN</th>
+                            <th>BUKTI DUKUNG</th>
+                            <th>RELASI</th>
+                            <th>FEEDBACK</th>
                         </tr>
                     </thead>
                     <tbody className="capitalize text-sm">
@@ -159,7 +160,6 @@ const page = () => {
                                 <div className="flex flex-col gap-y-2 text-left">
                                     <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
                                     <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
@@ -168,7 +168,6 @@ const page = () => {
                                     <Tag color="blue" className="w-fit">
                                         ogranisasi
                                     </Tag>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>kualitas</td>
@@ -178,10 +177,12 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>kualitas</td>
@@ -191,10 +192,12 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>kualitas</td>
@@ -204,10 +207,12 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td colSpan={6} className="text-left px-2">
@@ -220,7 +225,6 @@ const page = () => {
                                 <div className="flex flex-col gap-y-2 text-left">
                                     <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
                                     <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
@@ -229,7 +233,6 @@ const page = () => {
                                     <Tag color="blue" className="w-fit">
                                         ogranisasi
                                     </Tag>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>kualitas</td>
@@ -239,10 +242,12 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>kualitas</td>
@@ -252,10 +257,12 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>kualitas</td>
@@ -265,10 +272,16 @@ const page = () => {
                                         Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
                                         kepegawaian
                                     </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
                                 </div>
                             </td>
                             <td>3 Dokument</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colSpan={5}>Rating Hasil Kinerja</td>
+                            <td colSpan={4}></td>
                         </tr>
                     </tbody>
                 </table>
@@ -278,11 +291,12 @@ const page = () => {
                             <th>no</th>
                             <th>perilaku kinerja</th>
                             <th>ekspektasi khusus pimpinan</th>
+                            <th>feedback</th>
                         </tr>
                     </thead>
                     <tbody className="capitalize">
                         <tr>
-                            <td>1</td>
+                            <td style={{maxWidth: '12px'}}>1</td>
                             <td className="" style={{ padding: '8px' }}>
                                 <div className="flex flex-col gap-y-2 text-left">
                                     <b>Berorientasi Pelayanan</b>
@@ -294,31 +308,17 @@ const page = () => {
                                 </div>
                             </td>
                             <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table className='normaltable'>
-                    <thead>
-                        <tr>
-                            <th className='text-left px-4'>Lampiran</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style={{border: '1px solid black', padding: '8px'}}>
-                                <div className='flex flex-col gap-y-2'>
-                                    <p>Dukungan Sumber Daya</p>
-                                    <Button className='w-fit' type='primary'>Edit</Button>
-                                </div>
-                            </td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td style={{border: '1px solid black', padding: '8px'}}>
-                                <div className='flex flex-col gap-y-2'>
-                                    <p>Dukungan Sumber Daya</p>
-                                    <Button className='w-fit' type='primary'>Edit</Button>
-                                </div>
-                            </td>
+                            <td colSpan={2}>Rating Perilaku Kerja :</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colSpan={2}>Predikat Kinerja :</td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
