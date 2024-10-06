@@ -2,11 +2,62 @@
 
 import { Breadcrumb, Button, Card, Form, Select, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { CrudModal } from '@/components';
+import { dummyFeedback } from '@/data';
+import { title } from 'process';
 const { Title } = Typography;
 const {Option} = Select;
 const page = () => {
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+
+
+    const formFields = [
+        {
+            label: 'Isi Feedback',
+            name: 'content',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field content wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Kategori',
+            name: 'category',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'baik',
+                    value: 'baik',
+                },
+                {
+                    label: 'meri gaming',
+                    value: 'meri gaming',
+                },
+            ]
+        },
+    ];
+
+    const onSubmit = () => {
+        setModal(prev => ({ ...prev, trigger: false }));
+    }   
+
+    const onClose = () => {
+        setModal(prev => ({ ...prev, trigger: false }));
+    }   
+
+
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -321,7 +372,7 @@ const page = () => {
                             <td></td>
                             <td>
                                 <div className='flex items-center justify-center'>
-                                    <Button type='primary'>
+                                    <Button type='primary' onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: "Tambah Feedback" })}>
                                         Tambah
                                     </Button>
                                 </div>
@@ -339,6 +390,7 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
+                <CrudModal type="create" onClose={onClose} formFields={formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}  ></CrudModal>
             </Card>
         </div>
     );

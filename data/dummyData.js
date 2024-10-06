@@ -67,3 +67,19 @@ export const dummyUnit = Array.from({ length: 10}, (_, index) => ({
     name: 'Mohamad Rafiq Daud',
     role: (index === 6 ? 'Admin UMPEG' : index === 1 ? "Petugas" : "User"),
 }))
+
+export const dummyFeedback = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    content: 'Perilaku dalam skp baik',
+    category: 'good',
+}))
+
+export const dummyRekapPenilaian = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    nip: 198608302011012001,
+    nama: 'Mohamad Rafiq Daud',
+    jabatan: 'kepala suku',
+    rating_hasil_kinerja: '-',
+    rating_perilaku_kerja: '-',
+    predikat_kinerja_periodik: '-',
+}))

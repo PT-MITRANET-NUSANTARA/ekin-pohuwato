@@ -55,11 +55,14 @@ const page = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-x-2 mb-4">
-                    <Button type="default" icon={<PlusOutlined />}>
+                    <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
-                    <Button type="primary" icon={<DeleteOutlined />}>
-                        Hapus Periode Duplikat
+                    <Button type="primary">
+                        Lihat Kurva
+                    </Button>
+                    <Button type="primary">
+                        Pembinaan Bawahan
                     </Button>
                 </div>
                 <Tabs defaultActiveKey="1" type="card">
