@@ -1,24 +1,34 @@
 'use client';
 
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined } from '@ant-design/icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width, fileUploadProps }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
+    const [fileList, setFileList] = useState([]);
 
     useEffect(() => {
         if (isModalOpen) {
             form.resetFields();
-            form.setFieldsValue(data ?? {}); // Reset form with the provided data or empty object
+            form.setFieldsValue(data ?? {});
         }
     }, [isModalOpen, data, form]);
 
-    // Render input sesuai dengan type field
+    const beforeUpload = (file) => {
+        const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isImage) {
+            message.error('You can only upload JPG/PNG file!');
+            return Upload.LIST_IGNORE;  
+        }
+        setFileList((prevList) => [...prevList, file]); 
+        return false;  
+    };
+
     const renderFormInput = (field) => {
-        const isDisabled = type === 'show' || type === 'delete'; // Disable input ketika show atau delete
+        const isDisabled = type === 'show' || type === 'delete';
         switch (field.type) {
             case 'text':
                 return <Input placeholder={`Masukan ${field.label}`} size="large" disabled={isDisabled} />;
@@ -30,7 +40,16 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'upload':
                 return (
-                    <Upload {...fileUploadProps}>
+                    <Upload
+                        {...fileUploadProps}
+                        multiple
+                        accept=".jpg,.jpeg,.png"
+                        beforeUpload={beforeUpload}
+                        fileList={fileList}
+                        onRemove={(file) => {
+                            setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
+                        }}
+                    >
                         <Button icon={<UploadOutlined />}>Click to Upload</Button>
                     </Upload>
                 );
@@ -50,14 +69,20 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     };
 
     const handleSubmit = (values) => {
-        onSubmit(values, type, data?._id);
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+            formData.append(key, values[key]);
+        });
+        fileList.forEach((file) => {
+            formData.append('files[]', file);
+        });
+        onSubmit(formData, type, data?._id);
     };
 
     const extraContent = React.Children.map(children, (child) => {
         if (child?.type === CrudModal.Extra) {
             return child;
         }
-
         return null;
     });
 
@@ -76,7 +101,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         )}
                     </Form.Item>
                 ))}
-                {/* Tampilkan tombol "Kirim" hanya jika type bukan 'show' atau 'delete' */}
                 {type !== 'show' && type !== 'delete' && (
                     <Form.Item className="mt-2">
                         <Button type="primary" htmlType="submit">
@@ -84,7 +108,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         </Button>
                     </Form.Item>
                 )}
-                {/* Tampilkan tombol "Delete" jika type adalah 'delete' */}
                 {type === 'delete' && (
                     <Form.Item className="mt-2">
                         <Button type="primary" danger htmlType="submit">
