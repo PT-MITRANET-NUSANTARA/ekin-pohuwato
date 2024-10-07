@@ -76,6 +76,7 @@ export const dummyHarian = Array.from({ length: 10 }, (_, index) => ({
     status: index === 6 ? 'hadir' : index === 1 ? 'alpa' : 'izin',
   }));
   
+  
 
 export const dummyUnit = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 
@@ -106,7 +107,8 @@ export const dummyBuktiDukung = Array.from({ length: 10}, (_, index) => ({
 
 export const dummyAktivitas = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 
-    content: 'dummy'
+    content: 'dummy',
+    bukti: 'http'
 }))
 
 export const dummyOrganisasi = Array.from({ length: 10}, (_, index) => ({

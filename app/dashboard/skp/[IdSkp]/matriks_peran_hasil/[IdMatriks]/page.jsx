@@ -156,33 +156,6 @@ const page = () => {
                             <div className="flex flex-col gap-y-4 py-2 pt-4">
                                 <div className="flex items-center gap-x-2">
                                     <Button className="w-fit" type="primary">
-                                        Buat SKP
-                                    </Button>
-                                </div>
-                                <Collapse  bordered>
-                                    <Collapse.Panel key="1" header="RHK Yang di Intervensi">
-                                        <DataTable columns={Column} data={[]} loading={false} />
-                                    </Collapse.Panel>
-                                </Collapse>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card type="inner" title="taruh title disini">
-                        <div className="grid grid-flow-row divide-y text-xs ">
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">nama</span>
-                                <p className="text-right uppercase">YAHYA S MALABAR NOOR</p>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">jabatan</span>
-                                <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>PRANATA KEARSIPAN</p>
-                                    <small>ID : 197801012007011026</small>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-y-4 py-2 pt-4">
-                                <div className="flex items-center gap-x-2">
-                                    <Button className="w-fit" type="primary">
                                         Lihat SKP
                                     </Button>
                                     <Button className="w-fit" type="primary">
