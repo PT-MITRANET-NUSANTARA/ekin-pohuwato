@@ -8,7 +8,7 @@ import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { dummyHarian } from '@/data/dummyData';
+import { dummyAktivitas } from '@/data/dummyData';
 
 const { Title } = Typography;
 
@@ -78,35 +78,18 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Tanggal',
-            dataIndex: 'tanggal',
-            key: 'tanggal',
-            sorter: (a, b) => a.tanggal.length - b.tanggal.length,
+            title: 'Content',
+            dataIndex: 'content',
+            key: 'content',
+            sorter: (a, b) => a.content.length - b.content.length,
             width: '30%'
         },
         {
             title: 'Status Kehadiran',
-            dataIndex: 'status',
-            key: 'status',
-            sorter: (a, b) => a.status.length - b.status.length,
-            width: '30%',
-            render: (_, { status }) => (
-                <>
-                    {(() => {
-                        switch (status) {
-                            case 'hadir':
-                                return <Tag color="blue" className='capitalize'>{status}</Tag>;
-                            case 'alpa':
-                                return <Tag color="red" className='capitalize'>{status}</Tag>;
-                            case 'izin':
-                                return <Tag color="yellow" className='capitalize'>{status}</Tag>;
-                            default:
-                                return <Tag color="error" className='capitalize'>{status}</Tag>;
-                        }
-                    })()}
-                </>
-            ),
-            searchable: true,
+            dataIndex: 'bukti',
+            key: 'bukti',
+            sorter: (a, b) => a.bukti.length - b.bukti.length,
+            width: '30%'
         },
         {
             title: 'Action',
@@ -149,8 +132,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama',
-            name: 'name',
+            label: 'Content',
+            name: 'content',
             type: 'text',
             rules: [
                 {
@@ -160,32 +143,29 @@ const page = () => {
             ]
         },
         {
-            label: 'Periode Mulai',
-            name: 'periode_start',
-            type: 'number',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode mulai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'number',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode selesai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
+            label: 'Bukti Aktivitas',
+            name: 'bukti',
+            type: 'upload',
         }
     ];
+
+    const fileUploadProps = {
+        name: 'file',
+        action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+        headers: {
+            authorization: 'authorization-text'
+        },
+        onChange(info) {
+            if (info.file.status !== 'uploading') {
+                console.log(info.file, info.fileList);
+            }
+            if (info.file.status === 'done') {
+                message.success(`${info.file.name} file uploaded successfully`);
+            } else if (info.file.status === 'error') {
+                message.error(`${info.file.name} file upload failed.`);
+            }
+        }
+    };
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -201,14 +181,14 @@ const page = () => {
                     },
                     {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
-                    },
+                    }
                 ]}
             />
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Renstra
+                            Detail Data Harian
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
@@ -216,8 +196,8 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={dummyHarian} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} ></CrudModal>
+                    <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} fileUploadProps={fileUploadProps}></CrudModal>
                 </div>
             </Card>
         </div>

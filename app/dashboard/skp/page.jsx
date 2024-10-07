@@ -168,7 +168,7 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Renstra
+                            Data SKP
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
