@@ -1,29 +1,109 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Select, Tag, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Select, Tag, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CrudModal } from '@/components';
 import { useRouter } from 'next/navigation';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { formatDateToDayMonthYear } from '@/utils/util';
+
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
+    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { data, setData, loading } = useFetchData(getData);
+    const [skp, setSKP] = useState(null);
+    const [jabatan , setJabatan]  = useState(null);
+    console.log(data);
 
-    const onSubmit = () => {
-        console.log('this is onsubmit');
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const skp = await getByUserId(data.user.idASN);
+            const jabatan = await getByNIP(data.token ,data.user.nipBaru);
+            setJabatan(jabatan.mapData.data[0]);
+            setSKP(skp.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    console.log(skp);
+    
+
+    const onSubmit = async (values, type, id) => {
+        try {
+            let response;
+            let dt = values;
+            dt = { ...dt,  jabatan:  [jabatan]};
+            switch (type) {
+                case 'create':
+                    response = await store(data.user.idASN,dt);
+                    break;
+
+                case 'edit':
+                    response = await update(id, dt);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+            console.log(response);
+
+            if (response.ok) {
+                const newData = await getByUserId(data.user.idASN);
+                setSKP(newData.data);
+                setAlert({
+                    show: true,
+                    message: response.msg,
+                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    type: 'success'
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: 'Gagal',
+                    description: response.msg,
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error',
+                description: error.message,
+                type: 'error'
+            });
+        }
+
+        console.log('Operation completed');
+        handleClose();
     };
 
     const formFields = [
         {
             label: 'Periode Mulai',
             name: 'periode_awal',
-            type: 'number',
+            type: 'date',
             rules: [
                 {
                     required: true,
@@ -34,7 +114,7 @@ const page = () => {
         {
             label: 'Periode Akhir',
             name: 'periode_akhir',
-            type: 'number',
+            type: 'date',
             rules: [
                 {
                     required: true,
@@ -72,6 +152,7 @@ const page = () => {
     console.log(modal.modalData);
     return (
         <div className="w-full flex flex-col gap-y-4">
+            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {
@@ -96,7 +177,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="flex flex-col gap-y-4">
-                        {dummySkp.map((item) => (
+                        {skp?.map((item) => (
                             <Card type="inner" title={<Tag color="blue">{item._id}</Tag>}>
                                 <div className="w-full flex flex-col gap-y-4">
                                     <div className="flex w-full items-center gap-x-2 ">
@@ -112,7 +193,7 @@ const page = () => {
                                         <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">periode</span>
                                             <Tag color="blue" className="capitalize">
-                                                {item.periode_akhir}
+                                                {formatDateToDayMonthYear(item.periode_awal)} - {formatDateToDayMonthYear(item.periode_akhir)}
                                             </Tag>
                                         </div>
                                         <div className="flex items-center justify-between py-2">
@@ -123,9 +204,9 @@ const page = () => {
                                         </div>
                                         <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">unit kerja</span>
-                                            <p className="text-right uppercase">{item.unit}</p>
+                                            <p className="text-right uppercase">{item.jabatan.at(-1).unor.nama}</p>
                                         </div>
-                                        <div className="flex items-center justify-between py-2">
+                                        {/* <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">status pegawai</span>
                                             <p className="text-right capitalize">{item.status}</p>
                                         </div>
@@ -134,14 +215,14 @@ const page = () => {
                                             <Tag color="green" className="capitalize">
                                                 {item.status}
                                             </Tag>
-                                        </div>
+                                        </div> */}
                                         <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">keterangan jabatan</span>
-                                            <p className="text-right capitalize">{item.jabatan}</p>
+                                            <p className="text-right capitalize">{item.jabatan.at(-1).nama_jabatan}</p>
                                         </div>
                                         <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">jenis pegawai</span>
-                                            <p className="text-right capitalize">{item.jabatan}</p>
+                                            <p className="text-right capitalize">Pimpinan</p>
                                         </div>
                                     </div>
                                     <div className="flex w-full items-center justify-end gap-x-2 ">

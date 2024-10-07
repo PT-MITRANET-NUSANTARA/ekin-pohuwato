@@ -68,11 +68,14 @@ export const dummySkpBawahan = Array.from({ length: 10}, (_, index) => ({
     status: (index === 6 ? 'draft' : index === 1 ? "belum" : "pengajuan"),
 }))
 
-export const dummyHarian = Array.from({ length: 10}, (_, index) => ({
-    _id: (index + 1), 
-    tanggal: '1',
-    status: (index === 6 ? 'hadir' : index === 1 ? "alpa" : "izin"),
-}))
+
+
+export const dummyHarian = Array.from({ length: 10 }, (_, index) => ({
+    _id: (index + 1),
+    tanggal: new Date(2024, 9, index + 1).toISOString(), // Generates a date for each entry in October 2024
+    status: index === 6 ? 'hadir' : index === 1 ? 'alpa' : 'izin',
+  }));
+  
 
 export const dummyUnit = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 

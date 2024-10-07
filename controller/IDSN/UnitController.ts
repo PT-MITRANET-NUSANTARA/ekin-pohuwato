@@ -7,7 +7,7 @@ export const getAll = async (token: string) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}}`
+                'Authorization': `Bearer ${token}`
             },
 
         });
@@ -24,7 +24,7 @@ export const getById = async (token: string, id:string) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}}`
+                'Authorization': `Bearer ${token}`
             },
 
         });
@@ -41,7 +41,7 @@ export const getActive = async (token: string, active: boolean = true) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}}`
+                'Authorization': `Bearer ${token}`
             },
 
         });

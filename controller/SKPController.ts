@@ -47,10 +47,10 @@ export const store = async (id: string, data: any) => {
     try {
         const response = await apiRequest('/api/skp', {
             method: 'POST',
+            body: data,
             headers: {
                 'user-id': id,
             },
-            body: data,
         });
         return response;
     } catch (error) {

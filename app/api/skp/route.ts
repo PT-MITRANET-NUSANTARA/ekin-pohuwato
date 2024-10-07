@@ -5,11 +5,6 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
-const atasanSchema = Joi.object({
-    id: Joi.string().required(),
-    nama: Joi.string().required()
-}).allow(null);
-
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
     periode_akhir: Joi.date().required().label('Periode Akhir'),
@@ -20,9 +15,7 @@ const skpSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
-    unit: Joi.array().items(Joi.object().required()).required().label('Unit'),
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
-    atasan: Joi.array().items(Joi.alternatives().try(atasanSchema, Joi.valid(null)).optional()).optional().label('Atasan'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional(),
@@ -71,7 +64,7 @@ export async function GET(req: NextRequest) {
             skps = await SKP.find({});
         }
         
-        return NextResponse.json(createResponse(200, 'Success', skps));
+        return NextResponse.json(createResponse(200, 'Success', skps, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch SKP data' }, { status: 500 });
@@ -86,7 +79,8 @@ export async function POST(req: NextRequest) {
         if (!user_id) {
             return NextResponse.json(createResponse(400, 'User ID is required', null));
         }
-
+        console.log(req);
+        
         const body = await req.json();
         const bodyWithUser = { ...body, user_id };
 
@@ -98,7 +92,7 @@ export async function POST(req: NextRequest) {
 
         const newSKP = new SKP(bodyWithUser);
         await newSKP.save();
-        return NextResponse.json(createResponse(201, 'Success', newSKP));
+        return NextResponse.json(createResponse(201, 'Success', newSKP, true));
     } catch (error) {
         console.error('POST error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
@@ -125,7 +119,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json(createResponse(404, 'SKP not found', null));
         }
 
-        return NextResponse.json(createResponse(200, 'Success', updatedSKP));
+        return NextResponse.json(createResponse(200, 'Success', updatedSKP, true));
     } catch (error) {
         console.error('PUT error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to update SKP' }, { status: 500 });
@@ -149,7 +143,7 @@ export async function DELETE(req: NextRequest) {
 
         await RHK.deleteMany({ skp: id });
 
-        return NextResponse.json(createResponse(200, 'Success', deletedSKP));
+        return NextResponse.json(createResponse(200, 'Success', deletedSKP, true));
     } catch (error) {
         console.error('DELETE error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to delete SKP' }, { status: 500 });

@@ -63,17 +63,20 @@ export async function GET(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");
     const unit_id = req.nextUrl.searchParams.get("unitId");
+    
+    
     let rkts = [];
 
     if (id) {
       rkts = await RKT.findOne({ _id: id });
     } else if (unit_id) {
-      rkts = await RKT.find({ "unit.id": unit_id });
+      rkts = await RKT.find({ "unit.id": Number(unit_id) });
+      
     } else {
       rkts = await RKT.find({});
     }
 
-    return NextResponse.json(createResponse(200, "Success", rkts));
+    return NextResponse.json(createResponse(200, "Success", rkts, true));
   } catch (error) {
     console.error("GET error:", error);
     return NextResponse.json(
@@ -96,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     const newRKT = new RKT(body);
     await newRKT.save();
-    return NextResponse.json(createResponse(201, "Success", newRKT));
+    return NextResponse.json(createResponse(201, "Success", newRKT, true));
   } catch (error) {
     console.error("POST error:", error); // Added error logging
     return NextResponse.json(
@@ -131,7 +134,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, "RKT not found", null));
     }
 
-    return NextResponse.json(createResponse(200, "Success", updatedRKT));
+    return NextResponse.json(createResponse(200, "Success", updatedRKT, true));
   } catch (error) {
     console.error("PUT error:", error); // Added error logging
     return NextResponse.json(
@@ -157,7 +160,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(404, "RKT not found", null));
     }
 
-    return NextResponse.json(createResponse(200, "Success", deletedRKT));
+    return NextResponse.json(createResponse(200, "Success", deletedRKT, true));
   } catch (error) {
     console.error("DELETE error:", error); // Added error logging
     return NextResponse.json(

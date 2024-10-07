@@ -20,8 +20,6 @@ interface ISKP extends Document {
   pendekatan: Pendekatan;
   status?: Status; // Opsional
   keterangan?: String; // Opsional
-  unit: Object[]; // Menjadi array of Object
-  atasan?: Object[]; // Menjadi array of Object
   jabatan: Object[]; // Menjadi array of Object
   createdAt?: Date; // Otomatis oleh Mongoose
   updatedAt?: Date; // Otomatis oleh Mongoose
@@ -56,15 +54,7 @@ const SKPSchema: Schema = new Schema({
     required: false,
     default: "",
   },
-  unit: {
-    type: [Object], // Array of Object
-    required: true,
-  },
-  atasan: {
-    type: [Object], // Array of Object
-    required: false,
-    default: null,
-  },
+
 }, { timestamps: true });
 
 const SKP = mongoose.models.SKP || mongoose.model<ISKP>("SKP", SKPSchema);

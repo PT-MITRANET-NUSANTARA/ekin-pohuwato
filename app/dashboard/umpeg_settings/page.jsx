@@ -3,20 +3,40 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import React, { useEffect, useState } from 'react';
+import { getAll} from '@/controller/IDSN/UnitController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyHarian, dummyUnit } from '@/data/dummyData';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const { data, setData, loading, msg, status } = useFetchData(getData);
+
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [unit, setUnit]   = useState(null);
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const unit = await getAll(data.token);
+            setUnit(unit.mapData)
+            
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    console.log(unit);
+    
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -72,22 +92,22 @@ const page = () => {
     const Column = [
         {
             title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
+            dataIndex: 'idUnor',
+            key: 'idUnor',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
         },
         {
-            title: 'Tanggal',
-            dataIndex: 'name',
-            key: 'name',
+            title: 'Unit',
+            dataIndex: 'nmUnor',
+            key: 'nmUnor',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
         {
-            title: 'Status Kehadiran',
-            dataIndex: 'role',
-            key: 'role',
+            title: 'Jabatan',
+            dataIndex: 'jabatan',
+            key: 'jabatan',
             sorter: (a, b) => a.role.length - b.role.length,
             width: '30%',
             render: (_, { role }) => (
@@ -192,7 +212,7 @@ const page = () => {
                             Data Admin
                         </Title>
                     </div>
-                    <DataTable columns={Column} data={dummyUnit} loading={loading} />
+                    <DataTable columns={Column} data={unit} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
