@@ -10,13 +10,13 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
-import {getByid} from '@/controller/SKPController'; 
-
+import {getById } from '@/controller/SKPController';
+import { options } from 'joi';
 const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
-    const { IdSkp } = useParams();
+    const { Id } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [pegawaiModal, setPegawaiModal] = useState(false);
     const [jenisRhkModal, setJenisRhkModal] = useState(false);
@@ -36,15 +36,11 @@ const page = () => {
     const fetchData = async () => {
         try {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            // const skp = await getByid
+            const skp = await getById(Id);
+            setSKP(skp.data);
             const selectedJabatan = jabatan.mapData.data[0];
-            console.log(selectedJabatan.unor.id);
-
             const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-            console.log(unit);
-
             const bawahan = unit.mapData.data.filter((item) => item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan);
-
             setJabatan(selectedJabatan);
 
             setUnor(bawahan);
@@ -53,6 +49,7 @@ const page = () => {
         }
     };
 
+    
     const Column = [
         {
             title: 'ID',
@@ -137,13 +134,56 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama RHK',
-            name: 'nama_rhk',
-            type: 'text',
+            label: 'RHK',
+            name: 'rhk',
+            type: 'select',
             rules: [
                 {
                     required: true,
                     message: 'Field nama wajib di isi'
+                }
+            ],
+            options : SKP?.rhks.map((item) => ({ value: item._id, label: item.desc }))
+        },
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options : [
+                {
+                    value: 'organisasi',
+                    label: 'Organisasi'
+                },
+                {
+                    value: 'Individu',
+                    label: 'individu'
+                }
+            ]
+        },
+        {
+            label: 'Klasifikasi',
+            name: 'klasifikasi',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options : [
+                {
+                    value: 'utama',
+                    label: 'Utama'
+                },
+                {
+                    value: 'tambahan',
+                    label: 'Tambahan'
                 }
             ]
         },
@@ -160,8 +200,6 @@ const page = () => {
            
         },
     ];
-    
-    console.log(unor);
     
     return (
         <div className="w-full flex flex-col gap-y-4">
