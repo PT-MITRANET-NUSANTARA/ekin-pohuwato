@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Program from '../../../models/Program';
-import Kegiatan from '@/models/Kegiatan';
+import Perilaku from '../../../models/Perilaku';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
-const programSchema = Joi.object({
-  name: Joi.string().required().label('Nama Program'),
-  sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
-  total_anggaran: Joi.number().required().label('Total Anggaran'),
-  renstra: Joi.string().hex().length(24).required().label('Renstra'), // Mengharapkan ObjectId (24 karakter heksadesimal)
+const perilakuSchema = Joi.object({
+  skp: Joi.string().hex().length(24).required().label('SKP'), // Expecting ObjectId
+  name: Joi.string().required().label('Nama Perilaku'),
+  isi: Joi.array().items(Joi.string().required()).required().label('Isi Perilaku'),
+  espektasi: Joi.string().optional().label('Espektasi'),
+  feedback: Joi.string().optional().label('Feedback'),
+  like: Joi.boolean().optional().label('Like'),
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
@@ -22,13 +20,11 @@ const programSchema = Joi.object({
   'string.empty': '{{#label}} tidak boleh kosong.',
   'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
   'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
-  'number.base': '{{#label}} harus berupa angka.',
-  'number.empty': '{{#label}} tidak boleh kosong.',
+  'array.base': '{{#label}} harus berupa array.',
 });
 
-
-function validateProgramData(data: any) {
-  const { error } = programSchema.validate(data, { abortEarly: false });
+function validatePerilakuData(data: any) {
+  const { error } = perilakuSchema.validate(data, { abortEarly: false });
   if (error) {
     return error.details.map((err) => err.message);
   }
@@ -39,27 +35,18 @@ export async function GET(req: NextRequest) {
   await dbConnect();
   try {
     const id = req.nextUrl.searchParams.get('id');
-    const renstra_id = req.headers.get('renstra-id');
-    let programs;
+    let perilaku;
 
     if (id) {
-      programs = await Program.findOne({ _id: id })
-        .populate('kegiatans')
-        .populate('renstra'); 
-    }
-    else if (renstra_id) {
-      programs = await Program.find({ renstra: renstra_id })
-        .populate('kegiatans')
-        .populate('renstra'); 
-    } 
-    else {
-      programs = await Program.find({})
+      perilaku = await Perilaku.findById(id).populate('skp');
+    } else {
+      perilaku = await Perilaku.find().populate('skp');
     }
 
-    return NextResponse.json(createResponse(200, 'Success', programs));
+    return NextResponse.json(createResponse(200, 'Success', perilaku));
   } catch (error) {
     console.error('GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch Program data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch Perilaku data' }, { status: 500 });
   }
 }
 
@@ -69,18 +56,18 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     
-    const errors = validateProgramData(body);
+    const errors = validatePerilakuData(body);
     
     if (errors.length > 0) {
       return NextResponse.json(createResponse(400, 'Failed', errors));
     }
 
-    const newProgram = new Program(body);
-    await newProgram.save();
-    return NextResponse.json(createResponse(201, 'Success', newProgram));
+    const newPerilaku = new Perilaku(body);
+    await newPerilaku.save();
+    return NextResponse.json(createResponse(201, 'Success', newPerilaku));
   } catch (error) {
     console.error('POST error:', error); 
-    return NextResponse.json({ error: 'Failed to create Program' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create Perilaku' }, { status: 500 });
   }
 }
 
@@ -95,29 +82,28 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
     
-    const errors = validateProgramData(body);
+    const errors = validatePerilakuData(body);
 
     if (errors.length > 0) {
       return NextResponse.json(createResponse(400, 'Failed', errors));
     }
 
-
-    const updatedProgram = await Program.findOneAndUpdate(
-      { _id: id },
+    const updatedPerilaku = await Perilaku.findByIdAndUpdate(
+      id,
       body,
       { new: true }
-    ).populate('kegiatans').populate('renstra'); 
+    ).populate('skp');
 
-    if (!updatedProgram) {
-      return NextResponse.json(createResponse(404, 'Program not found', null));
+    if (!updatedPerilaku) {
+      return NextResponse.json(createResponse(404, 'Perilaku not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedProgram));
+    return NextResponse.json(createResponse(200, 'Success', updatedPerilaku));
   } catch (error) {
     console.log(error);
     
     console.error('PUT error:', error); 
-    return NextResponse.json({ error: 'Failed to update Program' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update Perilaku' }, { status: 500 });
   }
 }
 
@@ -130,14 +116,14 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
 
-    const deletedProgram = await Program.findByIdAndDelete(id);
-    if (!deletedProgram) {
-      return NextResponse.json(createResponse(404, 'Program not found', null));
+    const deletedPerilaku = await Perilaku.findByIdAndDelete(id);
+    if (!deletedPerilaku) {
+      return NextResponse.json(createResponse(404, 'Perilaku not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedProgram));
+    return NextResponse.json(createResponse(200, 'Success', deletedPerilaku));
   } catch (error) {
-    console.error('DELETE error:', error); // Added error logging
-    return NextResponse.json({ error: 'Failed to delete Program' }, { status: 500 });
+    console.error('DELETE error:', error);
+    return NextResponse.json({ error: 'Failed to delete Perilaku' }, { status: 500 });
   }
 }
