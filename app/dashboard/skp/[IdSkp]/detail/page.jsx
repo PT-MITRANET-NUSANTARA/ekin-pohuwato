@@ -2,10 +2,44 @@
 
 import { Breadcrumb, Button, Card, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getById } from '@/controller/SKPController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 const { Title } = Typography;
 const page = () => {
+    const { IdSkp } = useParams();
+    const { data, setData, loading } = useFetchData(getData);
+    const [jabatan, setJabatan] = useState(null);
+    const [skp, setSkp] = useState(null);
+    console.log(jabatan);
+
+    console.log(data);
+    
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+            const skp = await getById(IdSkp);
+            const selectedJabatan = jabatan.mapData.data[0];
+            setSkp(skp.data);
+            setJabatan(selectedJabatan);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    console.log(skp);
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -41,29 +75,29 @@ const page = () => {
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">periode</span>
                             <Tag color="blue" className="capitalize">
-                                1 JANUARI SD 31 DESEMBER TAHUN 2024
+                                {formatDateToDayMonthYear(skp?.periode_awal)} - {formatDateToDayMonthYear(skp?.periode_akhir)}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">pendekatan</span>
                             <Tag color="blue" className="capitalize">
-                                kuantitatif
+                                {skp?.pendekatan}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">status</span>
                             <Tag color="green" className="capitalize">
-                                persetujuan
+                                {skp?.status}
                             </Tag>
                         </div>
-                        <div className="flex items-center justify-between py-2">
+                        {/* <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">Model SKP</span>
                             <p className="text-right capitalize">JAJF</p>
-                        </div>
-                        <div className="flex items-center justify-between py-2">
+                        </div> */}
+                        {/* <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">jenis pegawai</span>
                             <p className="text-right capitalize">pemimpin</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
@@ -72,30 +106,31 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
                                 <p color="blue" className="capitalize">
-                                    SYAIFUL SAFRIL LUMA, SE
+                                    {jabatan?.unor.atasan.asn.nama_atasan}
                                 </p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    197904012005011015
+                                {jabatan?.unor.atasan.asn.nip_atasan}
+
                                 </p>
                             </div>
-                            <div className="flex items-center justify-between py-2">
+                            {/* <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
                                 <p color="green" className="capitalize">
                                     Penata Tingkat I / III/d
                                 </p>
-                            </div>
+                            </div> */}
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
+                                <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
-                                    <small>ID : 8ae482855a71b686015a74eabbde7454</small>
+                                    <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                    <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                     <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                                 </div>
                             </div>
@@ -106,30 +141,30 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
                                 <p color="blue" className="capitalize">
-                                    SYAIFUL SAFRIL LUMA, SE
+                                    {data?.user.nama}
                                 </p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    197904012005011015
+                                    {data?.user.nipBaru}
                                 </p>
                             </div>
-                            <div className="flex items-center justify-between py-2">
+                            {/* <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
                                 <p color="green" className="capitalize">
                                     Penata Tingkat I / III/d
                                 </p>
-                            </div>
+                            </div> */}
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
+                                <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
-                                    <small>ID : 8ae482855a71b686015a74eabbde7454</small>
+                                    <p>{jabatan?.unor.nama} </p>
+                                    <small>ID : {jabatan?.unor.id}</small>
                                     <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                                 </div>
                             </div>
@@ -297,26 +332,30 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <table className='normaltable'>
+                <table className="normaltable">
                     <thead>
                         <tr>
-                            <th className='text-left px-4'>Lampiran</th>
+                            <th className="text-left px-4">Lampiran</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style={{border: '1px solid black', padding: '8px'}}>
-                                <div className='flex flex-col gap-y-2'>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2">
                                     <p>Dukungan Sumber Daya</p>
-                                    <Button className='w-fit' type='primary'>Edit</Button>
+                                    <Button className="w-fit" type="primary">
+                                        Edit
+                                    </Button>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td style={{border: '1px solid black', padding: '8px'}}>
-                                <div className='flex flex-col gap-y-2'>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2">
                                     <p>Dukungan Sumber Daya</p>
-                                    <Button className='w-fit' type='primary'>Edit</Button>
+                                    <Button className="w-fit" type="primary">
+                                        Edit
+                                    </Button>
                                 </div>
                             </td>
                         </tr>

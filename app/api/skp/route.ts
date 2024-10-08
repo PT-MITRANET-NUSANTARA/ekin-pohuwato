@@ -4,6 +4,8 @@ import RHK from '../../../models/RHK';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import { perilaku } from '@/utils/blueprint';
+import Perilaku from '@/models/Perilaku';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -18,7 +20,8 @@ const skpSchema = Joi.object({
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
-    status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional(),
+    renstra: Joi.string().hex().length(24).required().label('Renstra'),
+    status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'date.base': '{{#label}} harus berupa tanggal yang valid.',
@@ -41,7 +44,6 @@ const skpSchema = Joi.object({
     'date.greater': '{{#label}} harus setelah {{#limit}}.'
 });
 
-
 function validateSKPData(data: any) {
     const { error } = skpSchema.validate(data, { abortEarly: false });
     if (error) {
@@ -57,13 +59,15 @@ export async function GET(req: NextRequest) {
         const user_id = req.headers.get('user-id');
         const id = req.nextUrl.searchParams.get('id');
         let skps = [];
-        
+
         if (user_id) {
-            skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks') : await SKP.find({ user_id });
+            skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id });
+        } else if (id) {
+            skps = await SKP.findOne({ _id: id }).populate('perilakus').populate('rhks');
         } else {
             skps = await SKP.find({});
         }
-        
+
         return NextResponse.json(createResponse(200, 'Success', skps, true));
     } catch (error) {
         console.error('GET error:', error);
@@ -79,22 +83,35 @@ export async function POST(req: NextRequest) {
         if (!user_id) {
             return NextResponse.json(createResponse(400, 'User ID is required', null));
         }
-        console.log(req);
-        
+
         const body = await req.json();
         const bodyWithUser = { ...body, user_id };
 
         const errors = validateSKPData(bodyWithUser);
 
         if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
+            return NextResponse.json(createResponse(400, 'Validation Failed', errors));
         }
 
         const newSKP = new SKP(bodyWithUser);
         await newSKP.save();
+        if (newSKP) {
+            for (const item of perilaku) {
+                const perilakuData = new Perilaku({
+                    skp: newSKP._id,
+                    name: item.name,
+                    isi: item.isi,
+                    espektasi: item.espektasi,
+                    feedback: item.feedback
+                });
+
+                await perilakuData.save();
+            }
+        }
+
         return NextResponse.json(createResponse(201, 'Success', newSKP, true));
     } catch (error) {
-        console.error('POST error:', error); // Added error logging
+        console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
     }
 }

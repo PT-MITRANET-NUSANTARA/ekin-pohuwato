@@ -5,7 +5,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 
-const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width}) => {
+const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
     const [fileList, setFileList] = useState([]);
@@ -21,10 +21,10 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isImage) {
             message.error('You can only upload JPG/PNG file!');
-            return Upload.LIST_IGNORE;  
+            return Upload.LIST_IGNORE;
         }
-        setFileList((prevList) => [...prevList, file]); 
-        return false;  
+        setFileList((prevList) => [...prevList, file]);
+        return false;
     };
 
     const renderFormInput = (field) => {
@@ -39,14 +39,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             case 'date':
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'time':
-                return (
-                    <TimePicker
-                        placeholder={`Pilih ${field.label}`}
-                        className="w-full"
-                        size="large"
-                        disabled={isDisabled}
-                    />
-                );
+                return <TimePicker placeholder={`Pilih ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
             case 'upload':
                 return (
                     <Upload
@@ -67,6 +60,8 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         {field.options?.map((option, index) => (
                             <Option key={index} value={option.value}>
                                 {option.label}
+                                <br />
+                                <small style={{ color: '#888' }}>{option.value}</small> {/* Add small text here */}
                             </Option>
                         ))}
                     </Select>
@@ -85,7 +80,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         fileList.forEach((file) => {
             formData.append('files[]', file);
         });
-        
+
         onSubmit(values, type, data?._id, formData);
     };
 
@@ -102,9 +97,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit}>
                 {formFields.map((field, index) => (
                     <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={field.rules}>
-                        {field.type === 'upload' && type === "show" ? (
+                        {field.type === 'upload' && type === 'show' ? (
                             <div>
-                                <img src="/profil.jpg" alt="" className='w-full'/>
+                                <img src="/profil.jpg" alt="" className="w-full" />
                             </div>
                         ) : (
                             renderFormInput(field)

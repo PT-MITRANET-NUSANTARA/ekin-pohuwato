@@ -25,7 +25,7 @@ const PerilakuSchema: Schema = new Schema({
   },
   espektasi: {
     type: String,
-    required: true
+    required: false
   },
   feedback: {
     type: String,

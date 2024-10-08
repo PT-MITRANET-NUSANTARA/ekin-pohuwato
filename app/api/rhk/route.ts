@@ -7,6 +7,8 @@ import { createResponse } from '@/utils/api';
 const rhkSchema = Joi.object({
   skp: Joi.string().required().label('SKP'),
   rhk: Joi.string().optional().label('RHK'),
+  rkt: Joi.string().optional().label('RKT'),
+  desc: Joi.string().required().label('Deskripsi'),
   jenis: Joi.string().valid('utama', 'tambahan').required().label('Jenis'),
   rencana: Joi.string().required().label('Rencana'),
   klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),

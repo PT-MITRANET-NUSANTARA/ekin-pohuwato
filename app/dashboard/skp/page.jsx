@@ -13,6 +13,7 @@ import { getData } from '@/controller/AuthorizationController';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import {getAll as getAllRenstra} from '@/controller/RenstraController';
 
 const { Title } = Typography;
 
@@ -24,6 +25,7 @@ const page = () => {
     const { data, setData, loading } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
     const [jabatan , setJabatan]  = useState(null);
+    const [resntra, setRenstra] = useState(null);
     console.log(data);
 
     useEffect(() => {
@@ -36,6 +38,8 @@ const page = () => {
         try {
             const skp = await getByUserId(data.user.idASN);
             const jabatan = await getByNIP(data.token ,data.user.nipBaru);
+            const resntra = await getAllRenstra();
+            setRenstra(resntra.data);
             setJabatan(jabatan.mapData.data[0]);
             setSKP(skp.data);
         } catch (error) {
@@ -100,6 +104,21 @@ const page = () => {
     };
 
     const formFields = [
+        {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: resntra?.map((item) => ({
+                label: item.name,
+                value: item._id
+            }))
+        },
         {
             label: 'Periode Mulai',
             name: 'periode_awal',

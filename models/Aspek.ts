@@ -3,7 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 enum Jenis {
   KUALITAS = 'kualitas',
   KUANTITAS = 'kuantitas',
-  WAKTU = 'waktu'
+  WAKTU = 'waktu',
+  DESKRIPSI = 'deskripsi'
 }
 
 export interface IAspek extends Document {

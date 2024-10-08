@@ -9,11 +9,15 @@ import { dummyIntervensiRhk } from '@/data';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
+import { useParams } from 'next/navigation';
+import {getByid} from '@/controller/SKPController'; 
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
+    const { IdSkp } = useParams();
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [pegawaiModal, setPegawaiModal] = useState(false);
     const [jenisRhkModal, setJenisRhkModal] = useState(false);
     const [rencanaAksiModal, setRencanaAksiModal] = useState(false);
@@ -21,6 +25,7 @@ const page = () => {
     const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [unor, setUnor] = useState(null);
+    const [SKP, setSKP] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -31,7 +36,7 @@ const page = () => {
     const fetchData = async () => {
         try {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
-
+            // const skp = await getByid
             const selectedJabatan = jabatan.mapData.data[0];
             console.log(selectedJabatan.unor.id);
 

@@ -136,7 +136,7 @@ const page = () => {
                         </Title>
                         <div className="flex items-center gap-x-2">
                             <Tooltip title="BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN">
-                                <Button type="primary" icon={<DotChartOutlined />} onClick={() => router.push(`/dashboard/skp/${IdSkp}/matriks_peran_hasil/1`)}>
+                                <Button type="primary" icon={<DotChartOutlined />} onClick={() => router.push(`/dashboard/skp/${IdSkp}/matriks_peran_hasil/${IdSkp}`)}>
                                     Matriks Unit Kerja
                                 </Button>
                             </Tooltip>
