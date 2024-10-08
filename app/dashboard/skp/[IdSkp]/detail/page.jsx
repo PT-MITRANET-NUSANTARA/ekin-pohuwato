@@ -19,7 +19,7 @@ const page = () => {
     console.log(jabatan);
 
     console.log(data);
-    
+
     useEffect(() => {
         if (data) {
             fetchData();
@@ -39,6 +39,118 @@ const page = () => {
     };
 
     console.log(skp);
+
+    const dummyData = [
+        {
+            desc: '',
+            id: '6704ca2f21f169ef46e32595',
+            jenis: 'utama',
+            klasifikasi: null,
+            rencana: null,
+            rhk: null,
+            skp: '6704c93545a7ac9af02e6855',
+            _id: '6704ca2f21f169ef46e32595',
+            aspeks: [
+                {
+                    _id: '6704cf7021f169ef46eab9e5',
+                    rhk: '6704cd0621f169ef46e75c73',
+                    jenis: 'kuantitas',
+                    indikator:
+                        'Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi kepegawaian',
+                    target_tahunan: '3 Dokumen',
+                    desc: 'Tersedianya Dokumen Pelaksanaan Program dan Kegiatan Bidang pengadaan'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9e6',
+                    rhk: '6704cd0621f169ef46e75c73',
+                    jenis: 'kualitas',
+                    indikator: 'Presentase Setiap dokumen Perencanaan pelaksanaan Program dan Kegiatan Bidang pengadaan, pemberhentian dan informasi kepegawaian yang tersedia',
+                    target_tahunan: '100%',
+                    desc: 'Tersedianya dokumen berkualitas untuk pelaksanaan program'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9e7',
+                    rhk: '6704cd0621f169ef46e75c73',
+                    jenis: 'waktu',
+                    indikator: 'Rata-rata waktu yang digunakan untuk menyelesaikan 1 (satu) Dokumen perencanaan pelaksanaan Program dan Kegiatan Bidang pengadaan, pemberhentian dan informasi kepegawaian',
+                    target_tahunan: '1 Bulan',
+                    desc: 'Perencanaan tepat waktu'
+                }
+            ]
+        },
+        {
+            desc: '',
+            id: '6704ca2f21f169ef46e32596',
+            jenis: 'utama',
+            klasifikasi: null,
+            rencana: null,
+            rhk: null,
+            skp: '6704c93545a7ac9af02e6856',
+            _id: '6704ca2f21f169ef46e32596',
+            aspeks: [
+                {
+                    _id: '6704cf7021f169ef46eab9e8',
+                    rhk: '6704cd0621f169ef46e75c74',
+                    jenis: 'kuantitas',
+                    indikator: 'Jumlah layanan pengembangan kompetensi bagi pegawai yang tersedia',
+                    target_tahunan: '5 Layanan',
+                    desc: 'Penyediaan layanan pengembangan kompetensi bagi pegawai'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9e9',
+                    rhk: '6704cd0621f169ef46e75c74',
+                    jenis: 'kualitas',
+                    indikator: 'Presentase keberhasilan pengembangan kompetensi pegawai',
+                    target_tahunan: '90%',
+                    desc: 'Pengembangan kompetensi pegawai secara berkualitas'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9ea',
+                    rhk: '6704cd0621f169ef46e75c74',
+                    jenis: 'waktu',
+                    indikator: 'Rata-rata waktu untuk pelaksanaan program pengembangan kompetensi pegawai',
+                    target_tahunan: '6 Bulan',
+                    desc: 'Pengembangan kompetensi tepat waktu'
+                }
+            ]
+        },
+        {
+            desc: '',
+            id: '6704ca2f21f169ef46e32597',
+            jenis: 'utama',
+            klasifikasi: null,
+            rencana: null,
+            rhk: null,
+            skp: '6704c93545a7ac9af02e6857',
+            _id: '6704ca2f21f169ef46e32597',
+            aspeks: [
+                {
+                    _id: '6704cf7021f169ef46eab9eb',
+                    rhk: '6704cd0621f169ef46e75c75',
+                    jenis: 'kuantitas',
+                    indikator: 'Jumlah anggaran yang direncanakan dan diawasi',
+                    target_tahunan: '100%',
+                    desc: 'Perencanaan dan pengawasan penyusunan anggaran belanja tahunan'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9ec',
+                    rhk: '6704cd0621f169ef46e75c75',
+                    jenis: 'kualitas',
+                    indikator: 'Presentase akurasi dalam penyusunan anggaran',
+                    target_tahunan: '100%',
+                    desc: 'Akurasi tinggi dalam perencanaan anggaran'
+                },
+                {
+                    _id: '6704cf7021f169ef46eab9ed',
+                    rhk: '6704cd0621f169ef46e75c75',
+                    jenis: 'waktu',
+                    indikator: 'Rata-rata waktu untuk menyusun anggaran tahunan',
+                    target_tahunan: '3 Bulan',
+                    desc: 'Penyusunan anggaran tepat waktu'
+                }
+            ]
+        }
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -112,8 +224,7 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                {jabatan?.unor.atasan.asn.nip_atasan}
-
+                                    {jabatan?.unor.atasan.asn.nip_atasan}
                                 </p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
@@ -188,123 +299,46 @@ const page = () => {
                                 Utama
                             </td>
                         </tr>
-                        <tr>
-                            <td rowSpan={3}>1</td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <Tag color="blue" className="w-fit">
-                                        ogranisasi
-                                    </Tag>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
-                        <tr>
-                            <td colSpan={6} className="text-left px-2">
-                                Utama
-                            </td>
-                        </tr>
-                        <tr>
-                            <td rowSpan={3}>1</td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <Tag color="blue" className="w-fit">
-                                        ogranisasi
-                                    </Tag>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                        </tr>
+                        {dummyData.map((item, index) => (
+                            <>
+                                <tr>
+                                    <td rowSpan={item.aspeks.length + 1}>{index+1}</td>
+                                    <td rowSpan={item.aspeks.length + 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 text-left">
+                                            <p>{item.desc}</p>
+                                            <p>Indikator: {item.desc}</p>
+                                            <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                        </div>
+                                    </td>
+                                    <td rowSpan={item.aspeks.length + 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 text-left">
+                                            <p>{item.desc}</p>
+                                            <Tag color="blue" className="w-fit">
+                                                {item.desc}
+                                            </Tag>
+                                            <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                        </div>
+                                    </td>
+                                </tr>
+                                {item.aspeks.map((aspek) => (
+                                    <>
+                                        <tr>
+                                            <td>{aspek.jenis}</td>
+                                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>
+                                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data
+                                                        dan informasi kepegawaian
+                                                    </p>
+                                                    <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                                </div>
+                                            </td>
+                                            <td>3 Dokument</td>
+                                        </tr>
+                                    </>
+                                ))}
+                            </>
+                        ))}
                     </tbody>
                 </table>
                 <table className="normaltable mb-6">
