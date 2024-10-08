@@ -4,7 +4,7 @@ import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Ty
 import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { use, useEffect, useState } from 'react';
-import { DataTable, SearchPegawai, TambahPegawai, TruncateText } from '@/components';
+import { CrudModal, DataTable, SearchPegawai, TambahPegawai, TruncateText } from '@/components';
 import { dummyIntervensiRhk } from '@/data';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
@@ -113,12 +113,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
+                        onClick={() => setModal({trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit'})}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
+                        onClick={() => setModal({trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete'})}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -128,6 +130,32 @@ const page = () => {
         }
     ];
 
+    const formFields = [
+        {
+            label: 'Nama RHK',
+            name: 'nama_rhk',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Isi Intervensi RHK',
+            name: 'intervensi',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+           
+        },
+    ];
+    
     console.log(unor);
     
     return (
@@ -189,7 +217,7 @@ const page = () => {
                                         <Button className="w-fit" type="primary">
                                             Lihat SKP
                                         </Button>
-                                        <Button className="w-fit" type="primary">
+                                        <Button className="w-fit" type="primary" onClick={() => setModal({trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create'})}>
                                             Tambah RHK
                                         </Button>
                                         <Button danger className="w-fit" type="primary">
@@ -207,6 +235,7 @@ const page = () => {
                     ))}
                 </div>
             </Card>
+            <CrudModal formFields={formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({trigger: false})} onSubmit={() => setModal({trigger: false})} title={modal.title} type={modal.type} />
             <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)} />
             <Modal open={jenisRhkModal} onClose={() => setJenisRhkModal(false)} onCancel={() => setJenisRhkModal(false)}>
                 <Form className="mt-6 " layout="vertical">
