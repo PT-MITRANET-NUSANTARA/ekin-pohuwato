@@ -59,9 +59,10 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                     <Select size="large" placeholder="Select a option and change input text above" allowClear disabled={isDisabled}>
                         {field.options?.map((option, index) => (
                             <Option key={index} value={option.value}>
-                                {option.label}
-                                <br />
-                                <small style={{ color: '#888' }}>{option.value}</small> {/* Add small text here */}
+                                <div className="flex flex-col gap-y-2">
+                                    {option.label}
+                                    <small style={{ color: '#888' }}>{option.value}</small> {/* Add small text here */}
+                                </div>
                             </Option>
                         ))}
                     </Select>
@@ -72,7 +73,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     };
 
     const handleSubmit = (values) => {
-        
         const formData = new FormData();
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
