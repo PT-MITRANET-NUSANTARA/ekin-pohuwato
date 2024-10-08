@@ -35,6 +35,23 @@ export const getRiwayatByNIP = async (token: string, nip:string) => {
     }
 }
 
+export const getAllPosjabByUnit = async (token: string, unitId:string) => {
+    try {
+        const response = await apiRequest(`${API_URL}/posjab/unor/${unitId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+
+        });
+        return response;
+    } catch (error) {
+        console.error("Error fetching all records:", error);
+        throw error; // rethrow the error to handle it further up the call stack
+    }
+}
+
 export const getAllSatuanKerja = async (token: string) => {
     try {
         const response = await apiRequest(`${API_URL}/ref/satuankerja`, {

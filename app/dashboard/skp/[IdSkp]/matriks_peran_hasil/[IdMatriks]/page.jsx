@@ -1,22 +1,52 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input } from 'antd';
-import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React, { use, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { DataTable, SearchPegawai, TambahPegawai, TruncateText } from '@/components';
 import { dummyIntervensiRhk } from '@/data';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
-
-    const loading = false;
-
     const [pegawaiModal, setPegawaiModal] = useState(false);
     const [jenisRhkModal, setJenisRhkModal] = useState(false);
     const [rencanaAksiModal, setRencanaAksiModal] = useState(false);
+
+    const { data, setData, loading } = useFetchData(getData);
+    const [jabatan, setJabatan] = useState(null);
+    const [unor, setUnor] = useState(null);
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+
+            const selectedJabatan = jabatan.mapData.data[0];
+            console.log(selectedJabatan.unor.id);
+
+            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
+            console.log(unit);
+
+            const bawahan = unit.mapData.data.filter((item) => item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan);
+
+            setJabatan(selectedJabatan);
+
+            setUnor(bawahan);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const Column = [
         {
@@ -47,17 +77,17 @@ const page = () => {
             sorter: (a, b) => a.rencana_aksi.length - b.rencana_aksi.length,
             width: '30%',
             render: (_, record) => (
-                <div className='flex flex-col gap-y-2'>
-                    <ul className='list-disc list-inside'>
+                <div className="flex flex-col gap-y-2">
+                    <ul className="list-disc list-inside">
                         {record.rencana_aksi.map((item) => (
                             <li>{item.content}</li>
                         ))}
                     </ul>
-                    <Button type='primary' className='w-fit' onClick={() => setRencanaAksiModal(true)}>
-                        Tambah 
+                    <Button type="primary" className="w-fit" onClick={() => setRencanaAksiModal(true)}>
+                        Tambah
                     </Button>
                 </div>
-            ) 
+            )
         },
         {
             title: 'Rencana Aksi',
@@ -66,13 +96,15 @@ const page = () => {
             sorter: (a, b) => a.jenis_rhk.length - b.jenis_rhk.length,
             width: '30%',
             render: (_, record) => (
-                <div className='flex flex-col gap-y-2'>
-                    <Tag color='blue' className='w-fit'>{record.jenis_rhk}</Tag>
-                    <Button type='default' className='w-fit' onClick={() => setJenisRhkModal(true)}>
-                        Ubah Jenis 
+                <div className="flex flex-col gap-y-2">
+                    <Tag color="blue" className="w-fit">
+                        {record.jenis_rhk}
+                    </Tag>
+                    <Button type="default" className="w-fit" onClick={() => setJenisRhkModal(true)}>
+                        Ubah Jenis
                     </Button>
                 </div>
-            ) 
+            )
         },
         {
             title: 'Action',
@@ -84,7 +116,6 @@ const page = () => {
                         size="middle"
                         icon={<EditOutlined />}
                     />
-                    
 
                     <Button
                         // type='primary'
@@ -92,13 +123,12 @@ const page = () => {
                         color="danger"
                         icon={<DeleteOutlined />}
                     />
-
-                 
                 </Space>
             )
         }
     ];
 
+    console.log(unor);
     
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -131,55 +161,57 @@ const page = () => {
                 </div>
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
-                        <span className="uppercase font-semibold">unit kerja</span>
-                        <p className="text-right uppercase">Tahun 2024</p>
+                        <span className="uppercase font-semibold">{jabatan?.nama_jabatan}</span>
+                        {/* <p className="text-right uppercase">Tahun 2024</p> */}
                     </div>
                     <div className="flex items-center justify-between py-2">
-                        <span className="uppercase font-semibold">status pegawai</span>
-                        <p className="text-right uppercase">BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
+                        <span className="uppercase font-semibold">Unit Organisasi</span>
+                        <p className="text-right uppercase">{jabatan?.unor.nama}</p>
                     </div>
                 </div>
                 <div className="w-full flex flex-col gap-y-4">
-                    <Card type="inner" title="taruh title disini">
-                        <div className="grid grid-flow-row divide-y text-xs ">
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">nama</span>
-                                <p className="text-right uppercase">YAHYA S MALABAR NOOR</p>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">jabatan</span>
-                                <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>PRANATA KEARSIPAN</p>
-                                    <small>ID : 197801012007011026</small>
+                    {unor?.map((item, index) => (
+                        <Card type="inner" key={index} title={item.userId}>
+                            <div className="grid grid-flow-row divide-y text-xs">
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">nama</span>
+                                    <p className="text-right uppercase">{item.nama_asn}</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">jabatan</span>
+                                    <div className="flex flex-col gap-y-2 text-right items-end">
+                                        <p>{item.nama_jabatan}</p>
+                                        {/* <small>ID : {item.id || '197801012007011026'}</small> */}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-y-4 py-2 pt-4">
+                                    <div className="flex items-center gap-x-2">
+                                        <Button className="w-fit" type="primary">
+                                            Lihat SKP
+                                        </Button>
+                                        <Button className="w-fit" type="primary">
+                                            Tambah RHK
+                                        </Button>
+                                        <Button danger className="w-fit" type="primary">
+                                            Hapus
+                                        </Button>
+                                    </div>
+                                    <Collapse bordered>
+                                        <Collapse.Panel key="1" header="RHK Yang di Intervensi">
+                                            <DataTable columns={Column} data={dummyIntervensiRhk} loading={false} />
+                                        </Collapse.Panel>
+                                    </Collapse>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-y-4 py-2 pt-4">
-                                <div className="flex items-center gap-x-2">
-                                    <Button className="w-fit" type="primary">
-                                        Lihat SKP
-                                    </Button>
-                                    <Button className="w-fit" type="primary">
-                                        Tambah RHK
-                                    </Button>
-                                    <Button danger className="w-fit" type="primary">
-                                        Hapus
-                                    </Button>
-                                </div>
-                                <Collapse bordered>
-                                    <Collapse.Panel key="1" header="RHK Yang di Intervensi">
-                                        <DataTable columns={Column} data={dummyIntervensiRhk} loading={false} />
-                                    </Collapse.Panel>
-                                </Collapse>
-                            </div>
-                        </div>
-                    </Card>
+                        </Card>
+                    ))}
                 </div>
             </Card>
-            <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)}/>
+            <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)} />
             <Modal open={jenisRhkModal} onClose={() => setJenisRhkModal(false)} onCancel={() => setJenisRhkModal(false)}>
-                <Form className='mt-6 ' layout='vertical'>
+                <Form className="mt-6 " layout="vertical">
                     <Form.Item name="jenis_rhk" label="Ubah Jenis RHK">
-                        <Select size='large'>
+                        <Select size="large">
                             <Option>Organisasi</Option>
                             <Option>Lainnya</Option>
                         </Select>
@@ -187,9 +219,9 @@ const page = () => {
                 </Form>
             </Modal>
             <Modal open={rencanaAksiModal} onClose={() => setRencanaAksiModal(false)} onCancel={() => setRencanaAksiModal(false)}>
-                <Form className='mt-6 ' layout='vertical'>
+                <Form className="mt-6 " layout="vertical">
                     <Form.Item name="rencana_aksi" label="Tambah Rencana Aksi">
-                       <Input size='large'></Input>
+                        <Input size="large"></Input>
                     </Form.Item>
                 </Form>
             </Modal>

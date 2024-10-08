@@ -1,9 +1,9 @@
 import { apiRequest } from "@/utils/apiRequest";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
+const API_URL2 = process.env.NEXT_PUBLIC_API_EKIN_URL;
 export const getAll = async (token: string) => {
     try {
-        const response = await apiRequest(`${API_URL}/unor/all`, {
+        const response = await apiRequest(`${API_URL2}/unor/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

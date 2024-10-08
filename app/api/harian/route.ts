@@ -6,13 +6,13 @@ import { createResponse } from '@/utils/api';
 
 const harianSchema = Joi.object({
     date: Joi.date().required().label('Tanggal'),
-    startDateTime: Joi.date().required().label('Waktu Mulai'),
-    endDateTime: Joi.date().required().label('Waktu Selesai'),
+    startDateTime: Joi.string().required().label('Waktu Mulai'),
+    endDateTime: Joi.string().required().label('Waktu Selesai'),
     rhk: Joi.string().required().label('RHK'),
     namaKegiatan: Joi.string().required().label('Nama Kegiatan'),
     deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),
-    tautan: Joi.string().uri().optional().label('Tautan'),
-    files: Joi.array().items(Joi.string()).optional().label('Berkas'),
+    tautan: Joi.string().uri().label('Tautan'),
+    files: Joi.array().items(Joi.string()).label('Berkas'),
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
+   
         const bodyWithUser = { ...body, user_id };
 
         const errors = validateHarianData(bodyWithUser);

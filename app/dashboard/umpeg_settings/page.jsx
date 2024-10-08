@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyHarian, dummyUnit } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
+import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
+import { store, update, getAll as getAllUmpeg } from '@/controller/UMPEGController';
 
 const { Title } = Typography;
 
@@ -20,6 +22,9 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit]   = useState(null);
+    const [selectedUnit, setSelectedUnit] = useState(null);
+    const [selectedUnor, setSelectedUnor] = useState(null);
+    const [UMPEG, setUMPEG] = useState(null);
     useEffect(() => {
         if (data) {
             fetchData();
@@ -29,39 +34,42 @@ const page = () => {
     const fetchData = async () => {
         try {
             const unit = await getAll(data.token);
+            const umpeg = await getAllUmpeg();
+            setUMPEG(umpeg.data);
             setUnit(unit.mapData)
             
         } catch (error) {
             console.log(error);
         }
     };
-    console.log(unit);
     
 
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-
+            console.log(values);
+            console.log(id);
+            const dt = {
+                unit: selectedUnor,
+                jabatan : values
+            }
+            
             switch (type) {
-                case 'create':
-                    response = await store(values);
-                    break;
-
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(selectedUnor.id_sapk, dt);
+                    if (response.status = 404) {
+                        response = await store(dt);
+                    }
                     break;
-
-                case 'delete':
-                    response = await destroy(id);
-                    break;
-
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-
+            
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const unit = await getAll(data.token);
+                const umpeg = await getAllUmpeg();
+                setUMPEG(umpeg.data);
+                setUnit(unit.mapData);
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -92,15 +100,15 @@ const page = () => {
     const Column = [
         {
             title: 'ID',
-            dataIndex: 'idUnor',
-            key: 'idUnor',
+            dataIndex: 'id_sapk',
+            key: 'id_sapk',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
         },
         {
             title: 'Unit',
-            dataIndex: 'nmUnor',
-            key: 'nmUnor',
+            dataIndex: 'nama_unor',
+            key: 'nama_unor',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
@@ -108,40 +116,21 @@ const page = () => {
             title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'jabatan',
-            sorter: (a, b) => a.role.length - b.role.length,
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
             width: '30%',
-            render: (_, { role }) => (
-                <>
-                    {(() => {
-                        switch (role) {
-                            case 'Admin UMPEG':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {role}
-                                    </Tag>
-                                );
-                            case 'Petugas':
-                                return (
-                                    <Tag color="red" className="capitalize">
-                                        {role}
-                                    </Tag>
-                                );
-                            case 'User':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {role}
-                                    </Tag>
-                                );
-                            default:
-                                return (
-                                    <Tag color="error" className="capitalize">
-                                        {role}
-                                    </Tag>
-                                );
-                        }
-                    })()}
-                </>
-            ),
+            render: (_, record) => {
+                const matchingItem = UMPEG?.find(item => item.unit.id_sapk === record.id_sapk);
+    
+                if (matchingItem) {
+                    return (
+                        <Tag color="blue" className="capitalize">
+                            {matchingItem.jabatan.role}
+                        </Tag>
+                    );
+                } else {
+                    return <Tag color="red">Belum Memilih Jabatan</Tag>;
+                }
+            },
             searchable: true
         },
         {
@@ -150,8 +139,25 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Admin ${record._id}`, type: 'edit' })}
-                        // type='primary'
+                        onClick={async () => {
+                            const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
+                            const jabatan_nama = jabatan.mapData.data
+                            .map(({ nama_jabatan }) => ({
+                                label: nama_jabatan,
+                                value: nama_jabatan
+                            }))
+                            .filter((item, index, self) => 
+                                index === self.findIndex((t) => t.value === item.value)
+                            );
+                            setSelectedUnor(record);
+                            setSelectedUnit(jabatan_nama);
+                            setModal({ 
+                                trigger: true, 
+                                modalData: record, 
+                                title: `Edit Admin ${record._id}`, 
+                                type: 'edit' 
+                            });
+                        }}
                         size="middle"
                         icon={<EditOutlined />}
                     />
@@ -159,6 +165,7 @@ const page = () => {
             )
         }
     ];
+    
 
     const formFields = [
         {
@@ -171,20 +178,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options: [
-                {
-                    label: 'Admin UMPEG',
-                    value: 'admin_umpeg'
-                },
-                {
-                    label: 'Petugas',
-                    value: 'petugas'
-                },
-                {
-                    label: 'User',
-                    value: 'user'
-                },
-            ]
+            options: selectedUnit
         }
     ];
 

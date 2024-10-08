@@ -3,32 +3,62 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import React, { useEffect, useState } from 'react';
+import { destroy, getAll, store, update, getByUserId } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas } from '@/data/dummyData';
+import { getData } from '@/controller/AuthorizationController';
+import {getByUserId as getRHKByUserId} from '@/controller/RHKController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const {data, setData, loading}  = useFetchData(getData) 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [harian, setHarian]  = useState(null);
+    const [rhk, setRHK] = useState(null);
 
-    const onSubmit = async (values, type, id) => {
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const harian = await getByUserId(data.user.idASN);
+            const rhk = await getRHKByUserId(data.user.idASN);
+            setRHK(rhk.data)
+            setHarian(harian.data)
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const onSubmit = async (values, type, id, formData) => {
         try {
             let response;
-
+            let dt = {}
+            if (values.files) {
+                const berkas = values.files
+                delete values.files
+                dt = {...values, date : Date.now(), files: berkas.fileList}
+            }else
+            {   
+                dt = {...values, date : Date.now()}
+            }
+          
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(data.user.idASN,dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -38,7 +68,8 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-
+            console.log(response);
+            
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
@@ -132,8 +163,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Content',
-            name: 'content',
+            label: 'RHK',
+            name: 'rhk',
             type: 'text',
             rules: [
                 {
@@ -143,29 +174,62 @@ const page = () => {
             ]
         },
         {
+            label: 'Nama Kegiatan',
+            name: 'namaKegiatan',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Waktu Mulai',
+            name: 'startDateTime',
+            type: 'time',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Waktu Selesai',
+            name: 'endDateTime',
+            type: 'time',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Deksripsi Kegiatan',
+            name: 'deskripsiKegiatan',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tautan Kegiatan',
+            name: 'tautan',
+            type: 'text',
+        },
+        {
             label: 'Bukti Aktivitas',
-            name: 'bukti',
+            name: 'files',
             type: 'upload',
         }
     ];
 
-    const fileUploadProps = {
-        name: 'file',
-        action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-        headers: {
-            authorization: 'authorization-text'
-        },
-        onChange(info) {
-            if (info.file.status !== 'uploading') {
-                console.log(info.file, info.fileList);
-            }
-            if (info.file.status === 'done') {
-                message.success(`${info.file.name} file uploaded successfully`);
-            } else if (info.file.status === 'error') {
-                message.error(`${info.file.name} file upload failed.`);
-            }
-        }
-    };
+
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -197,7 +261,7 @@ const page = () => {
                         </div>
                     </div>
                     <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} fileUploadProps={fileUploadProps}></CrudModal>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
         </div>

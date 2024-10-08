@@ -3,13 +3,13 @@ import mongoose, { Document, Schema } from 'mongoose';
 // Define the Harian interface extending Document
 export interface IHarian extends Document {
   date: Date;
-  startDateTime: Date;
-  endDateTime: Date;
+  startDateTime: string;
+  endDateTime: string;
   rhk: mongoose.Schema.Types.ObjectId;
   namaKegiatan: string;
   deskripsiKegiatan: string;
   tautan?: string;
-  files?: string[];
+  files?: mongoose.Schema.Types.ObjectId[];
   user_id: string; // Reference to User ID
   createdAt?: Date;
   updatedAt?: Date;
@@ -48,7 +48,8 @@ const HarianSchema: Schema = new Schema({
     required: false
   },
   files: {
-    type: [String],
+    type: [Schema.Types.String],
+    ref: 'Image',
     required: false
   },
   user_id: {

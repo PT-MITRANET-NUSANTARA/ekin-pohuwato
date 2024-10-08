@@ -93,14 +93,15 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(400, "Failed", errors));
     }
 
-    const updatedUMPEG = await UMPEG.findOneAndUpdate({ _id: id }, body, {
-      new: true,
-    });
+    const updatedUMPEG = await UMPEG.findOne({"unit.id_sapk": id});
 
     if (!updatedUMPEG) {
       return NextResponse.json(createResponse(404, "UMPEG not found", null));
     }
 
+    updatedUMPEG.unit = body.unit;
+    updatedUMPEG.jabatan = body.jabatan;
+    await updatedUMPEG.save();
     return NextResponse.json(createResponse(200, "Success", updatedUMPEG, true));
   } catch (error) {
     console.error("PUT error:", error); // Added error logging
