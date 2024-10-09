@@ -59,6 +59,17 @@ export const dummyIntervensiRhk = Array.from({ length: 2}, (_, index) => ({
     jenis_rhk: 'ogranisasi',
 }))
 
+export const dummyAspeks = Array.from({ length: 2}, (_, index) => ({
+    _id: (index + 1), 
+    jenis: 'organisasi',
+    indikator: 'Tersedianya Dokumen Perencanaan Pelaksanaan Program dan Kegiatan Pengolahan Data dan Informasi Kepegawaian',
+}))
+
+export const dummyRencanaAksi = Array.from({ length: 2}, (_, index) => ({
+    _id: (index + 1), 
+    content: 'organisasi',
+}))
+
 export const dummySkpBawahan = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 
     unit_kerja: 'BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',

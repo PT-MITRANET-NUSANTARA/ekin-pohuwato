@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input } from 'antd';
+import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input, Skeleton } from 'antd';
 import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { use, useEffect, useState } from 'react';
@@ -10,17 +10,17 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
-import {getById } from '@/controller/SKPController';
+import { getById } from '@/controller/SKPController';
 import { options } from 'joi';
+import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
 const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
     const { Id } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [pegawaiModal, setPegawaiModal] = useState(false);
-    const [jenisRhkModal, setJenisRhkModal] = useState(false);
-    const [rencanaAksiModal, setRencanaAksiModal] = useState(false);
+    const [rhkModal, setRhkModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [aspekModal, setAspekModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [rencanaAksiModal, setRencanaAksiModal] = useState({ trigger: false, modalData: null, title: '' });
 
     const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
@@ -49,8 +49,54 @@ const page = () => {
         }
     };
 
-    
-    const Column = [
+    const aspekColumns = [
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            key: '_id',
+            sorter: (a, b) => a._id.length - b._id.length,
+            width: '10%'
+        },
+        {
+            title: 'Jenis',
+            dataIndex: 'jenis',
+            key: 'jenis',
+            sorter: (a, b) => a.jenis.length - b.jenis.length,
+            width: '30%'
+        },
+        {
+            title: 'Indikator',
+            dataIndex: 'indikator',
+            key: 'indikator',
+            sorter: (a, b) => a.indikator.length - b.indikator.length,
+            width: '30%'
+        },
+
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        onClick={() => setAspekModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+
+                    <Button
+                        // type='primary'
+                        onClick={() => setAspekModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+                </Space>
+            )
+        }
+    ];
+
+    const rhkColumns = [
         {
             title: 'ID',
             dataIndex: '_id',
@@ -72,42 +118,42 @@ const page = () => {
             sorter: (a, b) => a.intervensi.length - b.intervensi.length,
             width: '30%'
         },
-        {
-            title: 'Rencana Aksi',
-            dataIndex: 'rencana_aksi',
-            key: 'rencana_aksi',
-            sorter: (a, b) => a.rencana_aksi.length - b.rencana_aksi.length,
-            width: '30%',
-            render: (_, record) => (
-                <div className="flex flex-col gap-y-2">
-                    <ul className="list-disc list-inside">
-                        {record.rencana_aksi.map((item) => (
-                            <li>{item.content}</li>
-                        ))}
-                    </ul>
-                    <Button type="primary" className="w-fit" onClick={() => setRencanaAksiModal(true)}>
-                        Tambah
-                    </Button>
-                </div>
-            )
-        },
-        {
-            title: 'Rencana Aksi',
-            dataIndex: 'jenis_rhk',
-            key: 'jenis_rhk',
-            sorter: (a, b) => a.jenis_rhk.length - b.jenis_rhk.length,
-            width: '30%',
-            render: (_, record) => (
-                <div className="flex flex-col gap-y-2">
-                    <Tag color="blue" className="w-fit">
-                        {record.jenis_rhk}
-                    </Tag>
-                    <Button type="default" className="w-fit" onClick={() => setJenisRhkModal(true)}>
-                        Ubah Jenis
-                    </Button>
-                </div>
-            )
-        },
+        // {
+        //     title: 'Rencana Aksi',
+        //     dataIndex: 'rencana_aksi',
+        //     key: 'rencana_aksi',
+        //     sorter: (a, b) => a.rencana_aksi.length - b.rencana_aksi.length,
+        //     width: '30%',
+        //     render: (_, record) => (
+        //         <div className="flex flex-col gap-y-2">
+        //             <ul className="list-disc list-inside">
+        //                 {record.rencana_aksi.map((item) => (
+        //                     <li>{item.content}</li>
+        //                 ))}
+        //             </ul>
+        //             <Button type="primary" className="w-fit" onClick={() => setRencanaAksiModal(true)}>
+        //                 Tambah
+        //             </Button>
+        //         </div>
+        //     )
+        // },
+        // {
+        //     title: 'Rencana Aksi',
+        //     dataIndex: 'jenis_rhk',
+        //     key: 'jenis_rhk',
+        //     sorter: (a, b) => a.jenis_rhk.length - b.jenis_rhk.length,
+        //     width: '30%',
+        //     render: (_, record) => (
+        //         <div className="flex flex-col gap-y-2">
+        //             <Tag color="blue" className="w-fit">
+        //                 {record.jenis_rhk}
+        //             </Tag>
+        //             <Button type="default" className="w-fit" onClick={() => setJenisRhkModal(true)}>
+        //                 Ubah Jenis
+        //             </Button>
+        //         </div>
+        //     )
+        // },
         {
             title: 'Action',
             key: 'action',
@@ -115,14 +161,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit'})}
+                        onClick={() => setRhkModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setModal({trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete'})}
+                        onClick={() => setRhkModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -132,7 +178,46 @@ const page = () => {
         }
     ];
 
-    const formFields = [
+    const rencanaAksiColumn = [
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            key: '_id',
+            sorter: (a, b) => a._id.length - b._id.length,
+            width: '10%'
+        },
+        {
+            title: 'Content',
+            dataIndex: 'content',
+            key: 'content',
+            sorter: (a, b) => a.content.length - b.content.length,
+            width: '30%'
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        onClick={() => setRencanaAksiModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+
+                    <Button
+                        // type='primary'
+                        onClick={() => setRencanaAksiModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+                </Space>
+            )
+        }
+    ];
+
+    const RhkFields = [
         {
             label: 'RHK',
             name: 'rhk',
@@ -143,7 +228,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options : SKP?.rhks.map((item) => ({ value: item._id, label: item.desc }))
+            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc }))
         },
         {
             label: 'Jenis',
@@ -155,7 +240,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options : [
+            options: [
                 {
                     value: 'organisasi',
                     label: 'Organisasi'
@@ -176,7 +261,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options : [
+            options: [
                 {
                     value: 'utama',
                     label: 'Utama'
@@ -196,11 +281,67 @@ const page = () => {
                     required: true,
                     message: 'Field periode mulai wajib di isi'
                 }
-            ],
-           
-        },
+            ]
+        }
     ];
-    
+
+    const AspekFields = [
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'organisasi',
+                    value: 'organisasi'
+                },
+                {
+                    label: 'organisasi',
+                    value: 'organisasi'
+                },
+                {
+                    label: 'organisasi',
+                    value: 'organisasi'
+                },
+                {
+                    label: 'organisasi',
+                    value: 'organisasi'
+                }
+            ]
+        },
+        {
+            label: 'Jenis',
+            name: 'indikator',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        }
+    ];
+
+    const RencanaAksiField = [
+        {
+            label: 'Content',
+            name: 'content',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ]
+        }
+    ];
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -219,17 +360,12 @@ const page = () => {
                         Data Matriks SKP
                     </Title>
                     <div className="flex items-center gap-x-2">
-                        <Button type="primary" icon={<ReloadOutlined />}>
-                            Sinkronisasi SKP Bawahan
-                        </Button>
-                        <Button type="default" icon={<PlusOutlined />} onClick={() => setPegawaiModal(true)}>
-                            Tambah Pegawai
-                        </Button>
                         <Button type="default" icon={<PrinterOutlined />}>
                             Cetak
                         </Button>
                     </div>
                 </div>
+
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">{jabatan?.nama_jabatan}</span>
@@ -260,7 +396,7 @@ const page = () => {
                                         <Button className="w-fit" type="primary">
                                             Lihat SKP
                                         </Button>
-                                        <Button className="w-fit" type="primary" onClick={() => setModal({trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create'})}>
+                                        <Button className="w-fit" type="primary">
                                             Tambah RHK
                                         </Button>
                                         <Button danger className="w-fit" type="primary">
@@ -268,8 +404,22 @@ const page = () => {
                                         </Button>
                                     </div>
                                     <Collapse bordered>
-                                        <Collapse.Panel key="1" header="RHK Yang di Intervensi">
-                                            <DataTable columns={Column} data={dummyIntervensiRhk} loading={false} />
+                                        <Collapse.Panel
+                                            key="1"
+                                            header="RHK Yang di Intervensi"
+                                            extra={<Button onClick={() => setRhkModal({ trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah RHK</Button>}
+                                        >
+                                            <DataTable columns={rhkColumns} data={dummyIntervensiRhk} loading={loading} />
+                                        </Collapse.Panel>
+                                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setAspekModal({ trigger: true, modalData: dummyAspeks, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah Aspek</Button>}>
+                                            <DataTable columns={aspekColumns} data={dummyAspeks} loading={loading} />
+                                        </Collapse.Panel>
+                                        <Collapse.Panel
+                                            key="3"
+                                            header="Rencana Aksi"
+                                            extra={<Button onClick={() => setRencanaAksiModal({ trigger: true, modalData: dummyRencanaAksi, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah Rencana Aksi</Button>}
+                                        >
+                                            <DataTable columns={rencanaAksiColumn} data={dummyRencanaAksi} loading={false} />
                                         </Collapse.Panel>
                                     </Collapse>
                                 </div>
@@ -278,25 +428,25 @@ const page = () => {
                     ))}
                 </div>
             </Card>
-            <CrudModal formFields={formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({trigger: false})} onSubmit={() => setModal({trigger: false})} title={modal.title} type={modal.type} />
-            <TambahPegawai isModalOpen={pegawaiModal} onCancel={() => setPegawaiModal(false)} onClose={() => setPegawaiModal(false)} />
-            <Modal open={jenisRhkModal} onClose={() => setJenisRhkModal(false)} onCancel={() => setJenisRhkModal(false)}>
-                <Form className="mt-6 " layout="vertical">
-                    <Form.Item name="jenis_rhk" label="Ubah Jenis RHK">
-                        <Select size="large">
-                            <Option>Organisasi</Option>
-                            <Option>Lainnya</Option>
-                        </Select>
-                    </Form.Item>
-                </Form>
-            </Modal>
-            <Modal open={rencanaAksiModal} onClose={() => setRencanaAksiModal(false)} onCancel={() => setRencanaAksiModal(false)}>
-                <Form className="mt-6 " layout="vertical">
-                    <Form.Item name="rencana_aksi" label="Tambah Rencana Aksi">
-                        <Input size="large"></Input>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <CrudModal formFields={RhkFields} isModalOpen={rhkModal.trigger} data={rhkModal.modalData} onClose={() => setRhkModal({ trigger: false })} onSubmit={() => setRhkModal({ trigger: false })} title={rhkModal.title} type={rhkModal.type} />
+            <CrudModal
+                formFields={AspekFields}
+                isModalOpen={aspekModal.trigger}
+                data={aspekModal.modalData}
+                onClose={() => setAspekModal({ trigger: false })}
+                onSubmit={() => setAspekModal({ trigger: false })}
+                title={aspekModal.title}
+                type={aspekModal.type}
+            />
+            <CrudModal
+                formFields={RencanaAksiField}
+                isModalOpen={rencanaAksiModal.trigger}
+                data={rencanaAksiModal.modalData}
+                onClose={() => setRencanaAksiModal({ trigger: false })}
+                onSubmit={() => setRencanaAksiModal({ trigger: false })}
+                title={rencanaAksiModal.title}
+                type={rencanaAksiModal.type}
+            />
         </div>
     );
 };
