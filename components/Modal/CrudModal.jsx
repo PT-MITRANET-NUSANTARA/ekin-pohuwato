@@ -56,12 +56,12 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 );
             case 'select':
                 return (
-                    <Select size="large" placeholder="Select a option and change input text above" allowClear disabled={isDisabled}>
+                    <Select size="large" optionLabelProp='label' placeholder="Select a option and change input text above"  allowClear disabled={isDisabled}>
                         {field.options?.map((option, index) => (
-                            <Option key={index} value={option.value}>
-                                <div className="flex flex-col gap-y-2">
+                            <Option key={index} value={option.value} label={option.label} >
+                                <div className="flex flex-col">
                                     {option.label}
-                                    <small style={{ color: '#888' }}>{option.value}</small> {/* Add small text here */}
+                                    <small style={{ color: '#888' }}>{option.value}</small>
                                 </div>
                             </Option>
                         ))}

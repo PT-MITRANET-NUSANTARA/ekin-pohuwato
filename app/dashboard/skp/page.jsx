@@ -206,6 +206,7 @@ const page = () => {
                                         <Button onClick={() => router.push(`/dashboard/skp/${item._id}/penilaian`)}>Penilaian</Button>
                                         <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
                                         <Button onClick={() => router.push(`/dashboard/skp/${item._id}/hasil_kerja`)}>Hasil Kerja</Button>
+                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
                                     </div>
 
                                     <div className="grid grid-flow-row divide-y text-xs">
