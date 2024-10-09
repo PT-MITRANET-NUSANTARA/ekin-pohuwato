@@ -299,28 +299,27 @@ const page = () => {
                                 Utama
                             </td>
                         </tr>
-                        {dummyData.map((item, index) => (
+                        {skp?.rhks.map((item, index) => (
                             <>
                                 <tr>
-                                    <td rowSpan={item.aspeks.length + 1}>{index+1}</td>
-                                    <td rowSpan={item.aspeks.length + 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                    <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1}>{index + 1}</td>
+                                    <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
                                             <p>{item.desc}</p>
-                                            <p>Indikator: {item.desc}</p>
-                                            <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                            {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
-                                    <td rowSpan={item.aspeks.length + 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                    <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
                                             <p>{item.desc}</p>
                                             <Tag color="blue" className="w-fit">
-                                                {item.desc}
+                                                {item.klasifikasi ? item.klasifikasi : ''}
                                             </Tag>
-                                            <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                            {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
                                 </tr>
-                                {item.aspeks.map((aspek) => (
+                                {item.aspeks?.map((aspek) => (
                                     <>
                                         <tr>
                                             <td>{aspek.jenis}</td>
@@ -350,20 +349,22 @@ const page = () => {
                         </tr>
                     </thead>
                     <tbody className="capitalize">
-                        <tr>
-                            <td>1</td>
-                            <td className="" style={{ padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <b>Berorientasi Pelayanan</b>
-                                    <ol className="list-decimal list-inside">
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                    </ol>
-                                </div>
-                            </td>
-                            <td></td>
-                        </tr>
+                        {skp?.perilakus?.map((item, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td style={{ padding: '8px' }}>
+                                    <div className="flex flex-col gap-y-2 text-left">
+                                        <b>{item.name}</b>
+                                        <ol className="list-decimal list-inside">
+                                            {item.isi.map((isiItem, isiIndex) => (
+                                                <li key={isiIndex}>{isiItem}</li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                </td>
+                                <td>{item.feedback || 'N/A'}</td> 
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
                 <table className="normaltable">
