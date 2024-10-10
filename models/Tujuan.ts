@@ -30,7 +30,7 @@ const TujuanSchema: Schema = new Schema(
             required: true
         },
         renstra: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Renstra',
             required: true
         }

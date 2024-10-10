@@ -15,7 +15,7 @@ const VisiSchema: Schema = new Schema(
             required: true
         },
         periode: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Periode',
             required: true
         },

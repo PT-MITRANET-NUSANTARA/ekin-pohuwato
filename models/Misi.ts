@@ -15,7 +15,7 @@ const MisiSchema: Schema = new Schema(
             required: true
         },
         visi: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Visi',
             required: true
         }
