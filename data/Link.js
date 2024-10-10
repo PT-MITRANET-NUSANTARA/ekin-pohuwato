@@ -1,4 +1,4 @@
-import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined } from '@ant-design/icons';
 import path from 'path';
 
 
@@ -17,6 +17,10 @@ export const DashboardLink = [
           path: "/dashboard/renstra",
         },
         {
+          label: "Tujuan",
+          path: "/dashboard/tujuan"
+        },
+        {
           label: "Programs",
           path: "/dashboard/programs"
         },
@@ -29,6 +33,11 @@ export const DashboardLink = [
           path: "/dashboard/subkegiatans"
         }
       ]
+    },
+    {
+      icon: RocketOutlined,
+      label: 'Visi dan Misi',
+      path: "/dashboard/visi_misi",
     },
     {
       icon: CalendarOutlined,

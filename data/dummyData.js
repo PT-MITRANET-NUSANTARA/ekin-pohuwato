@@ -133,3 +133,19 @@ export const dummyTanggal = Array.from({ length: 10}, (_, index) => ({
     tanggal: "12-12-2022",
 }))
 
+export const dummyVisiMisi = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    type: (index === 1 ? "visi" : "misi"),
+    content: "lorem ipsum dolor sit amet",
+}))
+
+export const dummyTujuan = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    content: "lorem ipsum dolor sit amet",
+}))
+
+export const dummyPeriodePenilaian = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
+    content: "1",
+}))
+

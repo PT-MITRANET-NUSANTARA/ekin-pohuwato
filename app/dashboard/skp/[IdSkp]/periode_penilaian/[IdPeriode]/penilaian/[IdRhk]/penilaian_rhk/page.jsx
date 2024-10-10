@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
-    const {IdSkp, IdRhk} = useParams();
+    const {IdSkp, IdPeriode} = useParams();
     const [ratingModal, setRatingModal] = useState(false);
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -188,7 +188,7 @@ const page = () => {
                             <td>3 Dokument</td>
                             <td>
                                 <div className="flex items-center justify-center">
-                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/${IdRhk}/penilaian_rhk/1/bukti_dukung`)}>Lihat</Button>
+                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/penilaian_rhk/1/bukti_dukung`)}>Lihat</Button>
                                 </div>
                             </td>
                             <td></td>
