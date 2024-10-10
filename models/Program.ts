@@ -42,9 +42,9 @@ const ProgramSchema: Schema = new Schema({
     type: Number,
     required: true
   },
-  renstra: {
+  tujuan: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Renstra',
+    ref: 'Tujuan',
     required: true
   }
 }, { timestamps: true });
