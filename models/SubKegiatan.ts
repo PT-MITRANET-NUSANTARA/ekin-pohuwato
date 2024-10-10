@@ -45,8 +45,8 @@ SubKegiatanSchema.virtual('relatedKegiatan', {
   justOne: true
 });
 
-SubKegiatanSchema.virtual('rkts', {
-  ref: 'RKT',
+SubKegiatanSchema.virtual('PeriodeRKTS', {
+  ref: 'PeriodeRKT',
   localField: '_id',
   foreignField: 'subKegiatan',
   justOne: false
