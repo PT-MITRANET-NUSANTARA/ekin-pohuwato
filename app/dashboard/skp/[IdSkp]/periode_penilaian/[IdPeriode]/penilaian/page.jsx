@@ -12,7 +12,7 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { IdSkp } = useParams();
+    const { IdSkp, IdPeriode } = useParams();
 
     const Column = [
         {
@@ -51,7 +51,7 @@ const page = () => {
                     <Button
                         // type='primary'
                         size="middle"
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/penilaian_rhk`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record.nip}/penilaian_rhk`)}
                     >
                         Penilaian
                     </Button>
@@ -60,7 +60,7 @@ const page = () => {
                         // type='primary'
                         size="middle"
                         color="danger"
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/feedback_perilaku`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record.nip}/feedback_perilaku`)}
                     >
                         Feedback Perilaku
                     </Button>
@@ -113,7 +113,7 @@ const page = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-x-2 mb-4">
-                    <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/penilaian/1/rekap_penilaian`)}>
+                    <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
                     <Button type="primary">Lihat Kurva</Button>
