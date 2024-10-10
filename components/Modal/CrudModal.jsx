@@ -12,10 +12,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     useEffect(() => {
         if (isModalOpen) {
-            form.resetFields();
-            form.setFieldsValue(data ?? {});
+            form.resetFields(); // pastikan ini hanya dipanggil ketika diperlukan
         }
-    }, [isModalOpen, data, form]);
+    }, [isModalOpen, form]);
 
     const beforeUpload = (file) => {
         const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -56,9 +55,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 );
             case 'select':
                 return (
-                    <Select size="large" optionLabelProp='label' placeholder="Select a option and change input text above"  allowClear disabled={isDisabled}>
+                    <Select size="large" optionLabelProp="label" placeholder="Select a option and change input text above" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled}>
                         {field.options?.map((option, index) => (
-                            <Option key={index} value={option.value} label={option.label} >
+                            <Option key={index} value={option.value} label={option.label}>
                                 <div className="flex flex-col">
                                     {option.label}
                                     <small style={{ color: '#888' }}>{option.value}</small>

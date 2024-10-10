@@ -133,9 +133,12 @@ export const dummyTanggal = Array.from({ length: 10}, (_, index) => ({
     tanggal: "12-12-2022",
 }))
 
-export const dummyVisiMisi = Array.from({ length: 10}, (_, index) => ({
+export const dummyVisi = Array.from({ length: 10}, (_, index) => ({
     _id: (index + 1), 
-    type: (index === 1 ? "visi" : "misi"),
+    content: "lorem ipsum dolor sit amet",
+}))
+export const dummyMisi = Array.from({ length: 10}, (_, index) => ({
+    _id: (index + 1), 
     content: "lorem ipsum dolor sit amet",
 }))
 

@@ -15,4 +15,46 @@
         font-weight: 500;
         padding-inline: 2px;
     }
+
+    .header{
+        width: 100%;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .header h1{
+        width: 100%;
+        text-align: center;
+    }
+    .header p{
+        width: 100%;
+        text-align: center;
+    }
+    .header p.periode{
+        margin-top: 1rem;
+    }
+    table.subheader{
+        font-weight: 700;
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    table.detailpenilai{
+        width: 100%;
+    }
+
+    table.detailpenilai tbody tr td{
+        border: 1px solid black;
+        font-weight: 500;
+        padding-inline: 2px;
+        text-transform: uppercase;
+        
+    }
+
+    table.detailpenilai tbody tr.tablehead{
+        background-color: skyblue;
+        
+    }
+
+    
+
 }

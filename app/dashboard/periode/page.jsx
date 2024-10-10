@@ -1,7 +1,7 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
-import { dummyVisiMisi } from '@/data/dummyData';
+import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -21,14 +21,7 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Visi/Misi',
-            dataIndex: 'type',
-            key: 'type',
-            sorter: (a, b) => a.type.length - b.type.length,
-            width: '30%'
-        },
-        {
-            title: 'Isi',
+            title: 'Periode',
             dataIndex: 'content',
             key: 'content',
             sorter: (a, b) => a.content.length - b.content.length,
@@ -67,27 +60,6 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Tipe',
-            name: 'type',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ],
-            options: [
-                {
-                    label: 'Visi',
-                    value: 'visi'
-                },
-                {
-                    label: 'Misi',
-                    value: 'misi'
-                }
-            ]
-        },
-        {
             label: 'Content',
             name: 'content',
             type: 'text',
@@ -116,7 +88,7 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Visi dan Misi
+                            Data Periode
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
@@ -124,8 +96,8 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={dummyVisiMisi} loading={false} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} formFields={formFields} type={modal.type} />
+                    <DataTable columns={Column} data={dummyPeriodePenilaian} loading={false} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={() => setModal({...modal, trigger: false})} data={modal.modalData} formFields={formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

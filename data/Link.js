@@ -9,6 +9,24 @@ export const DashboardLink = [
       path: "/dashboard",
     },
     {
+      icon: RocketOutlined,
+      label: 'Visi Misi Periode',
+      children: [
+        {
+          label: "Visi",
+          path: "/dashboard/visi"
+        },
+        {
+          label: "Misi",
+          path: "/dashboard/misi"
+        },
+        {
+          label: "Periode",
+          path: "/dashboard/periode"
+        }
+      ]
+    },
+    {
       icon: SnippetsOutlined,
       label: 'Renstra',
       children: [
@@ -34,15 +52,20 @@ export const DashboardLink = [
         }
       ]
     },
-    {
-      icon: RocketOutlined,
-      label: 'Visi dan Misi',
-      path: "/dashboard/visi_misi",
-    },
+    
     {
       icon: CalendarOutlined,
       label: 'RKT',
-      path: "/dashboard/rkt",
+      children: [
+        {
+          label: 'Periode RKT',
+          path: '/dashboard/periode_rkt'
+        },
+        {
+          label: 'RKT',
+          path: '/dashboard/rkt'
+        },
+      ]
     },
     {
       icon: FieldTimeOutlined,
