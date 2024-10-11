@@ -17,7 +17,7 @@ interface ISKP extends Document {
     periode_awal: Date;
     periode_akhir: Date;
     skp?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
-    renstra: mongoose.Schema.Types.ObjectId; // Reference to Renstra
+    periodeRKT: mongoose.Schema.Types.ObjectId; // Reference to Renstra
     rhks?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
     perilakus?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
     pendekatan: Pendekatan;
@@ -38,9 +38,9 @@ const SKPSchema: Schema = new Schema(
             ref: 'SKP',
             required: false
         },
-        renstra: {
+        periodeRKT: {
             type: Schema.Types.ObjectId,
-            ref: 'Renstra',
+            ref: 'PeriodeRKT',
             required: true
         },
         jabatan: {

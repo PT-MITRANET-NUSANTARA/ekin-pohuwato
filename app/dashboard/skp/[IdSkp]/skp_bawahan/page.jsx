@@ -4,47 +4,81 @@ import { DataTable } from '@/components';
 import { Breadcrumb, Button, Card, Space, Tag, Typography } from 'antd';
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { dummySkpBawahan } from '@/data/dummyData';
+import { useParams, useRouter } from 'next/navigation';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
+
 
 const { Title } = Typography;
 
 const page = () => {
+
+    const router = useRouter();
+    const { IdSkp } = useParams();
+    const { data, setData, loading } = useFetchData(getData);
+    const [jabatan, setJabatan] = useState(null);
+    const [unor, setUnor] = useState(null);
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+
+            const selectedJabatan = jabatan.mapData.data[0];
+            console.log(selectedJabatan.unor.id);
+            
+            
+            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
+            console.log(unit);
+
+            const bawahan = unit.mapData.data.filter((item) => item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan);
+            
+            setJabatan(selectedJabatan);
+
+            setUnor(bawahan);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const Column = [
         {
             title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
+            dataIndex: 'userId',
+            key: 'userId',
             sorter: (a, b) => a._id.length - b._id.length,
-            width: '5%'
-        },
-        {
-            title: 'Unit Kerja',
-            dataIndex: 'unit_kerja',
-            key: 'unit_kerja',
-            sorter: (a, b) => a.unit_kerja.length - b.unit_kerja.length,
-            width: '20%'
-        },
-        {
-            title: 'NIP',
-            dataIndex: 'nip',
-            key: 'nip',
-            sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '20%'
+            width: '10%'
         },
         {
             title: 'Name',
-            dataIndex: 'nama',
-            key: 'nama',
-            sorter: (a, b) => a.nama.length - b.nama.length,
-            width: '20%',
-            searchable: true
+            dataIndex: 'nama_asn',
+            key: 'nama_asn',
+            sorter: (a, b) => a.tim_kerja.length - b.tim_kerja.length,
+            width: '30%'
         },
         {
+            title: 'Unit Kerja',
+            dataIndex: 'unit',
+            key: 'unit',
+            sorter: (a, b) => a.tim_kerja.length - b.tim_kerja.length,
+            width: '30%',
+            render: (_, record) => (
+                record.unor && record.unor.nama ? record.unor.nama : 'No Unit'
+            ),
+        },
+        
+        {
             title: 'Jabatan',
-            dataIndex: 'jabatan',
-            key: 'jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            dataIndex: 'nama_jabatan',
+            key: 'nama_jabatan',
+            sorter: (a, b) => a.ketua_tim.length - b.ketua_tim.length,
             width: '30%'
         },
         {
@@ -107,14 +141,14 @@ const page = () => {
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">unit kerja</span>
-                        <p className="text-right uppercase">Tahun 2024</p>
+                        <p className="text-right uppercase">{jabatan?.unor.nama}</p>
                     </div>
-                    <div className="flex items-center justify-between py-2">
+                    {/* <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">status pegawai</span>
-                        <p className="text-right uppercase">BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
-                    </div>
+                        <p className="text-right uppercase"> </p>
+                    </div> */}
                 </div>
-                <DataTable columns={Column} data={dummySkpBawahan} loading={false}></DataTable>
+                <DataTable columns={Column} data={unor} loading={false}></DataTable>
             </Card>
         </div>
     );

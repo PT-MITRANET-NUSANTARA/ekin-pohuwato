@@ -31,7 +31,7 @@ const AspekSchema: Schema = new Schema({
     required: true
   },
   target_tahunan: {
-    type: String,
+    type: Object,
     required: true
   },
   desc: {

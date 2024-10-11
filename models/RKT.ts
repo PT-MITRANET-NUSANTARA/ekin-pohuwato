@@ -1,8 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import SubKegiatan, { ISubKegiatan } from './SubKegiatan'; // Assuming the SubKegiatan model is in a separate file
+import { IPeriodeRKT } from './PeriodeRKT';
 
 export interface IRKT extends Document {
-  subKegiatan: mongoose.Types.ObjectId | ISubKegiatan; // Reference to the associated SubKegiatan
+  periodeRKT: mongoose.Types.ObjectId | IPeriodeRKT; // Reference to the associated SubKegiatan
   name: string; // Name of the RKT
   input: {
     name : string, 
@@ -24,9 +25,9 @@ export interface IRKT extends Document {
 }
 
 const RKTSchema: Schema = new Schema({
-  subKegiatan: {
+  periodeRKT: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'SubKegiatan',
+    ref: 'PeriodeRKT',
     required: true
   },
   name: {
@@ -84,7 +85,6 @@ const RKTSchema: Schema = new Schema({
     required: true
   }
 }, { timestamps: true });
-
 
 const RKT = mongoose.models.RKT || mongoose.model<IRKT>('RKT', RKTSchema);
 

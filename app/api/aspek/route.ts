@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Program from '../../../models/Program';
-import Kegiatan from '@/models/Kegiatan';
+import Aspek from '../../../models/Aspek';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
-const programSchema = Joi.object({
-  name: Joi.string().required().label('Nama Program'),
-  sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
-  total_anggaran: Joi.number().required().label('Total Anggaran'),
-  renstra: Joi.string().hex().length(24).required().label('Renstra'), // Mengharapkan ObjectId (24 karakter heksadesimal)
+const aspekSchema = Joi.object({
+  rhk: Joi.string().hex().length(24).required().label('RHK'), // Expecting ObjectId
+  jenis: Joi.string().valid('kualitas', 'kuantitas', 'waktu', 'deskripsi').required().label('Jenis'),
+  indikator: Joi.string().required().label('Indikator'),
+  target_tahunan: Joi.object().required().label('Target Tahunan'),
+  desc: Joi.string().optional().label('Deskripsi'),
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
@@ -22,13 +19,10 @@ const programSchema = Joi.object({
   'string.empty': '{{#label}} tidak boleh kosong.',
   'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
   'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
-  'number.base': '{{#label}} harus berupa angka.',
-  'number.empty': '{{#label}} tidak boleh kosong.',
 });
 
-
-function validateProgramData(data: any) {
-  const { error } = programSchema.validate(data, { abortEarly: false });
+function validateAspekData(data: any) {
+  const { error } = aspekSchema.validate(data, { abortEarly: false });
   if (error) {
     return error.details.map((err) => err.message);
   }
@@ -39,27 +33,18 @@ export async function GET(req: NextRequest) {
   await dbConnect();
   try {
     const id = req.nextUrl.searchParams.get('id');
-    const renstra_id = req.headers.get('renstra-id');
-    let programs;
+    let aspek;
 
     if (id) {
-      programs = await Program.findOne({ _id: id })
-        .populate('kegiatans')
-        .populate('renstra'); 
-    }
-    else if (renstra_id) {
-      programs = await Program.find({ renstra: renstra_id })
-        .populate('kegiatans')
-        .populate('renstra'); 
-    } 
-    else {
-      programs = await Program.find({})
+      aspek = await Aspek.findById(id).populate('rhk');
+    } else {
+      aspek = await Aspek.find().populate('rhk');
     }
 
-    return NextResponse.json(createResponse(200, 'Success', programs));
+    return NextResponse.json(createResponse(200, 'Success', aspek));
   } catch (error) {
     console.error('GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch Program data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch Aspek data' }, { status: 500 });
   }
 }
 
@@ -69,18 +54,18 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     
-    const errors = validateProgramData(body);
+    const errors = validateAspekData(body);
     
     if (errors.length > 0) {
       return NextResponse.json(createResponse(400, 'Failed', errors));
     }
 
-    const newProgram = new Program(body);
-    await newProgram.save();
-    return NextResponse.json(createResponse(201, 'Success', newProgram));
+    const newAspek = new Aspek(body);
+    await newAspek.save();
+    return NextResponse.json(createResponse(201, 'Success', newAspek));
   } catch (error) {
     console.error('POST error:', error); 
-    return NextResponse.json({ error: 'Failed to create Program' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create Aspek' }, { status: 500 });
   }
 }
 
@@ -95,29 +80,28 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
     
-    const errors = validateProgramData(body);
+    const errors = validateAspekData(body);
 
     if (errors.length > 0) {
       return NextResponse.json(createResponse(400, 'Failed', errors));
     }
 
-
-    const updatedProgram = await Program.findOneAndUpdate(
-      { _id: id },
+    const updatedAspek = await Aspek.findByIdAndUpdate(
+      id,
       body,
       { new: true }
-    ).populate('kegiatans').populate('renstra'); 
+    ).populate('rhk');
 
-    if (!updatedProgram) {
-      return NextResponse.json(createResponse(404, 'Program not found', null));
+    if (!updatedAspek) {
+      return NextResponse.json(createResponse(404, 'Aspek not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedProgram));
+    return NextResponse.json(createResponse(200, 'Success', updatedAspek));
   } catch (error) {
     console.log(error);
     
     console.error('PUT error:', error); 
-    return NextResponse.json({ error: 'Failed to update Program' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update Aspek' }, { status: 500 });
   }
 }
 
@@ -130,14 +114,14 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
 
-    const deletedProgram = await Program.findByIdAndDelete(id);
-    if (!deletedProgram) {
-      return NextResponse.json(createResponse(404, 'Program not found', null));
+    const deletedAspek = await Aspek.findByIdAndDelete(id);
+    if (!deletedAspek) {
+      return NextResponse.json(createResponse(404, 'Aspek not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedProgram));
+    return NextResponse.json(createResponse(200, 'Success', deletedAspek));
   } catch (error) {
-    console.error('DELETE error:', error); // Added error logging
-    return NextResponse.json({ error: 'Failed to delete Program' }, { status: 500 });
+    console.error('DELETE error:', error);
+    return NextResponse.json({ error: 'Failed to delete Aspek' }, { status: 500 });
   }
 }
