@@ -12,19 +12,72 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     useEffect(() => {
         if (isModalOpen) {
-            form.resetFields(); // Reset form fields when the modal is opened
+            form.resetFields();
         }
     }, [isModalOpen, form]);
 
-    const beforeUpload = (file) => {
-        const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isImage) {
-            message.error('You can only upload JPG/PNG file!');
-            return Upload.LIST_IGNORE;
-        }
-        setFileList((prevList) => [...prevList, file]);
-        return false;
+    // Fungsi untuk menangani perubahan upload
+    const handleUploadChange = ({ fileList }) => {
+        setFileList(fileList);
     };
+
+    // Fungsi untuk mengunggah file menggunakan fetch API
+    const handleUpload = async ({ file, onSuccess, onError }) => {
+        const formData = new FormData();
+        formData.append('document', file);
+
+        try {
+            const response = await fetch('http://localhost:3001/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                message.success(`${file.name} file uploaded successfully.`);
+                // Update fileList dengan fileId dari response API
+                console.log(data);
+                console.log("fileList", fileList);
+                console.log('UPLOAD', file);
+                
+                
+                setFileList((prevList) =>
+                    prevList.map((item) => (item.uid === file.uid ? { ...item, fileId: data.fileId } : item))
+                );
+                onSuccess("OK");
+            } else {
+                message.error(`${file.name} file upload failed.`);
+                onError(new Error('Upload failed'));
+            }
+        } catch (error) {
+            message.error(`${file.name} file upload failed.`);
+            onError(error);
+        }
+    };
+
+    // Fungsi untuk menangani penghapusan file
+    const handleRemove = async (file) => {
+        console.log('DELETE', file);
+        
+        try {
+            const response = await fetch(`http://localhost:3001/upload/${file.fileId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                message.success(`${file.name} deleted successfully.`);
+                setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
+            } else {
+                message.error(`Failed to delete ${file.name}`);
+            }
+        } catch (error) {
+            message.error(`Failed to delete ${file.name}`);
+        }
+    };
+
+    console.log(fileList);
+    
 
     const renderFormInput = (field) => {
         const isDisabled = type === 'show' || type === 'delete';
@@ -39,20 +92,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'time':
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
-            case 'upload':
-                return (
-                    <Upload
-                        multiple
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        beforeUpload={beforeUpload}
-                        fileList={fileList}
-                        onRemove={(file) => {
-                            setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
-                        }}
-                    >
-                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                    </Upload>
-                );
             case 'select':
                 return (
                     <Select size="large" mode={field.mode ? field.mode : ''} placeholder="Select an option" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled}>
@@ -112,21 +151,26 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         )}
                     </Form.List>
                 );
+            case 'upload':
+                return (
+                    <Upload
+                        listType="picture"
+                        multiple
+                        fileList={fileList}
+                        onChange={handleUploadChange}
+                        customRequest={handleUpload}
+                        onRemove={handleRemove} // Handle file deletion
+                    >
+                        <Button icon={<UploadOutlined />}>Upload Files</Button>
+                    </Upload>
+                );
             default:
                 return null;
         }
     };
 
     const handleSubmit = (values) => {
-        const formData = new FormData();
-        Object.keys(values).forEach((key) => {
-            formData.append(key, values[key]);
-        });
-        fileList.forEach((file) => {
-            formData.append('files[]', file);
-        });
-
-        onSubmit(values, type, data?._id, formData);
+        onSubmit(values, type, data?._id, fileList);
     };
 
     const extraContent = React.Children.map(children, (child) => {

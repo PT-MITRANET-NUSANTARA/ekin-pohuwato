@@ -10,14 +10,67 @@ import { useRouter } from 'next/navigation';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/PeriodeRKTController';
 import useFetchData from '@/hooks/useFetchData';
 const { Title } = Typography;
-
+import {store as upload} from '@/controller/DokumentController'
 const page = () => {
     const router = useRouter()
     const {data, setData, loading}  = useFetchData(getAll) 
-
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
+    const onSubmit = async (values, type, id, formData) => {
+        try {
+            const test = await upload(formData)
+            console.log(test);
+            
+            
+            let response;
+
+            switch (type) {
+                case 'create':
+                    response = await store(values);
+                    break;
+
+                case 'edit':
+                    response = await update(id, values);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+
+            if (response.ok) {
+                const data = await getAll();
+                setData(data.data);
+                setAlert({
+                    show: true,
+                    message: response.msg,
+                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    type: 'success'
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: 'Gagal',
+                    description: response.msg,
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error',
+                description: error.message,
+                type: 'error'
+            });
+        }
+
+        console.log('Operation completed');
+        handleClose();
+    };
 
     const Column = [
         {
@@ -121,6 +174,10 @@ const page = () => {
 
     ];
 
+    const handleClose = () => {
+        setModal({ trigger: false, modalData: null });
+    };
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -147,7 +204,7 @@ const page = () => {
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={() => setModal({ ...modal, trigger: false })} data={modal.modalData} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} onSubmit={onSubmit}  isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
                 </div>
             </Card>
         </div>
