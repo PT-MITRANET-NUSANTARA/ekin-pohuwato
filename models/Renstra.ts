@@ -27,7 +27,7 @@ const RenstraSchema: Schema = new Schema(
             required: true
         },
         misi: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [Schema.Types.ObjectId],
             ref: 'Misi',
             required: true
         }

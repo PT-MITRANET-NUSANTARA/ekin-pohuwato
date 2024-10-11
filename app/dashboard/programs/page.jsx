@@ -5,7 +5,7 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/ProgramController';
-import {  getAll as getAllRenstra  } from '@/controller/RenstraController';
+import {  getAll as getAllTujuan  } from '@/controller/TujuanController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ const page = () => {
     const router = useRouter();
     const { IdRenstra } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [renstra, setRenstra] = useState(null);
+    const [tujuan, setTujuan] = useState(null);
     
     useEffect(() => {
         if (data) {
@@ -26,8 +26,8 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllRenstra();
-            setRenstra(data.data);
+            const data = await getAllTujuan();
+            setTujuan(data.data);
         } catch (error) {
             console.log(error);
         }
@@ -39,6 +39,8 @@ const page = () => {
     const onSubmit = async (values, type, id) => {
         try {
             let response;
+            console.log(values);
+            
 
             switch (type) {
                 case 'create':
@@ -97,9 +99,9 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Renstra',
-            dataIndex: 'renstra',
-            key: 'renstra',
+            title: 'Tujuan',
+            dataIndex: 'tujuan',
+            key: 'tujuan',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
@@ -110,27 +112,37 @@ const page = () => {
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
+      
         {
-            title: 'Sasaran Strategis',
-            dataIndex: 'sasaran_strategis',
-            key: 'sasaran_strategis',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
-        },
-        {
-            title: 'Satuan',
-            dataIndex: 'satuan',
-            key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
-        },
-        {
-            title: 'Target Indikator',
-            dataIndex: 'target_indikator',
-            key: 'target_indikator',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
-        },
+            title: 'Indikator Kinerja',
+            dataIndex: 'indikator_kinerja', // Harus merupakan array of objects
+            key: 'indikator_kinerja',
+            width: '30%',
+            render: (indikator_kinerja) => (
+                <Table
+                    dataSource={indikator_kinerja.map((item, index) => ({ ...item, key: index }))} // Loop through indikator_kinerja array
+                    pagination={false} // Disable pagination for the nested table
+                    bordered
+                    columns={[
+                        {
+                            title: 'Name',
+                            dataIndex: 'name',
+                            key: 'name'
+                        },
+                        {
+                            title: 'Target',
+                            dataIndex: 'target',
+                            key: 'target'
+                        },
+                        {
+                            title: 'Satuan',
+                            dataIndex: 'satuan',
+                            key: 'satuan'
+                        }
+                    ]}
+                />
+            )
+        },        
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
@@ -180,8 +192,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Renstra', 
-            name: 'renstra',
+            label: 'Tujuan', 
+            name: 'tujuan',
             type: 'select',
             rules: [
                 {
@@ -189,12 +201,12 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options : renstra?.map((item) => ({ value: item._id, label: item.name }))
+            options : tujuan?.map((item) => ({ value: item._id, label: item.name }))
         },
         {
             label: 'Nama', 
             name: 'name',
-            type: 'text',
+            type: 'longtext',
             rules: [
                 {
                     required: true,
@@ -202,21 +214,12 @@ const page = () => {
                 }
             ]
         },
+      
         {
-            label: 'Sasaran Stragetis', 
-            name: 'sasaran_strategis',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Indikator Kinerja', 
+            label: 'Indikator Kinerja',
             name: 'indikator_kinerja',
-            type: 'text',
+            type: 'repeater',
+            obj: { name: 'longtext', target: 'number', satuan: 'string' },
             rules: [
                 {
                     required: true,
@@ -224,29 +227,6 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Target Indikator', 
-            name: 'target_indikator',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Satuan', 
-            name: 'satuan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-     
         {
             label: 'Total Anggaran',
             name: 'total_anggaran',

@@ -6,7 +6,9 @@ import { createResponse } from "@/utils/api";
 import Program from "@/models/Program";
 
 const rktSchema = Joi.object({
-  subKegiatan: Joi.string().hex().length(24).required().label("SubKegiatan"), // Referensi ObjectId ke SubKegiatan
+  subKegiatan: Joi.string().hex().length(24).required().label("SubKegiatan"), 
+  periodeRKT: Joi.string().hex().length(24).required().label("PeriodeRKT"), // Referensi ObjectId ke SubKegiatan
+  // Referensi ObjectId ke SubKegiatan
   name: Joi.string().required().label("Nama"),
   input: Joi.object({
     name: Joi.string().required().label("Nama Input"),

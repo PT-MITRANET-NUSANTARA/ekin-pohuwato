@@ -8,9 +8,16 @@ import { createResponse } from '@/utils/api';
 const kegiatanSchema = Joi.object({
   program: Joi.string().hex().length(24).required().label('Program'), // Mengasumsikan ini adalah referensi ObjectId
   name: Joi.string().required().label('Nama Kegiatan'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
+  indikator_kinerja: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required().label('Nama Indikator Kinerja'),
+        target: Joi.number().required().label('Target Indikator Kinerja'),
+        satuan: Joi.string().required().label('Satuan Indikator Kinerja'),
+      })
+    )
+    .required()
+    .label('Indikator Kinerja'),
   total_anggaran: Joi.number().required().label('Total Anggaran'),
   __v: Joi.optional(),
   _id: Joi.optional(),
@@ -24,6 +31,7 @@ const kegiatanSchema = Joi.object({
   'number.base': '{{#label}} harus berupa angka.',
   'number.empty': '{{#label}} tidak boleh kosong.',
 });
+
 
 
 function validateKegiatanData(data: any) {
@@ -51,7 +59,7 @@ export async function GET(req: NextRequest) {
       kegiatans = await Kegiatan.find({})
     }
 
-    return NextResponse.json(createResponse(200, 'Success', kegiatans));
+    return NextResponse.json(createResponse(200, 'Success', kegiatans, true));
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch Kegiatan data' }, { status: 500 });
@@ -72,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     const newKegiatan = new Kegiatan(body);
     await newKegiatan.save();
-    return NextResponse.json(createResponse(201, 'Success', newKegiatan));
+    return NextResponse.json(createResponse(201, 'Success', newKegiatan, true));
   } catch (error) {
     console.error('POST error:', error); // Added error logging
     return NextResponse.json({ error: 'Failed to create Kegiatan' }, { status: 500 });
@@ -104,7 +112,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Kegiatan not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedKegiatan));
+    return NextResponse.json(createResponse(200, 'Success', updatedKegiatan, true));
   } catch (error) {
     console.error('PUT error:', error); 
     return NextResponse.json({ error: 'Failed to update Kegiatan' }, { status: 500 });
@@ -125,7 +133,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Kegiatan not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedKegiatan));
+    return NextResponse.json(createResponse(200, 'Success', deletedKegiatan , true));
   } catch (error) {
     console.error('DELETE error:', error); 
     return NextResponse.json({ error: 'Failed to delete Kegiatan' }, { status: 500 });

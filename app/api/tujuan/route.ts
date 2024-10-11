@@ -6,14 +6,22 @@ import { createResponse } from '@/utils/api';
 
 const tujuanSchema = Joi.object({
   sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
+  indikator_kinerja: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required().label('Name Indikator Kinerja'),
+        target: Joi.number().required().label('Target Indikator Kinerja'),
+        satuan: Joi.string().required().label('Satuan Indikator Kinerja'),
+      })
+    )
+    .required()
+    .label('Indikator Kinerja'),
   renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
   __v: Joi.optional(),
   _id: Joi.optional(),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
+  name: Joi.string().required().label('Tujuan'),
 }).messages({
   'any.required': '{{#label}} wajib diisi.',
   'string.base': '{{#label}} harus berupa teks.',
@@ -21,6 +29,9 @@ const tujuanSchema = Joi.object({
   'string.hex': '{{#label}} harus berupa nilai heksadesimal yang valid.',
   'string.length': '{{#label}} harus memiliki panjang tepat {{#limit}} karakter.',
 });
+
+
+
 
 // Function to validate Tujuan data
 function validateTujuanData(data: any) {
@@ -41,7 +52,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       tujuans = await Tujuan.findOne({ _id: id }).populate('renstra'); // Populate the renstra reference
     } else {
-      tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
+      tujuans = await Tujuan.find({}) // Populate the renstra reference
     }
 
     return NextResponse.json(createResponse(200, 'Success', tujuans, true));

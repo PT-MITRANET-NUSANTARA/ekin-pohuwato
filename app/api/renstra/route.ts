@@ -10,6 +10,7 @@ const renstraSchema = Joi.object({
   name: Joi.string().required().label('Nama'),
   periode_start: Joi.date().required().label('Periode Mulai'),
   periode_end: Joi.date().required().label('Periode Selesai'),
+  misi: Joi.array().items(Joi.string().hex().length(24)).required().label('Misi'), // Mengharapkan array string ObjectId
   programs: Joi.array().items(Joi.string().hex().length(24)).label('Program'), // Mengharapkan array string ObjectId
   __v: Joi.optional(),
   _id: Joi.optional(),
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       renstras = await Renstra.findOne({ _id: id }).populate('programs');
     } else {
-      renstras = await Renstra.find({}).populate('programs');
+      renstras = await Renstra.find({})
     }
 
     return NextResponse.json(createResponse(200, 'Success', renstras, true));

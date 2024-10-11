@@ -3,11 +3,12 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
+import { getAll as getAllMisi } from '@/controller/MisiController';
 import Link from 'next/link';
 
 const { Title } = Typography;
@@ -17,7 +18,22 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [misi, setMisi] = useState(null);
+    
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
 
+    const fetchData = async () => {
+        try {
+            const data = await getAllMisi();
+            setMisi(data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const onSubmit = async (values, type, id) => {
         try {
             let response;
@@ -76,6 +92,13 @@ const page = () => {
             key: '_id',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
+        },
+        {
+            title: 'Misi',
+            dataIndex: 'misis',
+            key: 'misis',
+            sorter: (a, b) => a.name.length - b.name.length,
+            width: '30%'
         },
         {
             title: 'Name',
@@ -148,6 +171,19 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ]
+        },
+        {
+            label: 'Misi',
+            name: 'misi',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options : misi?.map((item) => ({ value: item._id, label: item.name })),
+            mode: 'multiple'
         },
         {
             label: 'Periode Mulai',

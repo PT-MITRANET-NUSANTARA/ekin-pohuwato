@@ -7,8 +7,8 @@ import { createResponse } from '@/utils/api';
 
 // Joi schema for PeriodeRKT validation
 const periodeRKTSchema = Joi.object({
-  year: Joi.string().pattern(/^[0-9]{4}$/).required().label('Tahun'),
-  subKegiatan: Joi.string().hex().length(24).required().label('Sub Kegiatan'), // Expecting ObjectId as a string
+  periode_start: Joi.date().required().label('Periode Mulai'),
+  periode_end: Joi.date().required().label('Periode Selesai'),
   perjanjianKinerja: Joi.string().required().label('Perjanjian Kinerja'),
   __v: Joi.optional(),
   _id: Joi.optional(),

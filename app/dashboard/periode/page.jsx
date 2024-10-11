@@ -2,15 +2,69 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
-import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
-
+import useFetchData from '@/hooks/useFetchData';
+import {getAll, store, update, destroy} from '@/controller/PeriodeController';
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { data, setData, loading, msg, status } = useFetchData(getAll)
+
+    const onSubmit = async (values, type, id) => {
+        try {
+            let response;
+
+            switch (type) {
+                case 'create':
+                    response = await store(values);
+                    break;
+
+                case 'edit':
+                    response = await update(id, values);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+
+            if (response.ok) {
+                const data = await getAll();
+                setData(data.data);
+                setAlert({
+                    show: true,
+                    message: response.msg,
+                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    type: 'success'
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: 'Gagal',
+                    description: response.msg,
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error',
+                description: error.message,
+                type: 'error'
+            });
+        }
+
+        console.log('Operation completed');
+        handleClose();
+    };
 
     const Column = [
         {
@@ -21,8 +75,15 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Periode',
-            dataIndex: 'content',
+            title: 'Periode Mulai',
+            dataIndex: 'periode_start',
+            key: 'content',
+            sorter: (a, b) => a.content.length - b.content.length,
+            width: '30%'
+        },
+        {
+            title: 'Periode Selesai',
+            dataIndex: 'periode_end',
             key: 'content',
             sorter: (a, b) => a.content.length - b.content.length,
             width: '30%'
@@ -60,9 +121,20 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Content',
-            name: 'content',
-            type: 'text',
+            label: 'Periode Mulai',
+            name: 'periode_start',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
             rules: [
                 {
                     required: true,
@@ -72,8 +144,14 @@ const page = () => {
         }
     ];
 
+    const handleClose = () => {
+        setModal({ trigger: false, modalData: null });
+    };
+
+
     return (
         <div className="w-full flex flex-col gap-y-4">
+        {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {
@@ -96,8 +174,8 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={dummyPeriodePenilaian} loading={false} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={() => setModal({...modal, trigger: false})} data={modal.modalData} formFields={formFields} type={modal.type} />
+                    <DataTable columns={Column} data={data} loading={loading} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

@@ -1,8 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IPeriodeRKT extends Document {
-    year: string; // The year as a string
-    subKegiatan: mongoose.Schema.Types.ObjectId; // Single reference to a SubKegiatan document
+    periode_start: Date; // Start date of the period
+    periode_end: Date; // End date of the period
     createdAt?: Date;
     perjanjianKinerja: string;
     updatedAt?: Date;
@@ -10,16 +10,15 @@ export interface IPeriodeRKT extends Document {
 
 const PeriodeRKTSchema: Schema = new Schema(
     {
-        year: {
-            type: String,
-            required: true,
-            match: /^[0-9]{4}$/, // Regex pattern to ensure it's a 4-digit string
-        },
-        subKegiatan: {
-            type: Schema.Types.ObjectId,
-            ref: 'SubKegiatan', // Single reference to SubKegiatan model
+        periode_start: {
+            type: Date,
             required: true
         },
+        periode_end: {
+            type: Date,
+            required: true
+        },
+        
         perjanjianKinerja: {
             type: String,
             required: true

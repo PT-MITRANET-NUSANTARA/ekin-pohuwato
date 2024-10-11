@@ -7,9 +7,16 @@ import { createResponse } from '@/utils/api';
 const subKegiatanSchema = Joi.object({
   kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), // Mengasumsikan ini adalah referensi ObjectId
   name: Joi.string().required().label('Nama'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
+  indikator_kinerja: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required().label('Nama Indikator Kinerja'),
+        target: Joi.number().required().label('Target Indikator Kinerja'),
+        satuan: Joi.string().required().label('Satuan Indikator Kinerja'),
+      })
+    )
+    .required()
+    .label('Indikator Kinerja'),
   total_anggaran: Joi.number().required().label('Total Anggaran'),
   __v: Joi.optional(),
   _id: Joi.optional(),
@@ -25,6 +32,7 @@ const subKegiatanSchema = Joi.object({
   'number.min': '{{#label}} harus memiliki nilai minimal {{#limit}}.',
   'number.max': '{{#label}} tidak boleh melebihi {{#limit}}.',
 });
+
 
 
 function validateSubKegiatanData(data: any) {

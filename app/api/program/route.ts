@@ -7,12 +7,18 @@ import { createResponse } from '@/utils/api';
 
 const programSchema = Joi.object({
   name: Joi.string().required().label('Nama Program'),
-  sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
-  indikator_kinerja: Joi.string().required().label('Indikator Kinerja'),
-  target_indikator: Joi.string().required().label('Target Indikator'),
-  satuan: Joi.string().required().label('Satuan'),
+  indikator_kinerja: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required().label('Name Indikator Kinerja'),
+        target: Joi.number().required().label('Target Indikator Kinerja'),
+        satuan: Joi.string().required().label('Satuan Indikator Kinerja'),
+      })
+    )
+    .required()
+    .label('Indikator Kinerja'),
   total_anggaran: Joi.number().required().label('Total Anggaran'),
-  renstra: Joi.string().hex().length(24).required().label('Renstra'), // Mengharapkan ObjectId (24 karakter heksadesimal)
+  tujuan: Joi.string().hex().length(24).required().label('Tujuan'), // Mengharapkan ObjectId (24 karakter heksadesimal)
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
@@ -25,6 +31,7 @@ const programSchema = Joi.object({
   'number.base': '{{#label}} harus berupa angka.',
   'number.empty': '{{#label}} tidak boleh kosong.',
 });
+
 
 
 function validateProgramData(data: any) {
