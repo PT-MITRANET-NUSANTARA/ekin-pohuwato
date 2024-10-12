@@ -11,6 +11,8 @@ const kegiatanSchema = Joi.object({
   indikator_kinerja: Joi.array()
     .items(
       Joi.object({
+        _id: Joi.optional(),
+
         name: Joi.string().required().label('Nama Indikator Kinerja'),
         target: Joi.number().required().label('Target Indikator Kinerja'),
         satuan: Joi.string().required().label('Satuan Indikator Kinerja'),

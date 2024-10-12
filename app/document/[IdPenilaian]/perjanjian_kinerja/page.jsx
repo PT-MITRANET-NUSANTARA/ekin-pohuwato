@@ -61,6 +61,8 @@ const page = () => {
 
     // Membuat format yang diinginkan
     const formattedDate = `${day} ${month} ${year}`;
+    console.log(tujuan);
+    console.log(program);
 
     return (
         <div className="p-12">
@@ -78,11 +80,11 @@ const page = () => {
                     <tbody>
                         <tr>
                             <td className="px-4">Nama</td>
-                            <td className="font-semibold">{paramEntries.nama_pihak_pertama}</td>
+                            <td className="font-semibold">{paramEntries.nama_pihak_kedua}</td>
                         </tr>
                         <tr>
                             <td className="px-4">Jabatan</td>
-                            <td className="font-semibold">{paramEntries.jabatan_pihak_pertama}</td>
+                            <td className="font-semibold">{paramEntries.jabatan_pihak_kedua}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -91,11 +93,11 @@ const page = () => {
                     <tbody>
                         <tr>
                             <td className="px-4">Nama</td>
-                            <td className="font-semibold">{paramEntries.nama_pihak_kedua}</td>
+                            <td className="font-semibold">{paramEntries.nama_pihak_pertama}</td>
                         </tr>
                         <tr>
                             <td className="px-4">Jabatan</td>
-                            <td className="font-semibold">{paramEntries.jabatan_pihak_kedua}</td>
+                            <td className="font-semibold">{paramEntries.jabatan_pihak_pertama}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -143,12 +145,26 @@ const page = () => {
                             <td className="border border-black p-2 ">Indikator Kinerja</td>
                             <td className="border border-black p-2 ">Target(%)</td>
                         </tr>
-                        <tr className="text-center">
-                            <td className="border border-black p-2 ">1</td>
-                            <td className="border border-black p-2 ">Terwujudnya ASN yang profesional, kompeten dan kompetitif</td>
-                            <td className="border border-black p-2 ">Indeks Profesionalitas ASN</td>
-                            <td className="border border-black p-2 ">86</td>
-                        </tr>
+                        {tujuan?.map((item, index) => (
+                            <>
+                                <tr className="text-center">
+                                    <td rowSpan={item.indikator_kinerja ? item.indikator_kinerja.length + 1 : 1} className="border border-black p-2">
+                                        {index + 1}
+                                    </td>{' '}
+                                    {/* Display index */}
+                                    <td rowSpan={item.indikator_kinerja ? item.indikator_kinerja.length + 1 : 1} className="border border-black p-2">
+                                        {item.sasaran_strategis}
+                                    </td>{' '}
+                                    {/* Display tujuan name */}
+                                </tr>
+                                {item.indikator_kinerja.map((indikator) => (
+                                    <tr>
+                                        <td className="border border-black p-2">{indikator.name}</td>
+                                        <td className="border border-black p-2">{indikator.target}</td>
+                                    </tr>
+                                ))}
+                            </>
+                        ))}
                     </tbody>
                 </table>
                 <table className="w-full mt-4">
@@ -159,12 +175,14 @@ const page = () => {
                             <td>ANGGARAN</td>
                             <td>KET</td>
                         </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Program Kepegawaian Daerah</td>
-                            <td>Rp 1,595,757,500,00 </td>
-                            <td>APBD</td>
-                        </tr>
+                        {program?.map((item, index) => (
+                            <tr>
+                                <td>{index + 1}</td>
+                                <td>{item.name}</td>
+                                <td>Rp {item.total_anggaran} </td>
+                                <td>APBD</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
                 <table className="w-full mt-6">

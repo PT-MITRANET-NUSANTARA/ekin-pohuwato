@@ -100,6 +100,33 @@ const page = () => {
         router.push(`/document/${id}/perjanjian_kinerja?${query}`);
     };
 
+    const perjanjianSubmit = async (values, type, id, listImage) => {
+        const periode = dt.find((item) => item._id === id);
+        periode.perjanjianKinerja = listImage;
+        console.log('PERIODE',periode);
+        const response = await update(id, periode);
+        console.log(response);
+        
+        if (response.ok) {
+            const newData = await getByUnitId(unor.id);
+            setDT(newData.data);
+            setAlert({
+                show: true,
+                message: response.msg,
+                description: 'Berhasil Mengupload Perjanjian Kinerja',
+                type: 'success'
+            });
+        } else {
+            setAlert({
+                show: true,
+                message: 'Gagal',
+                description: response.msg,
+                type: 'error'
+            });
+        }
+        handleClose();
+    }
+
     const Column = [
         {
             title: 'ID',
@@ -132,7 +159,7 @@ const page = () => {
                 <>
                     {console.log(record)}
                     <Space size="small">
-                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: customSubmit })}></Button>
+                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
                         <Button
                             // type='primary'
                             size="middle"

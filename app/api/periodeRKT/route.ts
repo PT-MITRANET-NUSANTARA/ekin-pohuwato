@@ -12,6 +12,7 @@ const periodeRKTSchema = Joi.object({
   perjanjianKinerja: Joi.array().label('Perjanjian Kinerja'),
   __v: Joi.optional(),
   _id: Joi.optional(),
+  id: Joi.optional(),
   unit: Joi.object().required().label('Unit'),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
