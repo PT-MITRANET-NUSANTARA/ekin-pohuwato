@@ -110,7 +110,8 @@ const page = () => {
             dataIndex: 'nama_unor',
             key: 'nama_unor',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            width: '30%',
+            searchable: true
         },
         {
             title: 'Jabatan',

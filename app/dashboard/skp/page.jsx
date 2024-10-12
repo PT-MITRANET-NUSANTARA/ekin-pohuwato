@@ -14,7 +14,8 @@ import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPCon
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
-import { cekJT } from '@/utils/jabatanUtils';
+import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
+import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 
 const { Title } = Typography;
@@ -28,7 +29,9 @@ const page = () => {
     const [skp, setSKP] = useState(null);
     const [jabatan, setJabatan] = useState(null);
     const [resntra, setRenstra] = useState(null);
+    const [periodeRKT, setPeriodeRKT] = useState(null);
     const [isJT, setIsJT] = useState(false);
+    const [isAtasan, setIsAtasan] = useState(false);
     console.log(data);
 
     useEffect(() => {
@@ -44,9 +47,13 @@ const page = () => {
             const selectedJabatan = jabatan.mapData.data[0];
             const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
             const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
             setIsJT(isJT);
+            setIsAtasan(isAtasan);
             const resntra = await getAllRenstra();
+            const periodeRKT = await getAllPeriode();
             setRenstra(resntra.data);
+            setPeriodeRKT(periodeRKT.data);
             setJabatan(jabatan.mapData.data[0]);
             setSKP(skp.data);
         } catch (error) {
@@ -122,7 +129,22 @@ const page = () => {
                 }
             ],
             options: resntra?.map((item) => ({
-                label: item.name,
+                label: item.periode_start + ' - ' + item.periode_end,
+                value: item._id
+            }))
+        },
+        {
+            label: 'Periode RKT',
+            name: 'periodeRKT',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: periodeRKT?.map((item) => ({
+                label: item.periode_start + ' - ' + item.periode_end,
                 value: item._id
             }))
         },
@@ -251,7 +273,7 @@ const page = () => {
                                         </div>
                                         <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">jenis pegawai</span>
-                                            <p className="text-right capitalize">Pimpinan</p>
+                                            <p className="text-right capitalize">{isAtasan? 'Pimpinan' : 'Bawahan'}</p>
                                         </div>
                                     </div>
                                     <div className="flex w-full items-center justify-end gap-x-2 ">
