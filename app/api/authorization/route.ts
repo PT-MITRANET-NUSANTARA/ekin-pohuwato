@@ -114,3 +114,34 @@ export async function POST(req: NextRequest) {
         return NextResponse.redirect(new URL('/auth/login', req.url), 307);
     }
 }
+
+export async function DELETE(req: NextRequest) {
+    try {
+        // Set the cookies to expire by setting maxAge to 0 or an expiration date in the past
+        const tokenCookie = serialize('token', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            expires: new Date(0), // Set expiration to the past
+            path: '/'
+        });
+
+        const userCookie = serialize('user', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            expires: new Date(0), // Set expiration to the past
+            path: '/'
+        });
+
+        // Create the response object
+        const response = NextResponse.json({ message: 'Successfully logged out', ok: true });
+
+        // Set both cookies in the response headers individually
+        response.headers.append('Set-Cookie', tokenCookie);
+        response.headers.append('Set-Cookie', userCookie);
+
+        return response;
+    } catch (error) {
+        console.error('DELETE error (Logout):', error);
+        return NextResponse.json({ error: 'Failed to log out', ok: false }, { status: 500 });
+    }
+}

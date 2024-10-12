@@ -40,3 +40,15 @@ export const getData = async () => {
         throw error;
     }
 }
+
+export const logOut = async () => {
+    try {
+        const response = await apiRequest('/api/authorization', {
+            method: 'DELETE'
+        });
+        return response;       
+    } catch (error) {
+        console.error('Failed to log out:', error);
+        throw error;
+    }
+}

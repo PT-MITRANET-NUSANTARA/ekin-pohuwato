@@ -2,12 +2,17 @@
 import React, { useState } from 'react';
 import { DashboardSider, DashboardFooter } from '../../components';
 import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
-import { Avatar, Breadcrumb, Button, Dropdown, Layout, Space, theme } from 'antd';
+import { Avatar, Breadcrumb, Button, Dropdown, Layout, message, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
+import { logOut } from '@/controller/AuthorizationController';
 const { Header, Content } = Layout;
 
 const layout = ({ children }) => {
     const router = useRouter();
+    message.config({
+        duration: 5, 
+        maxCount: 1
+    });
 
     const items = [
         {
@@ -31,7 +36,15 @@ const layout = ({ children }) => {
         {
             key: '3',
             label: (
-                <button className="flex items-center gap-x-2 text-red-500 min-w-32">
+                <button onClick={async () => {
+                    const res = await logOut();
+                    console.log(res);
+                    
+                    if (res.ok) {
+                        message.success('Berhasil Keluar');
+                        router.push('/login');
+                    }
+                }} className="flex items-center gap-x-2 text-red-500 min-w-32">
                     <LogoutOutlined />
                     Logout
                 </button>
