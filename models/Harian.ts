@@ -1,5 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+interface msg 
+{
+  status: boolean;
+  message: string;
+}
+
 // Define the Harian interface extending Document
 export interface IHarian extends Document {
   date: Date;
@@ -10,6 +16,7 @@ export interface IHarian extends Document {
   deskripsiKegiatan: string;
   tautan?: string;
   files?: mongoose.Schema.Types.ObjectId[];
+  msg?: msg;
   user_id: string; // Reference to User ID
   createdAt?: Date;
   updatedAt?: Date;
@@ -29,6 +36,16 @@ const HarianSchema: Schema = new Schema({
   endDateTime: {
     type: Date,
     required: true
+  },
+  msg: {
+    status: {
+      type: Boolean,
+      required: false
+    },
+    message: {
+      type: String,
+      required: false
+    }
   },
   rhk: {
     type: Schema.Types.ObjectId,
