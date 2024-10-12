@@ -96,7 +96,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
                     type: 'success'
                 });
             } else {
