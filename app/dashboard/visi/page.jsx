@@ -3,21 +3,21 @@
 import { CrudModal, DataTable } from '@/components';
 import { dummyVisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
-import {getAll, store, update, destroy} from '@/controller/VisiController';
+import { getAll, store, update, destroy } from '@/controller/VisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
 const { Title } = Typography;
 
 const page = () => {
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading, msg, status } = useFetchData(getAll)
+    const { data, setData, loading, msg, status } = useFetchData(getAll);
 
     const [periode, setPeriode] = useState(null);
-    
+
     useEffect(() => {
         if (data) {
             fetchData();
@@ -60,7 +60,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Visi' : type === 'edit' ? 'Berhasil Mengedit Visi' : 'Berhasil Menambahkan Visi',
                     type: 'success'
                 });
             } else {
@@ -84,8 +84,6 @@ const page = () => {
         handleClose();
     };
 
-    console.log(data);
-    
     const Column = [
         {
             title: 'ID',
@@ -95,11 +93,18 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'periode',
+            title: 'Periode',
             dataIndex: 'periode',
             key: 'periode',
             sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            width: '10%',
+            render: (_, record) => (
+                <>
+                    <Button onClick={() => setModal({ formFields: periodeFields, trigger: true, modalData: record.periode, title: `Edit Visi ${record.periode._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                        {record.periode._id}
+                    </Button>
+                </>
+            )
         },
         {
             title: 'Visi',
@@ -114,24 +119,26 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Edit Visi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
+                        variant="outlined"
+                        color="primary"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Visi ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
-                        color="default"
+                        variant="outlined"
                         icon={<EyeOutlined />}
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Delete Visi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        danger
                         icon={<DeleteOutlined />}
                     />
                 </Space>
@@ -139,7 +146,7 @@ const page = () => {
         }
     ];
 
-    const formFields = [
+    const visiFields = [
         {
             label: 'Periode',
             name: 'periode',
@@ -147,23 +154,37 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field periode wajib di isi'
                 }
             ],
-            options: periode?.map((item) => ({  value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
+            options: periode?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
         },
         {
-            label: 'Nama',
+            label: 'Visi',
             name: 'name',
             type: 'longtext',
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field visi wajib di isi'
                 }
             ]
         }
     ];
+
+    const periodeFields = [
+        {
+            label: 'Periode Start',
+            name: 'periode_start',
+            type: 'date'
+        },
+        {
+            label: 'Periode End',
+            name: 'periode_end',
+            type: 'date'
+        }
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -187,13 +208,13 @@ const page = () => {
                             Data Visi
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: visiFields })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

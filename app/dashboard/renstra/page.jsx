@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
@@ -17,9 +17,10 @@ const page = () => {
     const router = useRouter();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [misiModal, setMisiModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [misi, setMisi] = useState(null);
-    
+
     useEffect(() => {
         if (data) {
             fetchData();
@@ -85,6 +86,50 @@ const page = () => {
         handleClose();
     };
 
+    const nana = {
+        _id: '670892b2181786763b9212c7',
+        name: 'Renstra 123',
+        periode_start: '2020-09-30T16:00:00.000Z',
+        periode_end: '2025-10-29T16:00:00.000Z',
+        misi: [
+            {
+                _id: '67088f39181786763b92129b',
+                name: 'Meningkatkan derajat kesehatan masyarakat dan Pendidikan',
+                visi: '67088d7d181786763b921263',
+                createdAt: '2024-10-11T02:36:41.940Z',
+                updatedAt: '2024-10-11T02:36:41.940Z',
+                __v: 0
+            },
+            {
+                _id: '67088fc8181786763b9212a5',
+                name: 'Meningkatkan kualitas pembangunan infrastruktur dan lingkungan',
+                visi: '67088d7d181786763b921263',
+                createdAt: '2024-10-11T02:39:04.841Z',
+                updatedAt: '2024-10-11T02:39:04.841Z',
+                __v: 0
+            },
+            {
+                _id: '67088fdf181786763b9212af',
+                name: 'Mewujudkan masyarakat yang produktif dan inovatif',
+                visi: '67088d7d181786763b921263',
+                createdAt: '2024-10-11T02:39:27.770Z',
+                updatedAt: '2024-10-11T02:39:27.770Z',
+                __v: 0
+            },
+            {
+                _id: '67088fe8181786763b9212b5',
+                name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
+                visi: '67088d7d181786763b921263',
+                createdAt: '2024-10-11T02:39:36.955Z',
+                updatedAt: '2024-10-11T02:39:36.955Z',
+                __v: 0
+            }
+        ],
+        createdAt: '2024-10-11T02:51:30.842Z',
+        updatedAt: '2024-10-11T02:51:30.842Z',
+        __v: 0
+    };
+
     const Column = [
         {
             title: 'ID',
@@ -95,13 +140,40 @@ const page = () => {
         },
         {
             title: 'Misi',
-            dataIndex: 'misis',
-            key: 'misis',
+            dataIndex: 'misi',
+            key: 'misi',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => (
+                <>
+                    <Button icon={<SearchOutlined />} onClick={() => setMisiModal({ modalData: record.misi, trigger: true })}>
+                        {record._id}
+                    </Button>
+                    <Modal open={misiModal.trigger} onCancel={() => setMisiModal({ modalData: null, trigger: false })} footer={null}>
+                        <Table
+                            className="mt-8"
+                            dataSource={misiModal.modalData?.map((item, index) => ({ ...item, key: index }))}
+                            pagination={false}
+                            bordered
+                            columns={[
+                                {
+                                    title: 'Misi',
+                                    dataIndex: 'name',
+                                    key: 'name'
+                                },
+                                {
+                                    title: 'Visi',
+                                    dataIndex: 'visi',
+                                    key: 'visi'
+                                }
+                            ]}
+                        />
+                    </Modal>
+                </>
+            )
         },
         {
-            title: 'Name',
+            title: 'Renstra',
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
@@ -130,13 +202,14 @@ const page = () => {
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
+                        color="primary"
+                        variant="outlined"
                         icon={<EditOutlined />}
                     />
                     <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
-                        color="default"
                         icon={<EyeOutlined />}
                     />
 
@@ -144,7 +217,7 @@ const page = () => {
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        danger
                         icon={<DeleteOutlined />}
                     />
 
@@ -152,7 +225,8 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/programs/${record._id}`)}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                         color="primary"
+                        variant="outlined"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -162,13 +236,13 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama',
+            label: 'Renstra',
             name: 'name',
             type: 'text',
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field renstra wajib di isi'
                 }
             ]
         },
@@ -179,10 +253,10 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field misi wajib di isi'
                 }
             ],
-            options : misi?.map((item) => ({ value: item._id, label: item.name })),
+            options: misi?.map((item) => ({ value: item._id, label: item.name })),
             mode: 'multiple'
         },
         {
@@ -227,7 +301,7 @@ const page = () => {
                     },
                     {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
-                    },
+                    }
                 ]}
             />
             <Card className="">

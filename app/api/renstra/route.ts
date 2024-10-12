@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       renstras = await Renstra.findOne({ _id: id }).populate('programs');
     } else {
-      renstras = await Renstra.find({})
+      renstras = await Renstra.find({}).populate('misi')
     }
 
     return NextResponse.json(createResponse(200, 'Success', renstras, true));

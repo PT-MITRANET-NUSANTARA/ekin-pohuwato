@@ -2,8 +2,8 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyTujuan, dummyVisiMisi } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
@@ -15,6 +15,7 @@ const { Title } = Typography;
 const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [indikatorModal, setIndikatorModal] = useState({trigger: false, modalData: []});
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
 
@@ -35,7 +36,7 @@ const page = () => {
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-            const dt = values
+            const dt = values;
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -60,7 +61,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Tujuan' : type === 'edit' ? 'Berhasil Mengedit Tujuan' : 'Berhasil Menambahkan Tujuan',
                     type: 'success'
                 });
             } else {
@@ -106,6 +107,8 @@ const page = () => {
         };
     };
 
+
+
     const Column = [
         {
             title: 'ID',
@@ -137,34 +140,42 @@ const page = () => {
         },
         {
             title: 'Indikator Kinerja',
-            dataIndex: 'indikator_kinerja', // Harus merupakan array of objects
+            dataIndex: 'indikator_kinerja', 
             key: 'indikator_kinerja',
             width: '30%',
-            render: (indikator_kinerja) => (
-                <Table
-                    dataSource={indikator_kinerja.map((item, index) => ({ ...item, key: index }))} // Loop through indikator_kinerja array
-                    pagination={false} // Disable pagination for the nested table
-                    bordered
-                    columns={[
-                        {
-                            title: 'Name',
-                            dataIndex: 'name',
-                            key: 'name'
-                        },
-                        {
-                            title: 'Target',
-                            dataIndex: 'target',
-                            key: 'target'
-                        },
-                        {
-                            title: 'Satuan',
-                            dataIndex: 'satuan',
-                            key: 'satuan'
-                        }
-                    ]}
-                />
+            render: (_, record) => (
+                <>
+                    <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({modalData: record.indikator_kinerja,trigger: true })}>
+                        {record._id}
+                    </Button>
+                    <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({modalData: null, trigger: false})} footer={null}>
+                        <Table
+                            className='mt-8'
+                            dataSource={indikatorModal.modalData?.map((item, index) => ({ ...item, key: index }))}
+                            pagination={false} 
+                            bordered
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    key: 'name'
+                                },
+                                {
+                                    title: 'Target',
+                                    dataIndex: 'target',
+                                    key: 'target'
+                                },
+                                {
+                                    title: 'Satuan',
+                                    dataIndex: 'satuan',
+                                    key: 'satuan'
+                                }
+                            ]}
+                        />
+                    </Modal>
+                </>
             )
-        },        
+        },
         {
             title: 'Action',
             key: 'action',
@@ -175,7 +186,7 @@ const page = () => {
                             setModal({
                                 trigger: true,
                                 modalData: record,
-                                title: `Edit Renstra ${record._id}`,
+                                title: `Edit Tujuan ${record._id}`,
                                 type: 'edit'
                             })
                         }
@@ -187,7 +198,7 @@ const page = () => {
                             setModal({
                                 trigger: true,
                                 modalData: record,
-                                title: `Renstra ${record._id}`,
+                                title: `Tujuan ${record._id}`,
                                 type: 'show'
                             })
                         }
@@ -199,7 +210,7 @@ const page = () => {
                             setModal({
                                 trigger: true,
                                 modalData: record,
-                                title: `Delete Renstra ${record._id}`,
+                                title: `Delete Tujuan ${record._id}`,
                                 type: 'delete'
                             })
                         }
@@ -220,7 +231,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field renstra wajib di isi'
                 }
             ],
             options: renstra?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
@@ -232,7 +243,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field tujuan wajib di isi'
                 }
             ]
         },
@@ -243,7 +254,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field sasaran strategis wajib di isi'
                 }
             ]
         },
@@ -255,7 +266,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field indikator kinerja wajib di isi'
                 }
             ]
         }

@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/SubKegiatanController';
@@ -16,9 +16,11 @@ const page = () => {
     const router = useRouter();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
+
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const [ kegiatan, setKegiatan ] = useState(null);
+    const [kegiatan, setKegiatan] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -34,7 +36,6 @@ const page = () => {
             console.log(error);
         }
     };
-
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -109,37 +110,45 @@ const page = () => {
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%'
         },
-      
+
         {
             title: 'Indikator Kinerja',
-            dataIndex: 'indikator_kinerja', // Harus merupakan array of objects
+            dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
             width: '30%',
-            render: (indikator_kinerja) => (
-                <Table
-                    dataSource={indikator_kinerja.map((item, index) => ({ ...item, key: index }))} // Loop through indikator_kinerja array
-                    pagination={false} // Disable pagination for the nested table
-                    bordered
-                    columns={[
-                        {
-                            title: 'Name',
-                            dataIndex: 'name',
-                            key: 'name'
-                        },
-                        {
-                            title: 'Target',
-                            dataIndex: 'target',
-                            key: 'target'
-                        },
-                        {
-                            title: 'Satuan',
-                            dataIndex: 'satuan',
-                            key: 'satuan'
-                        }
-                    ]}
-                />
+            render: (_, record) => (
+                <>
+                    <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
+                        {record._id}
+                    </Button>
+                    <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
+                        <Table
+                            className="mt-8"
+                            dataSource={indikatorModal.modalData?.map((item, index) => ({ ...item, key: index }))}
+                            pagination={false}
+                            bordered
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    key: 'name'
+                                },
+                                {
+                                    title: 'Target',
+                                    dataIndex: 'target',
+                                    key: 'target'
+                                },
+                                {
+                                    title: 'Satuan',
+                                    dataIndex: 'satuan',
+                                    key: 'satuan'
+                                }
+                            ]}
+                        />
+                    </Modal>
+                </>
             )
-        },        
+        },
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
@@ -147,7 +156,7 @@ const page = () => {
             sorter: (a, b) => a.periode_end.length - b.periode_end.length,
             width: '30%'
         },
-        
+
         {
             title: 'Action',
             key: 'action',
@@ -211,7 +220,7 @@ const page = () => {
                 }
             ]
         },
-      
+
         {
             label: 'Indikator Kinerja',
             name: 'indikator_kinerja',
@@ -234,7 +243,7 @@ const page = () => {
                     message: 'Field periode selesai wajib di isi'
                 }
             ],
-            min: 0,
+            min: 0
         }
     ];
 

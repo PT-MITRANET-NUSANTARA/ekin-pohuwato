@@ -195,7 +195,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         <Modal width={width} title={title} open={isModalOpen} onClose={onClose} onCancel={onClose} footer={null}>
             {extraContent}
             <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit}>
-                {formFields.map((field, index) => (
+                {formFields?.map((field, index) => (
                     <Form.Item key={index} label={field.label} name={field.name} className="m-0" rules={field.rules}>
                         {renderFormInput(field)}
                     </Form.Item>

@@ -42,7 +42,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Periode' : type === 'edit' ? 'Berhasil Mengedit Periode' : 'Berhasil Menambahkan Periode',
                     type: 'success'
                 });
             } else {
@@ -86,7 +86,8 @@ const page = () => {
             dataIndex: 'periode_end',
             key: 'content',
             sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            width: '30%',
+    
         },
         {
             title: 'Action',
@@ -94,24 +95,26 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Periode ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
+                        color='primary'
+                        variant='outlined'
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Periode ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
-                        color="default"
+                        variant='outlined'
                         icon={<EyeOutlined />}
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Periode ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        danger
                         icon={<DeleteOutlined />}
                     />
                 </Space>
@@ -138,7 +141,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field periode selesai wajib di isi'
                 }
             ]
         }
