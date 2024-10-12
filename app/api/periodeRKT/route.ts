@@ -44,7 +44,23 @@ export async function GET(req: NextRequest) {
     let periodeRKTs;
 
     if (id) {
-      periodeRKTs = await PeriodeRKT.findOne({ _id: id }).populate('subKegiatan');
+      periodeRKTs = await PeriodeRKT.findOne({ _id: id }).populate({
+        path: 'RKTS',
+        populate: {
+          path: 'subKegiatan',
+          populate: {
+            path: 'kegiatan',
+            populate: {
+              path: 'program',
+              populate: {
+                path: 'tujuan'
+              }
+            }
+          }
+        }
+      });
+      
+      
     } else if (unit_id) {
       periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id });
     } else {

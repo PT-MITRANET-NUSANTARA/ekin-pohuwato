@@ -1,14 +1,51 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
+import { getById, getByUnitId } from '@/controller/PeriodeRKTController';
 
 const page = () => {
-    const {data, setData, loading, msg, status} = useFetchData();
     const { IdPenilaian } = useParams();
+    const fetchById = useCallback(() => getById(IdPenilaian), [IdPenilaian]);
+
+    const { data, setData, loading, msg, status, error } = useFetchData(fetchById);
+    const [tujuan, setTujuan] = useState(null);
+    const [program, setProgram] = useState(null);
     console.log(IdPenilaian);
-    
+    console.log(data);
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const uniqueRkts = data.RKTS.filter((item, index, self) => index === self.findIndex((rkt) => rkt._id === item._id));
+
+            let allSubKegiatan = uniqueRkts.map((rkt) => rkt.subKegiatan);
+
+            const uniqueSubKegiatan = allSubKegiatan.filter((item, index, self) => index === self.findIndex((sub) => sub._id === item._id));
+
+            let allKegiatan = uniqueSubKegiatan.map((sub) => sub.kegiatan);
+
+            const uniqueKegiatan = allKegiatan.filter((item, index, self) => index === self.findIndex((kegiatan) => kegiatan._id === item._id));
+
+            let allProgram = uniqueKegiatan.map((kegiatan) => kegiatan.program);
+
+            const uniqueProgram = allProgram.filter((item, index, self) => index === self.findIndex((program) => program._id === item._id));
+
+            let allTujuan = uniqueProgram.map((program) => program.tujuan);
+
+            const uniqueTujuan = allTujuan.filter((item, index, self) => index === self.findIndex((tujuan) => tujuan._id === item._id));
+            setTujuan(uniqueTujuan)
+            setProgram(uniqueProgram)
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     return (
         <div className="p-12">
