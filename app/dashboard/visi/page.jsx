@@ -119,19 +119,19 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Visi ${record._id}`, type: 'show' })}
+                        // type='primary'
+                        size="middle"
+                        variant="outlined"
+                        icon={<EyeOutlined />}
+                    />
+                    <Button
                         onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Edit Visi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
                         color="primary"
                         icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Visi ${record._id}`, type: 'show' })}
-                        // type='primary'
-                        size="middle"
-                        variant="outlined"
-                        icon={<EyeOutlined />}
                     />
 
                     <Button
@@ -213,7 +213,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>

@@ -16,9 +16,9 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 const page = () => {
     const router = useRouter();
     const { data, setData } = useFetchData(getData);
-    const [dt, setDT] = useState([])
+    const [dt, setDT] = useState([]);
     const [unor, setUnor] = useState(null);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [loadingData, setLoadingData] = useState(true);
@@ -30,12 +30,11 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-  
             const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
             const selectedJabatan = jabatan.mapData.data[0];
             setUnor(selectedJabatan.unor.induk);
             const dt = await getByUnitId(selectedJabatan.unor.id);
-            setDT(dt.data)
+            setDT(dt.data);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -46,7 +45,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = {...dt, unit: unor}
+            dt = { ...dt, unit: unor };
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -64,7 +63,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
             console.log(response);
-            
 
             if (response.ok) {
                 const newData = await getByUnitId(unor.id);
@@ -72,7 +70,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Periode RKT' : type === 'edit' ? 'Berhasil Mengedit Periode RKT' : 'Berhasil Menambahkan Periode RKT',
                     type: 'success'
                 });
             } else {
@@ -96,7 +94,11 @@ const page = () => {
         handleClose();
     };
 
-    const customSubmit = () => {}
+    const customSubmit = (values, type, id, formData) => {
+        console.log(values)
+        const query = new URLSearchParams(values).toString();
+        router.push(`/document/${id}/perjanjian_kinerja?${query}`);
+    };
 
     const Column = [
         {
@@ -135,7 +137,7 @@ const page = () => {
                             // type='primary'
                             size="middle"
                             color="default"
-                            onClick={() => router.push(`/document/${record._id}/perjanjian_kinerja`)}
+                            onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
                             icon={<EyeOutlined />}
                         />
                         <Button
@@ -155,31 +157,34 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: customSubmit })}
-                        // type='primary'
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields, onSubmit: customSubmit })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Periode RKT ${record._id}`, type: 'show', formFields: rktFields, onSubmit: onSubmit })}
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
-
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: customSubmit })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Periode RKT ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: onSubmit })}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        color="primary"
+                        variant="outlined"
+                        icon={<EditOutlined />}
+                    />
+
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Periode RKT ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: onSubmit })}
+                        // type='primary'
+                        size="middle"
+                        danger
                         icon={<DeleteOutlined />}
                     />
                     <Button
                         onClick={() => router.push(`/dashboard/rkt/${record._id}/`)}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        color="primary"
+                        variant="outlined"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -230,6 +235,77 @@ const page = () => {
         }
     ];
 
+    const formPerjanjian = [
+        {
+            label: 'Nama pihak pertama',
+            name: 'nama_pihak_pertama',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama pihak pertama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Jabatan pihak pertama',
+            name: 'jabatan_pihak_pertama',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field jabatan pihak pertama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Nama pihak kedua',
+            name: 'nama_pihak_kedua',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama pihak kedua wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Jabatan pihak kedua',
+            name: 'jabatan_pihak_kedua',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field jabatan pihak kedua wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal',
+            name: 'tanggal',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tanggal wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tempat',
+            name: 'tempat',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tempat wajib di isi'
+                }
+            ]
+        },
+    
+       
+    ]
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -254,14 +330,15 @@ const page = () => {
                             Data Periode RKT
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: customSubmit })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: onSubmit })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
-
-                    <DataTable columns={Column} data={dt} loading={loadingData} />
-                    <CrudModal title={modal.title} onSubmit={onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={dt} loading={loadingData} />
+                    </div>
+                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

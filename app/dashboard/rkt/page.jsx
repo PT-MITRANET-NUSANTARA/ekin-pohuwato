@@ -81,7 +81,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus RKT' : type === 'edit' ? 'Berhasil Mengedit RKT' : 'Berhasil Menambahkan RKT',
                     type: 'success'
                 });
             } else {
@@ -220,18 +220,6 @@ const page = () => {
                                 setModal({
                                     trigger: true,
                                     modalData: record, // Data yang sudah di-reverse transform
-                                    title: `Edit Renstra ${record._id}`,
-                                    type: 'edit'
-                                })
-                            }
-                            size="middle"
-                            icon={<EditOutlined />}
-                        />
-                        <Button
-                            onClick={() =>
-                                setModal({
-                                    trigger: true,
-                                    modalData: record, // Data yang sudah di-reverse transform
                                     title: `Renstra ${record._id}`,
                                     type: 'show'
                                 })
@@ -245,15 +233,30 @@ const page = () => {
                                 setModal({
                                     trigger: true,
                                     modalData: record, // Data yang sudah di-reverse transform
+                                    title: `Edit Renstra ${record._id}`,
+                                    type: 'edit'
+                                })
+                            }
+                            size="middle"
+                            variant="outlined"
+                            color="primary"
+                            icon={<EditOutlined />}
+                        />
+
+                        <Button
+                            onClick={() =>
+                                setModal({
+                                    trigger: true,
+                                    modalData: record, // Data yang sudah di-reverse transform
                                     title: `Delete Renstra ${record._id}`,
                                     type: 'delete'
                                 })
                             }
                             size="middle"
-                            color="danger"
+                            danger
                             icon={<DeleteOutlined />}
                         />
-                        <Button onClick={() => router.push(`/dashboard/programs/${record._id}`)} size="middle" color="danger" icon={<DatabaseOutlined />} />
+                        <Button onClick={() => router.push(`/dashboard/programs/${record._id}`)} size="middle" color="primary" variant="outlined" icon={<DatabaseOutlined />} />
                     </Space>
                 );
             }

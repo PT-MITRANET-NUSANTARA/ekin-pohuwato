@@ -15,7 +15,7 @@ const { Title } = Typography;
 const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [indikatorModal, setIndikatorModal] = useState({trigger: false, modalData: []});
+    const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
 
@@ -107,8 +107,6 @@ const page = () => {
         };
     };
 
-
-
     const Column = [
         {
             title: 'ID',
@@ -140,19 +138,19 @@ const page = () => {
         },
         {
             title: 'Indikator Kinerja',
-            dataIndex: 'indikator_kinerja', 
+            dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
             width: '30%',
             render: (_, record) => (
                 <>
-                    <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({modalData: record.indikator_kinerja,trigger: true })}>
+                    <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
                         {record._id}
                     </Button>
-                    <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({modalData: null, trigger: false})} footer={null}>
+                    <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
                         <Table
-                            className='mt-8'
+                            className="mt-8"
                             dataSource={indikatorModal.modalData?.map((item, index) => ({ ...item, key: index }))}
-                            pagination={false} 
+                            pagination={false}
                             bordered
                             columns={[
                                 {
@@ -186,20 +184,6 @@ const page = () => {
                             setModal({
                                 trigger: true,
                                 modalData: record,
-                                title: `Edit Tujuan ${record._id}`,
-                                type: 'edit'
-                            })
-                        }
-                        size="middle"
-                        color='primary'
-                        variant='outlined'
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
-                                modalData: record,
                                 title: `Tujuan ${record._id}`,
                                 type: 'show'
                             })
@@ -207,6 +191,21 @@ const page = () => {
                         size="middle"
                         icon={<EyeOutlined />}
                     />
+                    <Button
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: record,
+                                title: `Edit Tujuan ${record._id}`,
+                                type: 'edit'
+                            })
+                        }
+                        size="middle"
+                        color="primary"
+                        variant="outlined"
+                        icon={<EditOutlined />}
+                    />
+
                     <Button
                         onClick={() =>
                             setModal({
@@ -305,7 +304,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

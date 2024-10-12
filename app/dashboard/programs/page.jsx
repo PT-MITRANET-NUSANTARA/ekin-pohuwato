@@ -163,19 +163,20 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Program ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        variant='outlined'
-                        color='primary'
-                        icon={<EditOutlined />}
-                    />
-                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Program ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
+                    />
+
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Program ${record._id}`, type: 'edit' })}
+                        // type='primary'
+                        size="middle"
+                        variant="outlined"
+                        color="primary"
+                        icon={<EditOutlined />}
                     />
 
                     <Button
@@ -190,8 +191,8 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/kegiatans/${record._id}`)}
                         // type='primary'
                         size="middle"
-                         variant='outlined'
-                        color='primary'
+                        variant="outlined"
+                        color="primary"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -282,7 +283,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

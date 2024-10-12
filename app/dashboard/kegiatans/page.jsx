@@ -166,20 +166,19 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        color='primary'
-                        variant='outlined'
-                        icon={<EditOutlined />}
-                    />
-                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Kegiatan ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         color="default"
-        
                         icon={<EyeOutlined />}
+                    />
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit' })}
+                        // type='primary'
+                        size="middle"
+                        color="primary"
+                        variant="outlined"
+                        icon={<EditOutlined />}
                     />
 
                     <Button
@@ -195,7 +194,7 @@ const page = () => {
                         // type='primary'
                         size="middle"
                         color="primary"
-                        variant='outlined'
+                        variant="outlined"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -287,7 +286,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

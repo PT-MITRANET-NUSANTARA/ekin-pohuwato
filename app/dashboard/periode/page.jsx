@@ -7,13 +7,13 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import Link from 'next/link';
 import React, { useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
-import {getAll, store, update, destroy} from '@/controller/PeriodeController';
+import { getAll, store, update, destroy } from '@/controller/PeriodeController';
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading, msg, status } = useFetchData(getAll)
+    const { data, setData, loading, msg, status } = useFetchData(getAll);
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -86,8 +86,7 @@ const page = () => {
             dataIndex: 'periode_end',
             key: 'content',
             sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%',
-    
+            width: '30%'
         },
         {
             title: 'Action',
@@ -95,19 +94,19 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Periode ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        color='primary'
-                        variant='outlined'
-                        icon={<EditOutlined />}
-                    />
-                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Periode ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
-                        variant='outlined'
+                        variant="outlined"
                         icon={<EyeOutlined />}
+                    />
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Periode ${record._id}`, type: 'edit' })}
+                        // type='primary'
+                        size="middle"
+                        color="primary"
+                        variant="outlined"
+                        icon={<EditOutlined />}
                     />
 
                     <Button
@@ -151,10 +150,9 @@ const page = () => {
         setModal({ trigger: false, modalData: null });
     };
 
-
     return (
         <div className="w-full flex flex-col gap-y-4">
-        {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
+            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {
@@ -177,7 +175,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                 </div>
             </Card>

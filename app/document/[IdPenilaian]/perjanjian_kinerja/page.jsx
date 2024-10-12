@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getById, getByUnitId } from '@/controller/PeriodeRKTController';
 
@@ -12,8 +12,12 @@ const page = () => {
     const { data, setData, loading, msg, status, error } = useFetchData(fetchById);
     const [tujuan, setTujuan] = useState(null);
     const [program, setProgram] = useState(null);
-    console.log(IdPenilaian);
-    console.log(data);
+
+    const router = useRouter();
+    const { query } = router;
+
+    const params = new URLSearchParams(window.location.search);
+    const paramEntries = Object.fromEntries(params.entries());
 
     useEffect(() => {
         if (data) {
@@ -40,12 +44,23 @@ const page = () => {
             let allTujuan = uniqueProgram.map((program) => program.tujuan);
 
             const uniqueTujuan = allTujuan.filter((item, index, self) => index === self.findIndex((tujuan) => tujuan._id === item._id));
-            setTujuan(uniqueTujuan)
-            setProgram(uniqueProgram)
+            setTujuan(uniqueTujuan);
+            setProgram(uniqueProgram);
         } catch (error) {
             console.log(error);
         }
     };
+
+    // Membuat objek Date dari string
+    const date = new Date(paramEntries.tanggal);
+
+    // Mendapatkan hari, bulan, dan tahun
+    const day = date.getDate();
+    const month = date.toLocaleString('id-ID', { month: 'long' });
+    const year = date.getFullYear(); // Ubah tahun menjadi 2023 sesuai permintaan
+
+    // Membuat format yang diinginkan
+    const formattedDate = `${day} ${month} ${year}`;
 
     return (
         <div className="p-12">
@@ -54,7 +69,7 @@ const page = () => {
                     <img src="/pohuwato.jpg" alt="" className="w-24 mx-auto" />
                 </div>
                 <p className="w-full text-center font-bold">PERJANJIAN KINERJA</p>
-                <p className="w-full text-center font-bold">TAHUN 2023</p>
+                <p className="w-full text-center font-bold">TAHUN {year}</p>
                 <p className="w-full text-center font-bold">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA</p>
             </div>
             <div className="mb-6">
@@ -63,11 +78,11 @@ const page = () => {
                     <tbody>
                         <tr>
                             <td className="px-4">Nama</td>
-                            <td className="font-semibold">Mohamad Rafiq Daud</td>
+                            <td className="font-semibold">{paramEntries.nama_pihak_pertama}</td>
                         </tr>
                         <tr>
                             <td className="px-4">Jabatan</td>
-                            <td className="font-semibold">Kepala Badan Kepegawaian Dan Pengembangan Sumber Daya Manusia Kabupaten Pohuwato</td>
+                            <td className="font-semibold">{paramEntries.jabatan_pihak_pertama}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -76,11 +91,11 @@ const page = () => {
                     <tbody>
                         <tr>
                             <td className="px-4">Nama</td>
-                            <td className="font-semibold">Mohamad Rafiq Daud</td>
+                            <td className="font-semibold">{paramEntries.nama_pihak_kedua}</td>
                         </tr>
                         <tr>
                             <td className="px-4">Jabatan</td>
-                            <td className="font-semibold">Kepala Badan Kepegawaian Dan Pengembangan Sumber Daya Manusia Kabupaten Pohuwato</td>
+                            <td className="font-semibold">{paramEntries.jabatan_pihak_kedua}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -98,14 +113,16 @@ const page = () => {
                             <td>Pegawai Yang di nilai</td>
                             <td>
                                 <div className="">
-                                    <p>Gorontalo, 10 Oktober 2024</p>
+                                    <p>
+                                        {paramEntries.tempat}, {formattedDate}
+                                    </p>
                                     <p>Pejabat Penilai Kinerja</p>
                                 </div>
                             </td>
                         </tr>
                         <tr className="text-center">
-                            <td className="pt-24">Mohamad Rafiq Daud</td>
-                            <td className="pt-24">Mohamad Rafiq Daud</td>
+                            <td className="pt-24">{paramEntries.nama_pihak_pertama}</td>
+                            <td className="pt-24">{paramEntries.nama_pihak_kedua}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -156,14 +173,16 @@ const page = () => {
                             <td>Pegawai Yang di nilai</td>
                             <td>
                                 <div className="">
-                                    <p>Gorontalo, 10 Oktober 2024</p>
+                                    <p>
+                                        {paramEntries.tempat}, {formattedDate}
+                                    </p>
                                     <p>Pejabat Penilai Kinerja</p>
                                 </div>
                             </td>
                         </tr>
                         <tr className="text-center">
-                            <td className="pt-24">Mohamad Rafiq Daud</td>
-                            <td className="pt-24">Mohamad Rafiq Daud</td>
+                            <td className="pt-24">{paramEntries.nama_pihak_pertama}</td>
+                            <td className="pt-24">{paramEntries.nama_pihak_kedua}</td>
                         </tr>
                     </tbody>
                 </table>

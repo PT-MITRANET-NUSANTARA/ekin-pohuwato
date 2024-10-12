@@ -86,7 +86,6 @@ const page = () => {
         handleClose();
     };
 
-
     const Column = [
         {
             title: 'ID',
@@ -129,7 +128,7 @@ const page = () => {
                 </>
             )
         },
-       
+
         {
             title: 'Peroide Mulai',
             dataIndex: 'periode_start',
@@ -150,18 +149,18 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        // type='primary'
+                        size="middle"
+                        icon={<EyeOutlined />}
+                    />
+                    <Button
                         onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         color="primary"
                         variant="outlined"
                         icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
-                        // type='primary'
-                        size="middle"
-                        icon={<EyeOutlined />}
                     />
 
                     <Button
@@ -176,7 +175,7 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/programs/${record._id}`)}
                         // type='primary'
                         size="middle"
-                         color="primary"
+                        color="primary"
                         variant="outlined"
                         icon={<DatabaseOutlined />}
                     />
@@ -186,7 +185,6 @@ const page = () => {
     ];
 
     const formFields = [
-       
         {
             label: 'Misi',
             name: 'misi',
@@ -257,7 +255,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={data} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                 </div>
             </Card>
