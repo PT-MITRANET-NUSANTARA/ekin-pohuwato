@@ -10,12 +10,21 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [form] = Form.useForm();
     const { Option } = Select;
     const [fileList, setFileList] = useState([]);
-
     useEffect(() => {
         if (isModalOpen && data) {
-            form.setFieldsValue(data);
+            const formattedData = Object.fromEntries(
+                Object.entries(data).map(([key, value]) => {
+                    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+                        return [key, dayjs(value)]; 
+                    }
+                    return [key, value]; 
+                })
+            );
+    
+            form.setFieldsValue(formattedData);
         }
     }, [isModalOpen, form, data]);
+    
 
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {

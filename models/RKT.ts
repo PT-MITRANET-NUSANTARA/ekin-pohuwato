@@ -10,6 +10,8 @@ export interface IRKT extends Document {
     target_capaian: string; // Target achievement for input
     satuan: string; // Unit of measurement for input
   };
+  subKegiatan: mongoose.Schema.Types.ObjectId; // Single reference to a SubKegiatan document
+
   output: {
     name: string, 
     target_capaian: string; // Target achievement for output
@@ -30,6 +32,11 @@ const RKTSchema: Schema = new Schema({
     ref: 'PeriodeRKT',
     required: true
   },
+  subKegiatan: {
+    type: Schema.Types.ObjectId,
+    ref: 'SubKegiatan', // Single reference to SubKegiatan model
+    required: true
+},
   name: {
     type: String,
     required: true
