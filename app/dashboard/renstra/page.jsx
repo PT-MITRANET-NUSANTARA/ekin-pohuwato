@@ -86,49 +86,6 @@ const page = () => {
         handleClose();
     };
 
-    const nana = {
-        _id: '670892b2181786763b9212c7',
-        name: 'Renstra 123',
-        periode_start: '2020-09-30T16:00:00.000Z',
-        periode_end: '2025-10-29T16:00:00.000Z',
-        misi: [
-            {
-                _id: '67088f39181786763b92129b',
-                name: 'Meningkatkan derajat kesehatan masyarakat dan Pendidikan',
-                visi: '67088d7d181786763b921263',
-                createdAt: '2024-10-11T02:36:41.940Z',
-                updatedAt: '2024-10-11T02:36:41.940Z',
-                __v: 0
-            },
-            {
-                _id: '67088fc8181786763b9212a5',
-                name: 'Meningkatkan kualitas pembangunan infrastruktur dan lingkungan',
-                visi: '67088d7d181786763b921263',
-                createdAt: '2024-10-11T02:39:04.841Z',
-                updatedAt: '2024-10-11T02:39:04.841Z',
-                __v: 0
-            },
-            {
-                _id: '67088fdf181786763b9212af',
-                name: 'Mewujudkan masyarakat yang produktif dan inovatif',
-                visi: '67088d7d181786763b921263',
-                createdAt: '2024-10-11T02:39:27.770Z',
-                updatedAt: '2024-10-11T02:39:27.770Z',
-                __v: 0
-            },
-            {
-                _id: '67088fe8181786763b9212b5',
-                name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
-                visi: '67088d7d181786763b921263',
-                createdAt: '2024-10-11T02:39:36.955Z',
-                updatedAt: '2024-10-11T02:39:36.955Z',
-                __v: 0
-            }
-        ],
-        createdAt: '2024-10-11T02:51:30.842Z',
-        updatedAt: '2024-10-11T02:51:30.842Z',
-        __v: 0
-    };
 
     const Column = [
         {
@@ -172,13 +129,7 @@ const page = () => {
                 </>
             )
         },
-        {
-            title: 'Renstra',
-            dataIndex: 'name',
-            key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
-        },
+       
         {
             title: 'Peroide Mulai',
             dataIndex: 'periode_start',
@@ -235,17 +186,7 @@ const page = () => {
     ];
 
     const formFields = [
-        {
-            label: 'Renstra',
-            name: 'name',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field renstra wajib di isi'
-                }
-            ]
-        },
+       
         {
             label: 'Misi',
             name: 'misi',

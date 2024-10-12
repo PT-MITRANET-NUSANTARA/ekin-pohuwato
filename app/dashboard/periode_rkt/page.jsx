@@ -5,42 +5,70 @@ import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { destroy, getAll, store, update, getByUserId } from '@/controller/PeriodeRKTController';
+import { destroy, getAll, store, update, getByUnitId } from '@/controller/PeriodeRKTController';
 import useFetchData from '@/hooks/useFetchData';
 const { Title } = Typography;
 import { store as upload } from '@/controller/DokumentController';
+import { getData } from '@/controller/AuthorizationController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getAll);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const { data, setData } = useFetchData(getData);
+    const [dt, setDT] = useState([])
+    const [unor, setUnor] = useState(null);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const periodeSubmit = async (values, type, id, formData) => {
+    const [loadingData, setLoadingData] = useState(true);
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+  
+            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            setUnor(selectedJabatan.unor.induk);
+            const dt = await getByUnitId(selectedJabatan.unor.id);
+            setDT(dt.data)
+            setLoadingData(false);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const onSubmit = async (values, type, id, formData) => {
         try {
             let response;
-
+            let dt = values;
+            dt = {...dt, unit: unor}
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
-                    response = await destroy(id);
+                    response = await destroy(dt);
                     break;
 
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
+            console.log(response);
+            
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const newData = await getByUnitId(unor.id);
+                setDT(newData.data);
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -107,7 +135,7 @@ const page = () => {
                             // type='primary'
                             size="middle"
                             color="default"
-                            onClick={() => router.push('/document/1/perjanjian_kinerja')}
+                            onClick={() => router.push(`/document/${record._id}/perjanjian_kinerja`)}
                             icon={<EyeOutlined />}
                         />
                         <Button
@@ -127,13 +155,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: periodeSubmit })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: customSubmit })}
                         // type='primary'
                         size="middle"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields, onSubmit: periodeSubmit })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields, onSubmit: customSubmit })}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -141,7 +169,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: periodeSubmit })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: customSubmit })}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -226,13 +254,14 @@ const page = () => {
                             Data Periode RKT
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: periodeSubmit })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: customSubmit })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+
+                    <DataTable columns={Column} data={dt} loading={loadingData} />
+                    <CrudModal title={modal.title} onSubmit={onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>
