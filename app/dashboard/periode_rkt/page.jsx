@@ -19,10 +19,6 @@ const page = () => {
 
     const onSubmit = async (values, type, id, formData) => {
         try {
-            const test = await upload(formData)
-            console.log(test);
-            
-            
             let response;
 
             switch (type) {
@@ -166,11 +162,6 @@ const page = () => {
             min: 1,
             max: 3000
         },
-        {
-            label: 'Perjanjian Kerja',
-            name: 'perjanjianKinerja',
-            type: 'upload',
-        }
 
     ];
 
