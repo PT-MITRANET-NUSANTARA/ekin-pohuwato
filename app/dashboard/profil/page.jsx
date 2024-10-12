@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Button, Card, Image, Tabs, Typography } from 'antd';
+import { Avatar, Badge, Button, Card, Image, Tabs, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { dummyAtasan, dummyBawahan } from '@/data';
 import React, { useEffect, useState } from 'react';
@@ -8,13 +8,17 @@ import { DataTable } from '@/components';
 import { getData } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
 import { getByNIP, getFotoByNIP } from '@/controller/IDSN/DataUtamaController';
-import { getByNIP as getJabatanByNIP } from '@/controller/IDSN/JabatanController';
+import { getAllPosjabByUnit, getByNIP as getJabatanByNIP } from '@/controller/IDSN/JabatanController';
 const { Title } = Typography;
+import { cekJabatan } from '@/utils/jabatanUtils';
+import { getById } from '@/controller/IDSN/UnitController';
 
 const page = () => {
     const { data, loading } = useFetchData(getData); // Assuming getData is the function fetching the token and NIP
     const [user, setUser] = useState(null);
     const [foto, setFoto] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
+    const [unor, setUnor] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -30,48 +34,134 @@ const page = () => {
                 user: dt.mapData.DataUtama,
                 jabatan: jabatan.mapData.data[0]
             });
+            const selectedJabatan = jabatan.mapData.data[0];
+            const unit = await getAllPosjabByUnit(data?.token, selectedJabatan.unor.induk.id);
+            const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
+            
+            const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            console.log('AtASAN', isAtasan);
+            
+            let bawahan = [];
+            let unor = [];
+            
+            if (isAtasan) {
+                // Filter bawahan based on the selectedJabatan conditions
+                bawahan = unit.mapData.data.filter(
+                    (item) => 
+                        (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) ||
+                        item.unor.atasan?.unor_id === selectedJabatan.unor.id
+                );
+            
+                // Filter unor based on selectedJabatan.unor.id
+                unor = unit.mapData.data
+                    .filter((item) => item.unor.id === selectedJabatan.unor.id)
+                    .map((item) => ({
+                        ...item, // Spread the existing properties of the object
+                        isPemimpin: item.userId === selectedJabatan.userId // Set isPemimpin to true if userId matches
+                    }));
+                
+            } else {
+                // If not an atasan, set bawahan as an empty array
+                bawahan = [];
+                unor = unit.mapData.data
+                .filter((item) => item.unor.id === selectedJabatan.unor.id)
+            }
             const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
             setFoto(foto);
+            setBawahan(bawahan);
+            setUnor(unor)
         } catch (error) {
             console.error(error);
         }
     };
-    console.log(user);
+    console.log('UNOR',unor);
 
     const Column = [
         {
-            title: 'NIP',
-            dataIndex: 'nip',
-            key: 'nip',
+            title: 'idASN',
+            dataIndex: 'userId',
+            key: 'userId',
             sorter: (a, b) => a.nip.length - b.nip.length,
             width: '30%',
             searchable: true
         },
         {
             title: 'Nama',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'nama_asn',
+            key: 'nama_asn',
             sorter: (a, b) => a.name.length - b.name.length,
             width: '30%',
             searchable: true
         },
         {
             title: 'Jabatan',
-            dataIndex: 'jabatan',
-            key: 'jabatan',
+            dataIndex: 'nama_jabatan',
+            key: 'nama_jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length,
             width: '30%',
             searchable: true
         },
         {
-            title: 'Golru',
-            dataIndex: 'golru',
-            key: 'golru',
+            title: 'Unit Kerja',
+            dataIndex: 'unitkerja',
+            key: 'unitkerja',
             sorter: (a, b) => a.golru.length - b.golru.length,
             width: '30%',
-            searchable: true
+            searchable: true,
+            render: (text, record) => record.unor?.nama || 'N/A' // Safely render `unor.nama` or 'N/A' if not available
         }
     ];
+
+    const ColumnUnor = [
+        {
+            title: 'idASN',
+            dataIndex: 'userId',
+            key: 'userId',
+            sorter: (a, b) => a.nip.length - b.nip.length,
+            width: '30%',
+            searchable: true
+        },
+        {
+            title: 'Nama',
+            dataIndex: 'nama_asn',
+            key: 'nama_asn',
+            sorter: (a, b) => a.name.length - b.name.length,
+            width: '30%',
+            searchable: true
+        },
+        {
+            title: 'Jabatan',
+            dataIndex: 'nama_jabatan',
+            key: 'nama_jabatan',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            width: '30%',
+            searchable: true
+        },
+        {
+            title: 'Unit Kerja',
+            dataIndex: 'unitkerja',
+            key: 'unitkerja',
+            sorter: (a, b) => a.golru.length - b.golru.length,
+            width: '30%',
+            searchable: true,
+            render: (text, record) => record.unor?.nama || 'N/A' // Safely render `unor.nama` or 'N/A' if not available
+        }
+,
+{
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    sorter: (a, b) => a.golru.length - b.golru.length,
+    width: '30%',
+    searchable: true,
+    render: (text, record) => {
+        // If isPemimpin is true, render a Badge with "Pimpinan", otherwise render an empty string
+        return record.isPemimpin ? <Badge count="Pimpinan" style={{ backgroundColor: '#52c41a' }} /> : '';
+    }
+}
+        
+    ];
+    
     return (
         <div className="w-full grid grid-cols-12 gap-2">
             <div className="col-span-12 mb-6">
@@ -104,10 +194,10 @@ const page = () => {
                             </div>
                         </Tabs.Items>
                         <Tabs.Items tab="List Pegawai Satuan Unit Kerja" key="2">
-                            <DataTable columns={Column} data={dummyAtasan} loading={loading} />
+                            <DataTable columns={ColumnUnor} data={unor? unor : []} loading={loading} />
                         </Tabs.Items>
                         <Tabs.Items tab="List Pegawai Bawahan" key="3">
-                            <DataTable columns={Column} data={dummyBawahan} loading={loading} />
+                            <DataTable columns={Column} data={bawahan? bawahan : []} loading={loading} />
                         </Tabs.Items>
                         <Tabs.Items tab="Klaim Pimpinan Unit Kerja" key="4">
                             Data UNit

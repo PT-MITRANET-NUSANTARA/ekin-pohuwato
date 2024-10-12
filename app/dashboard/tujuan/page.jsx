@@ -156,7 +156,7 @@ const page = () => {
                             bordered
                             columns={[
                                 {
-                                    title: 'Name',
+                                    title: 'Indikator',
                                     dataIndex: 'name',
                                     key: 'name'
                                 },
@@ -191,6 +191,8 @@ const page = () => {
                             })
                         }
                         size="middle"
+                        color='primary'
+                        variant='outlined'
                         icon={<EditOutlined />}
                     />
                     <Button

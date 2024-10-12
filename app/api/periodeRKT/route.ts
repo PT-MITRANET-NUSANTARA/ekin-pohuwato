@@ -9,7 +9,7 @@ import { createResponse } from '@/utils/api';
 const periodeRKTSchema = Joi.object({
   periode_start: Joi.date().required().label('Periode Mulai'),
   periode_end: Joi.date().required().label('Periode Selesai'),
-  perjanjianKinerja: Joi.string().required().label('Perjanjian Kinerja'),
+  perjanjianKinerja: Joi.array().label('Perjanjian Kinerja'),
   __v: Joi.optional(),
   _id: Joi.optional(),
   createdAt: Joi.date().optional(),
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       periodeRKTs = await PeriodeRKT.findOne({ _id: id }).populate('subKegiatan');
     } else {
-      periodeRKTs = await PeriodeRKT.find({}).populate('subKegiatan');
+      periodeRKTs = await PeriodeRKT.find({})
     }
 
     return NextResponse.json(createResponse(200, 'Success', periodeRKTs, true));

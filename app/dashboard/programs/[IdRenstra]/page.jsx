@@ -66,7 +66,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Program' : type === 'edit' ? 'Berhasil Mengedit Program' : 'Berhasil Menambahkan Program',
                     type: 'success'
                 });
             } else {
@@ -147,13 +147,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Program ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Program ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -161,7 +161,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Program ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -188,19 +188,19 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field renstra wajib di isi'
                 }
             ],
             options: renstra?.map((item) => ({ value: item._id, label: item.name }))
         },
         {
-            label: 'Nama',
+            label: 'Program',
             name: 'name',
             type: 'text',
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field program wajib di isi'
                 }
             ]
         },
@@ -211,7 +211,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field sasaran strategis wajib di isi'
                 }
             ]
         },
@@ -222,7 +222,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field indikator kinerja wajib di isi'
                 }
             ]
         },
@@ -233,7 +233,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field target indikator wajib di isi'
                 }
             ]
         },
@@ -244,7 +244,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field stuan wajib di isi'
                 }
             ]
         },
@@ -256,7 +256,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode selesai wajib di isi'
+                    message: 'Field total anggaran selesai wajib di isi'
                 }
             ],
             min: 0

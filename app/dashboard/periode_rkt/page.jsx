@@ -2,27 +2,23 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Space, Typography, Upload } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/PeriodeRKTController';
 import useFetchData from '@/hooks/useFetchData';
 const { Title } = Typography;
-import {store as upload} from '@/controller/DokumentController'
+import { store as upload } from '@/controller/DokumentController';
 const page = () => {
-    const router = useRouter()
-    const {data, setData, loading}  = useFetchData(getAll) 
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const router = useRouter();
+    const { data, setData, loading } = useFetchData(getAll);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const onSubmit = async (values, type, id, formData) => {
         try {
-            const test = await upload(formData)
-            console.log(test);
-            
-            
             let response;
 
             switch (type) {
@@ -99,7 +95,29 @@ const page = () => {
             dataIndex: 'perjanjianKinerja',
             key: 'perjanjianKinerja',
             sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => (
+                <>
+                    {console.log(record)}
+                    <Space size="small">
+                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields })}></Button>
+                        <Button
+                            // type='primary'
+                            size="middle"
+                            color="default"
+                            onClick={() => router.push('/document/1/perjanjian_kinerja')}
+                            icon={<EyeOutlined />}
+                        />
+                        <Button
+                            // type='primary'
+                            size="middle"
+                            color="default"
+                            onClick={() => router.push('/document/1/perjanjian_kinerja')}
+                            icon={<DownloadOutlined />}
+                        />
+                    </Space>
+                </>
+            )
         },
         {
             title: 'Action',
@@ -107,13 +125,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields })}
                         // type='primary'
                         size="middle"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields })}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -121,7 +139,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields })}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -139,7 +157,7 @@ const page = () => {
         }
     ];
 
-    const formFields = [
+    const rktFields = [
         {
             label: 'Periode Mulai',
             name: 'periode_start',
@@ -165,13 +183,21 @@ const page = () => {
             ],
             min: 1,
             max: 3000
-        },
-        {
-            label: 'Perjanjian Kerja',
-            name: 'perjanjianKinerja',
-            type: 'upload',
         }
+    ];
 
+    const perjanjianFields = [
+        {
+            label: 'Perjanjian Kinerja',
+            name: 'perjanjian',
+            type: 'upload',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field perjanjian kinerja mulai wajib di isi'
+                }
+            ]
+        }
     ];
 
     const handleClose = () => {
@@ -198,13 +224,13 @@ const page = () => {
                             Data Periode RKT
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} onSubmit={onSubmit}  isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} onSubmit={onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

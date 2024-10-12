@@ -13,7 +13,9 @@ import { getData } from '@/controller/AuthorizationController';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
-import {getAll as getAllRenstra} from '@/controller/RenstraController';
+import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { cekJT } from '@/utils/jabatanUtils';
+import { getById } from '@/controller/IDSN/UnitController';
 
 const { Title } = Typography;
 
@@ -24,8 +26,9 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
-    const [jabatan , setJabatan]  = useState(null);
+    const [jabatan, setJabatan] = useState(null);
     const [resntra, setRenstra] = useState(null);
+    const [isJT, setIsJT] = useState(false);
     console.log(data);
 
     useEffect(() => {
@@ -37,7 +40,11 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getByUserId(data.user.idASN);
-            const jabatan = await getByNIP(data.token ,data.user.nipBaru);
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
+            const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            setIsJT(isJT);
             const resntra = await getAllRenstra();
             setRenstra(resntra.data);
             setJabatan(jabatan.mapData.data[0]);
@@ -46,18 +53,18 @@ const page = () => {
             console.log(error);
         }
     };
-
-    console.log(skp);
+    console.log(jabatan);
     
+    console.log(skp);
 
     const onSubmit = async (values, type, id) => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt,  jabatan:  [jabatan]};
+            dt = { ...dt, jabatan: [jabatan] };
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN,dt);
+                    response = await store(data.user.idASN, dt);
                     break;
 
                 case 'edit':
@@ -190,9 +197,11 @@ const page = () => {
                             Data SKP
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+                            {isJT && (
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            )}
                         </div>
                     </div>
                     <div className="flex flex-col gap-y-4">
@@ -271,13 +280,13 @@ const page = () => {
                             <div className="grid grid-flow-row divide-y text-xs px-4 mb-6">
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">unit kerja</span>
-                                    <p className="text-right">BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
+                                    <p className="text-right">{jabatan?.unor.nama}</p>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">jenis pegawai</span>
                                     <Tag color="blue">Pimpinan</Tag>
                                 </div>
-                                <div className="flex items-center justify-between py-2">
+                                {/* <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">atasan</span>
                                     <div className="flex flex-col gap-y-1">
                                         <p className="text-right">SUPRATMAN NENTO</p>
@@ -287,7 +296,7 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">unit kerja atasan</span>
                                     <p className="text-right">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA</p>
-                                </div>
+                                </div> */}
                             </div>
                         )}
 

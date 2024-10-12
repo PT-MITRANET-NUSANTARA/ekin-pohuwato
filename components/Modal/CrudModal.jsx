@@ -10,21 +10,28 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [form] = Form.useForm();
     const { Option } = Select;
     const [fileList, setFileList] = useState([]);
+    const [imageList, setImageList] = useState([]);
+
     useEffect(() => {
-        if (isModalOpen && data) {
-            const formattedData = Object.fromEntries(
-                Object.entries(data).map(([key, value]) => {
-                    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-                        return [key, dayjs(value)]; 
-                    }
-                    return [key, value]; 
-                })
-            );
-    
-            form.setFieldsValue(formattedData);
+        if (isModalOpen) {
+            if (data) {
+                const formattedData = Object.fromEntries(
+                    Object.entries(data).map(([key, value]) => {
+                        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+                            return [key, dayjs(value)];
+                        }
+                        return [key, value];
+                    })
+                );
+
+                form.setFieldsValue(formattedData);
+            }else
+            {
+                form.resetFields();
+            }
         }
+        
     }, [isModalOpen, form, data]);
-    
 
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {
@@ -39,23 +46,25 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         try {
             const response = await fetch('http://localhost:3001/upload', {
                 method: 'POST',
-                body: formData,
+                body: formData
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 message.success(`${file.name} file uploaded successfully.`);
-                // Update fileList dengan fileId dari response API
-                console.log(data);
-                console.log("fileList", fileList);
-                console.log('UPLOAD', file);
-                
-                
-                setFileList((prevList) =>
-                    prevList.map((item) => (item.uid === file.uid ? { ...item, fileId: data.fileId } : item))
-                );
-                onSuccess("OK");
+
+                // Update the file list using the previous state
+                setFileList((prevList) => {
+                    const newList = prevList.map((item) => (item.uid === file.uid ? { ...item, fileId: data.fileId } : item));
+                    console.log('Updated fileList', newList);
+                    return newList;
+                });
+
+                // Add the new fileId to the imageList as an object with uuid
+                setImageList((prevImageList) => [...prevImageList, { uid: file.uid, fileId: data.fileId }]);
+
+                onSuccess('OK');
             } else {
                 message.error(`${file.name} file upload failed.`);
                 onError(new Error('Upload failed'));
@@ -69,25 +78,43 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     // Fungsi untuk menangani penghapusan file
     const handleRemove = async (file) => {
         console.log('DELETE', file);
-        
+
         try {
-            const response = await fetch(`http://localhost:3001/upload/${file.fileId}`, {
-                method: 'DELETE',
+            // Find the fileId from imageList using the file.uid or file.fileId
+            console.log('IMAGELIST', imageList);
+            console.log('FILE', file);
+
+            const imageId = imageList.find((img) => img.uid === file.uid).fileId;
+            console.log('IMAGEID', imageId);
+
+            if (!imageId) {
+                message.error(`No file ID found for ${file.name}, cannot delete.`);
+                return;
+            }
+
+            // Proceed to delete the file using the fileId
+            const response = await fetch(`http://localhost:3001/upload/${imageId}`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
                 message.success(`${file.name} deleted successfully.`);
+
                 setFileList((prevList) => prevList.filter((item) => item.uid !== file.uid));
+
+                // Remove the corresponding fileId from imageList
+                setImageList((prevImageList) => prevImageList.filter((img) => img.fileId !== imageId));
             } else {
-                message.error(`Failed to delete ${file.name}`);
+                const errorData = await response.json();
+                message.error(`Failed to delete ${file.name}: ${errorData.message || 'Unknown error'}`);
             }
         } catch (error) {
-            message.error(`Failed to delete ${file.name}`);
+            console.error('Error during file deletion:', error);
+            message.error(`Failed to delete ${file.name}. Please try again later.`);
         }
     };
 
     console.log(data);
-    
 
     const renderFormInput = (field) => {
         const isDisabled = type === 'show' || type === 'delete';
@@ -119,7 +146,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         {(fields, { add, remove }) => (
                             <>
                                 {fields.map(({ key, name, fieldKey, ...restField }) => (
-                                    <div key={key} className="flex items-center gap-2 mb-2">
+                                    <div key={key} className="flex items-start gap-2 mb-2">
                                         {Object.keys(field.obj).map((subFieldKey) => {
                                             const subField = field.obj[subFieldKey];
                                             return (
@@ -181,7 +208,8 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     };
 
     const handleSubmit = (values) => {
-        onSubmit(values, type, data?._id, fileList);
+        const arrayListImage = (imageList || []).map((img) => img.fileId);
+        onSubmit(values, type, data?._id, arrayListImage);
     };
 
     const extraContent = React.Children.map(children, (child) => {

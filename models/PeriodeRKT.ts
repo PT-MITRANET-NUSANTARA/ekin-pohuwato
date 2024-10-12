@@ -4,7 +4,7 @@ export interface IPeriodeRKT extends Document {
     periode_start: Date; // Start date of the period
     periode_end: Date; // End date of the period
     createdAt?: Date;
-    perjanjianKinerja: string;
+    perjanjianKinerja: [string];
     updatedAt?: Date;
 }
 
@@ -20,8 +20,7 @@ const PeriodeRKTSchema: Schema = new Schema(
         },
         
         perjanjianKinerja: {
-            type: String,
-            required: true
+            type: [String],
         }
     },
     {

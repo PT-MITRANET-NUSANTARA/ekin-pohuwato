@@ -68,7 +68,7 @@ const page = () => {
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Indikator' : type === 'edit' ? 'Berhasil Mengedit Indikator' : 'Berhasil Menambahkan Indikator',
                     type: 'success'
                 });
             } else {
@@ -132,7 +132,7 @@ const page = () => {
                             bordered
                             columns={[
                                 {
-                                    title: 'Name',
+                                    title: 'Indikator',
                                     dataIndex: 'name',
                                     key: 'name'
                                 },
@@ -166,24 +166,27 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
+                        color='primary'
+                        variant='outlined'
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Kegiatan ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         color="default"
+        
                         icon={<EyeOutlined />}
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Kegiatan ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        danger
                         icon={<DeleteOutlined />}
                     />
 
@@ -191,7 +194,8 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/kegiatans/${record._id}`)}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        color="primary"
+                        variant='outlined'
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -208,19 +212,19 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field program wajib di isi'
                 }
             ],
             options: program?.map((item) => ({ value: item._id, label: item.name }))
         },
         {
-            label: 'Nama',
+            label: 'Kegiatan',
             name: 'name',
             type: 'longtext',
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field kegiatan wajib di isi'
                 }
             ]
         },
@@ -233,7 +237,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field indikator kinerja wajib di isi'
                 }
             ]
         },
@@ -244,7 +248,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode selesai wajib di isi'
+                    message: 'Field total anggaran selesai wajib di isi'
                 }
             ],
             min: 0

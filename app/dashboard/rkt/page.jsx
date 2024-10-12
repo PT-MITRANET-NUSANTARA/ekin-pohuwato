@@ -7,53 +7,13 @@ import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUnitId } from '@/controller/RKTController';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll as getAllSub } from '@/controller/SubKegiatanController';
+import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getData } from '@/controller/AuthorizationController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
-
-const transformFormData = (formData) => {
-    return {
-        _id : formData._id,
-        subKegiatan: formData.subKegiatan,
-        name: formData.name,
-        input: {
-            name: formData.input_name,
-            target_capaian: formData.input_target_capaian,
-            satuan: formData.input_satuan
-        },
-        output: {
-            name: formData.output_name,
-            target_capaian: formData.output_target_capaian,
-            satuan: formData.output_satuan
-        },
-        outcome: {
-            name: formData.outcome_name,
-            target_capaian: formData.outcome_target_capaian,
-            satuan: formData.outcome_satuan
-        },
-        total_anggaran: formData.total_anggaran
-    };
-};
-
-const reverseTransformFormData = (simpleData) => {
-    return {
-        _id : simpleData._id,
-        subKegiatan: simpleData.subKegiatan,
-        name: simpleData.name,
-        input_name: simpleData.input.name,
-        input_target_capaian: simpleData.input.target_capaian,
-        input_satuan: simpleData.input.satuan,
-        output_name: simpleData.output.name,
-        output_target_capaian: simpleData.output.target_capaian,
-        output_satuan: simpleData.output.satuan,
-        outcome_name: simpleData.outcome.name,
-        outcome_target_capaian: simpleData.outcome.target_capaian,
-        outcome_satuan: simpleData.outcome.satuan,
-        total_anggaran: simpleData.total_anggaran
-    };
-};
 
 
 const page = () => {
@@ -62,7 +22,9 @@ const page = () => {
     const {data, setData, loading}  = useFetchData(getData) 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const [subkegiatans, setSubkegiatans] = useState(null);
+    const [periodeRKT, setPeriodeRKT] = useState(null);
+    const [subKegiatan, setSubkegiatans] = useState(null);
+    const [unor, setUnor] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -73,21 +35,27 @@ const page = () => {
     const fetchData = async () => {
         try {
             const sub = await getAllSub();
-            const dt = await getByUnitId(data.user.unor.id);
-            console.log('here', dt);
-            
+            const periode = await getAllPeriode();
+  
+            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            console.log(selectedJabatan);
+            setUnor(selectedJabatan.unor.induk);
+            const dt = await getByUnitId(selectedJabatan.unor.id);
+
             setDT(dt.data)
+            setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
         } catch (error) {
             console.log(error);
         }
     };
-
+    
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-            let dt = transformFormData(values);
-            dt = { ...dt, unit: data.user.unor };
+            let dt = values;
+            dt = { ...dt, unit: unor };
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -140,6 +108,13 @@ const page = () => {
             title: 'ID',
             dataIndex: '_id',
             key: '_id',
+            sorter: (a, b) => a._id.length - b._id.length,
+            width: '5%',
+        },
+        {
+            title: 'Periode RKT',
+            dataIndex: 'periodeRKT',
+            key: 'periodeRKT',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '5%',
         },
@@ -201,14 +176,13 @@ const page = () => {
             key: 'action',
             render: (_, record) => {
                 // Lakukan reverse transform pada data
-                const transformedRecord = reverseTransformFormData(record);
             
                 return (
                     <Space size="small">
                         <Button
                             onClick={() => setModal({ 
                                 trigger: true, 
-                                modalData: transformedRecord, // Data yang sudah di-reverse transform
+                                modalData: record, // Data yang sudah di-reverse transform
                                 title: `Edit Renstra ${record._id}`, 
                                 type: 'edit' 
                             })}
@@ -218,7 +192,7 @@ const page = () => {
                         <Button
                             onClick={() => setModal({ 
                                 trigger: true, 
-                                modalData: transformedRecord, // Data yang sudah di-reverse transform
+                                modalData: record, // Data yang sudah di-reverse transform
                                 title: `Renstra ${record._id}`, 
                                 type: 'show' 
                             })}
@@ -229,7 +203,7 @@ const page = () => {
                         <Button
                             onClick={() => setModal({ 
                                 trigger: true, 
-                                modalData: transformedRecord, // Data yang sudah di-reverse transform
+                                modalData: record, // Data yang sudah di-reverse transform
                                 title: `Delete Renstra ${record._id}`, 
                                 type: 'delete' 
                             })}
@@ -250,11 +224,19 @@ const page = () => {
         },
     ];
 
-    console.log(data);
-    
-    
-
     const formFields = [
+        {
+            label: 'Periode RKT', 
+            name: 'periodeRKT',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            options : periodeRKT?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
+        },
         {
             label: 'Sub  Kegiatan', 
             name: 'subKegiatan',
@@ -265,12 +247,12 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options : subkegiatans?.map((item) => ({ value: item._id, label: item.name }))
+            options : subKegiatan?.map((item) => ({ value: item._id, label: item.name }))
         },
         {
             label: 'Nama',
             name: 'name',
-            type: 'text',
+            type: 'longtext',
             rules: [
                 {
                     required: true,
@@ -279,9 +261,10 @@ const page = () => {
             ]
         },
         {
-            label: 'Input Nama',
-            name: 'input_name',
-            type: 'text',
+            label: 'Input',
+            name: 'input',
+            type: 'repeater',
+            obj: { name: 'longtext', target: 'number', satuan: 'string' },
             rules: [
                 {
                     required: true,
@@ -289,33 +272,13 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Input Target Capaian',
-            name: 'input_target_capaian',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Input Satuan',
-            name: 'input_satuan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
+       
 
         {
-            label: 'Output Nama',
-            name: 'output_name',
-            type: 'text',
+            label: 'Output',
+            name: 'output',
+            type: 'repeater',
+            obj: { name: 'longtext', target: 'number', satuan: 'string' },
             rules: [
                 {
                     required: true,
@@ -323,33 +286,13 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Output Target Capaian',
-            name: 'output_target_capaian',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Output Satuan',
-            name: 'output_satuan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
+       
 
         {
-            label: 'Outcome Nama',
-            name: 'outcome_name',
-            type: 'text',
+            label: 'Outcome',
+            name: 'outcome',
+            type: 'repeater',
+            obj: { name: 'longtext', target: 'number', satuan: 'string' },
             rules: [
                 {
                     required: true,
@@ -357,28 +300,7 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Outcome Target Capaian',
-            name: 'outcome_target_capaian',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Outcome Satuan',
-            name: 'outcome_satuan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
+        
         {
             label: 'Total Anggaran',
             name: 'total_anggaran',
@@ -389,7 +311,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            min: 0
+            min: 1
         },
     ];
 
