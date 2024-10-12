@@ -4,6 +4,7 @@ import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, me
 import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 
 const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width }) => {
     const [form] = Form.useForm();
@@ -11,10 +12,10 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [fileList, setFileList] = useState([]);
 
     useEffect(() => {
-        if (isModalOpen) {
-            form.resetFields();
+        if (isModalOpen && data) {
+            form.setFieldsValue(data);
         }
-    }, [isModalOpen, form]);
+    }, [isModalOpen, form, data]);
 
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {
@@ -76,7 +77,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         }
     };
 
-    console.log(fileList);
+    console.log(data);
     
 
     const renderFormInput = (field) => {
@@ -92,6 +93,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'time':
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
+
             case 'select':
                 return (
                     <Select size="large" mode={field.mode ? field.mode : ''} placeholder="Select an option" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled}>
