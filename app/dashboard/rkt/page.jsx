@@ -11,6 +11,7 @@ import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getData } from '@/controller/AuthorizationController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
 
@@ -23,6 +24,7 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [subKegiatan, setSubkegiatans] = useState(null);
+    const [unor, setUnor] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -34,9 +36,13 @@ const page = () => {
         try {
             const sub = await getAllSub();
             const periode = await getAllPeriode();
-            const dt = await getByUnitId(data.user.unor.id);
-            console.log('here', dt);
-            
+  
+            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            console.log(selectedJabatan);
+            setUnor(selectedJabatan.unor.induk);
+            const dt = await getByUnitId(selectedJabatan.unor.id);
+
             setDT(dt.data)
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
@@ -44,12 +50,12 @@ const page = () => {
             console.log(error);
         }
     };
-
+    
     const onSubmit = async (values, type, id) => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, unit: data.user.unor };
+            dt = { ...dt, unit: unor };
             switch (type) {
                 case 'create':
                     response = await store(dt);

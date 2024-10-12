@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
         if (id) {
             rkts = await RKT.findOne({ _id: id });
         } else if (unit_id) {
-            rkts = await RKT.find({ 'unit.id': Number(unit_id) });
+            rkts = await RKT.find({ 'unit.id': unit_id });
         } else {
             rkts = await RKT.find({});
         }
