@@ -5,6 +5,7 @@ export interface IPeriodeRKT extends Document {
     periode_end: Date; // End date of the period
     createdAt?: Date;
     perjanjianKinerja: [string];
+    unit: Object;
     updatedAt?: Date;
 }
 
@@ -12,6 +13,10 @@ const PeriodeRKTSchema: Schema = new Schema(
     {
         periode_start: {
             type: Date,
+            required: true
+        },
+        unit: {
+            type: Object,
             required: true
         },
         periode_end: {

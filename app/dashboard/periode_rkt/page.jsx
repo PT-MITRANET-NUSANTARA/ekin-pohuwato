@@ -5,42 +5,68 @@ import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { destroy, getAll, store, update, getByUserId } from '@/controller/PeriodeRKTController';
+import { destroy, getAll, store, update, getByUnitId } from '@/controller/PeriodeRKTController';
 import useFetchData from '@/hooks/useFetchData';
 const { Title } = Typography;
 import { store as upload } from '@/controller/DokumentController';
+import { getData } from '@/controller/AuthorizationController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getAll);
+    const { data, setData, loading } = useFetchData(getData);
+    const [dt, setDT] = useState([])
+    const [unor, setUnor] = useState(null);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+  
+            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            setUnor(selectedJabatan.unor.induk);
+            const dt = await getByUnitId(selectedJabatan.unor.id);
+            setDT(dt.data)
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const onSubmit = async (values, type, id, formData) => {
         try {
             let response;
-
+            let dt = values;
+            dt = {...dt, unit: unor}
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
-                    response = await destroy(id);
+                    response = await destroy(dt);
                     break;
 
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
+            console.log(response);
+            
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const newData = await getByUnitId(unor.id);
+                setDT(newData.data);
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -105,7 +131,7 @@ const page = () => {
                             // type='primary'
                             size="middle"
                             color="default"
-                            onClick={() => router.push('/document/1/perjanjian_kinerja')}
+                            onClick={() => router.push(`/document/${record._id}/perjanjian_kinerja`)}
                             icon={<EyeOutlined />}
                         />
                         <Button
@@ -229,7 +255,7 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
+                    <DataTable columns={Column} data={dt} loading={loading} />
                     <CrudModal title={modal.title} onSubmit={onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>

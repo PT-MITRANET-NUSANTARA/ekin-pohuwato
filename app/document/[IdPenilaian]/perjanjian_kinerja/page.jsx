@@ -1,6 +1,15 @@
+'use client';
+
 import React from 'react';
+import { useParams } from 'next/navigation';
+import useFetchData from '@/hooks/useFetchData';
 
 const page = () => {
+    const {data, setData, loading, msg, status} = useFetchData();
+    const { IdPenilaian } = useParams();
+    console.log(IdPenilaian);
+    
+
     return (
         <div className="p-12">
             <div className="mb-4">

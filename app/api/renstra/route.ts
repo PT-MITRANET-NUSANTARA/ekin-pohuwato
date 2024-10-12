@@ -7,7 +7,6 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const renstraSchema = Joi.object({
-  name: Joi.string().required().label('Nama'),
   periode_start: Joi.date().required().label('Periode Mulai'),
   periode_end: Joi.date().required().label('Periode Selesai'),
   misi: Joi.array().items(Joi.string().hex().length(24)).required().label('Misi'), // Mengharapkan array string ObjectId

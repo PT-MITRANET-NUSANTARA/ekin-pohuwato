@@ -74,7 +74,7 @@ const page = () => {
             }
             
             if (response.ok) {
-                const newData = await getByUnitId(data.user.unor.id);
+                const newData = await getByUnitId(unor.id);
                 setDT(newData.data);
                 setAlert({
                     show: true,

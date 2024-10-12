@@ -14,10 +14,6 @@ export interface IRenstra extends Document {
 
 const RenstraSchema: Schema = new Schema(
     {
-        name: {
-            type: String,
-            required: true
-        },
         periode_start: {
             type: String,
             required: true

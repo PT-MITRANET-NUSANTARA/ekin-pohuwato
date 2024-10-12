@@ -26,6 +26,13 @@ export const store = async (data: any) => {
     return response;
 };
 
+export const getByUnitId = async (unitId: string) => {
+    const response = await apiRequest(`/api/periodeRKT?unitId=${unitId}`, {
+        method: 'GET',
+    });
+    return response;
+}
+
 // Update an existing PeriodeRKT record by ID
 export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/periodeRKT?id=${id}`, {
