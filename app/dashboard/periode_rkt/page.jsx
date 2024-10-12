@@ -94,6 +94,8 @@ const page = () => {
         handleClose();
     };
 
+    const customSubmit = () => {}
+
     const Column = [
         {
             title: 'ID',
@@ -126,7 +128,7 @@ const page = () => {
                 <>
                     {console.log(record)}
                     <Space size="small">
-                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields })}></Button>
+                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: customSubmit })}></Button>
                         <Button
                             // type='primary'
                             size="middle"
@@ -151,13 +153,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -165,7 +167,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -250,7 +252,7 @@ const page = () => {
                             Data Periode RKT
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: periodeSubmit })}>
                                 Tambah
                             </Button>
                         </div>

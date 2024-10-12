@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Select, Tag, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Select, Skeleton, Tag, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
@@ -32,6 +32,7 @@ const page = () => {
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [isJT, setIsJT] = useState(false);
     const [isAtasan, setIsAtasan] = useState(false);
+    const [loadingData, setLoadingData] = useState(true);
     console.log(data);
 
     useEffect(() => {
@@ -56,12 +57,14 @@ const page = () => {
             setPeriodeRKT(periodeRKT.data);
             setJabatan(jabatan.mapData.data[0]);
             setSKP(skp.data);
+            setLoadingData(false);
+
         } catch (error) {
             console.log(error);
         }
     };
     console.log(jabatan);
-    
+
     console.log(skp);
 
     const onSubmit = async (values, type, id) => {
@@ -226,38 +229,41 @@ const page = () => {
                             )}
                         </div>
                     </div>
-                    <div className="flex flex-col gap-y-4">
-                        {skp?.map((item) => (
-                            <Card type="inner" title={<Tag color="blue">{item._id}</Tag>}>
-                                <div className="w-full flex flex-col gap-y-4">
-                                    <div className="flex w-full items-center gap-x-2 ">
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/detail`)}>Detail SKP</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/penilaian`)}>Penilaian</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/hasil_kerja`)}>Hasil Kerja</Button>
-                                        <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
-                                    </div>
+                    {loadingData ? (
+                        <Skeleton active />
+                    ) : (
+                        <div className="flex flex-col gap-y-4">
+                            {skp?.map((item) => (
+                                <Card type="inner" title={<Tag color="blue">{item._id}</Tag>}>
+                                    <div className="w-full flex flex-col gap-y-4">
+                                        <div className="flex w-full items-center gap-x-2 ">
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/detail`)}>Detail SKP</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/penilaian`)}>Penilaian</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/hasil_kerja`)}>Hasil Kerja</Button>
+                                            <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
+                                        </div>
 
-                                    <div className="grid grid-flow-row divide-y text-xs">
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">periode</span>
-                                            <Tag color="blue" className="capitalize">
-                                                {formatDateToDayMonthYear(item.periode_awal)} - {formatDateToDayMonthYear(item.periode_akhir)}
-                                            </Tag>
-                                        </div>
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">pendekatan</span>
-                                            <Tag color="blue" className="capitalize">
-                                                {item.pendekatan}
-                                            </Tag>
-                                        </div>
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">unit kerja</span>
-                                            <p className="text-right uppercase">{item.jabatan.at(-1).unor.nama}</p>
-                                        </div>
-                                        {/* <div className="flex items-center justify-between py-2">
+                                        <div className="grid grid-flow-row divide-y text-xs">
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">periode</span>
+                                                <Tag color="blue" className="capitalize">
+                                                    {formatDateToDayMonthYear(item.periode_awal)} - {formatDateToDayMonthYear(item.periode_akhir)}
+                                                </Tag>
+                                            </div>
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">pendekatan</span>
+                                                <Tag color="blue" className="capitalize">
+                                                    {item.pendekatan}
+                                                </Tag>
+                                            </div>
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">unit kerja</span>
+                                                <p className="text-right uppercase">{item.jabatan.at(-1).unor.nama}</p>
+                                            </div>
+                                            {/* <div className="flex items-center justify-between py-2">
                                             <span className="uppercase font-semibold">status pegawai</span>
                                             <p className="text-right capitalize">{item.status}</p>
                                         </div>
@@ -267,27 +273,28 @@ const page = () => {
                                                 {item.status}
                                             </Tag>
                                         </div> */}
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">keterangan jabatan</span>
-                                            <p className="text-right capitalize">{item.jabatan.at(-1).nama_jabatan}</p>
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">keterangan jabatan</span>
+                                                <p className="text-right capitalize">{item.jabatan.at(-1).nama_jabatan}</p>
+                                            </div>
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">jenis pegawai</span>
+                                                <p className="text-right capitalize">{isAtasan ? 'Pimpinan' : 'Bawahan'}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">jenis pegawai</span>
-                                            <p className="text-right capitalize">{isAtasan? 'Pimpinan' : 'Bawahan'}</p>
+                                        <div className="flex w-full items-center justify-end gap-x-2 ">
+                                            <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: item, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
+                                                Edit
+                                            </Button>
+                                            <Button danger variant="filled" type="primary" icon={<DeleteOutlined />}>
+                                                Hapus
+                                            </Button>
                                         </div>
                                     </div>
-                                    <div className="flex w-full items-center justify-end gap-x-2 ">
-                                        <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: item, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
-                                            Edit
-                                        </Button>
-                                        <Button danger variant="filled" type="primary" icon={<DeleteOutlined />}>
-                                            Hapus
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </Card>
             <CrudModal width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={handleClose} type={modal.type}>
