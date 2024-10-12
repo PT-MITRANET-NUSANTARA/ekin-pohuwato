@@ -14,10 +14,10 @@ import { store as upload } from '@/controller/DokumentController';
 const page = () => {
     const router = useRouter();
     const { data, setData, loading } = useFetchData(getAll);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const onSubmit = async (values, type, id, formData) => {
+    const periodeSubmit = async (values, type, id, formData) => {
         try {
             let response;
 
@@ -68,6 +68,8 @@ const page = () => {
         handleClose();
     };
 
+    const customSubmit = () => {}
+
     const Column = [
         {
             title: 'ID',
@@ -100,7 +102,7 @@ const page = () => {
                 <>
                     {console.log(record)}
                     <Space size="small">
-                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields })}></Button>
+                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: customSubmit })}></Button>
                         <Button
                             // type='primary'
                             size="middle"
@@ -125,13 +127,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         icon={<EditOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -139,7 +141,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: periodeSubmit })}
                         // type='primary'
                         size="middle"
                         color="danger"
@@ -224,13 +226,13 @@ const page = () => {
                             Data Periode RKT
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: periodeSubmit })}>
                                 Tambah
                             </Button>
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} onSubmit={onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>
