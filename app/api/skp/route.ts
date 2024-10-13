@@ -85,9 +85,10 @@ export async function GET(req: NextRequest) {
                 .populate('perilakus')
                 .populate({
                     path: 'rhks',
-                    populate: {
-                        path: 'rkt'
-                    }
+                    populate:  [
+                        { path: 'rhk', populate: { path: 'rkt' } },
+                        { path: 'aspek' }
+                    ]
                 }).populate('skp');
         } else {
             skps = await SKP.find({});

@@ -213,7 +213,7 @@ const page = () => {
                                                 </div>
                                             </td>
                                         </tr>
-                                        {item.aspeks?.map((aspek) => (
+                                        {item.aspek?.map((aspek) => (
                                             <>
                                                 <tr>
                                                     <td>{aspek.jenis}</td>

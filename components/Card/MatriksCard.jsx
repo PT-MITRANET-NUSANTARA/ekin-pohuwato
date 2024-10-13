@@ -163,7 +163,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
         {
             label: 'Indikator',
             name: 'indikator',
-            type: 'text',
+            type: 'longtext',
             rules: [
                 {
                     required: true,
@@ -194,17 +194,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                 }
             ]
         },
-        {
-            label: 'Deskripsi',
-            name: 'desc',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field deskripsi wajib di isi'
-                }
-            ]
-        }
+       
     ];
 
     return (
@@ -303,7 +293,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                         target: value.target_tahunan,
                                                         satuan: value.satuan
                                                     },
-                                                    desc: value.desc
                                                 };
                                                 const res = await storeAspek(dt);
                                                 message.success('Berhasil Menambahkan Aspek');
