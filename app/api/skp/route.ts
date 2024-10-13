@@ -6,6 +6,7 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import { perilaku } from '@/utils/blueprint';
 import Perilaku from '@/models/Perilaku';
+import RKT from '@/models/RKT';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -112,6 +113,16 @@ export async function POST(req: NextRequest) {
                 });
 
                 await perilakuData.save();
+            }
+            const rkts = await RKT.find({ periodeRKT: newSKP.periodeRKT });
+            for (const rkt of rkts) {
+                const rhk = new RHK({
+                    skp: newSKP._id,
+                    rkt: rkt._id,
+                    jenis: 'utama',
+                    klasifikasi: 'organisasi',
+                });
+                await rhk.save();
             }
         }
 
