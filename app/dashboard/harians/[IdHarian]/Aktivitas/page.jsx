@@ -192,7 +192,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     {(() => {
-                        switch (record.msg.status) {
+                        switch (record.msg?.status) {
                             case 'Periksa':
                                 return (
                                     <Tag color="blue" className="capitalize">
@@ -216,7 +216,7 @@ const page = () => {
                                 );
                             default: 
                                 return(
-                                    <div>naruto</div>
+                                    <div></div>
                                 )
                         }
                     })()}

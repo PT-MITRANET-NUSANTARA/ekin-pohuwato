@@ -146,7 +146,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     console.log(data);
 
     const renderFormInput = (field) => {
-        const isDisabled = type === 'show' || type === 'delete';
+        const isDisabled = type === 'show' || type === 'delete' || type === 'status';
         switch (field.type) {
             case 'text':
                 return <Input placeholder={`Enter ${field.label}`} size="large" disabled={isDisabled} />;
@@ -262,7 +262,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         {renderFormInput(field)}
                     </Form.Item>
                 ))}
-                {type !== 'show' && type !== 'delete' && (
+                {type !== 'show' && type !== 'delete' && type !== 'status' && (
                     <Form.Item className="mt-2">
                         <Button type="primary" htmlType="submit">
                             Submit
@@ -274,6 +274,18 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         <Button type="primary" danger htmlType="submit">
                             Delete
                         </Button>
+                    </Form.Item>
+                )}
+                {type === 'status' && (
+                    <Form.Item className="mt-2">
+                        <div className='flex gap-x-2'>
+                            <Button type="primary" htmlType="submit">
+                                Terima
+                            </Button>
+                            <Button type="primary" danger htmlType="submit">
+                                Tolak
+                            </Button>
+                        </div>
                     </Form.Item>
                 )}
             </Form>
