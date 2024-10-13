@@ -10,9 +10,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
-import {getByUserId as getRHKByUserId} from '@/controller/RHKController';
-import {getByUnitId} from '@/controller/PeriodeRKTController';
-import {getByUserId as getSKPByUser} from '@/controller/SKPController';
+import { getByUserId as getRHKByUserId } from '@/controller/RHKController';
+import { getByUnitId } from '@/controller/PeriodeRKTController';
+import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
@@ -20,10 +20,10 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const {data, setData, }  = useFetchData(getData) 
+    const { data, setData } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const [harian, setHarian]  = useState(null);
+    const [harian, setHarian] = useState(null);
     const [rhk, setRHK] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [skp, setSKP] = useState(null);
@@ -41,14 +41,14 @@ const page = () => {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const selectedJabatan = jabatan.mapData.data[0];
             const periode = await getByUnitId(selectedJabatan.unor.induk.id);
-            console.log('HERE',data.user.idASN);
-            
+            console.log('HERE', data.user.idASN);
+
             const skp = await getSKPByUser(data.user.idASN);
             const rhks = skp?.data.flatMap((item) => item.rhks);
-            setSKP(skp.data)
-            setPeriode(periode.data)
-            setRHK(rhks)
-            setHarian(harian.data)
+            setSKP(skp.data);
+            setPeriode(periode.data);
+            setRHK(rhks);
+            setHarian(harian.data);
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -57,16 +57,14 @@ const page = () => {
 
     console.log(periode);
     console.log('rhk', rhk);
-    
-    
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
             let response;
-            let dt = {}
+            let dt = {};
             const updatedListImage = listImage.map((img) => {
                 const matchingFile = fileList.find((file) => file.uid === img.uid);
-    
+
                 if (matchingFile) {
                     return {
                         ...img,
@@ -74,21 +72,20 @@ const page = () => {
                         type: matchingFile.type
                     };
                 }
-    
+
                 return img;
             });
             if (values.files) {
-                const berkas = values.files
-                delete values.files
-                dt = {...values, date : Date.now(), files: berkas.fileList}
-            }else
-            {   
-                dt = {...values, date : Date.now()}
+                const berkas = values.files;
+                delete values.files;
+                dt = { ...values, date: Date.now(), files: berkas.fileList };
+            } else {
+                dt = { ...values, date: Date.now() };
             }
-          
+
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN,dt);
+                    response = await store(data.user.idASN, dt);
                     break;
 
                 case 'edit':
@@ -103,7 +100,7 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
             console.log(response);
-            
+
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
@@ -203,10 +200,14 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field periode wajib diisi'
                 }
             ],
-            options: periode?.map((item) => ({ label: item.periode_start + ' - ' + item.periode_end, value: item._id , id: item._id})),
+            options: periode?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            }))
         },
         {
             label: 'SKP',
@@ -215,11 +216,16 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field SKP wajib diisi'
                 }
             ],
-            options: skp?.map((item) => ({label: item._id, value: item.periode_awal + ' - ' + item.periode_akhir, id_option_parent: item.periodeRKT, id: item._id})),
-            parentField: 'periodeRKT',
+            options: skp?.map((item) => ({
+                label: `${item.periode_awal} - ${item.periode_akhir}`,
+                value: item._id,
+                id_option_parent: item.periodeRKT,
+                id: item._id
+            })),
+            parentField: 'periodeRKT'
         },
         {
             label: 'RHK',
@@ -228,11 +234,16 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field RHK wajib diisi'
                 }
             ],
-            parentField: 'skp',
-            options: rhk?.map((item) => ({label: item._id, value: item.desc , id_option_parent: item.skp, id: item._id})),
+            options: rhk?.map((item) => ({
+                label: item.desc,
+                value: item._id,
+                id_option_parent: item.skp,
+                id: item._id
+            })),
+            parentField: 'skp'
         },
         {
             label: 'Nama Kegiatan',
@@ -241,7 +252,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field nama kegiatan wajib diisi'
                 }
             ]
         },
@@ -252,7 +263,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field waktu mulai wajib diisi'
                 }
             ]
         },
@@ -263,39 +274,66 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field waktu selesai wajib diisi'
                 }
             ]
         },
         {
-            label: 'Deksripsi Kegiatan',
+            label: 'Deskripsi Kegiatan',
             name: 'deskripsiKegiatan',
             type: 'longtext',
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field deskripsi wajib diisi'
                 }
             ]
         },
         {
             label: 'Tautan Kegiatan',
             name: 'tautan',
-            type: 'text',
+            type: 'text'
         },
         {
             label: 'Bukti Aktivitas',
             name: 'files',
-            type: 'upload',
+            type: 'upload'
+        },
+        {
+            label: 'Parent Select',
+            name: 'parent_select',
+            type: 'select',
+            options: [
+                { id: 'P1', value: '01', label: 'Option 01' },
+                { id: 'P2', value: '02', label: 'Option 02' }
+            ]
+        },
+        {
+            label: 'Child Select',
+            name: 'child_select',
+            type: 'select',
+            parentField: 'parent_select',
+            options: [
+                { id: 'C1', id_option_parent: '01', value: 'C1', label: 'Child 1 of 01' },
+                { id: 'C2', id_option_parent: '02', value: 'C2', label: 'Child 2 of 02' }
+            ]
+        },
+        {
+            label: 'Grandchild Select',
+            name: 'grandchild_select',
+            type: 'select',
+            parentField: 'child_select',
+            options: [
+                { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
+                { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
+            ]
         }
     ];
-
-
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-    
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
