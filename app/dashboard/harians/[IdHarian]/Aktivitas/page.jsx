@@ -58,6 +58,11 @@ const page = () => {
     console.log(periode);
     console.log('rhk', rhk);
 
+    const params = new URLSearchParams(window.location.search);
+    const paramEntries = Object.fromEntries(params.entries());
+
+    console.log(paramEntries)
+
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
             let response;

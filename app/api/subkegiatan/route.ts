@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
     }
     else {
-      subKegiatans = await SubKegiatan.find({});
+      subKegiatans = await SubKegiatan.find({}).populate('kegiatan');
     }
 
     return NextResponse.json(createResponse(200, 'Success', subKegiatans, true));

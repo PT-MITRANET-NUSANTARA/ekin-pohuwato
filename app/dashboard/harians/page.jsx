@@ -127,18 +127,21 @@ const page = () => {
         {
             title: 'Action',
             key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas`)}
-                        // type='primary'
-                        size="middle"
-                        color="primary"
-                        variant="outlined"
-                        icon={<DatabaseOutlined />}
-                    />
-                </Space>
-            )
+            render: (_, record) => {
+                const query = new URLSearchParams(record).toString();
+                return (
+                    <Space size="small">
+                        <Button
+                            onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
+                            // type='primary'
+                            size="middle"
+                            color="primary"
+                            variant="outlined"
+                            icon={<DatabaseOutlined />}
+                        />
+                    </Space>
+                );
+            }
         }
     ];
 
@@ -171,6 +174,13 @@ const page = () => {
                 { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
                 { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
             ]
+        },
+        {
+            label: 'somthing',
+            name: 'something',
+            type: 'slider',
+            min: 10,
+            max: 200
         }
     ];
 

@@ -15,7 +15,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
 
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -88,6 +88,39 @@ const page = () => {
         handleClose();
     };
 
+    const nana = {
+        _id: '670a7eac9d7ed2c9e143345e',
+        kegiatan: {
+            _id: '670a7e399d7ed2c9e1433424',
+            program: '670a7df89d7ed2c9e14333fe',
+            name: 'Sertifikasi, Kelembagaan, Pengembangan Kompetensi Manajerial dan Fungsional\t\n',
+            indikator_kinerja: [
+                {
+                    name: 'Persentase ASN yang tersertifikasi serta Lembaga dan tenaga yang menyelenggarakan pengembangan kompetensi\n',
+                    target: 20,
+                    satuan: '%',
+                    _id: '670a7e399d7ed2c9e1433425'
+                }
+            ],
+            total_anggaran: 458.92,
+            createdAt: '2024-10-12T13:48:41.510Z',
+            updatedAt: '2024-10-12T13:48:41.510Z',
+            __v: 0
+        },
+        name: 'Sertifikasi, Kelembagaan, Pengembangan Kompetensi Manajerial dan Fungsional\t\n',
+        indikator_kinerja: [
+            {
+                name: 'Persentase ASN yang tersertifikasi serta Lembaga dan tenaga yang menyelenggarakan pengembangan kompetensi\n',
+                target: 20,
+                satuan: '%',
+                _id: '670a7eac9d7ed2c9e143345f'
+            }
+        ],
+        total_anggaran: 458.92,
+        createdAt: '2024-10-12T13:50:36.459Z',
+        updatedAt: '2024-10-12T13:50:36.459Z',
+        __v: 0
+    };
     const Column = [
         {
             title: 'ID',
@@ -101,7 +134,12 @@ const page = () => {
             dataIndex: 'kegiatan',
             key: 'kegiatan',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => (
+                <Button onClick={() => setModal({ formFields: kegiatanFields, trigger: true, modalData: record.kegiatan, title: `Lihat Kegiatan ${record.kegiatan._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    {record.kegiatan._id}
+                </Button>
+            )
         },
         {
             title: 'Nama',
@@ -119,7 +157,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
-                        {record._id}
+                        Info
                     </Button>
                     <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
                         <Table
@@ -163,14 +201,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Sub Kegiatan ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Sub Kegiatan ${record._id}`, type: 'show', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Sub Kegiatan ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Sub Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -179,7 +217,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Sub Kegiatan ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Sub Kegiatan ${record._id}`, type: 'delete', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         danger
@@ -250,6 +288,16 @@ const page = () => {
         }
     ];
 
+    const kegiatanFields = [
+        {
+            label: 'Kegiatan',
+            name: 'name',
+            type: 'text',
+        
+        },
+    
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -274,7 +322,7 @@ const page = () => {
                             Data Sub Kegiatan
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                 Tambah
                             </Button>
                         </div>
@@ -282,7 +330,7 @@ const page = () => {
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

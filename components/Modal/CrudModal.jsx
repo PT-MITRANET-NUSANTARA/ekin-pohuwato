@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker, Slider } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
@@ -223,6 +223,10 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         <Button icon={<UploadOutlined />}>Upload Files</Button>
                     </Upload>
                 );
+            case "slider":
+                return(
+                    <Slider min={field.min} max={field.max} disabled={isDisabled} />
+                )
             default:
                 return null;
         }

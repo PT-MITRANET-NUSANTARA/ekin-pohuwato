@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       tujuans = await Tujuan.findOne({ _id: id }).populate('renstra'); // Populate the renstra reference
     } else {
-      tujuans = await Tujuan.find({}) // Populate the renstra reference
+      tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
     }
 
     return NextResponse.json(createResponse(200, 'Success', tujuans, true));

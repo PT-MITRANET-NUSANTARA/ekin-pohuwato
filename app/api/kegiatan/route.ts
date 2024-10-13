@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       kegiatans = await Kegiatan.find({ program: program_id }).populate('program').populate('subKegiatans');
     } 
     else {
-      kegiatans = await Kegiatan.find({})
+      kegiatans = await Kegiatan.find({}).populate('program')
     }
 
     return NextResponse.json(createResponse(200, 'Success', kegiatans, true));

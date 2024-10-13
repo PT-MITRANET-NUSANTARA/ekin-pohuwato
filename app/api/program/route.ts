@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
         .populate('renstra'); 
     } 
     else {
-      programs = await Program.find({})
+      programs = await Program.find({}).populate('tujuan')
     }
 
     return NextResponse.json(createResponse(200, 'Success', programs, true));

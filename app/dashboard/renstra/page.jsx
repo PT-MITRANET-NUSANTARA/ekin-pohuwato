@@ -103,7 +103,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setMisiModal({ modalData: record.misi, trigger: true })}>
-                        {record._id}
+                        Info
                     </Button>
                     <Modal open={misiModal.trigger} onCancel={() => setMisiModal({ modalData: null, trigger: false })} footer={null}>
                         <Table
