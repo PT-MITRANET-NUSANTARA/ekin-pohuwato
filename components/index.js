@@ -1,9 +1,10 @@
-export {default as DashboardSider } from "./DashboardSider/DashboardSider"
-export {default as DashboardFooter } from "./DashboardFooter/DashboardFooter"
-export {default as DataTable } from "./DataTable/DataTable" 
-export {default as CrudModal } from "./Modal/CrudModal" 
-export {default as EllipsisMiddle} from "./Ellipsis/EllipsisMiddle"
-export {default as TruncateText} from "./TruncateText/TruncateText"
-export {default as SearchPegawai} from "./Select/SearchPegawai"
-export {default as TambahPegawai} from "./Modal/TambahPegawai"
-export { default as OverviewCard } from "./Card/Overviewcard"
+export { default as DashboardSider } from './DashboardSider/DashboardSider';
+export { default as DashboardFooter } from './DashboardFooter/DashboardFooter';
+export { default as DataTable } from './DataTable/DataTable';
+export { default as CrudModal } from './Modal/CrudModal';
+export { default as EllipsisMiddle } from './Ellipsis/EllipsisMiddle';
+export { default as TruncateText } from './TruncateText/TruncateText';
+export { default as SearchPegawai } from './Select/SearchPegawai';
+export { default as TambahPegawai } from './Modal/TambahPegawai';
+export { default as OverviewCard } from './Card/Overviewcard';
+export { default as MatriksCard } from './Card/MatriksCard';
