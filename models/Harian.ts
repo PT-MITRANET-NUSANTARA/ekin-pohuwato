@@ -15,6 +15,7 @@ export interface IHarian extends Document {
   rhk: mongoose.Schema.Types.ObjectId;
   namaKegiatan: string;
   deskripsiKegiatan: string;
+  progress: number;
   tautan?: string;
   files?: [object];
   msg?: msg;
@@ -36,6 +37,10 @@ const HarianSchema: Schema = new Schema({
   },
   startDateTime: {
     type: Date,
+    required: true
+  },
+  progress: {
+    type: Number,
     required: true
   },
   endDateTime: {

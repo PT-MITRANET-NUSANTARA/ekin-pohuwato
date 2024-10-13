@@ -81,11 +81,59 @@ export const dummySkpBawahan = Array.from({ length: 10}, (_, index) => ({
 
 
 
-export const dummyHarian = Array.from({ length: 10 }, (_, index) => ({
-    _id: (index + 1),
-    tanggal: new Date(2024, 9, index + 1).toISOString(), // Generates a date for each entry in October 2024
-    status: 'hadir'
-  }));
+export const dummyHarian = [
+    {
+      "_id": 1,
+      "tanggal": "2024-10-01T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 2,
+      "tanggal": "2024-10-02T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 3,
+      "tanggal": "2024-10-03T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 4,
+      "tanggal": "2024-10-04T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 5,
+      "tanggal": "2024-10-05T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 6,
+      "tanggal": "2024-10-06T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 7,
+      "tanggal": "2024-10-07T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 8,
+      "tanggal": "2024-10-08T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 9,
+      "tanggal": "2024-10-09T00:00:00.000Z",
+      "status": "hadir"
+    },
+    {
+      "_id": 10,
+      "tanggal": "2024-10-10T00:00:00.000Z",
+      "status": "hadir"
+    }
+  ]
+  
   
   
 

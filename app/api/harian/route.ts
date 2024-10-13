@@ -16,6 +16,7 @@ const harianSchema = Joi.object({
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
+    progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
     msg: Joi.object({
         status: Joi.boolean().optional().label('status msg'),
