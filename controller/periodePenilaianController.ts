@@ -9,9 +9,12 @@ export const getById = async (id: string) => {
 }
 
 // Fetch all PeriodePenilaian records
-export const getAll = async () => {
+export const getAll = async (id: any) => {
     const response = await apiRequest('/api/periodePenilaian', {
         method: 'GET',
+        headers: {
+            'skp-id': id
+        }
     });
     return response;
 }

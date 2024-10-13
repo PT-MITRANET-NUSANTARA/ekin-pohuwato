@@ -8,6 +8,7 @@ interface msg
 
 // Define the Harian interface extending Document
 export interface IHarian extends Document {
+  absence: string;
   date: Date;
   startDateTime: string;
   endDateTime: string;
@@ -15,7 +16,7 @@ export interface IHarian extends Document {
   namaKegiatan: string;
   deskripsiKegiatan: string;
   tautan?: string;
-  files?: mongoose.Schema.Types.ObjectId[];
+  files?: [object];
   msg?: msg;
   user_id: string; // Reference to User ID
   createdAt?: Date;
@@ -24,6 +25,10 @@ export interface IHarian extends Document {
 
 // Define the Harian schema
 const HarianSchema: Schema = new Schema({
+  absence: {
+    type: String,
+    required: true 
+  },
   date: {
     type: Date,
     default: Date.now,
@@ -65,7 +70,7 @@ const HarianSchema: Schema = new Schema({
     required: false
   },
   files: {
-    type: [Schema.Types.String],
+    type: [Object],
     ref: 'Image',
     required: false
   },

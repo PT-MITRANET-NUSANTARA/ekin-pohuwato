@@ -12,10 +12,11 @@ const harianSchema = Joi.object({
     namaKegiatan: Joi.string().required().label('Nama Kegiatan'),
     deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),
     tautan: Joi.string().uri().label('Tautan'),
-    files: Joi.array().items(Joi.string()).label('Berkas'),
+    files: Joi.array().items(Joi.object()).label('Berkas'),
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
+    absence: Joi.string().required().label('Absensi'),
     msg: Joi.object({
         status: Joi.boolean().optional().label('status msg'),
         message: Joi.string().optional().label('message msg'),

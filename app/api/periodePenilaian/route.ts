@@ -36,11 +36,16 @@ export async function GET(req: NextRequest) {
 
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const skp_id = req.headers.get('skp-id');
     let periodePenilaians;
 
     if (id) {
       periodePenilaians = await PeriodePenilaian.findOne({ _id: id }).populate('skp');
-    } else {
+    } 
+    else if (skp_id) {
+      periodePenilaians = await PeriodePenilaian.find({ skp: skp_id }).populate('skp');
+    }
+    else {
       periodePenilaians = await PeriodePenilaian.find({}).populate('skp');
     }
 
