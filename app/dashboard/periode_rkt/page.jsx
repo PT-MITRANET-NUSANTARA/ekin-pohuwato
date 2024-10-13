@@ -33,7 +33,7 @@ const page = () => {
             const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
             const selectedJabatan = jabatan.mapData.data[0];
             setUnor(selectedJabatan.unor.induk);
-            const dt = await getByUnitId(selectedJabatan.unor.id);
+            const dt = await getByUnitId(selectedJabatan.unor.induk.id);
             setDT(dt.data);
             setLoadingData(false);
         } catch (error) {
@@ -126,7 +126,7 @@ const page = () => {
         console.log(response);
 
         if (response.ok) {
-            const newData = await getByUnitId(unor.id);
+            const newData = await getByUnitId(unor.induk.id);
             setDT(newData.data);
             setAlert({
                 show: true,

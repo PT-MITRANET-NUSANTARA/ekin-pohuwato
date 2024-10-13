@@ -39,10 +39,26 @@ const page = () => {
         }
     };
 
-    const onSubmit = async (values, type, id, formData) => {
+    console.log(rhk);
+    
+
+    const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
             let response;
             let dt = {}
+            const updatedListImage = listImage.map((img) => {
+                const matchingFile = fileList.find((file) => file.uid === img.uid);
+    
+                if (matchingFile) {
+                    return {
+                        ...img,
+                        name: matchingFile.name,
+                        type: matchingFile.type
+                    };
+                }
+    
+                return img;
+            });
             if (values.files) {
                 const berkas = values.files
                 delete values.files
