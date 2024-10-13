@@ -2,7 +2,7 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, Space, Typography, Upload } from 'antd';
+import { Alert, Breadcrumb, Button, Card, List, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -95,18 +95,36 @@ const page = () => {
     };
 
     const customSubmit = (values, type, id, formData) => {
-        console.log(values)
+        console.log(values);
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${id}/perjanjian_kinerja?${query}`);
     };
 
-    const perjanjianSubmit = async (values, type, id, listImage) => {
+    const perjanjianSubmit = async (values, type, id, listImage, fileList) => {
+        console.log('SUBMIT', listImage, fileList);
+        
+        const updatedListImage = listImage.map((img) => {
+            const matchingFile = fileList.find((file) => file.uid === img.uid);
+
+            if (matchingFile) {
+                return {
+                    ...img,
+                    name: matchingFile.name,
+                    type: matchingFile.type
+                };
+            }
+
+            return img;
+        });
+
+        console.log(updatedListImage);
+        
+
         const periode = dt.find((item) => item._id === id);
-        periode.perjanjianKinerja = listImage;
-        console.log('PERIODE',periode);
+        periode.perjanjianKinerja = updatedListImage;
         const response = await update(id, periode);
         console.log(response);
-        
+
         if (response.ok) {
             const newData = await getByUnitId(unor.id);
             setDT(newData.data);
@@ -125,7 +143,7 @@ const page = () => {
             });
         }
         handleClose();
-    }
+    };
 
     const Column = [
         {
@@ -218,6 +236,7 @@ const page = () => {
             )
         }
     ];
+    console.log(dt);
 
     const rktFields = [
         {
@@ -251,7 +270,7 @@ const page = () => {
     const perjanjianFields = [
         {
             label: 'Perjanjian Kinerja',
-            name: 'perjanjian',
+            name: 'perjanjianKinerja',
             type: 'upload',
             rules: [
                 {
@@ -328,10 +347,8 @@ const page = () => {
                     message: 'Field tempat wajib di isi'
                 }
             ]
-        },
-    
-       
-    ]
+        }
+    ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });

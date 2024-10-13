@@ -23,15 +23,22 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         return [key, value];
                     })
                 );
+                const imgKey = formFields?.find((field) => field.type === 'upload')?.name;
+                if (imgKey) {
+                    const imgList = data[imgKey]
+                    setImageList(imgList);
+                    setFileList(imgList);
 
+                }
                 form.setFieldsValue(formattedData);
-            }else
-            {
+            } else {
                 form.resetFields();
             }
         }
-        
     }, [isModalOpen, form, data]);
+
+    console.log('FILE', fileList);
+    console.log('IMAGE', imageList);
 
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {
@@ -209,7 +216,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     const handleSubmit = (values) => {
         const arrayListImage = (imageList || []).map((img) => img.fileId);
-        onSubmit(values, type, data?._id, arrayListImage);
+        onSubmit(values, type, data?._id, imageList, fileList);
     };
 
     const extraContent = React.Children.map(children, (child) => {

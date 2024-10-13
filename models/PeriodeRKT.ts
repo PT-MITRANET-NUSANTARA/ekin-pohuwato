@@ -23,9 +23,9 @@ const PeriodeRKTSchema: Schema = new Schema(
             type: Date,
             required: true
         },
-        
+     
         perjanjianKinerja: {
-            type: [String],
+            type: [Object],
         }
     },
     {
