@@ -33,7 +33,7 @@ const page = () => {
         }
     };
 
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
 
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -92,6 +92,8 @@ const page = () => {
         handleClose();
     };
 
+   
+
     const Column = [
         {
             title: 'ID',
@@ -105,7 +107,14 @@ const page = () => {
             dataIndex: 'program',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '10%'
+            width: '10%',
+            render: (_, record) => (
+                <>
+                    <Button onClick={() => setModal({ formFields: programFields, trigger: true, modalData: record.program, title: `Lihat Program ${record.program._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                        {record.program._id}
+                    </Button>
+                </>
+            )
         },
         {
             title: 'Nama',
@@ -122,7 +131,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
-                        {record._id}
+                        Info
                     </Button>
                     <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
                         <Table
@@ -166,14 +175,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Kegiatan ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Kegiatan ${record._id}`, type: 'show', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -182,7 +191,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Kegiatan ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Kegiatan ${record._id}`, type: 'delete', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         danger
@@ -254,6 +263,14 @@ const page = () => {
         }
     ];
 
+    const programFields = [
+        {
+            label: 'Program',
+            name: 'name',
+            type: 'text'
+        }
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -281,7 +298,7 @@ const page = () => {
                             Data Kegiatan
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                 Tambah
                             </Button>
                         </div>
@@ -289,7 +306,7 @@ const page = () => {
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

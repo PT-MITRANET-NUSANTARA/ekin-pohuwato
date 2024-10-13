@@ -14,7 +14,7 @@ const { Title } = Typography;
 
 const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
@@ -127,7 +127,14 @@ const page = () => {
             dataIndex: 'renstra',
             key: 'renstra',
             sorter: (a, b) => a.renstra.length - b.renstra.length,
-            width: '15%'
+            width: '15%',
+            render: (_, record) => (
+                <>
+                    <Button onClick={() => setModal({ formFields: renstraFields, trigger: true, modalData: record.renstra, title: `Lihat Renstra ${record.renstra._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                        {record.renstra._id}
+                    </Button>
+                </>
+            )
         },
         {
             title: 'Sasaran Strategis',
@@ -144,7 +151,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
-                        {record._id}
+                        Info
                     </Button>
                     <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
                         <Table
@@ -185,7 +192,8 @@ const page = () => {
                                 trigger: true,
                                 modalData: record,
                                 title: `Tujuan ${record._id}`,
-                                type: 'show'
+                                type: 'show',
+                                formFields: formFields
                             })
                         }
                         size="middle"
@@ -197,7 +205,8 @@ const page = () => {
                                 trigger: true,
                                 modalData: record,
                                 title: `Edit Tujuan ${record._id}`,
-                                type: 'edit'
+                                type: 'edit',
+                                formFields: formFields
                             })
                         }
                         size="middle"
@@ -212,7 +221,8 @@ const page = () => {
                                 trigger: true,
                                 modalData: record,
                                 title: `Delete Tujuan ${record._id}`,
-                                type: 'delete'
+                                type: 'delete',
+                                formFields: formFields
                             })
                         }
                         size="middle"
@@ -273,6 +283,19 @@ const page = () => {
         }
     ];
 
+    const renstraFields = [
+        {
+            label: 'Periode Mulai',
+            name: 'periode_start',
+            type: 'date'
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date'
+        }
+    ];
+
     console.log(data);
 
     const handleClose = () => {
@@ -299,7 +322,7 @@ const page = () => {
                             Data Tujuan
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                 Tambah
                             </Button>
                         </div>
@@ -307,7 +330,7 @@ const page = () => {
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
         </div>

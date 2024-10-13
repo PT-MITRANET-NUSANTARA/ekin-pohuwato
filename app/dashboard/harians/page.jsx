@@ -127,18 +127,21 @@ const page = () => {
         {
             title: 'Action',
             key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas`)}
-                        // type='primary'
-                        size="middle"
-                        color="primary"
-                        variant="outlined"
-                        icon={<DatabaseOutlined />}
-                    />
-                </Space>
-            )
+            render: (_, record) => {
+                const query = new URLSearchParams(record).toString();
+                return (
+                    <Space size="small">
+                        <Button
+                            onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
+                            // type='primary'
+                            size="middle"
+                            color="primary"
+                            variant="outlined"
+                            icon={<DatabaseOutlined />}
+                        />
+                    </Space>
+                );
+            }
         }
     ];
 
@@ -174,12 +177,11 @@ const page = () => {
         },
         {
             label: 'somthing',
-            name: "something",
+            name: 'something',
             type: 'slider',
             min: 10,
-            max: 200,
+            max: 200
         }
-        
     ];
 
     const handleClose = () => {
