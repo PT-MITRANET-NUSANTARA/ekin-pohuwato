@@ -40,7 +40,7 @@ const page = () => {
             setSKP(skp.data);
             const selectedJabatan = jabatan.mapData.data[0];
             const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-            const bawahan = unit.mapData.data.filter((item) => item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan);
+            const bawahan = unit.mapData.data.filter((item) => (item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
             setJabatan(selectedJabatan);
 
             setUnor(bawahan);
