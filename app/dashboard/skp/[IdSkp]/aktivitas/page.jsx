@@ -1,8 +1,8 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
-import { Breadcrumb, Button, Card, Collapse, Modal, Space, Tag, Typography } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, XOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Collapse, Modal, Skeleton, Space, Tag, Typography } from 'antd';
+import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, CloseOutlined, DeleteOutlined, EditOutlined, ExclamationCircleFilled, EyeOutlined, FileAddOutlined, XOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummyAktivitas } from '@/data/dummyData';
@@ -13,10 +13,10 @@ import useFetchData from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
 
 const { Title } = Typography;
-
+const { confirm } = Modal;
 const page = () => {
-    const {IdSkp} = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const { IdSkp } = useParams();
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const { data, setData } = useFetchData(getData);
     const [periksa, setPeriksa] = useState(null);
     const [tolak, setTolak] = useState(null);
@@ -40,32 +40,25 @@ const page = () => {
 
             // Filter data bawahan
             const bawahan = unit.mapData.data.filter((item) => (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
-            console.log(bawahan);
-            
+
             const allHarian = [];
 
             for (let item of bawahan) {
                 const response = await getByUserId(item.userId);
 
                 if (Array.isArray(response.data)) {
-                    allHarian.push(...response.data); 
+                    allHarian.push(...response.data);
                 } else {
                     allHarian.push(response.data);
                 }
             }
 
-            console.log(allHarian);
-            
-            const harianBawahan = allHarian.filter(
-                (item) => {
-                    const skpArray = item.rhk?.skp?.skp; // Pastikan skp adalah array
-                    const lastSkp = skpArray?.[skpArray.length - 1]; // Ambil elemen terakhir
-                    return lastSkp?._id === IdSkp; // Bandingkan dengan IdSkp
-                }
-            );
-                      
+            const harianBawahan = allHarian.filter((item) => {
+                const skpArray = item.rhk?.skp?.skp; // Pastikan skp adalah array
+                const lastSkp = skpArray?.[skpArray.length - 1]; // Ambil elemen terakhir
+                return lastSkp?._id === IdSkp; // Bandingkan dengan IdSkp
+            });
 
-            console.log('HARIAN', harianBawahan);
             setBawahan(bawahan);
             setTerima(harianBawahan.filter((item) => item.msg?.status === 'Terima'));
             setPeriksa(harianBawahan.filter((item) => item.msg?.status === 'Periksa'));
@@ -77,7 +70,7 @@ const page = () => {
         }
     };
 
-    const Column = [
+    const generateColumns = (status) => [
         {
             title: 'ID',
             dataIndex: '_id',
@@ -91,7 +84,7 @@ const page = () => {
             key: 'IdASN',
             sorter: (a, b) => a.date.length - b.date.length,
             width: '30%',
-            render: (_, record) => (bawahan?.find((item) => item.userId === record.user_id)?.userId)
+            render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.userId
         },
         {
             title: 'Nama',
@@ -99,7 +92,7 @@ const page = () => {
             key: 'name',
             sorter: (a, b) => a.date.length - b.date.length,
             width: '30%',
-            render: (_, record) => (bawahan?.find((item) => item.userId === record.user_id)?.nama_asn)
+            render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.nama_asn
         },
         {
             title: 'Tanggal',
@@ -140,97 +133,58 @@ const page = () => {
             title: 'Status',
             dataIndex: 'msg',
             key: 'msg',
-            sorter: (a, b) => a.msg.length - b.msg.length,
-            render: (_, record) => (
-                <>
-                    {(() => {
-                        switch (record.msg?.status) {
-                            case 'Periksa':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.msg.status}
-                                    </Tag>
-                                );
-                            case 'Terima':
-                                return (
-                                    <Tag color="red" className="capitalize">
-                                        {record.msg.status}
-                                    </Tag>
-                                );
-                            case 'Tolak':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="yellow" className="capitalize">
-                                            {record.msg.status}
-                                        </Tag>
-                                        {record.msg.message}
-                                    </div>
-                                );
-                            default:
-                                return <div></div>;
-                        }
-                    })()}
-                </>
-            )
+            render: (_, record) => <Tag color={status === 'Periksa' ? 'blue' : status === 'Terima' ? 'red' : 'yellow'}>{status}</Tag>
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'status', formFields: terimaField })}
-                        // type='primary'
-                        size="middle"
-                        icon={<CheckCircleOutlined />}
-                    />
+                    {status !== 'Terima' && (
+                        <Button
+                            onClick={() => {
+                                confirm({
+                                    title: `Setujui laporan aktivitas ini?`,
+                                    icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                    content: `Klik tombol ok untuk menyetujui aktivitas harian ini`,
+                                    onOk() {
+                                        console.log('OK');
+                                    },
+                                    onCancel() {
+                                        console.log('Cancel');
+                                    }
+                                });
+                            }}
+                            size="middle"
+                            icon={<CheckCircleOutlined />}
+                        />
+                    )}
+                    {status !== 'Tolak' && (
+                        <Button
+                            onClick={() => {
+                                confirm({
+                                    title: `Tolak laporan aktivitas ini?`,
+                                    icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
+                                    content: `Klik tombol ok untuk menolak aktivitas harian ini`,
+                                    onOk() {
+                                        console.log('OK');
+                                    },
+                                    onCancel() {
+                                        console.log('Cancel');
+                                    }
+                                });
+                            }}
+                            size="middle"
+                            icon={<CloseCircleOutlined />}
+                        />
+                    )}
                 </Space>
             )
         }
     ];
 
-    const terimaField = [
-        {
-            label: 'Content',
-            name: 'content',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field indikator wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Bukti',
-            name: 'bukti',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field indikator wajib di isi'
-                }
-            ]
-        }
-    ];
-
-    const tolakFields = [
-        {
-            label: 'Indikator',
-            name: 'indikator',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field indikator wajib di isi'
-                }
-            ]
-        }
-    ];
-
-    const handleClose = () => {
-        setModal({ trigger: false, modalData: null });
-    };
+    const handleTerima = () => {};
+    const handleTolak = () => {};
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -252,18 +206,29 @@ const page = () => {
                         </Title>
                     </div>
                     {/* <DataTable columns={Column} data={dummyAktivitas} loading={false} /> */}
-                    <Collapse bordered>
-                        <Collapse.Panel key="1" header="Periksa">
-                            <DataTable columns={Column} data={periksa} loading={false} />
-                        </Collapse.Panel>
-                        <Collapse.Panel key="2" header={<div className="text-blue-500">Terima</div>}>
-                            <DataTable columns={Column} data={terima} loading={false} />
-                        </Collapse.Panel>
-                        <Collapse.Panel key="2" header={<div className="text-red-500">Tolak</div>}>
-                            <DataTable columns={Column} data={tolak} loading={false} />
-                        </Collapse.Panel>
-                    </Collapse>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={() => {}} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                    {loading ? (
+                        <Skeleton active />
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <Collapse bordered>
+                                <Collapse.Panel key="1" header="Periksa">
+                                    <div className="overflow-x-auto">
+                                        <DataTable columns={generateColumns('Periksa')} data={periksa} loading={false} />
+                                    </div>
+                                </Collapse.Panel>
+                                <Collapse.Panel key="2" header={<div className="text-blue-500">Terima</div>}>
+                                    <div className="overflow-x-auto">
+                                        <DataTable columns={generateColumns('Terima')} data={terima} loading={false} />
+                                    </div>
+                                </Collapse.Panel>
+                                <Collapse.Panel key="3" header={<div className="text-red-500">Tolak</div>}>
+                                    <div className="overflow-x-auto">
+                                        <DataTable columns={generateColumns('Tolak')} data={tolak} loading={false} />
+                                    </div>
+                                </Collapse.Panel>
+                            </Collapse>
+                        </div>
+                    )}
                 </div>
             </Card>
         </div>
