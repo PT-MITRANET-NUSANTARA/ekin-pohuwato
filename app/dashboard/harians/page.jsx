@@ -144,66 +144,35 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama',
-            name: 'name',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
+            label: 'Parent Select',
+            name: 'parent_select',
+            type: 'select',
+            options: [
+                { id: 'P1', value: '01', label: 'Option 01' },
+                { id: 'P2', value: '02', label: 'Option 02' }
             ]
         },
         {
-            label: 'Periode Mulai',
-            name: 'periode_start',
-            type: 'number',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode mulai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'number',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode selesai wajib di isi'
-                }
-            ],
-            min: 1,
-            max: 3000
-        },
-        {
-            label: 'Dummy Select Parent',
-            name: 'dummy_select_parent',
+            label: 'Child Select',
+            name: 'child_select',
             type: 'select',
-            rules: [{ required: true, message: 'Field dummy select parent wajib di isi' }],
+            parentField: 'parent_select',
             options: [
-                { label: '01', value: '01' },
-                { label: '02', value: '02' }
-            ],
-            isParent: true // Menandakan ini adalah select parent
+                { id: 'C1', id_option_parent: '01', value: 'C1', label: 'Child 1 of 01' },
+                { id: 'C2', id_option_parent: '02', value: 'C2', label: 'Child 2 of 02' }
+            ]
         },
         {
-            label: 'Dummy Select Child',
-            name: 'dummy_select_child',
+            label: 'Grandchild Select',
+            name: 'grandchild_select',
             type: 'select',
-            rules: [{ required: true, message: 'Field dummy select child wajib di isi' }],
-            parentField: 'dummy_select_parent', // Ini adalah select child yang tergantung dari parent
+            parentField: 'child_select',
             options: [
-                { id: 'B1', id_option_parent: '01', label: 'Option dari 01', value: 'B1' },
-                { id: 'B2', id_option_parent: '02', label: 'Option dari 02', value: 'B2' }
+                { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
+                { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
             ]
         }
     ];
-
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -229,7 +198,7 @@ const page = () => {
                             Data Harian
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<ReloadOutlined />} onClick={() => setModal({trigger: true, title: 'create', type: 'create' })}>
+                            <Button type="default" icon={<ReloadOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
                                 Sinkronisasi Harian
                             </Button>
                         </div>

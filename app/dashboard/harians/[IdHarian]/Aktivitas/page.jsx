@@ -206,8 +206,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options: periode?.map((item) => ({ label: item.periode_start + ' - ' + item.periode_end, value: item._id })),
-            isParent: true,
+            options: periode?.map((item) => ({ label: item.periode_start + ' - ' + item.periode_end, value: item._id , id: item._id})),
         },
         {
             label: 'SKP',
@@ -219,8 +218,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            isParent: true,
-            options: skp?.map((item) => ({label: item._id, value: item.periode_awal + ' - ' + item.periode_akhir, id_option_parent: item.periodeRKT})),
+            options: skp?.map((item) => ({label: item._id, value: item.periode_awal + ' - ' + item.periode_akhir, id_option_parent: item.periodeRKT, id: item._id})),
             parentField: 'periodeRKT',
         },
         {
@@ -234,7 +232,7 @@ const page = () => {
                 }
             ],
             parentField: 'skp',
-            options: rhk?.map((item) => ({label: item._id, value: item.desc , id_option_parent: item.skp})),
+            options: rhk?.map((item) => ({label: item._id, value: item.desc , id_option_parent: item.skp, id: item._id})),
         },
         {
             label: 'Nama Kegiatan',
