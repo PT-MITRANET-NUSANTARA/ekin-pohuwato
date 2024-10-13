@@ -59,10 +59,24 @@ export async function GET(req: NextRequest) {
             if (absence) {
                 harian = await Harian.find({ user_id, absence });
             } else {
-                harian = await Harian.find({ user_id }).populate('rhk');
+                harian = await Harian.find({ user_id }).populate({
+                    path: 'rhk',
+                    populate: {
+                        path: 'skp',
+                        populate: {
+                            path: 'skp'
+                        }
+                    }
+                });
             }
         } else if (user_id) {
-            harian = await Harian.find({ user_id }).populate('rhk');
+            harian = await Harian.find({ user_id }).populate({
+                path: 'skp',
+                populate: {
+                    path: 'skp'
+                }
+            });
+            
         } else {
             harian = await Harian.find({});
         }
