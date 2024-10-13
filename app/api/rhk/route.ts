@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
   try {
     const skpId = req.nextUrl.searchParams.get('skpId');
     const id = req.nextUrl.searchParams.get('id');
+    
     let rhks = [];
 
     if (skpId) {

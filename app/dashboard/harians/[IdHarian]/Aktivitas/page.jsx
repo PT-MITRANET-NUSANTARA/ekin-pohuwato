@@ -11,16 +11,22 @@ import Link from 'next/link';
 import { dummyAktivitas } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
 import {getByUserId as getRHKByUserId} from '@/controller/RHKController';
+import {getByUnitId} from '@/controller/PeriodeRKTController';
+import {getByUserId as getSKPByUser} from '@/controller/SKPController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const {data, setData, loading}  = useFetchData(getData) 
+    const [loading, setLoading] = useState(true);
+    const {data, setData, }  = useFetchData(getData) 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian]  = useState(null);
     const [rhk, setRHK] = useState(null);
+    const [periode, setPeriode] = useState(null);
+    const [skp, setSKP] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -32,14 +38,26 @@ const page = () => {
         try {
             const harian = await getByUserId(data.user.idASN);
             const rhk = await getRHKByUserId(data.user.idASN);
-            setRHK(rhk.data)
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            const periode = await getByUnitId(selectedJabatan.unor.induk.id);
+            console.log('HERE',data.user.idASN);
+            
+            const skp = await getSKPByUser(data.user.idASN);
+            const rhks = skp?.data.flatMap((item) => item.rhks);
+            setSKP(skp.data)
+            setPeriode(periode.data)
+            setRHK(rhks)
             setHarian(harian.data)
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
 
-    console.log(rhk);
+    console.log(periode);
+    console.log('rhk', rhk);
+    
     
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
@@ -179,15 +197,44 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'RHK',
-            name: 'rhk',
-            type: 'text',
+            label: 'Periode',
+            name: 'periodeRKT',
+            type: 'select',
             rules: [
                 {
                     required: true,
                     message: 'Field nama wajib di isi'
                 }
-            ]
+            ],
+            options: periode?.map((item) => ({ label: item.periode_start + ' - ' + item.periode_end, value: item._id })),
+            isParent: true,
+        },
+        {
+            label: 'SKP',
+            name: 'skp',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            isParent: true,
+            options: skp?.map((item) => ({label: item._id, value: item.periode_awal + ' - ' + item.periode_akhir, id_option_parent: item.periodeRKT})),
+            parentField: 'periodeRKT',
+        },
+        {
+            label: 'RHK',
+            name: 'rhk',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama wajib di isi'
+                }
+            ],
+            parentField: 'skp',
+            options: rhk?.map((item) => ({label: item._id, value: item.desc , id_option_parent: item.skp})),
         },
         {
             label: 'Nama Kegiatan',
