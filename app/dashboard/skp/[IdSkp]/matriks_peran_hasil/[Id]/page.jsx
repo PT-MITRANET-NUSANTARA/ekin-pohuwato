@@ -145,9 +145,9 @@ const page = () => {
         },
         {
             title: 'RHK Yang di Intervensi',
-            dataIndex: 'nama_rhk',
-            key: 'nama_rhk',
-            sorter: (a, b) => a.nama_rhk.length - b.nama_rhk.length,
+            dataIndex: 'rhk',
+            key: 'rhk',
+            sorter: (a, b) => a.rhk.length - b.rhk.length,
             width: '30%',
             render: (_, record) => ( 
                 record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name

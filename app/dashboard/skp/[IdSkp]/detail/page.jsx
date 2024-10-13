@@ -196,14 +196,14 @@ const page = () => {
                                 {skp?.rhks.map((item, index) => (
                                     <>
                                         <tr>
-                                            <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1}>{index + 1}</td>
-                                            <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
                                                     <p>{item.desc}</p>
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
                                             </td>
-                                            <td rowSpan={item.aspeks ? item.aspeks.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
                                                     <p>{item.desc}</p>
                                                     <Tag color="blue" className="w-fit">
@@ -223,7 +223,7 @@ const page = () => {
                                                                 Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan
                                                                 Pengolahan Data dan informasi kepegawaian
                                                             </p>
-                                                            <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} />
+                                                           
                                                         </div>
                                                     </td>
                                                     <td>3 Dokument</td>

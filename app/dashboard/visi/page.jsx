@@ -101,9 +101,11 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: periodeFields, trigger: true, modalData: record.periode, title: `Edit Visi ${record.periode._id}`, type: 'show' })} icon={<SearchOutlined />}>
-                        {record.periode._id}
+                        {/* {record.periode._id} */}
                     </Button>
                 </>
+                // console.log(record)
+                
             )
         },
         {
