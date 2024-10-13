@@ -71,7 +71,7 @@ const page = () => {
             dt = { ...dt, jabatan: [jabatan] };
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN, dt);
+                    response = await store(data.user.idASN, dt, '1');
                     break;
 
                 case 'edit':

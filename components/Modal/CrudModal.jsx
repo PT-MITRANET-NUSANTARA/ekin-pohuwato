@@ -36,9 +36,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         }
     }, [isModalOpen, form, data]);
 
-    console.log('FILE', fileList);
-    console.log('IMAGE', imageList);
-
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {
         setFileList(fileList);

@@ -59,19 +59,25 @@ export async function GET(req: NextRequest) {
 
     try {
         const user_id = req.headers.get('user-id');
+        const periode_id = req.headers.get('periode-id');
         const id = req.nextUrl.searchParams.get('id');
         let skps = [];
 
         if (user_id) {
-            skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id });
+            if (periode_id) {
+                skps = await SKP.findOne({ user_id, periodeRKT: periode_id }).populate('rhks').populate('perilakus');
+            } else {
+                skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id });
+            }
         } else if (id) {
-            skps = await SKP.findOne({ _id: id }).populate('perilakus').populate({
-                path: 'rhks',
-                populate: {
-                    path: 'rkt'
-                }
-            });
-            
+            skps = await SKP.findOne({ _id: id })
+                .populate('perilakus')
+                .populate({
+                    path: 'rhks',
+                    populate: {
+                        path: 'rkt'
+                    }
+                }).populate('skp');
         } else {
             skps = await SKP.find({});
         }
@@ -87,7 +93,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     try {
         const user_id = req.headers.get('user-id');
-
+        const atasan = req.nextUrl.searchParams.get('ataasan');
         if (!user_id) {
             return NextResponse.json(createResponse(400, 'User ID is required', null));
         }
@@ -115,15 +121,17 @@ export async function POST(req: NextRequest) {
 
                 await perilakuData.save();
             }
-            const rkts = await RKT.find({ periodeRKT: newSKP.periodeRKT });
-            for (const rkt of rkts) {
-                const rhk = new RHK({
-                    skp: newSKP._id,
-                    rkt: rkt._id,
-                    jenis: 'utama',
-                    klasifikasi: 'organisasi',
-                });
-                await rhk.save();
+            if (atasan == '1') {
+                const rkts = await RKT.find({ periodeRKT: newSKP.periodeRKT });
+                for (const rkt of rkts) {
+                    const rhk = new RHK({
+                        skp: newSKP._id,
+                        rkt: rkt._id,
+                        jenis: 'utama',
+                        klasifikasi: 'organisasi'
+                    });
+                    await rhk.save();
+                }
             }
         }
 

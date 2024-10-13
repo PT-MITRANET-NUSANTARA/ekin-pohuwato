@@ -10,7 +10,7 @@ const rhkSchema = Joi.object({
   rkt: Joi.string().optional().label('RKT'),
   desc: Joi.string().required().label('Deskripsi'),
   jenis: Joi.string().valid('utama', 'tambahan').required().label('Jenis'),
-  rencana: Joi.string().required().label('Rencana'),
+  rencana: Joi.object().label('Rencana'),
   klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),
   __v: Joi.optional(),
   _id: Joi.optional(),
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       rhks = await RHK.find({}).populate('aspek');
     }
 
-    return NextResponse.json(createResponse(200, 'Success', rhks));
+    return NextResponse.json(createResponse(200, 'Success', rhks, true));
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch RHK data' }, { status: 500 });
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const newRHK = new RHK(body);
     await newRHK.save();
     return NextResponse.json(createResponse
-      (201, 'Success', newRHK)
+      (201, 'Success', newRHK, true)
     );
   } catch (error) {
     console.error('POST error:', error);
@@ -98,7 +98,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'RHK not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedRHK));
+    return NextResponse.json(createResponse(200, 'Success', updatedRHK, true));
   } catch (error) {
     console.error('PUT error:', error);
     return NextResponse.json({ error: 'Failed to update RHK' }, { status: 500 });
@@ -123,7 +123,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(createResponse(200, 'Success', deletedRHK));
+    return NextResponse.json(createResponse(200, 'Success', deletedRHK, true));
   } catch (error) {
     console.error('DELETE error:', error);
     return NextResponse.json({ error: 'Failed to delete RHK' }, { status: 500 });

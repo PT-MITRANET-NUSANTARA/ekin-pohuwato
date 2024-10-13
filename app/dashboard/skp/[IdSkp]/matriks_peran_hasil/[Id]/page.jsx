@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input, Skeleton } from 'antd';
+import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input, Skeleton, message } from 'antd';
 import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { use, useEffect, useState } from 'react';
@@ -10,7 +10,9 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
-import { getById } from '@/controller/SKPController';
+import { getById, getByUserIdAndPeriode, store as storeSKP } from '@/controller/SKPController';
+import { store as storeRHK } from '@/controller/RHKController';
+
 import { options } from 'joi';
 import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
 const { Title } = Typography;
@@ -37,7 +39,7 @@ const page = () => {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(Id);
             console.log(skp);
-            
+
             setSKP(skp.data);
             const selectedJabatan = jabatan.mapData.data[0];
             const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
@@ -50,8 +52,7 @@ const page = () => {
             console.log(error);
         }
     };
-    
-
+    console.log(SKP);
 
     const aspekColumns = [
         {
@@ -232,11 +233,11 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name}))
+            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name }))
         },
         {
-            label: 'Jenis',
-            name: 'jenis',
+            label: 'Klasifikasi',
+            name: 'klasifikasi',
             type: 'select',
             rules: [
                 {
@@ -256,8 +257,8 @@ const page = () => {
             ]
         },
         {
-            label: 'Klasifikasi',
-            name: 'klasifikasi',
+            label: 'Jenis',
+            name: 'jenis',
             type: 'select',
             rules: [
                 {
@@ -278,7 +279,7 @@ const page = () => {
         },
         {
             label: 'Isi Intervensi RHK',
-            name: 'intervensi',
+            name: 'desc',
             type: 'longtext',
             rules: [
                 {
@@ -346,6 +347,8 @@ const page = () => {
         }
     ];
 
+    console.log(unor);
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -385,59 +388,110 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full flex flex-col gap-y-4">
-                            {unor?.map((item, index) => (
-                                <Card type="inner" key={index} title={item.userId}>
-                                    <div className="grid grid-flow-row divide-y text-xs">
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">nama</span>
-                                            <p className="text-right uppercase">{item.nama_asn}</p>
-                                        </div>
-                                        <div className="flex items-center justify-between py-2">
-                                            <span className="uppercase font-semibold">jabatan</span>
-                                            <div className="flex flex-col gap-y-2 text-right items-end">
-                                                <p>{item.nama_jabatan}</p>
-                                                {/* <small>ID : {item.id || '197801012007011026'}</small> */}
+                            {unor?.map((item, index) => {
+
+                                return (
+                                    <Card type="inner" key={index} title={item.userId}>
+                                        <div className="grid grid-flow-row divide-y text-xs">
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">nama</span>
+                                                <p className="text-right uppercase">{item.nama_asn}</p>
+                                            </div>
+                                            <div className="flex items-center justify-between py-2">
+                                                <span className="uppercase font-semibold">jabatan</span>
+                                                <div className="flex flex-col gap-y-2 text-right items-end">
+                                                    <p>{item.nama_jabatan}</p>
+                                                    {/* <small>ID : {item.id || '197801012007011026'}</small> */}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-y-4 py-2 pt-4">
+                                                <div className="flex items-center gap-x-2">
+                                                    <Button className="w-fit" type="primary">
+                                                        Lihat SKP
+                                                    </Button>
+                                                </div>
+                                                <Collapse bordered>
+                                                    <Collapse.Panel
+                                                        key="1"
+                                                        header="RHK Yang di Intervensi"
+                                                        extra={
+                                                            <Button
+                                                                onClick={() =>
+                                                                    setModal({
+                                                                        trigger: true,
+                                                                        modalData: dummyIntervensiRhk,
+                                                                        title: 'Tambah RHK Intervensi',
+                                                                        type: 'create',
+                                                                        formFields: RhkFields,
+                                                                        onSubmit: async (value) => {
+                                                                            const response = await getByUserIdAndPeriode(item.userId, SKP.periodeRKT);
+                                                                            console.log(value);
+                                                                            const skp = response.data;
+                                                                            console.log(skp);
+
+                                                                            if (skp) {
+                                                                                const dt = {
+                                                                                    ...value,
+                                                                                    skp: skp._id
+                                                                                };
+                                                                                const rhk = await storeRHK(item.userId, dt);
+                                                                                console.log(rhk);
+
+                                                                                message.success('Berhasil Menambahkan RHK');
+                                                                            } else {
+                                                                                const data = {
+                                                                                    periode_awal: SKP.periode_awal,
+                                                                                    periode_akhir: SKP.periode_akhir,
+                                                                                    skp: [SKP._id],
+                                                                                    periodeRKT: SKP.periodeRKT,
+                                                                                    pendekatan: SKP.pendekatan,
+                                                                                    renstra: SKP.renstra,
+                                                                                    jabatan: [item]
+                                                                                };
+                                                                                const newSKP = await storeSKP(item.userId, data, '0');
+                                                                                const dt = {
+                                                                                    ...value,
+                                                                                    skp: newSKP?.data._id
+                                                                                };
+
+                                                                                const rhk = await storeRHK(item.userId, dt);
+                                                                                message.success('Berhasil Menambahkan RHK');
+                                                                            }
+                                                                            setModal(...modal, { trigger: false });
+                                                                        }
+                                                                    })
+                                                                }
+                                                            >
+                                                                Tambah RHK
+                                                            </Button>
+                                                        }
+                                                    >
+                                                        <DataTable columns={rhkColumns} data={dummyIntervensiRhk} loading={loading} />
+                                                    </Collapse.Panel>
+                                                    <Collapse.Panel
+                                                        key="2"
+                                                        header="Aspek"
+                                                        extra={<Button onClick={() => setModal({ trigger: true, modalData: dummyAspeks, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: () => {} })}>Tambah Aspek</Button>}
+                                                    >
+                                                        <DataTable columns={aspekColumns} data={dummyAspeks} loading={loading} />
+                                                    </Collapse.Panel>
+                                                    <Collapse.Panel
+                                                        key="3"
+                                                        header="Rencana Aksi"
+                                                        extra={
+                                                            <Button onClick={() => setModal({ trigger: true, modalData: dummyRencanaAksi, title: 'Tambah Rencana Aksi', type: 'create', formFields: RencanaAksiField, onSubmit: () => {} })}>
+                                                                Tambah Rencana Aksi
+                                                            </Button>
+                                                        }
+                                                    >
+                                                        <DataTable columns={rencanaAksiColumn} data={dummyRencanaAksi} loading={false} />
+                                                    </Collapse.Panel>
+                                                </Collapse>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-y-4 py-2 pt-4">
-                                            <div className="flex items-center gap-x-2">
-                                                <Button className="w-fit" type="primary">
-                                                    Lihat SKP
-                                                </Button>
-                                            </div>
-                                            <Collapse bordered>
-                                                <Collapse.Panel
-                                                    key="1"
-                                                    header="RHK Yang di Intervensi"
-                                                    extra={
-                                                        <Button onClick={() => setModal({ trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create', formFields: RhkFields, onSubmit: () => {} })}>Tambah RHK</Button>
-                                                    }
-                                                >
-                                                    <DataTable columns={rhkColumns} data={dummyIntervensiRhk} loading={loading} />
-                                                </Collapse.Panel>
-                                                <Collapse.Panel
-                                                    key="2"
-                                                    header="Aspek"
-                                                    extra={<Button onClick={() => setModal({ trigger: true, modalData: dummyAspeks, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: () => {} })}>Tambah Aspek</Button>}
-                                                >
-                                                    <DataTable columns={aspekColumns} data={dummyAspeks} loading={loading} />
-                                                </Collapse.Panel>
-                                                <Collapse.Panel
-                                                    key="3"
-                                                    header="Rencana Aksi"
-                                                    extra={
-                                                        <Button onClick={() => setModal({ trigger: true, modalData: dummyRencanaAksi, title: 'Tambah Rencana Aksi', type: 'create', formFields: RencanaAksiField, onSubmit: () => {} })}>
-                                                            Tambah Rencana Aksi
-                                                        </Button>
-                                                    }
-                                                >
-                                                    <DataTable columns={rencanaAksiColumn} data={dummyRencanaAksi} loading={false} />
-                                                </Collapse.Panel>
-                                            </Collapse>
-                                        </div>
-                                    </div>
-                                </Card>
-                            ))}
+                                    </Card>
+                                );
+                            })}
                         </div>
                     </>
                 )}

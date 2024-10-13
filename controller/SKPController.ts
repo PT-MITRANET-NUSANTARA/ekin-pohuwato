@@ -18,6 +18,25 @@ export const getByUserId = async (id: string) => {
     }
 }
 
+export const getByUserIdAndPeriode = async (id: string, periode: string) => {
+    try {
+
+        const response = await apiRequest('/api/skp', {
+            method: 'GET',
+            headers: {
+                'user-id': id,
+                'periode-id': periode,
+            },
+        });
+        console.log(response);
+        
+        return response;
+    } catch (error) {
+        console.error("Error fetching by user ID:", error);
+        throw error; // rethrow the error to handle it further up the call stack
+    }
+}
+
 export const getById = async (id: string) => {
     try {
         
@@ -43,9 +62,9 @@ export const getAll = async () => {
     }
 }
 
-export const store = async (id: string, data: any) => {
+export const store = async (id: string, data: any, atasan: any) => {
     try {
-        const response = await apiRequest('/api/skp', {
+        const response = await apiRequest(`/api/skp?atasan=${atasan}`, {
             method: 'POST',
             body: data,
             headers: {
