@@ -64,6 +64,9 @@ const page = () => {
         }
     };
 
+    console.log(data?.user);
+    
+
     const onSubmit = async (values, type, id) => {
         try {
             let response;
