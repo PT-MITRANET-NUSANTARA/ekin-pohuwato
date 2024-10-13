@@ -1,8 +1,10 @@
 'use client';
-import { Button, Card, Collapse, message } from 'antd';
+import { Button, Card, Collapse, message, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import DataTable from '../DataTable/DataTable';
 import { getByUserIdAndPeriode } from '@/controller/SKPController';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+
 import { store as storeRHK } from '@/controller/RHKController';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
@@ -13,7 +15,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                 const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
                 if (response.data) {
                     console.log('HERE', response.data);
-                    
                 }
                 setData(response.data);
             } catch (error) {
@@ -22,7 +23,131 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
         };
         fetchData();
     }, []);
-    
+
+    const aspekColumns = [
+        {
+            title: 'ID',
+            dataIndex: '_id',
+            key: '_id',
+            sorter: (a, b) => a._id.length - b._id.length,
+            width: '10%'
+        },
+        {
+            title: 'Jenis',
+            dataIndex: 'jenis',
+            key: 'jenis',
+            sorter: (a, b) => a.jenis.length - b.jenis.length,
+            width: '30%'
+        },
+        {
+            title: 'Indikator',
+            dataIndex: 'indikator',
+            key: 'indikator',
+            sorter: (a, b) => a.indikator.length - b.indikator.length,
+            width: '30%'
+        },
+
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: () => {} })}
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+
+                    <Button
+                        // type='primary'
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Aspek', type: 'delete', formFields: AspekFields, onSubmit: () => {} })}
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+                </Space>
+            )
+        }
+    ];
+
+    const AspekFields = [
+        {
+            label: 'RHK',
+            name: 'rhk',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field rhk wajib di isi'
+                }
+            ],
+            options: data?.rhks.map((item) => ({value: item._id, label: item.desc}))
+        },
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field jenis wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'Kuantitas',
+                    value: 'kuantitas'
+                },
+                {
+                    label: 'Kualitas',
+                    value: 'kualitas'
+                },
+                {
+                    label: 'Waktu',
+                    value: 'waktu'
+                },
+                {
+                    label: 'Deskripsi',
+                    value: 'deksripsi'
+                }
+            ]
+        },
+        {
+            label: 'Indikator',
+            name: 'indikator',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field indikator wajib di isi'
+                }
+            ],
+        },
+        {
+            label: 'Target Tahunan',
+            name: 'target_tahunan',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field target tahunan wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Deskripsi',
+            name: '',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field deskripsi wajib di isi'
+                }
+            ]
+        }
+    ];
+
     return (
         <Card type="inner" title={dataItem.userId}>
             <div className="grid grid-flow-row divide-y text-xs">
@@ -90,7 +215,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                     const rhk = await storeRHK(dataItem.userId, dt);
                                                     message.success('Berhasil Menambahkan RHK');
                                                 }
-                                                setModal({trigger: false });
+                                                setModal({ trigger: false });
                                             }
                                         })
                                     }
@@ -101,16 +226,16 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                         >
                             <DataTable columns={rhkData.columns} data={data?.rhks} loading={rhkData.loading} />
                         </Collapse.Panel>
-                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: aspekData.fields, onSubmit: () => {} })}>Tambah Aspek</Button>}>
-                            <DataTable columns={aspekData.columns} data={aspekData.data} loading={aspekData.loading} />
+                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: () => {} })}>Tambah Aspek</Button>}>
+                            <DataTable columns={aspekColumns} data={aspekData.data} loading={aspekData.loading} />
                         </Collapse.Panel>
-                        <Collapse.Panel
+                        {/* <Collapse.Panel
                             key="3"
                             header="Rencana Aksi"
                             extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Rencana Aksi', type: 'create', formFields: rencanaAksiData.fields, onSubmit: () => {} })}>Tambah Rencana Aksi</Button>}
                         >
                             <DataTable columns={rencanaAksiData.columns} data={rencanaAksiData.data} loading={rencanaAksiData.loading} />
-                        </Collapse.Panel>
+                        </Collapse.Panel> */}
                     </Collapse>
                 </div>
             </div>
