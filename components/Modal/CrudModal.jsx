@@ -25,10 +25,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 );
                 const imgKey = formFields?.find((field) => field.type === 'upload')?.name;
                 if (imgKey) {
-                    const imgList = data[imgKey]
+                    const imgList = data[imgKey];
                     setImageList(imgList);
                     setFileList(imgList);
-
                 }
                 form.setFieldsValue(formattedData);
             } else {
@@ -139,10 +138,13 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
             case 'select':
                 return (
-                    <Select size="large" mode={field.mode ? field.mode : ''} placeholder="Select an option" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled}>
+                    <Select size="large" mode={field.mode ? field.mode : ''} placeholder="Select an option" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled} optionLabelProp="label">
                         {field.options?.map((option, index) => (
                             <Option key={index} value={option.value} label={option.label}>
-                                {option.label}
+                                <div className="flex flex-col">
+                                    <span>{option.label}</span>
+                                    <small>{option.value}</small>
+                                </div>
                             </Option>
                         ))}
                     </Select>

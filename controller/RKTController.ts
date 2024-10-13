@@ -8,6 +8,13 @@ export const getById = async (id: string) => {
     return response;
 }
 
+export const getPeriode = async (periodeId: string) => {
+    const response = await apiRequest(`/api/rkt?periodeRKTId=${periodeId}`, {
+        method: 'GET',
+    });
+    return response;
+}
+
 // Fetch all RKT records
 export const getAll = async () => {
     const response = await apiRequest('/api/rkt', {

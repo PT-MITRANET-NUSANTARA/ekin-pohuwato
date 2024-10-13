@@ -36,6 +36,8 @@ const page = () => {
         try {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(Id);
+            console.log(skp);
+            
             setSKP(skp.data);
             const selectedJabatan = jabatan.mapData.data[0];
             const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
@@ -48,6 +50,8 @@ const page = () => {
             console.log(error);
         }
     };
+    
+
 
     const aspekColumns = [
         {
@@ -228,7 +232,7 @@ const page = () => {
                     message: 'Field nama wajib di isi'
                 }
             ],
-            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc }))
+            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name}))
         },
         {
             label: 'Jenis',

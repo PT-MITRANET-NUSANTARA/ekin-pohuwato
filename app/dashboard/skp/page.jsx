@@ -14,7 +14,7 @@ import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPCon
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
-import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
+import {  getByUnitId } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 
@@ -52,7 +52,7 @@ const page = () => {
             setIsJT(isJT);
             setIsAtasan(isAtasan);
             const resntra = await getAllRenstra();
-            const periodeRKT = await getAllPeriode();
+            const periodeRKT = await getByUnitId(selectedJabatan.unor.induk.id);
             setRenstra(resntra.data);
             setPeriodeRKT(periodeRKT.data);
             setJabatan(jabatan.mapData.data[0]);
