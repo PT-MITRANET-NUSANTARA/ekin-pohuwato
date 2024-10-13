@@ -28,4 +28,22 @@ async function dbConnect() {
   return cached.conn;
 }
 
+require('../models/Periode');
+require('../models/Visi');
+require('../models/Misi');
+require('../models/Renstra');
+require('../models/Tujuan');
+require('../models/Program');
+require('../models/Kegiatan');
+require('../models/SubKegiatan');
+require('../models/PeriodeRKT');
+require('../models/RKT');
+require('../models/SKP');
+require('../models/RHK');
+require('../models/PeriodePenilaian');
+require('../models/Aspek');
+require('../models/Penilaian');
+require('../models/Harian');
+require('../models/UMPEG');
+
 export default dbConnect;
