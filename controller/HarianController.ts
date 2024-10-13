@@ -16,6 +16,21 @@ export const getByUserId = async (id: string) => {
     }
 }
 
+export const getByUserIdAbsence = async (id: string, absence: string) => {
+    try {
+        const response = await apiRequest(`/api/harian?absence=${absence}`, {
+            method: 'GET',
+            headers: {
+                'user-id': id,
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error("Error fetching by user ID:", error);
+        throw error;
+    }
+}
+
 export const getById = async (id: string) => {
     try {
         const response = await apiRequest(`/api/harian?id=${id}`, {
@@ -43,29 +58,12 @@ export const getAll = async () => {
 export const store = async (id: string, data: any) => {
     try {
         
-        if (data.files) {
-            const formData = new FormData();
-
-            data.files.forEach((file: File) => {
-                formData.append('file', file);
-            });
-
-            formData.append('title', data.title || ''); 
-            formData.append('description', data.description || ''); 
-
-            const imageResponse: any = await storeImages(formData);
-            if (!imageResponse.ok) {
-                throw "Image upload failed"; 
-            }
-            delete data.files;
-            data.files = imageResponse.data;
-        }
         const response = await apiRequest('/api/harian', {
             method: 'POST',
             headers: {
                 'user-id': id,
             },
-            body: JSON.stringify(data),
+            body: data,
         });
         return response;
     } catch (error) {
@@ -78,7 +76,7 @@ export const update = async (id: string, data: any) => {
     try {
         const response = await apiRequest(`/api/harian?id=${id}`, {
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: data,
         });
         return response;
     } catch (error) {

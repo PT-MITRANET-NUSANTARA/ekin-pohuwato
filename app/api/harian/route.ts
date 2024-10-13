@@ -20,8 +20,10 @@ const harianSchema = Joi.object({
     absence: Joi.string().required().label('Absensi'),
     msg: Joi.object({
         status: Joi.boolean().optional().label('status msg'),
-        message: Joi.string().optional().label('message msg'),
-    }).optional().label('msg'),
+        message: Joi.string().optional().label('message msg')
+    })
+        .optional()
+        .label('msg'),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional()
@@ -31,9 +33,8 @@ const harianSchema = Joi.object({
     'string.empty': '{{#label}} tidak boleh kosong.',
     'date.base': '{{#label}} harus berupa tanggal yang valid.',
     'string.uri': '{{#label}} harus berupa tautan URL yang valid.',
-    'array.base': '{{#label}} harus berupa array.',
+    'array.base': '{{#label}} harus berupa array.'
 });
-
 
 function validateHarianData(data: any) {
     const { error } = harianSchema.validate(data, { abortEarly: false });
@@ -49,20 +50,24 @@ export async function GET(req: NextRequest) {
     try {
         const user_id = req.headers.get('user-id');
         const id = req.nextUrl.searchParams.get('id');
-        const rhk = req.nextUrl.searchParams.get('rhk');
+        const absence = req.nextUrl.searchParams.get('absence');
         let harian = [];
 
         if (id) {
             harian = await Harian.findOne({ _id: id, user_id });
-        } else if (rhk && user_id) {
-            harian = await Harian.find({ rhk, user_id }).populate('rhk');
+        } else if (user_id) {
+            if (absence) {
+                harian = await Harian.find({ user_id, absence });
+            } else {
+                harian = await Harian.find({ user_id }).populate('rhk');
+            }
         } else if (user_id) {
             harian = await Harian.find({ user_id }).populate('rhk');
         } else {
             harian = await Harian.find({});
         }
 
-        return NextResponse.json(createResponse(200, 'Success', harian));
+        return NextResponse.json(createResponse(200, 'Success', harian, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch Harian data' }, { status: 500 });
@@ -79,7 +84,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-   
+
         const bodyWithUser = { ...body, user_id };
 
         const errors = validateHarianData(bodyWithUser);
@@ -89,7 +94,7 @@ export async function POST(req: NextRequest) {
 
         const newHarian = new Harian(bodyWithUser);
         await newHarian.save();
-        return NextResponse.json(createResponse(201, 'Success', newHarian));
+        return NextResponse.json(createResponse(201, 'Success', newHarian, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Harian' }, { status: 500 });
@@ -119,7 +124,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));
         }
 
-        return NextResponse.json(createResponse(200, 'Success', updatedHarian));
+        return NextResponse.json(createResponse(200, 'Success', updatedHarian, true));
     } catch (error) {
         console.error('PUT error:', error);
         return NextResponse.json({ error: 'Failed to update Harian' }, { status: 500 });
@@ -142,7 +147,7 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));
         }
 
-        return NextResponse.json(createResponse(200, 'Success', deletedHarian));
+        return NextResponse.json(createResponse(200, 'Success', deletedHarian, true));
     } catch (error) {
         console.error('DELETE error:', error);
         return NextResponse.json({ error: 'Failed to delete Harian' }, { status: 500 });

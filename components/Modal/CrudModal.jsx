@@ -18,24 +18,35 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             if (data) {
                 const formattedData = Object.fromEntries(
                     Object.entries(data).map(([key, value]) => {
+                        // Jika nilai berupa string tanggal atau waktu, konversi ke objek dayjs
                         if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-                            return [key, dayjs(value)];
+                            return [key, dayjs(value)]; // Format sebagai tanggal
                         }
-                        return [key, value];
+
+                        // Jika field bertipe 'time', konversi menggunakan format waktu
+                        const isTimeField = formFields?.some((field) => field.name === key && field.type === 'time');
+                        if (isTimeField) {
+                            return [key, dayjs(value, 'HH:mm')]; // Format sebagai time
+                        }
+
+                        return [key, value]; // Untuk field lainnya, biarkan nilainya tetap
                     })
                 );
+
+                // Mengambil dan mengatur gambar jika ada field upload
                 const imgKey = formFields?.find((field) => field.type === 'upload')?.name;
                 if (imgKey) {
                     const imgList = data[imgKey];
                     setImageList(imgList);
                     setFileList(imgList);
                 }
-                form.setFieldsValue(formattedData);
+
+                form.setFieldsValue(formattedData); // Set nilai field pada form
             } else {
-                form.resetFields();
+                form.resetFields(); // Reset form jika tidak ada data
             }
         }
-    }, [isModalOpen, form, data]);
+    }, [isModalOpen, form, data, formFields]);
 
     const handleParentChange = (value, fieldName) => {
         setParentValue(value);
@@ -223,10 +234,8 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         <Button icon={<UploadOutlined />}>Upload Files</Button>
                     </Upload>
                 );
-            case "slider":
-                return(
-                    <Slider min={field.min} max={field.max} disabled={isDisabled} />
-                )
+            case 'slider':
+                return <Slider min={field.min} max={field.max} disabled={isDisabled} />;
             default:
                 return null;
         }

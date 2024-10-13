@@ -4,7 +4,7 @@ import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from '
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ import { getByUserId as getRHKByUserId } from '@/controller/RHKController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
@@ -36,8 +37,7 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const harian = await getByUserId(data.user.idASN);
-            const rhk = await getRHKByUserId(data.user.idASN);
+            const harian = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const selectedJabatan = jabatan.mapData.data[0];
             const periode = await getByUnitId(selectedJabatan.unor.induk.id);
@@ -55,13 +55,12 @@ const page = () => {
         }
     };
 
-    console.log(periode);
-    console.log('rhk', rhk);
+    console.log('harian', harian);
 
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
 
-    console.log(paramEntries)
+    console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
@@ -81,47 +80,54 @@ const page = () => {
                 return img;
             });
 
-            console.log(values);
-            console.log(updatedListImage);
-            
-            
-           
+            dt = {
+                absence: paramEntries._id,
+                date: new Date(paramEntries.tanggal),
+                startDateTime: dayjs(values.startDateTime).format('HH:mm:ss').toString(),
+                endDateTime: dayjs(values.endDateTime).format('HH:mm:ss').toString(),
+                rhk: values.rhk,
+                namaKegiatan: values.namaKegiatan,
+                deskripsiKegiatan: values.deskripsiKegiatan,
+                tautan: values.tautan,
+                files: updatedListImage,
+                user_id: data.user.idASN,
+                progress: values.progress
+            };
+            switch (type) {
+                case 'create':
+                    response = await store(data.user.idASN, dt);
+                    break;
 
-        //     switch (type) {
-        //         case 'create':
-        //             response = await store(data.user.idASN, dt);
-        //             break;
+                case 'edit':
+                    response = await update(id, dt);
+                    break;
 
-        //         case 'edit':
-        //             response = await update(id, dt);
-        //             break;
+                case 'delete':
+                    response = await destroy(id);
+                    break;
 
-        //         case 'delete':
-        //             response = await destroy(id);
-        //             break;
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+            console.log(response);
 
-        //         default:
-        //             throw new Error('Tipe operasi tidak valid');
-        //     }
-        //     console.log(response);
-
-        //     if (response.ok) {
-        //         const data = await getAll();
-        //         setData(data.data);
-        //         setAlert({
-        //             show: true,
-        //             message: response.msg,
-        //             description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-        //             type: 'success'
-        //         });
-        //     } else {
-        //         setAlert({
-        //             show: true,
-        //             message: 'Gagal',
-        //             description: response.msg,
-        //             type: 'error'
-        //         });
-        //     }
+            if (response.ok) {
+                const data = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
+                setData(data.data);
+                setAlert({
+                    show: true,
+                    message: response.msg,
+                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    type: 'success'
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: 'Gagal',
+                    description: response.msg,
+                    type: 'error'
+                });
+            }
         } catch (error) {
             setAlert({
                 show: true,
@@ -131,8 +137,8 @@ const page = () => {
             });
         }
 
-        // console.log('Operation completed');
-        // handleClose();
+        console.log('Operation completed');
+        handleClose();
     };
 
     const Column = [
@@ -144,18 +150,78 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Content',
-            dataIndex: 'content',
-            key: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
+            title: 'Tanggal',
+            dataIndex: 'date',
+            key: 'date',
+            sorter: (a, b) => a.date.length - b.date.length,
             width: '30%'
         },
         {
-            title: 'Status Kehadiran',
-            dataIndex: 'bukti',
-            key: 'bukti',
-            sorter: (a, b) => a.bukti.length - b.bukti.length,
+            title: 'Deskripsi Kegiatan',
+            dataIndex: 'deskripsiKegiatan',
+            key: 'deskripsiKegiatan',
+            sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
             width: '30%'
+        },
+        {
+            title: 'Nama Kegiatan',
+            dataIndex: 'namaKegiatan',
+            key: 'namaKegiatan',
+            sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
+            width: '30%'
+        },
+        {
+            title: 'Waktu Mulai',
+            dataIndex: 'startDateTime',
+            key: 'startDateTime',
+            sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
+            width: '30%'
+        },
+        {
+            title: 'Waktu Selesai',
+            dataIndex: 'endDateTime',
+            key: 'endDateTime',
+            sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
+            width: '30%'
+        },
+        {
+            title: 'Status',
+            dataIndex: 'msg',
+            key: 'msg',
+            sorter: (a, b) => a.msg.length - b.msg.length,
+            render: (_, record) => (
+                <>
+                    {(() => {
+                        switch (record.msg.status) {
+                            case 'Periksa':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {record.msg.status}
+                                    </Tag>
+                                );
+                            case 'Terima':
+                                return (
+                                    <Tag color="red" className="capitalize">
+                                        {record.msg.status}
+                                    </Tag>
+                                );
+                            case 'Tolak':
+                                return (
+                                    <div className="flex flex-col gap-y-2">
+                                        <Tag color="yellow" className="capitalize">
+                                            {record.msg.status}
+                                        </Tag>
+                                        {record.msg.message}
+                                    </div>
+                                );
+                            default: 
+                                return(
+                                    <div>naruto</div>
+                                )
+                        }
+                    })()}
+                </>
+            )
         },
         {
             title: 'Action',
@@ -201,12 +267,7 @@ const page = () => {
             label: 'Periode',
             name: 'periodeRKT',
             type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode wajib diisi'
-                }
-            ],
+          
             options: periode?.map((item) => ({
                 label: `${item.periode_start} - ${item.periode_end}`,
                 value: item._id,
@@ -217,12 +278,7 @@ const page = () => {
             label: 'SKP',
             name: 'skp',
             type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field SKP wajib diisi'
-                }
-            ],
+          
             options: skp?.map((item) => ({
                 label: `${item.periode_awal} - ${item.periode_akhir}`,
                 value: item._id,
@@ -303,6 +359,19 @@ const page = () => {
             name: 'files',
             type: 'upload'
         },
+        {
+            label: 'Progress',
+            name: 'progress',
+            type: 'slider',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field progress wajib diisi'
+                }
+            ],
+            min: 1,
+            max: 100
+        }
     ];
 
     const handleClose = () => {
@@ -334,7 +403,7 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
+                    <DataTable columns={Column} data={harian} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
