@@ -7,6 +7,8 @@ import { createResponse } from '@/utils/api';
 import { perilaku } from '@/utils/blueprint';
 import Perilaku from '@/models/Perilaku';
 import RKT from '@/models/RKT';
+import Aspek from '@/models/Aspek';
+import { IAspek } from '@/models/Aspek';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),

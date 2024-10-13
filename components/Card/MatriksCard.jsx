@@ -17,8 +17,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                 const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
                 setData(response.data);
                 const aspek = response.data.rhks
-                .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
-                .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
+                    .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
+                    .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
                 setAspek(aspek);
             } catch (error) {
                 console.log(error);
@@ -48,7 +48,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             key: 'target_tahunan',
             sorter: (a, b) => a.jenis.length - b.jenis.length,
             width: '30%',
-            render: (text, record) => (record.target_tahunan.target + ' ' + record.target_tahunan.satuan)
+            render: (text, record) => record.target_tahunan.target + ' ' + record.target_tahunan.satuan
         },
         {
             title: 'Jenis',
@@ -68,24 +68,53 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
         {
             title: 'Action',
             key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: () => {} })}
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
+            render: (_, record) => {
+                const { target_tahunan, ...rest } = record;
+                return (
+                    <Space size="small">
+                        <Button
+                            // type='primary'
+                            onClick={() =>
+                                setModal({
+                                    trigger: true,
+                                    modalData: {
+                                        ...rest,
+                                        target_tahunan: target_tahunan?.target,
+                                        satuan: target_tahunan?.satuan
+                                    },
+                                    title: 'Edit Aspek',
+                                    type: 'edit',
+                                    formFields: AspekFields,
+                                    onSubmit: () => {}
+                                })
+                            }
+                            size="middle"
+                            icon={<EditOutlined />}
+                        />
 
-                    <Button
-                        // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Aspek', type: 'delete', formFields: AspekFields, onSubmit: () => {} })}
-                        size="middle"
-                        color="danger"
-                        icon={<DeleteOutlined />}
-                    />
-                </Space>
-            )
+                        <Button
+                            // type='primary'
+                            onClick={() =>
+                                setModal({
+                                    trigger: true,
+                                    modalData: {
+                                        ...rest,
+                                        target_tahunan: target_tahunan?.target,
+                                        satuan: target_tahunan?.satuan
+                                    },
+                                    title: 'Delete Aspek',
+                                    type: 'delete',
+                                    formFields: AspekFields,
+                                    onSubmit: () => {}
+                                })
+                            }
+                            size="middle"
+                            color="danger"
+                            icon={<DeleteOutlined />}
+                        />
+                    </Space>
+                );
+            }
         }
     ];
 
@@ -100,7 +129,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                     message: 'Field rhk wajib di isi'
                 }
             ],
-            options: data?.rhks.map((item) => ({value: item._id, label: item.desc}))
+            options: data?.rhks.map((item) => ({ value: item._id, label: item.desc }))
         },
         {
             label: 'Jenis',
@@ -140,7 +169,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                     required: true,
                     message: 'Field indikator wajib di isi'
                 }
-            ],
+            ]
         },
         {
             label: 'Target Tahunan',
@@ -152,7 +181,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                     message: 'Field target tahunan wajib di isi'
                 }
             ],
-            min: 1,
+            min: 1
         },
         {
             label: 'Satuan',
@@ -163,7 +192,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                     required: true,
                     message: 'Field target tahunan wajib di isi'
                 }
-            ],
+            ]
         },
         {
             label: 'Deskripsi',
@@ -254,22 +283,39 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                         >
                             <DataTable columns={rhkData.columns} data={data?.rhks} loading={rhkData.loading} />
                         </Collapse.Panel>
-                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: async (value) => {
-                            const dt = {
-                                rhk : value.rhk,
-                                jenis : value.jenis,
-                                indikator : value.indikator,
-                                target_tahunan : {
-                                    target: value.target_tahunan,
-                                    satuan : value.satuan,
-                                },
-                                desc : value.desc
+                        <Collapse.Panel
+                            key="2"
+                            header="Aspek"
+                            extra={
+                                <Button
+                                    onClick={() =>
+                                        setModal({
+                                            trigger: true,
+                                            title: 'Tambah Aspek',
+                                            type: 'create',
+                                            formFields: AspekFields,
+                                            onSubmit: async (value) => {
+                                                const dt = {
+                                                    rhk: value.rhk,
+                                                    jenis: value.jenis,
+                                                    indikator: value.indikator,
+                                                    target_tahunan: {
+                                                        target: value.target_tahunan,
+                                                        satuan: value.satuan
+                                                    },
+                                                    desc: value.desc
+                                                };
+                                                const res = await storeAspek(dt);
+                                                message.success('Berhasil Menambahkan Aspek');
+                                                setModal({ trigger: false });
+                                            }
+                                        })
+                                    }
+                                >
+                                    Tambah Aspek
+                                </Button>
                             }
-                            const res = await storeAspek(dt);
-                            message.success('Berhasil Menambahkan Aspek');
-                            setModal({ trigger: false });
-
-                        } })}>Tambah Aspek</Button>}>
+                        >
                             <DataTable columns={aspekColumns} data={aspek} loading={aspekData.loading} />
                         </Collapse.Panel>
                         {/* <Collapse.Panel
