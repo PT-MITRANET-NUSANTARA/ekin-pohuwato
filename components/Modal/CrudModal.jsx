@@ -11,6 +11,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const { Option } = Select;
     const [fileList, setFileList] = useState([]);
     const [imageList, setImageList] = useState([]);
+    const [parentValue, setParentValue] = useState(null); // Menyimpan nilai parent
 
     useEffect(() => {
         if (isModalOpen) {
@@ -35,6 +36,11 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             }
         }
     }, [isModalOpen, form, data]);
+
+    const handleParentChange = (value, fieldName) => {
+        setParentValue(value);
+        form.setFieldsValue({ [fieldName]: undefined }); // Reset nilai child select ketika parent berubah
+    };
 
     // Fungsi untuk menangani perubahan upload
     const handleUploadChange = ({ fileList }) => {
@@ -134,14 +140,32 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
 
             case 'select':
+                // Check if field is child and filter options
+                if (field.parentField) {
+                    return (
+                        <Select
+                            size="large"
+                            placeholder={`Select ${field.label}`}
+                            allowClear
+                            disabled={!parentValue} // Disable jika parent belum dipilih
+                            onChange={(value) => form.setFieldsValue({ [field.name]: value })}
+                        >
+                            {field.options
+                                ?.filter((option) => option.id_option_parent === parentValue) // Filter berdasarkan parent
+                                .map((option) => (
+                                    <Option key={option.id} value={option.value}>
+                                        {option.label}
+                                    </Option>
+                                ))}
+                        </Select>
+                    );
+                }
+                // Handle select parent
                 return (
-                    <Select size="large" mode={field.mode ? field.mode : ''} placeholder="Select an option" allowClear onChange={(value) => form.setFieldsValue({ [field.name]: value })} disabled={isDisabled} optionLabelProp="label">
+                    <Select size="large" placeholder={`Select ${field.label}`} allowClear onChange={(value) => handleParentChange(value, field.name)} disabled={isDisabled}>
                         {field.options?.map((option, index) => (
-                            <Option key={index} value={option.value} label={option.label}>
-                                <div className="flex flex-col">
-                                    <span>{option.label}</span>
-                                    <small>{option.value}</small>
-                                </div>
+                            <Option key={index} value={option.value}>
+                                {option.label}
                             </Option>
                         ))}
                     </Select>
