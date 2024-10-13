@@ -171,7 +171,15 @@ const page = () => {
                 { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
                 { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
             ]
+        },
+        {
+            label: 'somthing',
+            name: "something",
+            type: 'slider',
+            min: 10,
+            max: 200,
         }
+        
     ];
 
     const handleClose = () => {
