@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
@@ -95,18 +95,34 @@ const page = () => {
                     {(() => {
                         switch (status) {
                             case 'hadir':
-                                return <Tag color="blue" className='capitalize'>{status}</Tag>;
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
                             case 'alpa':
-                                return <Tag color="red" className='capitalize'>{status}</Tag>;
+                                return (
+                                    <Tag color="red" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
                             case 'izin':
-                                return <Tag color="yellow" className='capitalize'>{status}</Tag>;
+                                return (
+                                    <Tag color="yellow" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
                             default:
-                                return <Tag color="error" className='capitalize'>{status}</Tag>;
+                                return (
+                                    <Tag color="error" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
                         }
                     })()}
                 </>
             ),
-            searchable: true,
+            searchable: true
         },
         {
             title: 'Action',
@@ -114,32 +130,11 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
-                        // type='primary'
-                        size="middle"
-                        color="default"
-                        icon={<EyeOutlined />}
-                    />
-
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
-                        // type='primary'
-                        size="middle"
-                        color="danger"
-                        icon={<DeleteOutlined />}
-                    />
-
-                    <Button
                         onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas`)}
                         // type='primary'
                         size="middle"
-                        color="danger"
+                        color="primary"
+                        variant="outlined"
                         icon={<DatabaseOutlined />}
                     />
                 </Space>
@@ -201,7 +196,7 @@ const page = () => {
                     },
                     {
                         title: <Link href="/dashboard/renstra">Renstra</Link>
-                    },
+                    }
                 ]}
             />
             <Card className="">
@@ -210,14 +205,14 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Data Harian
                         </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
+                        <div className="flex items-center gap-x-2">
+                            <Button type="default" icon={<ReloadOutlined />}>
+                                Sinkronisasi Harian
                             </Button>
                         </div>
                     </div>
                     <DataTable columns={Column} data={dummyHarian} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} ></CrudModal>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
         </div>

@@ -140,11 +140,7 @@ const page = () => {
                                     Matriks Unit Kerja
                                 </Button>
                             </Tooltip>
-                            <Tooltip title="BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA">
-                                <Button type="default" icon={<PieChartOutlined />}>
-                                    Matriks Atasan
-                                </Button>
-                            </Tooltip>
+                    
                         </div>
                     </div>
                     <DataTable columns={Column} data={unor} loading={loading} />

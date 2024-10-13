@@ -6,7 +6,7 @@ import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 

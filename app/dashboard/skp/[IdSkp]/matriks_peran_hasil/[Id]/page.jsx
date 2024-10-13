@@ -18,14 +18,13 @@ const { Option } = Select;
 
 const page = () => {
     const { Id } = useParams();
-    const [rhkModal, setRhkModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [aspekModal, setAspekModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [rencanaAksiModal, setRencanaAksiModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [unor, setUnor] = useState(null);
     const [SKP, setSKP] = useState(null);
+    const [loadingData, setLoadingData] = useState(true);
 
     useEffect(() => {
         if (data) {
@@ -44,6 +43,7 @@ const page = () => {
             setJabatan(selectedJabatan);
 
             setUnor(bawahan);
+            setLoadingData(false);
         } catch (error) {
             console.log(error);
         }
@@ -79,14 +79,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setAspekModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: () => {} })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setAspekModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Aspek', type: 'delete', formFields: AspekFields, onSubmit: () => {} })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -161,14 +161,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setRhkModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setRhkModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -200,14 +200,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setRencanaAksiModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Rencana Aksi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setRencanaAksiModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Rencana Aksi', type: 'delete', formFields: RhkFields })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -366,87 +366,79 @@ const page = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-flow-row divide-y text-xs mb-12">
-                    <div className="flex items-center justify-between py-2">
-                        <span className="uppercase font-semibold">{jabatan?.nama_jabatan}</span>
-                        {/* <p className="text-right uppercase">Tahun 2024</p> */}
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                        <span className="uppercase font-semibold">Unit Organisasi</span>
-                        <p className="text-right uppercase">{jabatan?.unor.nama}</p>
-                    </div>
-                </div>
-                <div className="w-full flex flex-col gap-y-4">
-                    {unor?.map((item, index) => (
-                        <Card type="inner" key={index} title={item.userId}>
-                            <div className="grid grid-flow-row divide-y text-xs">
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">nama</span>
-                                    <p className="text-right uppercase">{item.nama_asn}</p>
-                                </div>
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">jabatan</span>
-                                    <div className="flex flex-col gap-y-2 text-right items-end">
-                                        <p>{item.nama_jabatan}</p>
-                                        {/* <small>ID : {item.id || '197801012007011026'}</small> */}
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-y-4 py-2 pt-4">
-                                    <div className="flex items-center gap-x-2">
-                                        <Button className="w-fit" type="primary">
-                                            Lihat SKP
-                                        </Button>
-                                        <Button className="w-fit" type="primary">
-                                            Tambah RHK
-                                        </Button>
-                                        <Button danger className="w-fit" type="primary">
-                                            Hapus
-                                        </Button>
-                                    </div>
-                                    <Collapse bordered>
-                                        <Collapse.Panel
-                                            key="1"
-                                            header="RHK Yang di Intervensi"
-                                            extra={<Button onClick={() => setRhkModal({ trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah RHK</Button>}
-                                        >
-                                            <DataTable columns={rhkColumns} data={dummyIntervensiRhk} loading={loading} />
-                                        </Collapse.Panel>
-                                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setAspekModal({ trigger: true, modalData: dummyAspeks, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah Aspek</Button>}>
-                                            <DataTable columns={aspekColumns} data={dummyAspeks} loading={loading} />
-                                        </Collapse.Panel>
-                                        <Collapse.Panel
-                                            key="3"
-                                            header="Rencana Aksi"
-                                            extra={<Button onClick={() => setRencanaAksiModal({ trigger: true, modalData: dummyRencanaAksi, title: 'Tambah RHK Intervensi', type: 'create' })}>Tambah Rencana Aksi</Button>}
-                                        >
-                                            <DataTable columns={rencanaAksiColumn} data={dummyRencanaAksi} loading={false} />
-                                        </Collapse.Panel>
-                                    </Collapse>
-                                </div>
+                {loadingData ? (
+                    <Skeleton active />
+                ) : (
+                    <>
+                        <div className="grid grid-flow-row divide-y text-xs mb-12">
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">{jabatan?.nama_jabatan}</span>
+                                {/* <p className="text-right uppercase">Tahun 2024</p> */}
                             </div>
-                        </Card>
-                    ))}
-                </div>
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">Unit Organisasi</span>
+                                <p className="text-right uppercase">{jabatan?.unor.nama}</p>
+                            </div>
+                        </div>
+                        <div className="w-full flex flex-col gap-y-4">
+                            {unor?.map((item, index) => (
+                                <Card type="inner" key={index} title={item.userId}>
+                                    <div className="grid grid-flow-row divide-y text-xs">
+                                        <div className="flex items-center justify-between py-2">
+                                            <span className="uppercase font-semibold">nama</span>
+                                            <p className="text-right uppercase">{item.nama_asn}</p>
+                                        </div>
+                                        <div className="flex items-center justify-between py-2">
+                                            <span className="uppercase font-semibold">jabatan</span>
+                                            <div className="flex flex-col gap-y-2 text-right items-end">
+                                                <p>{item.nama_jabatan}</p>
+                                                {/* <small>ID : {item.id || '197801012007011026'}</small> */}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-y-4 py-2 pt-4">
+                                            <div className="flex items-center gap-x-2">
+                                                <Button className="w-fit" type="primary">
+                                                    Lihat SKP
+                                                </Button>
+                                            </div>
+                                            <Collapse bordered>
+                                                <Collapse.Panel
+                                                    key="1"
+                                                    header="RHK Yang di Intervensi"
+                                                    extra={
+                                                        <Button onClick={() => setModal({ trigger: true, modalData: dummyIntervensiRhk, title: 'Tambah RHK Intervensi', type: 'create', formFields: RhkFields, onSubmit: () => {} })}>Tambah RHK</Button>
+                                                    }
+                                                >
+                                                    <DataTable columns={rhkColumns} data={dummyIntervensiRhk} loading={loading} />
+                                                </Collapse.Panel>
+                                                <Collapse.Panel
+                                                    key="2"
+                                                    header="Aspek"
+                                                    extra={<Button onClick={() => setModal({ trigger: true, modalData: dummyAspeks, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: () => {} })}>Tambah Aspek</Button>}
+                                                >
+                                                    <DataTable columns={aspekColumns} data={dummyAspeks} loading={loading} />
+                                                </Collapse.Panel>
+                                                <Collapse.Panel
+                                                    key="3"
+                                                    header="Rencana Aksi"
+                                                    extra={
+                                                        <Button onClick={() => setModal({ trigger: true, modalData: dummyRencanaAksi, title: 'Tambah Rencana Aksi', type: 'create', formFields: RencanaAksiField, onSubmit: () => {} })}>
+                                                            Tambah Rencana Aksi
+                                                        </Button>
+                                                    }
+                                                >
+                                                    <DataTable columns={rencanaAksiColumn} data={dummyRencanaAksi} loading={false} />
+                                                </Collapse.Panel>
+                                            </Collapse>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </>
+                )}
             </Card>
-            <CrudModal formFields={RhkFields} isModalOpen={rhkModal.trigger} data={rhkModal.modalData} onClose={() => setRhkModal({ trigger: false })} onSubmit={() => setRhkModal({ trigger: false })} title={rhkModal.title} type={rhkModal.type} />
-            <CrudModal
-                formFields={AspekFields}
-                isModalOpen={aspekModal.trigger}
-                data={aspekModal.modalData}
-                onClose={() => setAspekModal({ trigger: false })}
-                onSubmit={() => setAspekModal({ trigger: false })}
-                title={aspekModal.title}
-                type={aspekModal.type}
-            />
-            <CrudModal
-                formFields={RencanaAksiField}
-                isModalOpen={rencanaAksiModal.trigger}
-                data={rencanaAksiModal.modalData}
-                onClose={() => setRencanaAksiModal({ trigger: false })}
-                onSubmit={() => setRencanaAksiModal({ trigger: false })}
-                title={rencanaAksiModal.title}
-                type={rencanaAksiModal.type}
-            />
+            <CrudModal formFields={modal.formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({ trigger: false })} onSubmit={modal.onSubmit} title={modal.title} type={modal.type} />
         </div>
     );
 };
