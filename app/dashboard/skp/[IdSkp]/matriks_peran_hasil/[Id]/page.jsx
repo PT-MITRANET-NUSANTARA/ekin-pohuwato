@@ -148,14 +148,20 @@ const page = () => {
             dataIndex: 'nama_rhk',
             key: 'nama_rhk',
             sorter: (a, b) => a.nama_rhk.length - b.nama_rhk.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => ( 
+                record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name
+            )
         },
         {
             title: 'Hasil RHK',
             dataIndex: 'intervensi',
             key: 'intervensi',
             sorter: (a, b) => a.intervensi.length - b.intervensi.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => ( 
+                record.desc
+            )
         },
         // {
         //     title: 'Rencana Aksi',

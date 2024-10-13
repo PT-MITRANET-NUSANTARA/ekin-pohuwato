@@ -1,11 +1,28 @@
 'use client';
 import { Button, Card, Collapse, message } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DataTable from '../DataTable/DataTable';
 import { getByUserIdAndPeriode } from '@/controller/SKPController';
 import { store as storeRHK } from '@/controller/RHKController';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
+                if (response.data) {
+                    console.log('HERE', response.data);
+                    
+                }
+                setData(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
+    }, []);
+    
     return (
         <Card type="inner" title={dataItem.userId}>
             <div className="grid grid-flow-row divide-y text-xs">
@@ -82,7 +99,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                 </Button>
                             }
                         >
-                            <DataTable columns={rhkData.columns} data={rhkData.data} loading={rhkData.loading} />
+                            <DataTable columns={rhkData.columns} data={data?.rhks} loading={rhkData.loading} />
                         </Collapse.Panel>
                         <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: aspekData.fields, onSubmit: () => {} })}>Tambah Aspek</Button>}>
                             <DataTable columns={aspekData.columns} data={aspekData.data} loading={aspekData.loading} />
