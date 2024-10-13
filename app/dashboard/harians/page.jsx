@@ -179,8 +179,31 @@ const page = () => {
             ],
             min: 1,
             max: 3000
+        },
+        {
+            label: 'Dummy Select Parent',
+            name: 'dummy_select_parent',
+            type: 'select',
+            rules: [{ required: true, message: 'Field dummy select parent wajib di isi' }],
+            options: [
+                { label: '01', value: '01' },
+                { label: '02', value: '02' }
+            ],
+            isParent: true // Menandakan ini adalah select parent
+        },
+        {
+            label: 'Dummy Select Child',
+            name: 'dummy_select_child',
+            type: 'select',
+            rules: [{ required: true, message: 'Field dummy select child wajib di isi' }],
+            parentField: 'dummy_select_parent', // Ini adalah select child yang tergantung dari parent
+            options: [
+                { id: 'B1', id_option_parent: '01', label: 'Option dari 01', value: 'B1' },
+                { id: 'B2', id_option_parent: '02', label: 'Option dari 02', value: 'B2' }
+            ]
         }
     ];
+
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -206,7 +229,7 @@ const page = () => {
                             Data Harian
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<ReloadOutlined />}>
+                            <Button type="default" icon={<ReloadOutlined />} onClick={() => setModal({trigger: true, title: 'create', type: 'create' })}>
                                 Sinkronisasi Harian
                             </Button>
                         </div>
