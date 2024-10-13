@@ -6,17 +6,20 @@ import { getByUserIdAndPeriode } from '@/controller/SKPController';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
+import { store as storeAspek } from '@/controller/AspekController';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
     const [data, setData] = useState(null);
+    const [aspek, setAspek] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
-                if (response.data) {
-                    console.log('HERE', response.data);
-                }
                 setData(response.data);
+                const aspek = response.data.rhks
+                .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
+                .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
+                setAspek(aspek);
             } catch (error) {
                 console.log(error);
             }
@@ -31,6 +34,21 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             key: '_id',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
+        },
+        {
+            title: 'Name',
+            dataIndex: 'desc',
+            key: 'desc',
+            sorter: (a, b) => a.jenis.length - b.jenis.length,
+            width: '30%'
+        },
+        {
+            title: 'Target Tahunan',
+            dataIndex: 'target_tahunan',
+            key: 'target_tahunan',
+            sorter: (a, b) => a.jenis.length - b.jenis.length,
+            width: '30%',
+            render: (text, record) => (record.target_tahunan.target + ' ' + record.target_tahunan.satuan)
         },
         {
             title: 'Jenis',
@@ -127,17 +145,29 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
         {
             label: 'Target Tahunan',
             name: 'target_tahunan',
+            type: 'number',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field target tahunan wajib di isi'
+                }
+            ],
+            min: 1,
+        },
+        {
+            label: 'Satuan',
+            name: 'satuan',
             type: 'text',
             rules: [
                 {
                     required: true,
                     message: 'Field target tahunan wajib di isi'
                 }
-            ]
+            ],
         },
         {
             label: 'Deskripsi',
-            name: '',
+            name: 'desc',
             type: 'longtext',
             rules: [
                 {
@@ -181,9 +211,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                             type: 'create',
                                             formFields: rhkData.fields,
                                             onSubmit: async (value) => {
-                                                const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
-                                                console.log(value);
-                                                const skp = response.data;
+                                                const skp = data;
                                                 console.log(skp);
 
                                                 if (skp) {
@@ -226,8 +254,23 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                         >
                             <DataTable columns={rhkData.columns} data={data?.rhks} loading={rhkData.loading} />
                         </Collapse.Panel>
-                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: () => {} })}>Tambah Aspek</Button>}>
-                            <DataTable columns={aspekColumns} data={aspekData.data} loading={aspekData.loading} />
+                        <Collapse.Panel key="2" header="Aspek" extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Aspek', type: 'create', formFields: AspekFields, onSubmit: async (value) => {
+                            const dt = {
+                                rhk : value.rhk,
+                                jenis : value.jenis,
+                                indikator : value.indikator,
+                                target_tahunan : {
+                                    target: value.target_tahunan,
+                                    satuan : value.satuan,
+                                },
+                                desc : value.desc
+                            }
+                            const res = await storeAspek(dt);
+                            message.success('Berhasil Menambahkan Aspek');
+                            setModal({ trigger: false });
+
+                        } })}>Tambah Aspek</Button>}>
+                            <DataTable columns={aspekColumns} data={aspek} loading={aspekData.loading} />
                         </Collapse.Panel>
                         {/* <Collapse.Panel
                             key="3"

@@ -65,15 +65,16 @@ export async function GET(req: NextRequest) {
 
         if (user_id) {
             if (periode_id) {
-                skps = await SKP.findOne({ user_id, periodeRKT: periode_id }).populate({
+                 skps = await SKP.findOne({ user_id, periodeRKT: periode_id })
+                .populate({
                     path: 'rhks',
-                    populate: {
-                        path: 'rhk',
-                        populate: {
-                            path: 'rkt',
-                        }
-                    }
-                }).populate('perilakus');
+                    populate: [
+                        { path: 'rhk', populate: { path: 'rkt' } },
+                        { path: 'aspek' }
+                    ]
+                })
+                .populate('perilakus');
+            
             } else {
                 skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id });
             }

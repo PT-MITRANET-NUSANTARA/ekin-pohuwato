@@ -9,7 +9,6 @@ export const getByUserId = async (id: string) => {
                 'user-id': id,
             },
         });
-        console.log(response);
         
         return response;
     } catch (error) {
@@ -28,7 +27,6 @@ export const getByUserIdAndPeriode = async (id: string, periode: string) => {
                 'periode-id': periode,
             },
         });
-        console.log(response);
         
         return response;
     } catch (error) {
@@ -79,7 +77,6 @@ export const store = async (id: string, data: any, atasan: any) => {
 }
 
 export const update = async (id: string, data: any) => {
-    console.log(data);
     
     try {
         const response = await apiRequest(`/api/skp?id=${id}`, {
