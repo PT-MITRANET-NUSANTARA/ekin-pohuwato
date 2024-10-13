@@ -75,49 +75,48 @@ const page = () => {
 
                 return img;
             });
-            if (values.files) {
-                const berkas = values.files;
-                delete values.files;
-                dt = { ...values, date: Date.now(), files: berkas.fileList };
-            } else {
-                dt = { ...values, date: Date.now() };
-            }
 
-            switch (type) {
-                case 'create':
-                    response = await store(data.user.idASN, dt);
-                    break;
+            console.log(values);
+            console.log(updatedListImage);
+            
+            
+           
 
-                case 'edit':
-                    response = await update(id, dt);
-                    break;
+        //     switch (type) {
+        //         case 'create':
+        //             response = await store(data.user.idASN, dt);
+        //             break;
 
-                case 'delete':
-                    response = await destroy(id);
-                    break;
+        //         case 'edit':
+        //             response = await update(id, dt);
+        //             break;
 
-                default:
-                    throw new Error('Tipe operasi tidak valid');
-            }
-            console.log(response);
+        //         case 'delete':
+        //             response = await destroy(id);
+        //             break;
 
-            if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
-            } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
-            }
+        //         default:
+        //             throw new Error('Tipe operasi tidak valid');
+        //     }
+        //     console.log(response);
+
+        //     if (response.ok) {
+        //         const data = await getAll();
+        //         setData(data.data);
+        //         setAlert({
+        //             show: true,
+        //             message: response.msg,
+        //             description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+        //             type: 'success'
+        //         });
+        //     } else {
+        //         setAlert({
+        //             show: true,
+        //             message: 'Gagal',
+        //             description: response.msg,
+        //             type: 'error'
+        //         });
+        //     }
         } catch (error) {
             setAlert({
                 show: true,
@@ -127,8 +126,8 @@ const page = () => {
             });
         }
 
-        console.log('Operation completed');
-        handleClose();
+        // console.log('Operation completed');
+        // handleClose();
     };
 
     const Column = [
@@ -299,35 +298,6 @@ const page = () => {
             name: 'files',
             type: 'upload'
         },
-        {
-            label: 'Parent Select',
-            name: 'parent_select',
-            type: 'select',
-            options: [
-                { id: 'P1', value: '01', label: 'Option 01' },
-                { id: 'P2', value: '02', label: 'Option 02' }
-            ]
-        },
-        {
-            label: 'Child Select',
-            name: 'child_select',
-            type: 'select',
-            parentField: 'parent_select',
-            options: [
-                { id: 'C1', id_option_parent: '01', value: 'C1', label: 'Child 1 of 01' },
-                { id: 'C2', id_option_parent: '02', value: 'C2', label: 'Child 2 of 02' }
-            ]
-        },
-        {
-            label: 'Grandchild Select',
-            name: 'grandchild_select',
-            type: 'select',
-            parentField: 'child_select',
-            options: [
-                { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
-                { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
-            ]
-        }
     ];
 
     const handleClose = () => {

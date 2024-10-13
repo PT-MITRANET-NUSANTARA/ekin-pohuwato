@@ -71,7 +71,6 @@ const HarianSchema: Schema = new Schema({
   },
   files: {
     type: [Object],
-    ref: 'Image',
     required: false
   },
   user_id: {
