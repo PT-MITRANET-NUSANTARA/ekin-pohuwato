@@ -116,7 +116,9 @@ const page = () => {
                     <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
-                    <Button type="primary">Lihat Kurva</Button>
+                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
+                        Lihat Kurva
+                    </Button>
                     <Button type="primary">Pembinaan Bawahan</Button>
                 </div>
                 <DataTable columns={Column} data={dummyBawahan} loading={false} />

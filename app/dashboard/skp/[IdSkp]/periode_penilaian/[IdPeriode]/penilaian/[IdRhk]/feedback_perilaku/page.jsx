@@ -10,8 +10,7 @@ import { title } from 'process';
 const { Title } = Typography;
 const { Option } = Select;
 const page = () => {
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [ratingPerilakuModal, setRatingPerilakuModal] = useState(false);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
 
     const formFields = [
         {
@@ -41,8 +40,22 @@ const page = () => {
                     value: 'baik'
                 },
                 {
-                    label: 'meri gaming',
-                    value: 'meri gaming'
+                    label: 'buruk',
+                    value: 'buruk'
+                }
+            ]
+        }
+    ];
+
+    const ratingFileds = [
+        {
+            label: 'Beri Rating',
+            name: 'rating',
+            type: 'rating',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field rating wajib di isi'
                 }
             ]
         }
@@ -69,15 +82,6 @@ const page = () => {
                 ]}
             />
             <Card>
-                <Form layout="vertical" className="flex flex-col gap-y-2">
-                    <Form.Item name="pilihskp" label="SKP Yang Akan Dinilai" className="m-0">
-                        <Select>
-                            <Option>Something</Option>
-                        </Select>
-                    </Form.Item>
-                </Form>
-            </Card>
-            <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
                         <Title className="mt-2" level={5}>
@@ -90,7 +94,7 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
                             </Button>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setRatingPerilakuModal(true)}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
                                 Buat Rating Perilaku Kerja
                             </Button>
                         </div>
@@ -155,7 +159,6 @@ const page = () => {
                                 <div className="flex flex-col gap-y-2 text-right items-end">
                                     <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
                                     <small>ID : 8ae482855a71b686015a74eabbde7454</small>
-                                    <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                                 </div>
                             </div>
                         </div>
@@ -189,7 +192,6 @@ const page = () => {
                                 <div className="flex flex-col gap-y-2 text-right items-end">
                                     <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
                                     <small>ID : 8ae482855a71b686015a74eabbde7454</small>
-                                    <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                                 </div>
                             </div>
                         </div>
@@ -371,7 +373,7 @@ const page = () => {
                             <td></td>
                             <td>
                                 <div className="flex items-center justify-center">
-                                    <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback' })}>
+                                    <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
                                         Tambah
                                     </Button>
                                 </div>
@@ -389,17 +391,7 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
-                <Modal open={ratingPerilakuModal} onClose={() => setRatingPerilakuModal(false)} onCancel={() => setRatingPerilakuModal(false)}>
-                    <Form className="mt-6 " layout="vertical">
-                        <Form.Item name="prilaku_kerja" label="Masukan Rating Perilaku Kerja">
-                            <div className="flex flex-col gap-y-1 w-full">
-                                <InputNumber className="w-full" min={1} max={50} />
-                                <small>Rating dari skala 1-50</small>
-                            </div>
-                        </Form.Item>
-                    </Form>
-                </Modal>
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
             </Card>
         </div>
     );

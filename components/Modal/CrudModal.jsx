@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker, Slider } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker, Slider, Rate } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
@@ -159,16 +159,22 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
             case 'time':
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
+            case 'rating':
+                return <Rate className="w-full" size="large" disabled={isDisabled} />;
 
             case 'select':
                 const parentValue = field.parentField ? selectValues[field.parentField] : null;
                 const options = field.options?.filter((option) => !field.parentField || option.id_option_parent === parentValue);
 
                 return (
-                    <Select mode={field.mode} size="large" placeholder={`Select ${field.label}`} allowClear disabled={field.parentField && !parentValue} onChange={(value) => handleSelectChange(value, field.name)}>
+                    <Select mode={field.mode} size="large" placeholder={`Select ${field.label}`} allowClear disabled={field.parentField && !parentValue} onChange={(value) => handleSelectChange(value, field.name)} optionLabelProp='label'>
                         {options?.map((option) => (
-                            <Option key={option.id} value={option.value}>
-                                {option.label}
+                            <Option key={option.id} value={option.value} label={option.label
+                            }>
+                               <div className='flex flex-col'>
+                                    <span>{option.label}</span>
+                                    <small>{option.value}</small>
+                               </div>
                             </Option>
                         ))}
                     </Select>

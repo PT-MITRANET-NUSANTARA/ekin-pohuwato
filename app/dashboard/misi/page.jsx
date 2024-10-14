@@ -103,7 +103,7 @@ const page = () => {
             title: 'Visi',
             dataIndex: 'visi',
             key: 'visi',
-            sorter: (a, b) => a._id.length - b._id.length,
+            sorter: (a, b) => a.visi.length - b.visi.length,
             width: '10%',
             render: (_, record) => (
                 <>
