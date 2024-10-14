@@ -51,8 +51,8 @@ const page = () => {
     const Column = [
         {
             title: 'ID',
-            dataIndex: 'userId',
-            key: 'userId',
+            dataIndex: 'id_asn',
+            key: 'id_asn',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
         },

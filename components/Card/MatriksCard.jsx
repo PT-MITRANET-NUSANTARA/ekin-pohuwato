@@ -14,7 +14,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
+                const response = await getByUserIdAndPeriode(dataItem.id_asn, SKP.periodeRKT);
                 setData(response.data);
                 const aspek = response.data.rhks
                     .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
@@ -198,7 +198,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
     ];
 
     return (
-        <Card type="inner" title={dataItem.userId}>
+        <Card type="inner" title={dataItem.id_asn}>
             <div className="grid grid-flow-row divide-y text-xs">
                 <div className="flex items-center justify-between py-2">
                     <span className="uppercase font-semibold">nama</span>
@@ -238,7 +238,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                         ...value,
                                                         skp: skp._id
                                                     };
-                                                    const rhk = await storeRHK(dataItem.userId, dt);
+                                                    const rhk = await storeRHK(dataItem.id_asn, dt);
 
                                                     console.log(rhk);
 
@@ -253,13 +253,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                         renstra: SKP.renstra,
                                                         jabatan: [dataItem]
                                                     };
-                                                    const newSKP = await storeSKP(dataItem.userId, data, '0');
+                                                    const newSKP = await storeSKP(dataItem.id_asn, data, '0');
                                                     const dt = {
                                                         ...value,
                                                         skp: newSKP?.data._id
                                                     };
 
-                                                    const rhk = await storeRHK(dataItem.userId, dt);
+                                                    const rhk = await storeRHK(dataItem.id_asn, dt);
                                                     message.success('Berhasil Menambahkan RHK');
                                                 }
                                                 setModal({ trigger: false });
