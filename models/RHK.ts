@@ -75,6 +75,13 @@ RHKSchema.virtual('aspek', {
     justOne: false
 });
 
+RHKSchema.virtual('harians', {
+    ref: 'Harian',
+    localField: '_id',
+    foreignField: 'rhk',
+    justOne: false
+});
+
 const RHK = mongoose.models.RHK || mongoose.model<IRHK>('RHK', RHKSchema);
 
 export default RHK;

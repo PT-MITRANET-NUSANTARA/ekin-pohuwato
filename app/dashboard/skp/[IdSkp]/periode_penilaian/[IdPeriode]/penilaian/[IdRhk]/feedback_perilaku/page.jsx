@@ -141,6 +141,38 @@ const page = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
 
+    const getRealisasi = (aspek, harian) => {
+        if (aspek.jenis === 'kualitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+            if (percentase) {
+                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
+                return percent + '%';
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'kuantitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+
+            if (percentase) {
+                const target = aspek.target_tahunan.target;
+                const realisasi = percentase.progress;
+                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
+
+                return percent + ' ' + aspek.target_tahunan.satuan;
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'waktu') {
+            return harian.length + ' ' + aspek.target_tahunan.satuan;
+        } else {
+            return '';
+        }
+    };
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -326,7 +358,20 @@ const page = () => {
                                                     </Button>
                                                 </div>
                                             </td>
-                                            <td></td>
+                                            <td>
+                                                {' '}
+                                                {getRealisasi(
+                                                    aspek,
+                                                    item.harians?.filter((h) => {
+                                                        // Convert item.date and periode.endDateTime to Day.js objects
+                                                        const hDate = dayjs(h.date); // Convert h.date to Day.js object
+                                                        const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
+
+                                                        // Check if h.date is less than or equal to endDateTime
+                                                        return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
+                                                    })
+                                                )}
+                                            </td>
                                             <td></td>
                                         </tr>
                                     </>
