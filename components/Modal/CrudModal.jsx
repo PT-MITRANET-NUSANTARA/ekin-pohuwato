@@ -12,6 +12,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [fileList, setFileList] = useState([]);
     const [imageList, setImageList] = useState([]);
     const [selectValues, setSelectValues] = useState({}); // Menyimpan nilai parent
+    const dokument_url = process.env.NEXT_PUBLIC_API_IMAGE_URL
 
     useEffect(() => {
         if (isModalOpen) {
@@ -73,7 +74,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         formData.append('document', file);
 
         try {
-            const response = await fetch('http://localhost:3001/upload', {
+            const response = await fetch(`${dokument_url}`, {
                 method: 'POST',
                 body: formData
             });
@@ -122,7 +123,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             }
 
             // Proceed to delete the file using the fileId
-            const response = await fetch(`http://localhost:3001/upload/${imageId}`, {
+            const response = await fetch(`${dokument_url}/${imageId}`, {
                 method: 'DELETE'
             });
 
