@@ -135,6 +135,8 @@ const page = () => {
         }
     ];
 
+    console.log(SKP);
+    
     const rhkColumns = [
         {
             title: 'ID',
@@ -261,6 +263,8 @@ const page = () => {
             )
         }
     ];
+
+    
 
     const RhkFields = [
         {

@@ -170,7 +170,7 @@ const page = () => {
             key: 'file',
             render: (_, record) => (
                 <li className="flex flex-col gap-y-1 w-full">
-                    {/* {record.files.map((item) => (
+                    {record.files.map((item) => (
                         <li>
                             <Button
                                 variant="link"
@@ -186,7 +186,7 @@ const page = () => {
                                 {item.name}
                             </Button>
                         </li>
-                    ))} */}
+                    ))}
                 </li>
             ),
             width: '240px'

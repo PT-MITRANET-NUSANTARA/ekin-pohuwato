@@ -279,7 +279,7 @@ const page = () => {
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}></td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
                                         <div className="flex items-center justify-center">
-                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdNilai}/penilaian/${IdSkp}/${item.id}/bukti_dukung`)}>
                                                 Lihat
                                             </Button>
                                         </div>

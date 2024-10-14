@@ -324,13 +324,7 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item._id}/bukti_dukung`)}>
-                                                        Lihat
-                                                    </Button>
-                                                </div>
-                                            </td>
+                                           
 
                                             <td>
                                                 {' '}
@@ -346,7 +340,10 @@ const page = () => {
                                                     })
                                                 )}
                                             </td>
-                                            <td></td>
+                                            <td>
+                                               
+                                            </td>
+                                            {/* <td></td> */}
                                         </tr>
                                     </>
                                 ))}
