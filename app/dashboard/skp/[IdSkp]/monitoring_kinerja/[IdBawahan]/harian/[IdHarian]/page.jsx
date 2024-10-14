@@ -6,7 +6,7 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
@@ -20,15 +20,12 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
+    const {IdBawahan, IdHarian} = useParams();
     const [loading, setLoading] = useState(true);
     const { data, setData } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
-    const [rhk, setRHK] = useState(null);
-    const [periode, setPeriode] = useState(null);
-    const [skp, setSKP] = useState(null);
-
     useEffect(() => {
         if (data) {
             fetchData();
@@ -37,18 +34,11 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const harian = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            const periode = await getByUnitId(selectedJabatan.unor.induk.id);
-            console.log('HERE', data.user.idASN);
-
-            const skp = await getSKPByUser(data.user.idASN);
-            const rhks = skp?.data.flatMap((item) => item.rhks);
-            setSKP(skp.data);
-            setPeriode(periode.data);
-            setRHK(rhks);
-            setHarian(harian.data);
+            const harian = await getByUserIdAbsence(IdBawahan, IdHarian);
+            console.log(harian);
+            
+            const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
+            setHarian(harian_terima);
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -63,119 +53,11 @@ const page = () => {
     console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
-        try {
-            let response;
-            let dt = {};
-            const updatedListImage = listImage.map((img) => {
-                const matchingFile = fileList.find((file) => file.uid === img.uid);
-
-                if (matchingFile) {
-                    return {
-                        ...img,
-                        name: matchingFile.name,
-                        type: matchingFile.type
-                    };
-                }
-
-                return img;
-            });
-
-            dt = {
-                absence: paramEntries._id,
-                date: new Date(paramEntries.tanggal),
-                startDateTime: dayjs(values.startDateTime).format('HH:mm:ss').toString(),
-                endDateTime: dayjs(values.endDateTime).format('HH:mm:ss').toString(),
-                rhk: values.rhk,
-                namaKegiatan: values.namaKegiatan,
-                deskripsiKegiatan: values.deskripsiKegiatan,
-                tautan: values.tautan,
-                files: updatedListImage,
-                user_id: data.user.idASN,
-                progress: values.progress
-            };
-            switch (type) {
-                case 'create':
-                    response = await store(data.user.idASN, dt);
-                    break;
-
-                case 'edit':
-                    response = await update(id, dt);
-                    break;
-
-                case 'delete':
-                    response = await destroy(id);
-                    break;
-
-                default:
-                    throw new Error('Tipe operasi tidak valid');
-            }
-            console.log(response);
-
-            if (response.ok) {
-                const data = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
-                setData(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
-            } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
-            }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
-        }
-
-        console.log('Operation completed');
+      
         handleClose();
     };
 
-    const nana = {
-        msg: {
-            status: 'Tolak',
-            message: 'asdasdasdasd'
-        },
-        _id: '670c09659010d31cd776c6b1',
-        absence: '1',
-        date: '2024-10-01T00:00:00.000Z',
-        startDateTime: '01:54:34',
-        endDateTime: '02:00:00',
-        progress: 13,
-        rhk: '670bab4f840afac78955f60a',
-        namaKegiatan: '2',
-        deskripsiKegiatan: '22',
-        tautan: 'https://github.com/',
-        files: [
-            {
-                uid: 'rc-upload-1728842054437-5',
-                fileId: '55ffbbfb-dbf9-420b-adcf-dddc215980fb',
-                name: 'fox.jpg',
-                type: 'image/jpeg'
-            },
-            {
-                uid: 'rc-upload-1728842054437-6',
-                fileId: 'ce99e970-a377-46a6-a794-533916464a74',
-                name: 'Frame 5 (2).png',
-                type: 'image/png'
-            }
-        ],
-        user_id: '980035363',
-        createdAt: '2024-10-13T17:54:45.144Z',
-        updatedAt: '2024-10-14T12:33:53.576Z',
-        __v: 0
-    };
-
+ 
     const Column = [
         {
             title: 'ID',
@@ -321,48 +203,7 @@ const page = () => {
     ];
 
     const formFields = [
-        {
-            label: 'Periode',
-            name: 'periodeRKT',
-            type: 'select',
-
-            options: periode?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
-                value: item._id,
-                id: item._id
-            }))
-        },
-        {
-            label: 'SKP',
-            name: 'skp',
-            type: 'select',
-
-            options: skp?.map((item) => ({
-                label: `${item.periode_awal} - ${item.periode_akhir}`,
-                value: item._id,
-                id_option_parent: item.periodeRKT,
-                id: item._id
-            })),
-            parentField: 'periodeRKT'
-        },
-        {
-            label: 'RHK',
-            name: 'rhk',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field RHK wajib diisi'
-                }
-            ],
-            options: rhk?.map((item) => ({
-                label: item.desc,
-                value: item._id,
-                id_option_parent: item.skp,
-                id: item._id
-            })),
-            parentField: 'skp'
-        },
+     
         {
             label: 'Nama Kegiatan',
             name: 'namaKegiatan',
@@ -456,9 +297,7 @@ const page = () => {
                             Detail Data Harian
                         </Title>
                         <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+                          
                         </div>
                     </div>
                     <div>

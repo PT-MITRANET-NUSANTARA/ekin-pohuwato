@@ -15,6 +15,7 @@ const harianSchema = Joi.object({
     files: Joi.array().items(Joi.object()).label('Berkas'),
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
+    isSKP: Joi.boolean().optional(),
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
@@ -57,7 +58,13 @@ export async function GET(req: NextRequest) {
             harian = await Harian.findOne({ _id: id, user_id });
         } else if (user_id) {
             if (absence) {
-                harian = await Harian.find({ user_id, absence });
+                harian = await Harian.find({ user_id, absence }).populate({
+                    path: 'rhk',
+                    populate: {
+                        path: 'skp',
+                        
+                    }
+                });
             } else {
                 harian = await Harian.find({ user_id }).populate({
                     path: 'rhk',

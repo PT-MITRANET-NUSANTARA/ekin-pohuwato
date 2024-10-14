@@ -20,6 +20,7 @@ export interface IHarian extends Document {
   startDateTime: string;
   endDateTime: string;
   rhk: mongoose.Schema.Types.ObjectId;
+  isSKP: boolean;
   namaKegiatan: string;
   deskripsiKegiatan: string;
   progress: number;
@@ -43,6 +44,11 @@ const HarianSchema: Schema = new Schema(
       type: Date,
       default: Date.now,
       required: true,
+    },
+    isSKP: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     startDateTime: {
       type: String,
