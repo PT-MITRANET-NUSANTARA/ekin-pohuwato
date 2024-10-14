@@ -186,11 +186,14 @@ const page = () => {
                                         title: `Tolak laporan aktivitas ini?`,
                                         icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
                                         content: (
-                                            <Form layout="vertical" className="flex flex-col gap-y-2">
+                                            <Form
+                                                form={form} // Bind form instance
+                                                layout="vertical"
+                                                className="flex flex-col gap-y-2"
+                                            >
                                                 <Form.Item
                                                     label="Kirim Masukan"
                                                     name="masukan"
-                                                    className="m-0"
                                                     rules={[
                                                         {
                                                             required: true,
@@ -198,17 +201,18 @@ const page = () => {
                                                         }
                                                     ]}
                                                 >
-                                                    <TextArea onChange={(e) => setMessageValue(e.target.value)} />
+                                                    <TextArea />
                                                 </Form.Item>
                                             </Form>
                                         ),
                                         async onOk() {
                                             // Pastikan menggunakan nilai terbaru dari messageValue
+                                            const values = await form.validateFields();
                                             const dt = {
                                                 ...record,
                                                 msg: {
                                                     status: 'Tolak',
-                                                    message: messageValue // Ambil state yang sudah ter-update
+                                                    message: values.masukan // Use form's field value
                                                 },
                                                 rhk: record.rhk._id,
                                                 user_id: String(record.user_id)
@@ -243,7 +247,7 @@ const page = () => {
                 title: 'Reason for Rejection',
                 dataIndex: 'rejectionReason',
                 key: 'rejectionReason',
-                render: (_, record) => console.log(record)
+                render: (_, record) => <span>{record.msg.message}</span>
             });
         }
 
