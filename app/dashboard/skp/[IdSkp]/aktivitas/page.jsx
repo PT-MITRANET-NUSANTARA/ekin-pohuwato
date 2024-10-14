@@ -12,10 +12,12 @@ import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanControlle
 import useFetchData from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
 import TextArea from 'antd/es/input/TextArea';
+import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 const { confirm } = Modal;
 const page = () => {
+    const router = useRouter();
     const { IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const { data, setData } = useFetchData(getData);
@@ -77,6 +79,21 @@ const page = () => {
 
     console.log(periksa);
 
+    const nana = [
+        {
+            uid: 'rc-upload-1728842054437-5',
+            fileId: '55ffbbfb-dbf9-420b-adcf-dddc215980fb',
+            name: 'fox.jpg',
+            type: 'image/jpeg'
+        },
+        {
+            uid: 'rc-upload-1728842054437-6',
+            fileId: 'ce99e970-a377-46a6-a794-533916464a74',
+            name: 'Frame 5 (2).png',
+            type: 'image/png'
+        }
+    ];
+
     const generateColumns = (status) => {
         const columns = [
             {
@@ -84,7 +101,7 @@ const page = () => {
                 dataIndex: '_id',
                 key: '_id',
                 sorter: (a, b) => a._id.length - b._id.length,
-                width: '10%'
+                width: '1%'
             },
             {
                 title: 'IdASN',
@@ -142,6 +159,33 @@ const page = () => {
                 dataIndex: 'msg',
                 key: 'msg',
                 render: (_, record) => <Tag color={record.msg.status === 'Periksa' ? 'blue' : record.msg.status === 'Terima' ? 'green' : 'yellow'}>{record.msg.status}</Tag>
+            },
+            {
+                title: 'Bukti',
+                dataIndex: 'file',
+                key: 'file',
+                render: (_, record) => (
+                    <li className="flex flex-col gap-y-1 w-full">
+                        {record.files.map((item) => (
+                            <li>
+                                <Button
+                                    variant="link"
+                                    color="primary"
+                                    onClick={() => {
+                                        if (item.type === 'image/jpeg' || item.type === "image/png") {
+                                            window.open(`/document/fileViewer/${item.fileId}`, '_blank');
+                                        } else {
+                                            window.open(`/document/fileViewer/${item.fileId}`, '_blank');
+                                        }
+                                    }}
+                                >
+                                    {item.name}
+                                </Button>
+                            </li>
+                        ))}
+                    </li>
+                ),
+                width: '240px'
             },
             {
                 title: 'Action',
@@ -247,7 +291,7 @@ const page = () => {
                 title: 'Reason for Rejection',
                 dataIndex: 'rejectionReason',
                 key: 'rejectionReason',
-                render: (_, record) => <span>{record.msg.message}</span>
+                render: (_, record) => console.log(record)
             });
         }
 
