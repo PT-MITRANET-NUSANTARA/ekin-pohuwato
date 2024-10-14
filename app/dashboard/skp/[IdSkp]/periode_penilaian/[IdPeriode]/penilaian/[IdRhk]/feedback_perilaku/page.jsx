@@ -10,10 +10,13 @@ import { title } from 'process';
 import { useParams } from 'next/navigation';
 import { getById } from '@/controller/SKPController';
 import { useRouter } from 'next/navigation';
+import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+
 const { Title } = Typography;
 const { Option } = Select;
 
-import {store, destroy, update} from '@/controller/penilaianController'
+import { store, destroy, update } from '@/controller/penilaianController';
+import dayjs from 'dayjs';
 
 const page = () => {
     const router = useRouter();
@@ -24,6 +27,7 @@ const page = () => {
     const [atasan, setAtasan] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
+    const [periode, setPeriode] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -34,6 +38,9 @@ const page = () => {
             const skp = await getById(IdRhk);
             const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
             setPenilaian(penilaian);
+            const periodePenilaian = await getPenilaian(IdPeriode);
+
+            setPeriode(periodePenilaian.data);
 
             const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
@@ -104,19 +111,18 @@ const page = () => {
         }
     ];
 
-   
-    const onSubmit = async (value) => {  
+    const onSubmit = async (value) => {
         try {
             let data;
-    
+
             if (penilaian) {
                 data = {
                     ...penilaian,
-                    ratingPerilaku: value.rating,
+                    ratingPerilaku: value.rating
                 };
-    
+
                 console.log(data);
-    
+
                 // Call the update function and handle response
                 const res = await update(penilaian._id, data);
                 console.log(res);
@@ -126,11 +132,11 @@ const page = () => {
                     periodePenilaian: IdPeriode,
                     skp: IdRhk
                 };
-    
+
                 const res = await store(data);
                 console.log(res);
             }
-    
+
             // Close modal on success
             setModal((prev) => ({ ...prev, trigger: false }));
         } catch (err) {
@@ -307,11 +313,11 @@ const page = () => {
                             <th>NO</th>
                             <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                             <th>RENCANA HASIL KERJA</th>
-                            <th>ASPEK</th>
-                            <th>INDIKATOR KINERJA INDIVIDU</th>
-                            <th>TARGET TAHUNAN</th>
                             <th>BUKTI DUKUNG</th>
-                            <th>RELASI</th>
+                            <th>ASPEK</th>
+                            <th>INDIKATOR KINERJA</th>
+                            <th>TARGET TAHUNAN</th>
+                            <th>REALISASI</th>
                             <th>FEEDBACK</th>
                         </tr>
                     </thead>
@@ -340,6 +346,13 @@ const page = () => {
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
+                                        <div className="flex items-center justify-center">
+                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                Lihat
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {item.aspek?.map((aspek) => (
                                     <>
@@ -358,6 +371,7 @@ const page = () => {
                                                     </Button>
                                                 </div>
                                             </td>
+
                                             <td>
                                                 {' '}
                                                 {getRealisasi(
@@ -421,14 +435,15 @@ const page = () => {
                                         </div>
                                     )}
                                 </td>
+                                <td></td>
                             </tr>
                         ))}
-                         <tr>
-                            <td colSpan={6}>Rating Perilaku</td>
+                        <tr>
+                            <td colSpan={3}>Rating Perilaku</td>
                             <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
                         </tr>
                         <tr>
-                            <td colSpan={6}>Peredikat Kinerja</td>
+                            <td colSpan={3}>Peredikat Kinerja</td>
                             <td colSpan={4}></td>
                         </tr>
                     </tbody>
