@@ -30,7 +30,7 @@ const page = () => {
             const skp = await getById(IdSkp);
             const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdNilai);
             console.log(skp);
-            
+
             const skpAtasan = skp.data.skp[skp.data.skp.length - 1];
             const bawahan = skp.data.jabatan[skp.data.skp.length - 1];
             const jabatan = skpAtasan.jabatan;
@@ -48,7 +48,6 @@ const page = () => {
     };
 
     console.log(data);
-    
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -107,7 +106,7 @@ const page = () => {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
@@ -221,18 +220,26 @@ const page = () => {
                                             <td>{aspek.jenis}</td>
                                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>
-                                                       {aspek.indikator}
-                                                    </p>
+                                                    <p>{aspek.indikator}</p>
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                            <td></td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                        Lihat
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
                                     </>
                                 ))}
                             </>
                         ))}
-                         <tr>
+                        <tr>
                             <td colSpan={6} className="text-left px-2">
                                 Tambahan
                             </td>
