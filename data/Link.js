@@ -74,6 +74,11 @@ export const DashboardLink = [
       path: "/dashboard/harians",
     },
     {
+      icon: FieldTimeOutlined,
+      label: 'Feedback Harian',
+      path: "/dashboard/harians",
+    },
+    {
       icon: AuditOutlined,
       label: 'SKP',
       path: "/dashboard/skp",

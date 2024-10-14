@@ -141,6 +141,41 @@ const page = () => {
         handleClose();
     };
 
+    const nana = {
+        msg: {
+            status: 'Tolak',
+            message: 'asdasdasdasd'
+        },
+        _id: '670c09659010d31cd776c6b1',
+        absence: '1',
+        date: '2024-10-01T00:00:00.000Z',
+        startDateTime: '01:54:34',
+        endDateTime: '02:00:00',
+        progress: 13,
+        rhk: '670bab4f840afac78955f60a',
+        namaKegiatan: '2',
+        deskripsiKegiatan: '22',
+        tautan: 'https://github.com/',
+        files: [
+            {
+                uid: 'rc-upload-1728842054437-5',
+                fileId: '55ffbbfb-dbf9-420b-adcf-dddc215980fb',
+                name: 'fox.jpg',
+                type: 'image/jpeg'
+            },
+            {
+                uid: 'rc-upload-1728842054437-6',
+                fileId: 'ce99e970-a377-46a6-a794-533916464a74',
+                name: 'Frame 5 (2).png',
+                type: 'image/png'
+            }
+        ],
+        user_id: '980035363',
+        createdAt: '2024-10-13T17:54:45.144Z',
+        updatedAt: '2024-10-14T12:33:53.576Z',
+        __v: 0
+    };
+
     const Column = [
         {
             title: 'ID',
@@ -191,37 +226,82 @@ const page = () => {
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
                 <>
+                    {console.log(record)}
                     {(() => {
                         switch (record.msg?.status) {
                             case 'Periksa':
                                 return (
-                                    <Tag color="blue" className="capitalize">
+                                    <Tag color="blue" className="capitalize w-fit">
                                         {record.msg.status}
                                     </Tag>
                                 );
                             case 'Terima':
                                 return (
-                                    <Tag color="red" className="capitalize">
+                                    <Tag color="red" className="capitalize w-fit">
                                         {record.msg.status}
                                     </Tag>
                                 );
                             case 'Tolak':
                                 return (
                                     <div className="flex flex-col gap-y-2">
-                                        <Tag color="yellow" className="capitalize">
+                                        <Tag color="yellow" className="capitalize w-fit">
                                             {record.msg.status}
                                         </Tag>
-                                        {record.msg.message}
+                                        <span className='text-red-500'>{record.msg.message}</span>
+                                        
                                     </div>
                                 );
-                            default: 
-                                return(
-                                    <div></div>
-                                )
+                            default:
+                                return <div></div>;
                         }
                     })()}
                 </>
             )
+        },
+        {
+            title: 'Tautan',
+            dataIndex: 'tautan',
+            key: 'tautan',
+            render: (_, record) => (
+                <Button variant="link" color="primary" onClick={() => window.open(`${record.tautan}`, '_blank')}>
+                    {record.tautan}
+                </Button>
+            ),
+            width: '240px'
+        },
+        {
+            title: 'Progress',
+            dataIndex: 'progress',
+            key: 'progress',
+            render: (_, record) => <span>{record.progress} %</span>,
+            width: '240px'
+        },
+        {
+            title: 'Bukti',
+            dataIndex: 'file',
+            key: 'file',
+            render: (_, record) => (
+                <li className="flex flex-col gap-y-1 w-full">
+                    {record.files.map((item) => (
+                        <li>
+                            <Button
+                                variant="link"
+                                color="primary"
+                                onClick={() => {
+                                    if (item.type === 'image/jpeg' || item.type === 'image/png') {
+                                        window.open(`/document/fileViewer/${item.fileId}`, '_blank');
+                                    } else {
+                                        window.open(`/document/fileViewer/${item.fileId}`, '_blank');
+                                    }
+                                }}
+                            >
+                                {item.name}
+                            </Button>
+                        </li>
+                    ))}
+                </li>
+            ),
+            width: '240px'
         },
         {
             title: 'Action',
@@ -267,7 +347,7 @@ const page = () => {
             label: 'Periode',
             name: 'periodeRKT',
             type: 'select',
-          
+
             options: periode?.map((item) => ({
                 label: `${item.periode_start} - ${item.periode_end}`,
                 value: item._id,
@@ -278,7 +358,7 @@ const page = () => {
             label: 'SKP',
             name: 'skp',
             type: 'select',
-          
+
             options: skp?.map((item) => ({
                 label: `${item.periode_awal} - ${item.periode_akhir}`,
                 value: item._id,
@@ -403,7 +483,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={harian} loading={loading} />
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={harian} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>

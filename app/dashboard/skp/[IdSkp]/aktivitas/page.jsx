@@ -2,7 +2,7 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { Alert, Breadcrumb, Button, Card, Collapse, Form, Modal, Skeleton, Space, Tag, Typography } from 'antd';
-import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, CloseOutlined, DeleteOutlined, EditOutlined, ExclamationCircleFilled, EyeOutlined, FileAddOutlined, XOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, CloseOutlined, DeleteOutlined, EditOutlined, ExclamationCircleFilled, EyeOutlined, FileAddOutlined, SearchOutlined, XOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummyAktivitas } from '@/data/dummyData';
@@ -51,7 +51,7 @@ const page = () => {
             const allHarian = [];
 
             for (let item of bawahan) {
-                const response = await getByUserId(item.userId);
+                const response = await getByUserId(item.id_asn);
 
                 if (Array.isArray(response.data)) {
                     allHarian.push(...response.data);
@@ -79,20 +79,6 @@ const page = () => {
 
     console.log(periksa);
 
-    const nana = [
-        {
-            uid: 'rc-upload-1728842054437-5',
-            fileId: '55ffbbfb-dbf9-420b-adcf-dddc215980fb',
-            name: 'fox.jpg',
-            type: 'image/jpeg'
-        },
-        {
-            uid: 'rc-upload-1728842054437-6',
-            fileId: 'ce99e970-a377-46a6-a794-533916464a74',
-            name: 'Frame 5 (2).png',
-            type: 'image/png'
-        }
-    ];
 
     const generateColumns = (status) => {
         const columns = [
@@ -102,6 +88,19 @@ const page = () => {
                 key: '_id',
                 sorter: (a, b) => a._id.length - b._id.length,
                 width: '1%'
+            },
+            {
+                title: 'RHK',
+                dataIndex: 'rhk',
+                key: 'rhk',
+                width: '30%',
+                render: (_, record) => (
+                    <>
+                        <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat Visi ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                            {record.rhk._id}
+                        </Button>
+                    </>
+                )
             },
             {
                 title: 'IdASN',
@@ -161,6 +160,24 @@ const page = () => {
                 render: (_, record) => <Tag color={record.msg.status === 'Periksa' ? 'blue' : record.msg.status === 'Terima' ? 'green' : 'yellow'}>{record.msg.status}</Tag>
             },
             {
+                title: 'Tautan',
+                dataIndex: 'tautan',
+                key: 'tautan',
+                render: (_, record) => (
+                    <Button variant="link" color="primary" onClick={() => window.open(`${record.tautan}`, '_blank')}>
+                        {record.tautan}
+                    </Button>
+                ),
+                width: '240px'
+            },
+            {
+                title: 'Progress',
+                dataIndex: 'progress',
+                key: 'progress',
+                render: (_, record) => <span>{record.progress} %</span>,
+                width: '240px'
+            },
+            {
                 title: 'Bukti',
                 dataIndex: 'file',
                 key: 'file',
@@ -172,7 +189,7 @@ const page = () => {
                                     variant="link"
                                     color="primary"
                                     onClick={() => {
-                                        if (item.type === 'image/jpeg' || item.type === "image/png") {
+                                        if (item.type === 'image/jpeg' || item.type === 'image/png') {
                                             window.open(`/document/fileViewer/${item.fileId}`, '_blank');
                                         } else {
                                             window.open(`/document/fileViewer/${item.fileId}`, '_blank');
@@ -288,15 +305,33 @@ const page = () => {
 
         if (status === 'Tolak') {
             columns.push({
-                title: 'Reason for Rejection',
-                dataIndex: 'rejectionReason',
-                key: 'rejectionReason',
-                render: (_, record) => console.log(record)
+                title: 'Feedback',
+                dataIndex: 'message',
+                key: 'message',
+                render: (_, record) => <span>{record.msg.message}</span>
             });
         }
 
         return columns;
     };
+
+    const rhkFields = [
+        {
+            label: 'Deksripsi',
+            name: 'desc',
+            type: 'longtext'
+        },
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'text'
+        },
+        {
+            label: 'Klasisfikasi',
+            name: 'klasifikasi',
+            type: 'text'
+        }
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -344,6 +379,7 @@ const page = () => {
                     )}
                 </div>
             </Card>
+            <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={() => {}} onClose={() => setModal({ trigger: false, modalData: null })} formFields={modal.formFields} type={modal.type} />
         </div>
     );
 };
