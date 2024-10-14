@@ -306,7 +306,7 @@ const page = () => {
                                                         const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
 
                                                         // Check if h.date is less than or equal to endDateTime
-                                                        return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
+                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
                                                     })
                                                 )}
                                             </td>

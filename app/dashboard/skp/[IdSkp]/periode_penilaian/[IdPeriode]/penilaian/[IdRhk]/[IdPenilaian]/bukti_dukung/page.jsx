@@ -1,21 +1,56 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { dummyRenstra } from '@/data';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyBuktiDukung } from '@/data/dummyData';
+import { getById } from '@/controller/RHKController';
+import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const {IdPenilaian, IdPeriode} = useParams();
+    const [data, setData] = useState(null);
+
+    const [loading, setLoading] = useState(false);
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const data = await getById(IdPenilaian);
+            console.log(data);
+            
+            const periode = await getPenilaian(IdPeriode);
+            const harian = data.data.harians?.filter((h) => {
+                // Convert item.date and periode.endDateTime to Day.js objects
+                const hDate = dayjs(h.date); // Convert h.date to Day.js object
+                const endDateTime = dayjs(periode.data.endDateTime); // Convert endDateTime to Day.js object
+
+                // Check if h.date is less than or equal to endDateTime
+                return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
+            })
+            console.log(harian);
+            
+            setData(harian);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    console.log(data);
+    
+
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
@@ -32,7 +67,7 @@ const page = () => {
             dataIndex: 'rhk',
             key: 'rhk',
             render: (_, record) => (
-                <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, title: `Lihat Visi `, type: 'show' })} icon={<SearchOutlined />}>
+                <Button onClick={() => setModal({ formFields: rhkFields, modalData:record.rhk, trigger: true, title: `Lihat Visi `, type: 'show' })} icon={<SearchOutlined />}>
                     {}
                 </Button>
             ),
@@ -203,7 +238,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
+                        <DataTable columns={Column} data={data} loading={loading} />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={() => {}} onClose={() => {}} formFields={modal.formFields} type={modal.type}></CrudModal>
                 </div>

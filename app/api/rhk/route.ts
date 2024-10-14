@@ -42,8 +42,17 @@ export async function GET(req: NextRequest) {
     if (skpId) {
       rhks = id 
         ? await RHK.findOne({ _id: id, skp: skpId }).populate('aspek') 
-        : await RHK.find({ skp: skpId }).populate('aspek');
-    } else {
+        : await RHK.find({ skp: skpId }).populate('aspek').populate('rhk').populate('harians');
+    } 
+    else if (id) {
+      rhks = await RHK.findOne({ _id: id }).populate('aspek').populate('rhk').populate({
+        path: 'harians',
+        populate: {
+          path: 'rhk',
+        }
+      });
+    }
+    else {
       rhks = await RHK.find({}).populate('aspek');
     }
 

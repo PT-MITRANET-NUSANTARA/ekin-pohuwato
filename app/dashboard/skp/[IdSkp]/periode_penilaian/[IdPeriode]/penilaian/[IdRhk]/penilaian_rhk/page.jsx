@@ -319,7 +319,7 @@ const page = () => {
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                             <td>
                                                 <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item._id}/bukti_dukung`)}>
                                                         Lihat
                                                     </Button>
                                                 </div>
@@ -334,7 +334,7 @@ const page = () => {
                                                         const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
 
                                                         // Check if h.date is less than or equal to endDateTime
-                                                        return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
+                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
                                                     })
                                                 )}
                                             </td>
