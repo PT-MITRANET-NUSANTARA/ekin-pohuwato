@@ -243,6 +243,7 @@ const page = () => {
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
+                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/hasil_kerja`)}>Hasil Kerja</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
