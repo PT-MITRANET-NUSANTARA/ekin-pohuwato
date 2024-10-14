@@ -6,8 +6,8 @@ import { createResponse } from '@/utils/api';
 
 // Joi schema for validating Penilaian
 const penilaianSchema = Joi.object({
-  ratingKinerja: Joi.number().min(1).max(5).required().label('Rating Kinerja'),
-  ratingPerilaku: Joi.number().min(1).max(5).required().label('Rating Perilaku'),
+  ratingKinerja: Joi.number().min(1).max(5).optional().label('Rating Kinerja'),
+  ratingPerilaku: Joi.number().min(1).max(5).optional().required().label('Rating Perilaku'),
   periodePenilaian: Joi.string().hex().length(24).required().label('Periode Penilaian'), // Expecting string ObjectId
   __v: Joi.optional(),
   _id: Joi.optional(),

@@ -7,18 +7,20 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal } from '@/components';
 import { getById } from '@/controller/SKPController';
+import {store, destroy, update} from '@/controller/penilaianController'
 
 import { dummyFeedback } from '@/data';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
-    const { IdSkp, IdRhk } = useParams();
+    const { IdSkp, IdRhk, IdPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
     const [bawahan, setBawahan] = useState(null);
+    const [penilaian, setPenilaian] = useState(null);
     useEffect(() => {
         fetchData();
     }, []);
@@ -26,7 +28,9 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-            console.log(skp);
+            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
+            console.log(penilaian);
+            setPenilaian(penilaian);
 
             const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
@@ -45,9 +49,39 @@ const page = () => {
         }
     };
 
-    const onSubmit = () => {
-        setModal((prev) => ({ ...prev, trigger: false }));
+    const onSubmit = async (value) => {  
+        try {
+            let data;
+    
+            if (penilaian) {
+                data = {
+                    ...penilaian,
+                    ratingKinerja: value.rating,
+                };
+    
+                console.log(data);
+    
+                // Call the update function and handle response
+                const res = await update(penilaian._id, data);
+                console.log(res);
+            } else {
+                data = {
+                    ratingKinerja: value.rating,
+                    periodePenilaian: IdRhk,
+                };
+    
+                const res = await store(data);
+                console.log(res);
+            }
+    
+            // Close modal on success
+            setModal((prev) => ({ ...prev, trigger: false }));
+        } catch (err) {
+            console.error(err); // Log the error
+        }
     };
+    
+    
 
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
