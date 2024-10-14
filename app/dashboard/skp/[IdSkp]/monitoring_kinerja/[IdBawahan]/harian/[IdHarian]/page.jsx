@@ -26,6 +26,8 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
+    const [dt, setDT] = useState(null);
+    const MENIT = process.env.NEXT_PUBLIC_TIME
     useEffect(() => {
         if (data) {
             fetchData();
@@ -38,6 +40,7 @@ const page = () => {
             console.log(harian);
             
             const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
+            setDT(calculateTotalMinutes(harian_terima));
             setHarian(harian_terima);
             setLoading(false);
         } catch (error) {
@@ -45,7 +48,23 @@ const page = () => {
         }
     };
 
-    console.log('harian', harian);
+    console.log('harian', dt);
+
+    const calculateTotalMinutes = (data) => {
+        let menit = 0;
+        let date = ''
+        data.forEach(item => {
+          const currentDate = dayjs(item.date).format('YYYY-MM-DD'); // Mengambil tanggal dalam format YYYY-MM-DD
+          date = currentDate
+          const start = dayjs(`${currentDate} ${item.startDateTime}`, 'YYYY-MM-DD HH:mm:ss');
+          const end = dayjs(`${currentDate} ${item.endDateTime}`, 'YYYY-MM-DD HH:mm:ss');
+      
+          const minutes = end.diff(start, 'minute');
+          menit += minutes;
+        });
+      
+        return {menit, date};
+      };
 
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
@@ -305,10 +324,17 @@ const page = () => {
                             <div className="grid grid-flow-row divide-y text-xs">
                               
                                 <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">Status</span>
-                                    <p className="text-right uppercase">Status</p>
+                                    <span className="uppercase font-semibold">Tanggal</span>
+                                    <p className="text-right uppercase">{dt?.date}</p>
                                 </div>
-                                
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Total Menit</span>
+                                    <p className="text-right uppercase">{dt?.menit} menit</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Sisa Menit Yang Harus DIcapai</span>
+                                    <p className="text-right uppercase">{dt?.menit - MENIT} Menit</p>
+                                </div>
                             </div>
                         </Card>
                     </div>
