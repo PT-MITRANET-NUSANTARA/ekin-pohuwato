@@ -1,7 +1,7 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
-import { Breadcrumb, Button, Card, Collapse, Modal, Skeleton, Space, Tag, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Collapse, Form, Modal, Skeleton, Space, Tag, Typography } from 'antd';
 import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, CloseOutlined, DeleteOutlined, EditOutlined, ExclamationCircleFilled, EyeOutlined, FileAddOutlined, XOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from 
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -24,6 +25,10 @@ const page = () => {
     const [periode, setPeriode] = useState(null);
     const [loading, setLoading] = useState(true);
     const [bawahan, setBawahan] = useState(null);
+
+    const [form] = Form.useForm();
+    const [messageValue, setMessageValue] = useState('');
+    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     useEffect(() => {
         if (data) {
@@ -70,124 +75,184 @@ const page = () => {
         }
     };
 
-    const generateColumns = (status) => [
-        {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
-        },
-        {
-            title: 'IdASN',
-            dataIndex: 'IdASN',
-            key: 'IdASN',
-            sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%',
-            render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.userId
-        },
-        {
-            title: 'Nama',
-            dataIndex: 'name',
-            key: 'name',
-            sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%',
-            render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.nama_asn
-        },
-        {
-            title: 'Tanggal',
-            dataIndex: 'date',
-            key: 'date',
-            sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%'
-        },
-        {
-            title: 'Deskripsi Kegiatan',
-            dataIndex: 'deskripsiKegiatan',
-            key: 'deskripsiKegiatan',
-            sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
-            width: '30%'
-        },
-        {
-            title: 'Nama Kegiatan',
-            dataIndex: 'namaKegiatan',
-            key: 'namaKegiatan',
-            sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
-            width: '30%'
-        },
-        {
-            title: 'Waktu Mulai',
-            dataIndex: 'startDateTime',
-            key: 'startDateTime',
-            sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
-            width: '30%'
-        },
-        {
-            title: 'Waktu Selesai',
-            dataIndex: 'endDateTime',
-            key: 'endDateTime',
-            sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
-            width: '30%'
-        },
-        {
-            title: 'Status',
-            dataIndex: 'msg',
-            key: 'msg',
-            render: (_, record) => <Tag color={status === 'Periksa' ? 'blue' : status === 'Terima' ? 'red' : 'yellow'}>{status}</Tag>
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    {status !== 'Terima' && (
-                        <Button
-                            onClick={() => {
-                                confirm({
-                                    title: `Setujui laporan aktivitas ini?`,
-                                    icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
-                                    content: `Klik tombol ok untuk menyetujui aktivitas harian ini`,
-                                    onOk() {
-                                        console.log(record);
-                                    },
-                                    onCancel() {
-                                        console.log('Cancel');
-                                    }
-                                });
-                            }}
-                            size="middle"
-                            icon={<CheckCircleOutlined />}
-                        />
-                    )}
-                    {status !== 'Tolak' && (
-                        <Button
-                            onClick={() => {
-                                confirm({
-                                    title: `Tolak laporan aktivitas ini?`,
-                                    icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
-                                    content: `Klik tombol ok untuk menolak aktivitas harian ini`,
-                                    onOk() {
-                                        console.log(record);
-                                    },
-                                    onCancel() {
-                                        console.log('Cancel');
-                                    }
-                                });
-                            }}
-                            size="middle"
-                            icon={<CloseCircleOutlined />}
-                        />
-                    )}
-                </Space>
-            )
-        }
-    ];
+    console.log(periksa);
 
-    const handleTerima = () => {};
-    const handleTolak = () => {};
+    const generateColumns = (status) => {
+        const columns = [
+            {
+                title: 'ID',
+                dataIndex: '_id',
+                key: '_id',
+                sorter: (a, b) => a._id.length - b._id.length,
+                width: '10%'
+            },
+            {
+                title: 'IdASN',
+                dataIndex: 'IdASN',
+                key: 'IdASN',
+                sorter: (a, b) => a.date.length - b.date.length,
+                width: '30%',
+                render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.userId
+            },
+            {
+                title: 'Nama',
+                dataIndex: 'name',
+                key: 'name',
+                sorter: (a, b) => a.date.length - b.date.length,
+                width: '30%',
+                render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.nama_asn
+            },
+            {
+                title: 'Tanggal',
+                dataIndex: 'date',
+                key: 'date',
+                sorter: (a, b) => a.date.length - b.date.length,
+                width: '30%'
+            },
+            {
+                title: 'Deskripsi Kegiatan',
+                dataIndex: 'deskripsiKegiatan',
+                key: 'deskripsiKegiatan',
+                sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
+                width: '30%'
+            },
+            {
+                title: 'Nama Kegiatan',
+                dataIndex: 'namaKegiatan',
+                key: 'namaKegiatan',
+                sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
+                width: '30%'
+            },
+            {
+                title: 'Waktu Mulai',
+                dataIndex: 'startDateTime',
+                key: 'startDateTime',
+                sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
+                width: '30%'
+            },
+            {
+                title: 'Waktu Selesai',
+                dataIndex: 'endDateTime',
+                key: 'endDateTime',
+                sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
+                width: '30%'
+            },
+            {
+                title: 'Status',
+                dataIndex: 'msg',
+                key: 'msg',
+                render: (_, record) => <Tag color={record.msg.status === 'Periksa' ? 'blue' : record.msg.status === 'Terima' ? 'green' : 'yellow'}>{record.msg.status}</Tag>
+            },
+            {
+                title: 'Action',
+                key: 'action',
+                render: (_, record) => (
+                    <Space size="small">
+                        {record.msg.status !== 'Terima' && (
+                            <Button
+                                onClick={() => {
+                                    confirm({
+                                        title: `Setujui laporan aktivitas ini?`,
+                                        icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                        content: <span>something</span>,
+                                        async onOk() {
+                                            const dt = {
+                                                ...record,
+                                                msg: {
+                                                    status: 'Terima',
+                                                    message: ''
+                                                },
+                                                rhk: record.rhk._id,
+                                                user_id: String(record.user_id)
+                                            };
+                                            const res = await update(record._id, dt);
+                                            if (res.ok) {
+                                                fetchData();
+                                            }
+                                        },
+                                        onCancel() {
+                                            console.log('Cancel');
+                                        }
+                                    });
+                                }}
+                                size="middle"
+                                icon={<CheckCircleOutlined />}
+                            />
+                        )}
+                        {record.msg.status !== 'Tolak' && (
+                            <Button
+                                onClick={() => {
+                                    confirm({
+                                        title: `Tolak laporan aktivitas ini?`,
+                                        icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
+                                        content: (
+                                            <Form layout="vertical" className="flex flex-col gap-y-2">
+                                                <Form.Item
+                                                    label="Kirim Masukan"
+                                                    name="masukan"
+                                                    className="m-0"
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message: 'Field periode wajib di isi'
+                                                        }
+                                                    ]}
+                                                >
+                                                    <TextArea onChange={(e) => setMessageValue(e.target.value)} />
+                                                </Form.Item>
+                                            </Form>
+                                        ),
+                                        async onOk() {
+                                            // Pastikan menggunakan nilai terbaru dari messageValue
+                                            const dt = {
+                                                ...record,
+                                                msg: {
+                                                    status: 'Tolak',
+                                                    message: messageValue // Ambil state yang sudah ter-update
+                                                },
+                                                rhk: record.rhk._id,
+                                                user_id: String(record.user_id)
+                                            };
+                                            const res = await update(record._id, dt);
+                                            if (res.ok) {
+                                                fetchData();
+                                                setAlert({
+                                                    show: true,
+                                                    message: 'Berhasil',
+                                                    description: 'Laporan aktivitas berhasil ditolak',
+                                                    type: 'success'
+                                                });
+                                            }
+                                        },
+                                        onCancel() {
+                                            console.log('Cancel');
+                                        }
+                                    });
+                                }}
+                                size="middle"
+                                icon={<CloseCircleOutlined />}
+                            />
+                        )}
+                    </Space>
+                )
+            }
+        ];
+
+        if (status === 'Tolak') {
+            columns.push({
+                title: 'Reason for Rejection',
+                dataIndex: 'rejectionReason',
+                key: 'rejectionReason',
+                render: (_, record) => console.log(record)
+            });
+        }
+
+        return columns;
+    };
 
     return (
         <div className="w-full flex flex-col gap-y-4">
+            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

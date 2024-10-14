@@ -61,6 +61,9 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
+            console.log(response);
+            
+
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
@@ -189,23 +192,6 @@ const page = () => {
         }
     ];
 
-    const nana = [
-        {
-            _id: '670a7d7d9d7ed2c9e14333bf',
-            name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
-            visi: {
-                _id: '670a7d729d7ed2c9e14333b6',
-                name: 'TERWUJUDNYA POHUWATO SEHAT, MAJU DAN SEJAHTERA (POHUWATO SMS)',
-                periode: '670b8d4e506635b05e977465',
-                createdAt: '2024-10-12T13:45:22.166Z',
-                updatedAt: '2024-10-13T13:41:53.957Z',
-                __v: 0
-            },
-            createdAt: '2024-10-12T13:45:33.144Z',
-            updatedAt: '2024-10-12T13:45:33.144Z',
-            __v: 0
-        },
-    ];
 
     const formFields = [
         {
