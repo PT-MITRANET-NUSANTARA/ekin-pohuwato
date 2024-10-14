@@ -59,6 +59,8 @@ const page = () => {
             date = currentDate;
             const start = dayjs(item.startDateTime);
             const end = dayjs(item.endDateTime);
+            console.log(end);
+            
 
             const minutes = end.diff(start, 'minute');
             menit += minutes;

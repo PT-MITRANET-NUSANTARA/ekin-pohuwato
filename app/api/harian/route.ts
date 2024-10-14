@@ -6,8 +6,8 @@ import { createResponse } from '@/utils/api';
 
 const harianSchema = Joi.object({
     date: Joi.date().required().label('Tanggal'),
-    startDateTime: Joi.date().required().label('Waktu Mulai'),
-    endDateTime: Joi.date().required().label('Waktu Selesai'),
+    startDateTime: Joi.string().required().label('Waktu Mulai'),
+    endDateTime: Joi.string().required().label('Waktu Selesai'),
     rhk: Joi.string().required().label('RHK'),
     namaKegiatan: Joi.string().required().label('Nama Kegiatan'),
     deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),

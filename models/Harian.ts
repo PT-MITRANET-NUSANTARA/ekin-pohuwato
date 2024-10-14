@@ -17,8 +17,8 @@ interface Msg {
 export interface IHarian extends Document {
   absence: string;
   date: Date;
-  startDateTime: Date;
-  endDateTime: Date;
+  startDateTime: string;
+  endDateTime: string;
   rhk: mongoose.Schema.Types.ObjectId;
   isSKP: boolean;
   namaKegiatan: string;
@@ -51,11 +51,11 @@ const HarianSchema: Schema = new Schema(
       default: false,
     },
     startDateTime: {
-      type: Date,
+      type: String,
       required: true,
     },
     endDateTime: {
-      type: Date,
+      type: String,
       required: true,
     },
     progress: {
