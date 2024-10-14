@@ -9,10 +9,11 @@ import useFetchData from '@/hooks/useFetchData';
 import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import { getAll as getAllMisi } from '@/controller/MisiController';
+import { getAll as getAllPeriode } from '@/controller/PeriodeController';
+
 import Link from 'next/link';
 
 const { Title } = Typography;
-
 const page = () => {
     const router = useRouter();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
@@ -20,6 +21,7 @@ const page = () => {
     const [misiModal, setMisiModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [misi, setMisi] = useState(null);
+    const [periode, setPeriode] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -29,12 +31,15 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllMisi();
-            setMisi(data.data);
+            const periode = await getAllPeriode();
+            const misi = await getAllMisi();
+            setPeriode(periode.data);
+            setMisi(misi.data);
         } catch (error) {
             console.log(error);
         }
     };
+
     const onSubmit = async (values, type, id) => {
         try {
             let response;
@@ -184,7 +189,41 @@ const page = () => {
         }
     ];
 
+    const nana = [
+        {
+            _id: '670a7d7d9d7ed2c9e14333bf',
+            name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
+            visi: {
+                _id: '670a7d729d7ed2c9e14333b6',
+                name: 'TERWUJUDNYA POHUWATO SEHAT, MAJU DAN SEJAHTERA (POHUWATO SMS)',
+                periode: '670b8d4e506635b05e977465',
+                createdAt: '2024-10-12T13:45:22.166Z',
+                updatedAt: '2024-10-13T13:41:53.957Z',
+                __v: 0
+            },
+            createdAt: '2024-10-12T13:45:33.144Z',
+            updatedAt: '2024-10-12T13:45:33.144Z',
+            __v: 0
+        },
+    ];
+
     const formFields = [
+        {
+            label: 'Periode',
+            name: 'periode',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode wajib di isi'
+                }
+            ],
+            options: periode?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
         {
             label: 'Misi',
             name: 'misi',
@@ -195,8 +234,14 @@ const page = () => {
                     message: 'Field misi wajib di isi'
                 }
             ],
-            options: misi?.map((item) => ({ value: item._id, label: item.name })),
-            mode: 'multiple'
+            options: misi?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.visi.periode,
+                id: item._id
+            })),
+            mode: 'multiple',
+            parentField: 'periode'
         },
         {
             label: 'Periode Mulai',

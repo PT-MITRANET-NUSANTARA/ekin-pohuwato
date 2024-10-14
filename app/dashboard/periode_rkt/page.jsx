@@ -56,7 +56,7 @@ const page = () => {
                     break;
 
                 case 'delete':
-                    response = await destroy(dt);
+                    response = await destroy(id);
                     break;
 
                 default:

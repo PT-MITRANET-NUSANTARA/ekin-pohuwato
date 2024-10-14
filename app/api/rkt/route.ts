@@ -14,6 +14,7 @@ const rktSchema = Joi.object({
         .items(
             Joi.object({
                 name: Joi.string().required().label('Name Input'),
+                _id: Joi.string().optional(),
                 target: Joi.number().required().label('Target Input'),
                 satuan: Joi.string().required().label('Satuan Input')
             })
@@ -24,6 +25,8 @@ const rktSchema = Joi.object({
     .items(
       Joi.object({
         name: Joi.string().required().label('Name Output'),
+        _id: Joi.string().optional(),
+
         target: Joi.number().required().label('Target Output'),
         satuan: Joi.string().required().label('Satuan Output'),
       })
@@ -34,6 +37,8 @@ const rktSchema = Joi.object({
     .items(
       Joi.object({
         name: Joi.string().required().label('Name Outcome'),
+        _id: Joi.string().optional(),
+
         target: Joi.number().required().label('Target Outcome'),
         satuan: Joi.string().required().label('Satuan Outcome'),
       })

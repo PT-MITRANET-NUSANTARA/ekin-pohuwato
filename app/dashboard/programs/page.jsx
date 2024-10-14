@@ -6,6 +6,7 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/ProgramController';
 import { getAll as getAllTujuan } from '@/controller/TujuanController';
+import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ const page = () => {
     const router = useRouter();
     const { IdRenstra } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const [renstra, setRenstra] = useState(null);
     const [tujuan, setTujuan] = useState(null);
 
     useEffect(() => {
@@ -26,8 +28,10 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllTujuan();
-            setTujuan(data.data);
+            const tujuan = await getAllTujuan();
+            const renstra = await getAllRenstra();
+            setTujuan(tujuan.data);
+            setRenstra(renstra.data);
         } catch (error) {
             console.log(error);
         }
@@ -88,7 +92,6 @@ const page = () => {
 
         handleClose();
     };
-
 
     const Column = [
         {
@@ -208,7 +211,105 @@ const page = () => {
         }
     ];
 
+    console.log('tujuan', tujuan);
+    console.log('renstra', renstra);
+
+    const nana = [
+        {
+            _id: '670a7db99d7ed2c9e14333e9',
+            name: '"Meningkatnya kualitas dan profesionalisme\nASN"\n',
+            sasaran_strategis: '"Terwujudnya ASN\nyang profesional,\nkompeten dan\nkompetitif"\n',
+            indikator_kinerja: [
+                {
+                    name: 'Indeks Profesionalitas ASN\n',
+                    target: 85,
+                    satuan: '%',
+                    _id: '670a7db99d7ed2c9e14333ea'
+                },
+                {
+                    name: 'Indeks Profesionalitas ASN\n',
+                    target: 34,
+                    satuan: '%',
+                    _id: '670a9a6b1d36757ac90c78e6'
+                }
+            ],
+            renstra: {
+                _id: '670a7d9f9d7ed2c9e14333dd',
+                periode_start: '2020-09-26T16:00:00.000Z',
+                periode_end: '2024-11-07T16:00:00.000Z',
+                misi: ['670a7d7d9d7ed2c9e14333bf', '670a7d829d7ed2c9e14333c5', '670a7d889d7ed2c9e14333cb', '670a7d8d9d7ed2c9e14333d1'],
+                createdAt: '2024-10-12T13:46:07.860Z',
+                updatedAt: '2024-10-12T13:46:07.860Z',
+                __v: 0
+            },
+            createdAt: '2024-10-12T13:46:33.285Z',
+            updatedAt: '2024-10-12T15:48:59.914Z',
+            __v: 0
+        }
+    ];
+
+    const nini = [
+        {
+            _id: '670a7d9f9d7ed2c9e14333dd',
+            periode_start: '2020-09-26T16:00:00.000Z',
+            periode_end: '2024-11-07T16:00:00.000Z',
+            misi: [
+                {
+                    _id: '670a7d7d9d7ed2c9e14333bf',
+                    name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
+                    visi: '670a7d729d7ed2c9e14333b6',
+                    createdAt: '2024-10-12T13:45:33.144Z',
+                    updatedAt: '2024-10-12T13:45:33.144Z',
+                    __v: 0
+                },
+                {
+                    _id: '670a7d829d7ed2c9e14333c5',
+                    name: 'Mewujudkan masyarakat yang produktif dan inovatif',
+                    visi: '670a7d729d7ed2c9e14333b6',
+                    createdAt: '2024-10-12T13:45:38.269Z',
+                    updatedAt: '2024-10-12T13:45:38.269Z',
+                    __v: 0
+                },
+                {
+                    _id: '670a7d889d7ed2c9e14333cb',
+                    name: 'Meningkatkan kualitas pembangunan infrastruktur dan lingkungan',
+                    visi: '670a7d729d7ed2c9e14333b6',
+                    createdAt: '2024-10-12T13:45:44.264Z',
+                    updatedAt: '2024-10-12T13:45:44.264Z',
+                    __v: 0
+                },
+                {
+                    _id: '670a7d8d9d7ed2c9e14333d1',
+                    name: 'Meningkatkan derajat kesehatan masyarakat dan Pendidikan',
+                    visi: '670a7d729d7ed2c9e14333b6',
+                    createdAt: '2024-10-12T13:45:49.834Z',
+                    updatedAt: '2024-10-12T13:45:49.834Z',
+                    __v: 0
+                }
+            ],
+            createdAt: '2024-10-12T13:46:07.860Z',
+            updatedAt: '2024-10-12T13:46:07.860Z',
+            __v: 0
+        }
+    ];
+
     const formFields = [
+        {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
         {
             label: 'Tujuan',
             name: 'tujuan',
@@ -219,7 +320,14 @@ const page = () => {
                     message: 'Field tujuan wajib di isi'
                 }
             ],
-            options: tujuan?.map((item) => ({ value: item._id, label: item.name }))
+            options: tujuan?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.renstra._id,
+                id: item._id
+            })),
+            parentField: 'renstra'
+
         },
         {
             label: 'Program',

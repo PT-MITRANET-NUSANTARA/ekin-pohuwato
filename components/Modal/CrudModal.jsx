@@ -164,7 +164,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 const options = field.options?.filter((option) => !field.parentField || option.id_option_parent === parentValue);
 
                 return (
-                    <Select size="large" placeholder={`Select ${field.label}`} allowClear disabled={field.parentField && !parentValue} onChange={(value) => handleSelectChange(value, field.name)}>
+                    <Select size="large" placeholder={`Select ${field.label}`} allowClear disabled={field.parentField && !parentValue} onChange={(value) => handleSelectChange(value, field.name)} mode={field.mode}>
                         {options?.map((option) => (
                             <Option key={option.id} value={option.value}>
                                 {option.label}

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { getAll, store, update, destroy } from '@/controller/MisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllVisi } from '@/controller/VisiController';
+import { getAll as getAllPeriode } from '@/controller/PeriodeController';
 import useFetchData from '@/hooks/useFetchData';
 
 const { Title } = Typography;
@@ -18,6 +19,7 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
 
     const [visi, setVisi] = useState(null);
+    const [periode, setPeriode] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -27,8 +29,10 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllVisi();
-            setVisi(data.data);
+            const periode = await getAllPeriode();
+            const visi = await getAllVisi();
+            setPeriode(periode.data);
+            setVisi(visi.data);
         } catch (error) {
             console.log(error);
         }
@@ -147,7 +151,25 @@ const page = () => {
         }
     ];
 
+
+
     const misiFields = [
+        {
+            label: 'Periode',
+            name: 'periode',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Periode wajib di isi'
+                }
+            ],
+            options: periode?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            })),
+        },
         {
             label: 'Visi',
             name: 'visi',
@@ -158,7 +180,13 @@ const page = () => {
                     message: 'Field visi wajib di isi'
                 }
             ],
-            options: visi?.map((item) => ({ value: item._id, label: item.name }))
+            options: visi?.map((item) => ({ 
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.periode._id,
+                id: item._id
+             })),
+            parentField: 'periode'
         },
         {
             label: 'Misi',

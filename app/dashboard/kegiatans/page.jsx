@@ -6,6 +6,8 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/KegiatanController';
 import { getAll as getAllProgram } from '@/controller/ProgramController';
+import { getAll as getAllTujuan } from '@/controller/TujuanController';
+import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,6 +18,8 @@ const page = () => {
     const router = useRouter();
     const { IdRenstra } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const [renstra, setRenstra] = useState(null);
+    const [tujuan, setTujuan] = useState(null);
     const [program, setProgram] = useState(null);
 
     useEffect(() => {
@@ -26,8 +30,12 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllProgram();
-            setProgram(data.data);
+            const renstra = await getAllRenstra();
+            const tujuan = await getAllTujuan();
+            const program = await getAllProgram();
+            setRenstra(renstra.data);
+            setTujuan(tujuan.data);
+            setProgram(program.data);
         } catch (error) {
             console.log(error);
         }
@@ -91,8 +99,6 @@ const page = () => {
         console.log('Operation completed');
         handleClose();
     };
-
-   
 
     const Column = [
         {
@@ -210,9 +216,42 @@ const page = () => {
             )
         }
     ];
-    console.log(program);
 
     const formFields = [
+        {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
+        {
+            label: 'Tujuan',
+            name: 'tujuan',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tujuan wajib di isi'
+                }
+            ],
+            options: tujuan?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.renstra._id,
+                id: item._id
+            })),
+            parentField: 'renstra'
+        },
         {
             label: 'Program',
             name: 'program',
@@ -223,7 +262,13 @@ const page = () => {
                     message: 'Field program wajib di isi'
                 }
             ],
-            options: program?.map((item) => ({ value: item._id, label: item.name }))
+            options: program?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.tujuan._id,
+                id: item._id
+            })),
+            parentField: 'tujuan'
         },
         {
             label: 'Kegiatan',

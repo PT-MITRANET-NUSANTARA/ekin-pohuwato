@@ -148,7 +148,7 @@ const page = () => {
                                     icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
                                     content: `Klik tombol ok untuk menyetujui aktivitas harian ini`,
                                     onOk() {
-                                        console.log('OK');
+                                        console.log(record);
                                     },
                                     onCancel() {
                                         console.log('Cancel');
@@ -167,7 +167,7 @@ const page = () => {
                                     icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
                                     content: `Klik tombol ok untuk menolak aktivitas harian ini`,
                                     onOk() {
-                                        console.log('OK');
+                                        console.log(record);
                                     },
                                     onCancel() {
                                         console.log('Cancel');

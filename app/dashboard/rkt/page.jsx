@@ -58,6 +58,8 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: unor };
+            console.log(dt);
+            
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -75,8 +77,10 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
+            console.log(response);
+            
             if (response.ok) {
-                const newData = await getByUnitId(unor.induk.id);
+                const newData = await getByUnitId(unor.id);
                 setDT(newData.data);
                 setAlert({
                     show: true,
@@ -105,45 +109,6 @@ const page = () => {
         handleClose();
     };
 
-    const nana = {
-        _id: '670a7f089d7ed2c9e143348f',
-        periodeRKT: '670a7ebe9d7ed2c9e1433470',
-        subKegiatan: '670a7e9c9d7ed2c9e143344f',
-        name: 'asdasd',
-        input: [
-            {
-                name: '2',
-                target: 2,
-                satuan: '2',
-                _id: '670a7f089d7ed2c9e1433490'
-            }
-        ],
-        output: [
-            {
-                name: '2',
-                target: 2,
-                satuan: '2',
-                _id: '670a7f089d7ed2c9e1433491'
-            }
-        ],
-        outcome: [
-            {
-                name: '2',
-                target: 2,
-                satuan: '2',
-                _id: '670a7f089d7ed2c9e1433492'
-            }
-        ],
-        unit: {
-            id: '8ae482a75a4bd60d015a4d1931d72258',
-            id_simpeg: 2171,
-            nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA'
-        },
-        total_anggaran: 2,
-        createdAt: '2024-10-12T13:52:08.248Z',
-        updatedAt: '2024-10-12T13:52:08.248Z',
-        __v: 0
-    };
 
     const Column = [
         {

@@ -6,6 +6,9 @@ import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/SubKegiatanController';
 import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
+import { getAll as getAllProgram } from '@/controller/ProgramController';
+import { getAll as getAllTujuan } from '@/controller/TujuanController';
+import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -17,10 +20,12 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
-
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [kegiatan, setKegiatan] = useState(null);
+    const [renstra, setRenstra] = useState(null);
+    const [tujuan, setTujuan] = useState(null);
+    const [program, setProgram] = useState(null);
 
     useEffect(() => {
         if (data) {
@@ -30,8 +35,14 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllKegiatan();
-            setKegiatan(data.data);
+            const kegiatan = await getAllKegiatan();
+            const renstra = await getAllRenstra();
+            const tujuan = await getAllTujuan();
+            const program = await getAllProgram();
+            setRenstra(renstra.data);
+            setTujuan(tujuan.data);
+            setProgram(program.data);
+            setKegiatan(kegiatan.data);
         } catch (error) {
             console.log(error);
         }
@@ -58,6 +69,7 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
+            console.log(response)
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
@@ -88,39 +100,6 @@ const page = () => {
         handleClose();
     };
 
-    const nana = {
-        _id: '670a7eac9d7ed2c9e143345e',
-        kegiatan: {
-            _id: '670a7e399d7ed2c9e1433424',
-            program: '670a7df89d7ed2c9e14333fe',
-            name: 'Sertifikasi, Kelembagaan, Pengembangan Kompetensi Manajerial dan Fungsional\t\n',
-            indikator_kinerja: [
-                {
-                    name: 'Persentase ASN yang tersertifikasi serta Lembaga dan tenaga yang menyelenggarakan pengembangan kompetensi\n',
-                    target: 20,
-                    satuan: '%',
-                    _id: '670a7e399d7ed2c9e1433425'
-                }
-            ],
-            total_anggaran: 458.92,
-            createdAt: '2024-10-12T13:48:41.510Z',
-            updatedAt: '2024-10-12T13:48:41.510Z',
-            __v: 0
-        },
-        name: 'Sertifikasi, Kelembagaan, Pengembangan Kompetensi Manajerial dan Fungsional\t\n',
-        indikator_kinerja: [
-            {
-                name: 'Persentase ASN yang tersertifikasi serta Lembaga dan tenaga yang menyelenggarakan pengembangan kompetensi\n',
-                target: 20,
-                satuan: '%',
-                _id: '670a7eac9d7ed2c9e143345f'
-            }
-        ],
-        total_anggaran: 458.92,
-        createdAt: '2024-10-12T13:50:36.459Z',
-        updatedAt: '2024-10-12T13:50:36.459Z',
-        __v: 0
-    };
     const Column = [
         {
             title: 'ID',
@@ -237,7 +216,60 @@ const page = () => {
         }
     ];
 
+    
     const formFields = [
+        {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({
+                label: `${item.periode_start} - ${item.periode_end}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
+        {
+            label: 'Tujuan',
+            name: 'tujuan',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tujuan wajib di isi'
+                }
+            ],
+            options: tujuan?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.renstra._id,
+                id: item._id
+            })),
+            parentField: 'renstra'
+        },
+        {
+            label: 'Program',
+            name: 'program',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field program wajib di isi'
+                }
+            ],
+            options: program?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.tujuan._id,
+                id: item._id
+            })),
+            parentField: 'tujuan'
+        },
         {
             label: 'Kegiatan',
             name: 'kegiatan',
@@ -248,7 +280,13 @@ const page = () => {
                     message: 'Field kegiatan wajib di isi'
                 }
             ],
-            options: kegiatan?.map((item) => ({ value: item._id, label: item.name }))
+            options: kegiatan?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.program._id,
+                id: item._id
+            })),
+            parentField: 'program'
         },
         {
             label: 'Sub Kegiatan',
@@ -292,10 +330,8 @@ const page = () => {
         {
             label: 'Kegiatan',
             name: 'name',
-            type: 'text',
-        
-        },
-    
+            type: 'text'
+        }
     ];
 
     const handleClose = () => {
