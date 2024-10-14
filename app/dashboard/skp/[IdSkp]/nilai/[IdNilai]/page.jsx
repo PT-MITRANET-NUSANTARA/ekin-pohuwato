@@ -11,6 +11,8 @@ const { Title } = Typography;
 const { Option } = Select;
 import { getById } from '@/controller/SKPController';
 import { useParams, useRouter } from 'next/navigation';
+import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+import dayjs from 'dayjs';
 
 const page = () => {
     const router = useRouter();
@@ -22,6 +24,7 @@ const page = () => {
     const [penilaian, setPenilaian] = useState(null);
     const [skp, setSkp] = useState(null);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [periode, setPeriode] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -31,8 +34,9 @@ const page = () => {
         try {
             const skp = await getById(IdSkp);
             const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdNilai);
-            console.log(skp);
-
+            setPenilaian(penilaian);
+            const periodePenilaian = await getPenilaian(IdNilai);
+            setPeriode(periodePenilaian.data);
             const skpAtasan = skp.data.skp[skp.data.skp.length - 1];
             const bawahan = skp.data.jabatan[skp.data.skp.length - 1];
             const jabatan = skpAtasan.jabatan;
@@ -54,7 +58,7 @@ const page = () => {
     const customSubmit = (values, type, id, formData) => {
         console.log(values);
         const query = new URLSearchParams(values).toString();
-        router.push(`/document/${id}/form_penilaian?${query}`);
+        router.push(`/document/${IdSkp}/${IdNilai}/form_penilaian?${query}`);
     };
 
     const handleClose = () => {
@@ -75,6 +79,39 @@ const page = () => {
         },
        
     ];
+
+    
+    const getRealisasi = (aspek, harian) => {
+        if (aspek.jenis === 'kualitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+            if (percentase) {
+                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
+                return percent + '%';
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'kuantitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+
+            if (percentase) {
+                const target = aspek.target_tahunan.target;
+                const realisasi = percentase.progress;
+                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
+
+                return percent + ' ' + aspek.target_tahunan.satuan;
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'waktu') {
+            return harian.length + ' ' + aspek.target_tahunan.satuan;
+        } else {
+            return '';
+        }
+    };
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -259,7 +296,20 @@ const page = () => {
                                                     </Button>
                                                 </div>
                                             </td>
-                                            <td></td>
+                                            <td>
+                                                {' '}
+                                                {getRealisasi(
+                                                    aspek,
+                                                    item.harians?.filter((h) => {
+                                                        // Convert item.date and periode.endDateTime to Day.js objects
+                                                        const hDate = dayjs(h.date); // Convert h.date to Day.js object
+                                                        const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
+
+                                                        // Check if h.date is less than or equal to endDateTime
+                                                        return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
+                                                    })
+                                                )}
+                                            </td>
                                             <td></td>
                                         </tr>
                                     </>
@@ -273,7 +323,7 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}></td>
+                            <td colSpan={4}>{penilaian?.ratingKinerja}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -311,6 +361,14 @@ const page = () => {
                                 </td>
                             </tr>
                         ))}
+                         <tr>
+                            <td colSpan={6}>Rating Perilaku</td>
+                            <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
+                        </tr>
+                        <tr>
+                            <td colSpan={6}>Peredikat Kinerja</td>
+                            <td colSpan={4}></td>
+                        </tr>
                     </tbody>
                 </table>
             </Card>

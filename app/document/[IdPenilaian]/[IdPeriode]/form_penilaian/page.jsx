@@ -1,27 +1,98 @@
 "use client"
 
-import { useRouter } from 'next/navigation';
-import React from 'react';
+import dayjs from 'dayjs';
+import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+import { getById } from '@/controller/SKPController';
+
 
 const page = () => {
     const router = useRouter();
-
-
+    dayjs.locale('id');
+    const {IdPenilaian, IdPeriode} = useParams();
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
-    console.log("asdasd", paramEntries);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [atasan, setAtasan] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
+    const [penilaian, setPenilaian] = useState(null);
+    const [skp, setSkp] = useState(null);
+    const [periode, setPeriode] = useState(null);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const skp = await getById(IdPenilaian);
+            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
+            setPenilaian(penilaian);
+            const periodePenilaian = await getPenilaian(IdPeriode);
+            setPeriode(periodePenilaian.data);
+            const skpAtasan = skp.data.skp[skp.data.skp.length - 1];
+            const bawahan = skp.data.jabatan[skp.data.skp.length - 1];
+            const jabatan = skpAtasan.jabatan;
+
+            const atasan = jabatan.find((item) => {
+                return item.unor.induk.id === bawahan.unor.induk.id;
+            });
+
+            setData(skp.data);
+            setBawahan(bawahan);
+            setAtasan(atasan);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const getRealisasi = (aspek, harian) => {
+        if (aspek.jenis === 'kualitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+            if (percentase) {
+                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
+                return percent + '%';
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'kuantitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+
+            if (percentase) {
+                const target = aspek.target_tahunan.target;
+                const realisasi = percentase.progress;
+                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
+
+                return percent + ' ' + aspek.target_tahunan.satuan;
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'waktu') {
+            return harian.length + ' ' + aspek.target_tahunan.satuan;
+        } else {
+            return '';
+        }
+    };
+
+
     return (
         <div className="p-6">
             <div className="header">
                 <h1>evaluasi kinerja pegawai</h1>
                 <p>pendekatan hasil kinerja kuantitatif</p>
-                <p className="periode">periode : januari</p>
+                <p className="periode">periode : {dayjs(periode?.periodeStart).format('MMMM')}</p>
             </div>
             <table className="subheader">
                 <tbody>
                     <tr>
                         <td>PEMERINTAH KAB. POHUWATO</td>
-                        <td className="text-right">PERIODE PENILAIAN: 1 JANUARI SD 31 JANUARI TAHUN 2024</td>
+                        <td className="text-right">PERIODE PENILAIAN: {dayjs(periode?.periodeStart).format('DD MMMM YYYY') + '-' + dayjs(periode?.periodeEnd).format('DD MMMM YYYY')}</td>
                     </tr>
                 </tbody>
             </table>
@@ -36,42 +107,42 @@ const page = () => {
                     <tr className="data">
                         <td>1</td>
                         <td>nama</td>
-                        <td>Mohamad Rafiq Daud</td>
+                        <td>{bawahan?.nama_asn}</td>
                         <td>1</td>
                         <td>nama</td>
-                        <td>Mohamad Rafiq Daud</td>
+                        <td>{atasan?.nama_asn}</td>
                     </tr>
                     <tr className="data">
                         <td>2</td>
                         <td>nip</td>
-                        <td>197904012005011015</td>
+                        <td>{bawahan?.id_asn}</td>
                         <td>2</td>
                         <td>nip</td>
-                        <td>197904012005011015</td>
+                        <td>{atasan?.id_asn}</td>
                     </tr>
-                    <tr className="data">
+                    {/* <tr className="data">
                         <td>3</td>
                         <td>PANGKAT/ GOL. RUANG</td>
                         <td>Penata Tingkat I / III/d</td>
                         <td>3</td>
                         <td>PANGKAT/ GOL. RUANG</td>
                         <td>Penata Tingkat I / III/d</td>
-                    </tr>
+                    </tr> */}
                     <tr className="data">
                         <td>4</td>
                         <td>JABATAN</td>
-                        <td>Mohamad Rafiq Daud</td>
+                        <td>{bawahan?.nama_jabatan}</td>
                         <td>4</td>
                         <td>JABATAN</td>
-                        <td>Mohamad Rafiq Daud</td>
+                        <td>{atasan?.nama_jabatan}</td>
                     </tr>
                     <tr className="data">
                         <td>5</td>
                         <td>UNIT KERJA</td>
-                        <td>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</td>
+                        <td>{bawahan?.unor.nama}</td>
                         <td>5</td>
                         <td>UNIT KERJA</td>
-                        <td>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</td>
+                        <td>{atasan?.unor.nama}</td>
                     </tr>
                 </tbody>
             </table>
@@ -150,7 +221,7 @@ const page = () => {
                         <td>Pegawai Yang di nilai</td>
                         <td>
                             <div className="">
-                                <p>Gorontalo, 10 Oktober 2024</p>
+                                <p>{paramEntries.lokasi}, {dayjs().format('DD MMMM YYYY')}</p>
                                 <p>Pejabat Penilai Kinerja</p>
                             </div>
                         </td>
