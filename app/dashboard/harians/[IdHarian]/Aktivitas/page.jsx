@@ -83,8 +83,8 @@ const page = () => {
             dt = {
                 absence: paramEntries._id,
                 date: new Date(paramEntries.tanggal),
-                startDateTime: dayjs(values.startDateTime).format('HH:mm:ss').toString(),
-                endDateTime: dayjs(values.endDateTime).format('HH:mm:ss').toString(),
+                startDateTime: dayjs(values.startDateTime).format('YYYY-MM-DD HH:mm:ss').toString(),
+                endDateTime: dayjs(values.endDateTime).format('YYYY-MM-DD HH:mm:ss').toString(),
                 rhk: values.rhk,
                 namaKegiatan: values.namaKegiatan,
                 deskripsiKegiatan: values.deskripsiKegiatan,
@@ -140,8 +140,6 @@ const page = () => {
         console.log('Operation completed');
         handleClose();
     };
-
-
 
     const Column = [
         {
@@ -214,8 +212,7 @@ const page = () => {
                                         <Tag color="yellow" className="capitalize w-fit">
                                             {record.msg.status}
                                         </Tag>
-                                        <span className='text-red-500'>{record.msg.message}</span>
-                                        
+                                        <span className="text-red-500">{record.msg.message}</span>
                                     </div>
                                 );
                             default:

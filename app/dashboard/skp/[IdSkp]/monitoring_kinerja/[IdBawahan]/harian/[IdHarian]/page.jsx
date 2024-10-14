@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
@@ -27,6 +27,8 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
+    const [dt, setDT] = useState(null);
+    const MENIT = process.env.NEXT_PUBLIC_TIME;
     useEffect(() => {
         if (data) {
             fetchData();
@@ -39,6 +41,7 @@ const page = () => {
             console.log(harian);
 
             const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
+            setDT(calculateTotalMinutes(harian_terima));
             setHarian(harian_terima);
             setLoading(false);
         } catch (error) {
@@ -46,7 +49,23 @@ const page = () => {
         }
     };
 
-    console.log('harian', harian);
+    console.log('harian', dt);
+
+    const calculateTotalMinutes = (data) => {
+        let menit = 0;
+        let date = '';
+        data.forEach((item) => {
+            const currentDate = dayjs(item.date).format('YYYY-MM-DD'); // Mengambil tanggal dalam format YYYY-MM-DD
+            date = currentDate;
+            const start = dayjs(item.startDateTime);
+            const end = dayjs(item.endDateTime);
+
+            const minutes = end.diff(start, 'minute');
+            menit += minutes;
+        });
+
+        return { menit, date };
+    };
 
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
@@ -55,118 +74,6 @@ const page = () => {
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         handleClose();
-    };
-
-    const nana = {
-        msg: {
-            status: 'Terima',
-            message: ''
-        },
-        isSKP: false,
-        _id: '670d20c72b1556efb5b96f84',
-        absence: '1',
-        date: '2024-10-01T00:00:00.000Z',
-        startDateTime: '21:45:59',
-        endDateTime: '21:46:03',
-        progress: 20,
-        rhk: {
-            _id: '670bab4f840afac78955f60a',
-            skp: {
-                _id: '670bab4c840afac78955f5fa',
-                periode_awal: '2022-09-24T16:00:00.000Z',
-                periode_akhir: '2024-11-01T16:00:00.000Z',
-                user_id: '980035363',
-                skp: ['670b7b3a840afac78955f464'],
-                periodeRKT: '670b7771840afac78955f3ca',
-                renstra: '670a7d9f9d7ed2c9e14333dd',
-                jabatan: [
-                    {
-                        id_posjab: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282',
-                        unor: {
-                            id: '8ae482855a71b686015a74eabbde7454',
-                            nama: 'BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
-                            atasan: {
-                                unor_id: '8ae482a75a4bd60d015a4d1931d72258',
-                                unor_nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
-                                unor_jabatan: 'KEPALA BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
-                                asn: {
-                                    idasn_atasan: '980038195',
-                                    nip_atasan: '196710281989021002',
-                                    nama_atasan: 'SUPRATMAN NENTO'
-                                }
-                            },
-                            induk: {
-                                id: '8ae482a75a4bd60d015a4d1931d72258',
-                                id_simpeg: 2171,
-                                nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA'
-                            }
-                        },
-                        jenis_jabatan: {
-                            id: '1',
-                            nama: 'Jabatan Struktural'
-                        },
-                        jabatan_status: {
-                            id: 7,
-                            nama: 'Administrator'
-                        },
-                        eselon: {
-                            id: '32',
-                            nama: 'III.b'
-                        },
-                        golongan_pns: {
-                            id: '11',
-                            nama: 'I/a'
-                        },
-                        golongan_pppk: {
-                            id: '',
-                            nama: null
-                        },
-                        jabfung: {
-                            id: 'null',
-                            nama: null
-                        },
-                        jabfungum: {
-                            id: 'null',
-                            nama: null
-                        },
-                        nama_asn: 'SYAIFUL SAFRIL LUMA',
-                        jenis_asn: 'PNS',
-                        nama_jabatan: 'KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
-                        tmt_jabatan: '2023-01-06',
-                        tunjangan: 100000,
-                        pejabat_sk: 'Tes',
-                        nomor_sk: 'ABC/123/1B',
-                        tgl_sk: '2024-06-10',
-                        doc: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282_197904012005011015_1720154806098.pdf',
-                        userId: '980035363',
-                        NCSISTIME: '2024-07-05 04:46:46.113'
-                    }
-                ],
-                status: 'approved',
-                pendekatan: 'kuantitatif',
-                keterangan: '',
-                createdAt: '2024-10-13T11:13:16.890Z',
-                updatedAt: '2024-10-13T11:13:16.890Z',
-                __v: 0,
-                id: '670bab4c840afac78955f5fa'
-            },
-            desc: 'Tersedianya Dokumen Pelaksanaan Program dan Kegiatan Bidang pengadaan, pemberhentian dan informasi kepegawaian',
-            rhk: '670b7b3b840afac78955f478',
-            jenis: 'utama',
-            klasifikasi: 'organisasi',
-            createdAt: '2024-10-13T11:13:19.091Z',
-            updatedAt: '2024-10-13T11:13:19.091Z',
-            __v: 0,
-            id: '670bab4f840afac78955f60a'
-        },
-        namaKegiatan: 'asdasd',
-        deskripsiKegiatan: 'adasd',
-        tautan: 'https://github.com/',
-        files: [],
-        user_id: '980035363',
-        createdAt: '2024-10-14T13:46:47.264Z',
-        updatedAt: '2024-10-14T14:56:10.408Z',
-        __v: 0
     };
 
     const Column = [
@@ -280,6 +187,14 @@ const page = () => {
             width: '240px'
         },
         {
+            title: 'SKP',
+            dataIndex: 'skp',
+            key: 'skp',
+            render: (_, record) => (record.isSKP ? <CheckCircleOutlined /> : <CloseCircleOutlined />),
+
+            width: '240px'
+        },
+        {
             title: 'Bukti',
             dataIndex: 'file',
             key: 'file',
@@ -315,9 +230,9 @@ const page = () => {
                         // type='primary'
                         onClick={() => {
                             confirm({
-                                title: `Setujui laporan aktivitas ini?`,
+                                title: `Tambahkan ke dalam SKP?`,
                                 icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
-                                content: <span>Klik ok untuk menerima laporan aktivitas ini</span>,
+                                content: <span>Klik ok untuk menambahkan kedalam SKP</span>,
                                 async onOk() {
                                     const dt = {
                                         ...record,
@@ -395,8 +310,16 @@ const page = () => {
                         <Card type="inner" title="Status" className="mb-6">
                             <div className="grid grid-flow-row divide-y text-xs">
                                 <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">Status</span>
-                                    <p className="text-right uppercase">Status</p>
+                                    <span className="uppercase font-semibold">Tanggal</span>
+                                    <p className="text-right uppercase">{dt?.date}</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Total Menit</span>
+                                    <p className="text-right uppercase">{dt?.menit} menit</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Sisa Menit Yang Harus DIcapai</span>
+                                    <p className="text-right uppercase">{dt?.menit - MENIT} Menit</p>
                                 </div>
                             </div>
                         </Card>
