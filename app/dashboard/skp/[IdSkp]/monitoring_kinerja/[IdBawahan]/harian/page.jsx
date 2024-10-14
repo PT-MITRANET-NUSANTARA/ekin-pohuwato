@@ -8,12 +8,13 @@ import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { dummyAktivitas, dummyBawahan } from '@/data/dummyData';
+import { dummyAktivitas, dummyBawahan, dummyHarian } from '@/data/dummyData';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
+    const {IdSkp, IdBawahan} = useParams();
     const { IdOrganisasi, IdTanggal } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
@@ -79,26 +80,70 @@ const page = () => {
             width: '10%'
         },
         {
-            title: 'Content',
-            dataIndex: 'content',
-            key: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
+            title: 'Tanggal',
+            dataIndex: 'tanggal',
+            key: 'tanggal',
+            sorter: (a, b) => a.tanggal.length - b.tanggal.length,
             width: '30%'
         },
-      
+        {
+            title: 'Status Kehadiran',
+            dataIndex: 'status',
+            key: 'status',
+            sorter: (a, b) => a.status.length - b.status.length,
+            width: '30%',
+            render: (_, { status }) => (
+                <>
+                    {(() => {
+                        switch (status) {
+                            case 'hadir':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'alpa':
+                                return (
+                                    <Tag color="red" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'izin':
+                                return (
+                                    <Tag color="yellow" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            default:
+                                return (
+                                    <Tag color="error" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                        }
+                    })()}
+                </>
+            ),
+            searchable: true
+        },
         {
             title: 'Action',
             key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Admin ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
-                </Space>
-            )
+            render: (_, record) => {
+                const query = new URLSearchParams(record).toString();
+                return (
+                    <Space size="small">
+                        <Button
+                            onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${IdBawahan}/harian/${record._id}`)}
+                            // type='primary'
+                            size="middle"
+                            color="primary"
+                            variant="outlined"
+                            icon={<DatabaseOutlined />}
+                        />
+                    </Space>
+                );
+            }
         }
     ];
 
@@ -151,10 +196,10 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Aktivitas Monitoring Kinerja
+                            Data Harian
                         </Title>
                     </div>
-                    <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
+                    <DataTable columns={Column} data={dummyHarian} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>

@@ -85,7 +85,7 @@ const page = () => {
                 <Space size="small">
                     
                     <Button
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/aktivitas`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
                         // type='primary'
                         size="middle"
                         icon={<DatabaseOutlined />}

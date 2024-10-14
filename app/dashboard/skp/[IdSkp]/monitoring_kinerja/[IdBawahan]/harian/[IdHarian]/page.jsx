@@ -247,8 +247,7 @@ const page = () => {
                                         <Tag color="yellow" className="capitalize w-fit">
                                             {record.msg.status}
                                         </Tag>
-                                        <span className='text-red-500'>{record.msg.message}</span>
-                                        
+                                        <span className="text-red-500">{record.msg.message}</span>
                                     </div>
                                 );
                             default:
@@ -309,34 +308,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
-                        // type='primary'
-                        size="middle"
-                        color="default"
-                        icon={<EyeOutlined />}
-                    />
-
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
-                        // type='primary'
-                        size="middle"
-                        color="danger"
-                        icon={<DeleteOutlined />}
-                    />
-
-                    <Button
-                        onClick={() => router.push(`/dashboard/harians/${record._id}/Aktivitas`)}
-                        // type='primary'
-                        size="middle"
-                        color="danger"
-                        icon={<DatabaseOutlined />}
-                    />
+                        icon={<PlusOutlined />}
+                    >
+                      Tambah Kedalam SKP
+                    </Button>
+                    
                 </Space>
             )
         }
@@ -482,6 +460,18 @@ const page = () => {
                                 Tambah
                             </Button>
                         </div>
+                    </div>
+                    <div>
+                        <Card type="inner" title="Status" className="mb-6">
+                            <div className="grid grid-flow-row divide-y text-xs">
+                              
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Status</span>
+                                    <p className="text-right uppercase">Status</p>
+                                </div>
+                                
+                            </div>
+                        </Card>
                     </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={harian} loading={loading} />
