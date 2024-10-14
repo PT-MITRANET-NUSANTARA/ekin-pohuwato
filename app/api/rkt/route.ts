@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
     try {
         const id = req.nextUrl.searchParams.get('id');
         const unit_id = req.nextUrl.searchParams.get('unitId');
-
+        const periodeRKT_id = req.nextUrl.searchParams.get('periodeRKTId');
         let rkts = [];
 
         if (id) {
