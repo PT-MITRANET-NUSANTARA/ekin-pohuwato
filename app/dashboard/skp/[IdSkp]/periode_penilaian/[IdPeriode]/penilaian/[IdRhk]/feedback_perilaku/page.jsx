@@ -280,34 +280,21 @@ const page = () => {
                                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
                                                     <p>
-                                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data
-                                                        dan informasi kepegawaian
+                                                       {aspek.indikator}
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td>3 Dokument</td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/1/bukti_dukung`)}>
-                                                        Lihat
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    
-                                                </div>
-                                            </td>
+                                            <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                         </tr>
                                     </>
                                 ))}
                             </>
                         ))}
+                         <tr>
+                            <td colSpan={6} className="text-left px-2">
+                                Tambahan
+                            </td>
+                        </tr>
                         <tr>
                             <td colSpan={5}>Rating Hasil Kinerja</td>
                             <td colSpan={4}></td>

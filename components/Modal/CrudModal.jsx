@@ -43,6 +43,8 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 }
 
                 form.setFieldsValue(formattedData); // Set nilai field pada form
+
+                
             } else {
                 form.resetFields(); // Reset form jika tidak ada data
             }

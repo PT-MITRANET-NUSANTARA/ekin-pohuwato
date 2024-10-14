@@ -154,6 +154,7 @@ const page = () => {
     ];
 
 
+    console.log(periode)
 
     console.log(data)
     const misiFields = [
@@ -175,7 +176,7 @@ const page = () => {
         },
         {
             label: 'Visi',
-            name: 'visi.name',
+            name: 'visi',
             type: 'select',
             rules: [
                 {

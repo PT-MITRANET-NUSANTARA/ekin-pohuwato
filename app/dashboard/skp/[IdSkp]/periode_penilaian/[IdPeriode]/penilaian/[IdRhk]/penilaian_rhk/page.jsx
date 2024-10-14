@@ -2,16 +2,48 @@
 
 import { Breadcrumb, Button, Card, Form, Input, InputNumber, Modal, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal } from '@/components';
+import { getById } from '@/controller/SKPController';
+
 import { dummyFeedback } from '@/data';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
-    const { IdSkp, IdPeriode } = useParams();
+
+    const { IdSkp, IdRhk } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [atasan, setAtasan] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const skp = await getById(IdRhk);
+            console.log(skp);
+
+            const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
+            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
+            const bawahan = skp.data.jabatan[index];
+            const jabatan = skpAtasan.jabatan;
+
+            const atasan = jabatan.find((item) => {
+                return item.unor.induk.id === bawahan.unor.induk.id;
+            });
+
+            setData(skp.data);
+            setBawahan(bawahan);
+            setAtasan(atasan);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const onSubmit = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
@@ -70,19 +102,19 @@ const page = () => {
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">periode</span>
                             <Tag color="blue" className="capitalize">
-                                1 JANUARI SD 31 DESEMBER TAHUN 2024
+                                {data?.periode_awal + ' - ' + data?.periode_akhir}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">pendekatan</span>
                             <Tag color="blue" className="capitalize">
-                                kuantitatif
+                                {data?.pendekatan}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">status</span>
                             <Tag color="green" className="capitalize">
-                                persetujuan
+                                {data?.status}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
@@ -96,68 +128,68 @@ const page = () => {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                    <Card type="inner" title="Pegawai Yang Penilai" className="col-span-6 w-full">
-                        <div className="grid grid-flow-row divide-y text-xs">
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">nama</span>
-                                <p color="blue" className="capitalize">
-                                    SYAIFUL SAFRIL LUMA, SE
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">nip</span>
-                                <p color="blue" className="capitalize">
-                                    197904012005011015
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
-                            </div>
-                            <div className="flex justify-between py-2">
-                                <span className="uppercase font-semibold">unit kerja</span>
-                                <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
-                                    <small>ID : 8ae482855a71b686015a74eabbde7454</small>
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
                     <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
                                 <p color="blue" className="capitalize">
-                                    SYAIFUL SAFRIL LUMA, SE
+                                    {bawahan?.nama_asn}
                                 </p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    197904012005011015
+                                    {bawahan?.id_asn}
                                 </p>
                             </div>
-                            <div className="flex items-center justify-between py-2">
+                            {/* <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
                                 <p color="green" className="capitalize">
                                     Penata Tingkat I / III/d
                                 </p>
-                            </div>
+                            </div> */}
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
+                                <p className="text-right capitalize"> {bawahan?.nama_jabatan}</p>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
-                                    <small>ID : 8ae482855a71b686015a74eabbde7454</small>
+                                    <p>{bawahan?.unor.nama} </p>
+                                    <small>ID : {bawahan?.unor.id}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                    <Card type="inner" title="Pegawai Yang Penilai Kinerja" className="col-span-6 w-full">
+                        <div className="grid grid-flow-row divide-y text-xs">
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">nama</span>
+                                <p color="blue" className="capitalize">
+                                    {atasan?.nama_asn}
+                                </p>
+                            </div>
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">nip</span>
+                                <p color="blue" className="capitalize">
+                                    {atasan?.id_asn}
+                                </p>
+                            </div>
+                            {/* <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
+                                <p color="green" className="capitalize">
+                                    Penata Tingkat I / III/d
+                                </p>
+                            </div> */}
+                            <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">jabatan</span>
+                                <p className="text-right capitalize"> {atasan?.nama_jabatan}</p>
+                            </div>
+                            <div className="flex justify-between py-2">
+                                <span className="uppercase font-semibold">unit kerja</span>
+                                <div className="flex flex-col gap-y-2 text-right items-end">
+                                    <p>{atasan?.unor.nama}</p>
+                                    <small>ID : {atasan?.unor.id}</small>
                                 </div>
                             </div>
                         </div>
@@ -179,163 +211,55 @@ const page = () => {
                     </thead>
                     <tbody className="capitalize text-sm">
                         <tr>
-                            <td colSpan={6} className="text-left px-2">
+                            <td colSpan={9} className="text-left px-2">
                                 Utama
                             </td>
                         </tr>
-                        <tr>
-                            <td rowSpan={3}>1</td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                </div>
-                            </td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <Tag color="blue" className="w-fit">
-                                        ogranisasi
-                                    </Tag>
-                                </div>
-                            </td>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/penilaian_rhk/1/bukti_dukung`)}>
-                                        Lihat
-                                    </Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {data?.rhks.map((item, index) => (
+                            <>
+                                <tr>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 text-left">
+                                            <p>{item.desc}</p>
+                                            {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                        </div>
+                                    </td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 text-left">
+                                            <p>{item.desc}</p>
+                                            <Tag color="blue" className="w-fit">
+                                                {item.klasifikasi ? item.klasifikasi : ''}
+                                            </Tag>
+                                            {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {item.aspek?.map((aspek) => (
+                                    <>
+                                        <tr>
+                                            <td>{aspek.jenis}</td>
+                                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{aspek.indikator}</p>
+                                                </div>
+                                            </td>
+                                            <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </>
+                                ))}
+                            </>
+                        ))}
                         <tr>
                             <td colSpan={6} className="text-left px-2">
-                                Utama
+                                Tambahan
                             </td>
                         </tr>
                         <tr>
-                            <td rowSpan={3}>1</td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                </div>
-                            </td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <Tag color="blue" className="w-fit">
-                                        ogranisasi
-                                    </Tag>
-                                </div>
-                            </td>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td colSpan={5}>Rating Hasil Kinerja</td>
+                            <td colSpan={6}>Rating Hasil Kinerja</td>
                             <td colSpan={4}></td>
                         </tr>
                     </tbody>
@@ -350,31 +274,32 @@ const page = () => {
                         </tr>
                     </thead>
                     <tbody className="capitalize">
-                        <tr>
-                            <td style={{ maxWidth: '12px' }}>1</td>
-                            <td className="" style={{ padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <b>Berorientasi Pelayanan</b>
-                                    <ol className="list-decimal list-inside">
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                        <li>Meningkatkan kompetensi diri untuk menjawab tantangan yang selalu berubah</li>
-                                    </ol>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td colSpan={2}>Rating Perilaku Kerja :</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td colSpan={2}>Predikat Kinerja :</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {data?.perilakus?.map((item, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td style={{ padding: '8px' }}>
+                                    <div className="flex flex-col gap-y-2 text-left">
+                                        <b>{item.name}</b>
+                                        <ol className="list-decimal list-inside">
+                                            {item.isi.map((isiItem, isiIndex) => (
+                                                <li key={isiIndex}>{isiItem}</li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                </td>
+                                {/* <td>
+                                    {item.feedback || (
+                                            <div className="flex items-center justify-center">
+                                                <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
+                                                    Tambah
+                                                </Button>
+                                            </div>
+                                    )}
+                                </td> */}
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
                 <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
