@@ -215,7 +215,7 @@ const page = () => {
                                     confirm({
                                         title: `Setujui laporan aktivitas ini?`,
                                         icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
-                                        content: <span>something</span>,
+                                        content: <span>Klik ok untuk menerima laporan aktivitas ini</span>,
                                         async onOk() {
                                             const dt = {
                                                 ...record,

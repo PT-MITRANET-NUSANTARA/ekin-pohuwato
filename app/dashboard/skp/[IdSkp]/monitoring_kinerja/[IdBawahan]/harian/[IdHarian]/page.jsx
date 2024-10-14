@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
@@ -17,13 +17,14 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const page = () => {
     const router = useRouter();
-    const {IdBawahan, IdHarian} = useParams();
+    const { IdBawahan, IdHarian } = useParams();
     const [loading, setLoading] = useState(true);
     const { data, setData } = useFetchData(getData);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     useEffect(() => {
@@ -36,7 +37,7 @@ const page = () => {
         try {
             const harian = await getByUserIdAbsence(IdBawahan, IdHarian);
             console.log(harian);
-            
+
             const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
             setHarian(harian_terima);
             setLoading(false);
@@ -53,11 +54,121 @@ const page = () => {
     console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
-      
         handleClose();
     };
 
- 
+    const nana = {
+        msg: {
+            status: 'Terima',
+            message: ''
+        },
+        isSKP: false,
+        _id: '670d20c72b1556efb5b96f84',
+        absence: '1',
+        date: '2024-10-01T00:00:00.000Z',
+        startDateTime: '21:45:59',
+        endDateTime: '21:46:03',
+        progress: 20,
+        rhk: {
+            _id: '670bab4f840afac78955f60a',
+            skp: {
+                _id: '670bab4c840afac78955f5fa',
+                periode_awal: '2022-09-24T16:00:00.000Z',
+                periode_akhir: '2024-11-01T16:00:00.000Z',
+                user_id: '980035363',
+                skp: ['670b7b3a840afac78955f464'],
+                periodeRKT: '670b7771840afac78955f3ca',
+                renstra: '670a7d9f9d7ed2c9e14333dd',
+                jabatan: [
+                    {
+                        id_posjab: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282',
+                        unor: {
+                            id: '8ae482855a71b686015a74eabbde7454',
+                            nama: 'BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
+                            atasan: {
+                                unor_id: '8ae482a75a4bd60d015a4d1931d72258',
+                                unor_nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
+                                unor_jabatan: 'KEPALA BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
+                                asn: {
+                                    idasn_atasan: '980038195',
+                                    nip_atasan: '196710281989021002',
+                                    nama_atasan: 'SUPRATMAN NENTO'
+                                }
+                            },
+                            induk: {
+                                id: '8ae482a75a4bd60d015a4d1931d72258',
+                                id_simpeg: 2171,
+                                nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA'
+                            }
+                        },
+                        jenis_jabatan: {
+                            id: '1',
+                            nama: 'Jabatan Struktural'
+                        },
+                        jabatan_status: {
+                            id: 7,
+                            nama: 'Administrator'
+                        },
+                        eselon: {
+                            id: '32',
+                            nama: 'III.b'
+                        },
+                        golongan_pns: {
+                            id: '11',
+                            nama: 'I/a'
+                        },
+                        golongan_pppk: {
+                            id: '',
+                            nama: null
+                        },
+                        jabfung: {
+                            id: 'null',
+                            nama: null
+                        },
+                        jabfungum: {
+                            id: 'null',
+                            nama: null
+                        },
+                        nama_asn: 'SYAIFUL SAFRIL LUMA',
+                        jenis_asn: 'PNS',
+                        nama_jabatan: 'KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
+                        tmt_jabatan: '2023-01-06',
+                        tunjangan: 100000,
+                        pejabat_sk: 'Tes',
+                        nomor_sk: 'ABC/123/1B',
+                        tgl_sk: '2024-06-10',
+                        doc: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282_197904012005011015_1720154806098.pdf',
+                        userId: '980035363',
+                        NCSISTIME: '2024-07-05 04:46:46.113'
+                    }
+                ],
+                status: 'approved',
+                pendekatan: 'kuantitatif',
+                keterangan: '',
+                createdAt: '2024-10-13T11:13:16.890Z',
+                updatedAt: '2024-10-13T11:13:16.890Z',
+                __v: 0,
+                id: '670bab4c840afac78955f5fa'
+            },
+            desc: 'Tersedianya Dokumen Pelaksanaan Program dan Kegiatan Bidang pengadaan, pemberhentian dan informasi kepegawaian',
+            rhk: '670b7b3b840afac78955f478',
+            jenis: 'utama',
+            klasifikasi: 'organisasi',
+            createdAt: '2024-10-13T11:13:19.091Z',
+            updatedAt: '2024-10-13T11:13:19.091Z',
+            __v: 0,
+            id: '670bab4f840afac78955f60a'
+        },
+        namaKegiatan: 'asdasd',
+        deskripsiKegiatan: 'adasd',
+        tautan: 'https://github.com/',
+        files: [],
+        user_id: '980035363',
+        createdAt: '2024-10-14T13:46:47.264Z',
+        updatedAt: '2024-10-14T14:56:10.408Z',
+        __v: 0
+    };
+
     const Column = [
         {
             title: 'ID',
@@ -65,6 +176,17 @@ const page = () => {
             key: '_id',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
+        },
+        {
+            title: 'RHK',
+            dataIndex: 'rhk',
+            key: 'rhk',
+            render: (_, record) => (
+                <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat Visi ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    {record.rhk._id}
+                </Button>
+            ),
+            width: '30%'
         },
         {
             title: 'Tanggal',
@@ -119,7 +241,7 @@ const page = () => {
                                 );
                             case 'Terima':
                                 return (
-                                    <Tag color="red" className="capitalize w-fit">
+                                    <Tag color="green" className="capitalize w-fit">
                                         {record.msg.status}
                                     </Tag>
                                 );
@@ -191,85 +313,56 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
+                        onClick={() => {
+                            confirm({
+                                title: `Setujui laporan aktivitas ini?`,
+                                icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                content: <span>Klik ok untuk menerima laporan aktivitas ini</span>,
+                                async onOk() {
+                                    const dt = {
+                                        ...record,
+                                        msg: {
+                                            status: 'Terima',
+                                            message: ''
+                                        },
+                                        rhk: record.rhk._id,
+                                        user_id: String(record.user_id)
+                                    };
+                                    const res = await update(record._id, dt);
+                                    if (res.ok) {
+                                        fetchData();
+                                    }
+                                },
+                                onCancel() {
+                                    console.log('Cancel');
+                                }
+                            });
+                        }}
                         size="middle"
                         icon={<PlusOutlined />}
                     >
-                      Tambah Kedalam SKP
+                        Tambah Kedalam SKP
                     </Button>
-                    
                 </Space>
             )
         }
     ];
 
-    const formFields = [
-     
+    const rhkFields = [
         {
-            label: 'Nama Kegiatan',
-            name: 'namaKegiatan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama kegiatan wajib diisi'
-                }
-            ]
+            label: 'Deksripsi',
+            name: 'desc',
+            type: 'longtext'
         },
         {
-            label: 'Waktu Mulai',
-            name: 'startDateTime',
-            type: 'time',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field waktu mulai wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Waktu Selesai',
-            name: 'endDateTime',
-            type: 'time',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field waktu selesai wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Deskripsi Kegiatan',
-            name: 'deskripsiKegiatan',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field deskripsi wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Tautan Kegiatan',
-            name: 'tautan',
+            label: 'Jenis',
+            name: 'jenis',
             type: 'text'
         },
         {
-            label: 'Bukti Aktivitas',
-            name: 'files',
-            type: 'upload'
-        },
-        {
-            label: 'Progress',
-            name: 'progress',
-            type: 'slider',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field progress wajib diisi'
-                }
-            ],
-            min: 1,
-            max: 100
+            label: 'Klasisfikasi',
+            name: 'klasifikasi',
+            type: 'text'
         }
     ];
 
@@ -296,26 +389,22 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Detail Data Harian
                         </Title>
-                        <div>
-                          
-                        </div>
+                        <div></div>
                     </div>
                     <div>
                         <Card type="inner" title="Status" className="mb-6">
                             <div className="grid grid-flow-row divide-y text-xs">
-                              
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">Status</span>
                                     <p className="text-right uppercase">Status</p>
                                 </div>
-                                
                             </div>
                         </Card>
                     </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={harian} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
         </div>

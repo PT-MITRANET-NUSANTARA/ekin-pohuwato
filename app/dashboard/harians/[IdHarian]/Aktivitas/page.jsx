@@ -112,8 +112,8 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const data = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
-                setData(data.data);
+                const res = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
+                setHarian(res.data);
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -141,40 +141,7 @@ const page = () => {
         handleClose();
     };
 
-    const nana = {
-        msg: {
-            status: 'Tolak',
-            message: 'asdasdasdasd'
-        },
-        _id: '670c09659010d31cd776c6b1',
-        absence: '1',
-        date: '2024-10-01T00:00:00.000Z',
-        startDateTime: '01:54:34',
-        endDateTime: '02:00:00',
-        progress: 13,
-        rhk: '670bab4f840afac78955f60a',
-        namaKegiatan: '2',
-        deskripsiKegiatan: '22',
-        tautan: 'https://github.com/',
-        files: [
-            {
-                uid: 'rc-upload-1728842054437-5',
-                fileId: '55ffbbfb-dbf9-420b-adcf-dddc215980fb',
-                name: 'fox.jpg',
-                type: 'image/jpeg'
-            },
-            {
-                uid: 'rc-upload-1728842054437-6',
-                fileId: 'ce99e970-a377-46a6-a794-533916464a74',
-                name: 'Frame 5 (2).png',
-                type: 'image/png'
-            }
-        ],
-        user_id: '980035363',
-        createdAt: '2024-10-13T17:54:45.144Z',
-        updatedAt: '2024-10-14T12:33:53.576Z',
-        __v: 0
-    };
+
 
     const Column = [
         {
@@ -237,7 +204,7 @@ const page = () => {
                                 );
                             case 'Terima':
                                 return (
-                                    <Tag color="red" className="capitalize w-fit">
+                                    <Tag color="green" className="capitalize w-fit">
                                         {record.msg.status}
                                     </Tag>
                                 );
