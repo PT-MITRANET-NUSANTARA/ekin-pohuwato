@@ -57,10 +57,8 @@ const page = () => {
         data.forEach((item) => {
             const currentDate = dayjs(item.date).format('YYYY-MM-DD'); // Mengambil tanggal dalam format YYYY-MM-DD
             date = currentDate;
-            const start = dayjs(item.startDateTime);
-            const end = dayjs(item.endDateTime);
-            console.log(end);
-            
+            const start = dayjs(`${currentDate} ${item.startDateTime}`, 'YYYY-MM-DD HH:mm:ss');
+            const end = dayjs(`${currentDate} ${item.endDateTime}`, 'YYYY-MM-DD HH:mm:ss');
 
             const minutes = end.diff(start, 'minute');
             menit += minutes;
