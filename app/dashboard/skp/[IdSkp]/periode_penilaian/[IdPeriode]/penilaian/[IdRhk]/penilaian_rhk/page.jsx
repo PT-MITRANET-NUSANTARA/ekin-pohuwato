@@ -273,10 +273,10 @@ const page = () => {
                             <th>NO</th>
                             <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                             <th>RENCANA HASIL KERJA</th>
-                            <th>ASPEK</th>
-                            <th>INDIKATOR KINERJA INDIVIDU</th>
-                            <th>TARGET TAHUNAN</th>
                             <th>BUKTI DUKUNG</th>
+                            <th>ASPEK</th>
+                            <th>INDIKATOR KINERJA</th>
+                            <th>TARGET TAHUNAN</th>
                             <th>REALISASI</th>
                             <th>FEEDBACK</th>
                         </tr>
@@ -306,6 +306,13 @@ const page = () => {
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
+                                        <div className="flex items-center justify-center">
+                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                Lihat
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {item.aspek?.map((aspek) => (
                                     <>
@@ -317,13 +324,7 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
-                                                        Lihat
-                                                    </Button>
-                                                </div>
-                                            </td>
+
                                             <td>
                                                 {' '}
                                                 {getRealisasi(
@@ -378,26 +379,18 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-                                {/* <td>
-                                    {item.feedback || (
-                                            <div className="flex items-center justify-center">
-                                                <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
-                                                    Tambah
-                                                </Button>
-                                            </div>
-                                    )}
-                                </td> */}
+                                
                                 <td></td>
                                 <td></td>
                             </tr>
                         ))}
                         <tr>
-                            <td colSpan={6}>Rating Perilaku</td>
-                            <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
+                            <td colSpan={3}>Rating Perilaku</td>
+                            <td colSpan={3}>{penilaian?.ratingPerilaku}</td>
                         </tr>
                         <tr>
-                            <td colSpan={6}>Peredikat Kinerja</td>
-                            <td colSpan={4}></td>
+                            <td colSpan={3}>Peredikat Kinerja</td>
+                            <td colSpan={3}></td>
                         </tr>
                     </tbody>
                 </table>

@@ -76,11 +76,9 @@ const page = () => {
                     message: 'Field lokasi wajib di isi'
                 }
             ]
-        },
-       
+        }
     ];
 
-    
     const getRealisasi = (aspek, harian) => {
         if (aspek.jenis === 'kualitas') {
             const percentase = harian.reduce((max, item) => {
@@ -244,11 +242,11 @@ const page = () => {
                             <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                             <th>RENCANA HASIL KERJA</th>
                             <th>RENCANA AKSI</th>
-                            <th>ASPEK</th>
-                            <th>INDIKATOR KINERJA INDIVIDU</th>
-                            <th>TARGET TAHUNAN</th>
                             <th>BUKTI DUKUNG</th>
-                            <th>RELASI</th>
+                            <th>ASPEK</th>
+                            <th>INDIKATOR KINERJA</th>
+                            <th>TARGET TAHUNAN</th>
+                            <th>REALISASI</th>
                             <th>FEEDBACK</th>
                         </tr>
                     </thead>
@@ -268,6 +266,7 @@ const page = () => {
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
+
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
                                             <p>{item.desc}</p>
@@ -275,6 +274,14 @@ const page = () => {
                                                 {item.klasifikasi ? item.klasifikasi : ''}
                                             </Tag>
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                        </div>
+                                    </td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}></td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
+                                        <div className="flex items-center justify-center">
+                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                Lihat
+                                            </Button>
                                         </div>
                                     </td>
                                 </tr>
@@ -288,14 +295,7 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                            <td></td>
-                                            <td>
-                                                <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
-                                                        Lihat
-                                                    </Button>
-                                                </div>
-                                            </td>
+
                                             <td>
                                                 {' '}
                                                 {getRealisasi(
@@ -351,22 +351,17 @@ const page = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    {/* {item.feedback || (
-                                        <div className="flex items-center justify-center">
-                                            <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
-                                                Tambah
-                                            </Button>
-                                        </div>
-                                    )} */}
+                                    
                                 </td>
+                                <td></td>
                             </tr>
                         ))}
-                         <tr>
-                            <td colSpan={6}>Rating Perilaku</td>
+                        <tr>
+                            <td colSpan={3}>Rating Perilaku</td>
                             <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
                         </tr>
                         <tr>
-                            <td colSpan={6}>Peredikat Kinerja</td>
+                            <td colSpan={3}>Peredikat Kinerja</td>
                             <td colSpan={4}></td>
                         </tr>
                     </tbody>
