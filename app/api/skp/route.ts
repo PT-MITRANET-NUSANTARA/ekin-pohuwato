@@ -61,6 +61,7 @@ export async function GET(req: NextRequest) {
 
     try {
         const user_id = req.headers.get('user-id');
+        const skp_id = req.headers.get('skp-id');
         const periode_id = req.headers.get('periode-id');
         const id = req.nextUrl.searchParams.get('id');
         let skps = [];
@@ -76,6 +77,9 @@ export async function GET(req: NextRequest) {
             } else {
                 skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id }).populate('rhks');
             }
+        }
+        else if (skp_id) {
+            skps = await SKP.find({ skp: { $in: [skp_id] } });
         } else if (id) {
             skps = await SKP.findOne({ _id: id })
                 .populate('perilakus')
