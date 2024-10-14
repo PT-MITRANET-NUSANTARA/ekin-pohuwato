@@ -123,7 +123,8 @@ const page = () => {
             } else {
                 data = {
                     ratingPerilaku: value.rating,
-                    periodePenilaian: IdRhk,
+                    periodePenilaian: IdPeriode,
+                    skp: IdRhk
                 };
     
                 const res = await store(data);
@@ -338,8 +339,8 @@ const page = () => {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={5}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}></td>
+                            <td colSpan={6}>Rating Hasil Kinerja</td>
+                            <td colSpan={4}>{penilaian?.ratingKinerja}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -377,6 +378,14 @@ const page = () => {
                                 </td>
                             </tr>
                         ))}
+                         <tr>
+                            <td colSpan={6}>Rating Perilaku</td>
+                            <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
+                        </tr>
+                        <tr>
+                            <td colSpan={6}>Peredikat Kinerja</td>
+                            <td colSpan={4}></td>
+                        </tr>
                     </tbody>
                 </table>
                 <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>

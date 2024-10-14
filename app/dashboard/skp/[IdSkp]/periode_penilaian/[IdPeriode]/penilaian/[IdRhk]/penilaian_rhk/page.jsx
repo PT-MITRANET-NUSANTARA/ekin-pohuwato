@@ -67,12 +67,14 @@ const page = () => {
             } else {
                 data = {
                     ratingKinerja: value.rating,
-                    periodePenilaian: IdRhk
+                    periodePenilaian: IdPeriode,
+                    skp: IdRhk
                 };
 
                 const res = await store(data);
                 console.log(res);
             }
+            fetchData();
 
             // Close modal on success
             setModal((prev) => ({ ...prev, trigger: false }));
@@ -298,7 +300,7 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}></td>
+                            <td colSpan={4}>{penilaian?.ratingKinerja}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -338,6 +340,14 @@ const page = () => {
                                 <td></td>
                             </tr>
                         ))}
+                         <tr>
+                            <td colSpan={6}>Rating Perilaku</td>
+                            <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
+                        </tr>
+                        <tr>
+                            <td colSpan={6}>Peredikat Kinerja</td>
+                            <td colSpan={4}></td>
+                        </tr>
                     </tbody>
                 </table>
                 <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>

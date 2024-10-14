@@ -27,6 +27,11 @@ const PenilaianSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'PeriodePenilaian', // Reference to PeriodePenilaian model
             required: true
+        },
+        skp: {
+            type: Schema.Types.ObjectId,
+            ref: 'SKP',
+            required: true
         }
     },
     {
