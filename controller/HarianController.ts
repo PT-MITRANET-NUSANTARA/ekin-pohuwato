@@ -1,5 +1,4 @@
 import { apiRequest } from "@/utils/apiRequest";
-import { store as storeImages } from "@/controller/DokumentController"; // Import fungsi store dari ImageController
 
 export const getByUserId = async (id: string) => {
     try {
