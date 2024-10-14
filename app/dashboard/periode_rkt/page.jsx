@@ -116,6 +116,7 @@ const page = () => {
 
             return img;
         });
+        handleClose();
 
         console.log(updatedListImage);
         
