@@ -9,11 +9,13 @@ import { dummyFeedback } from '@/data';
 import { title } from 'process';
 import { useParams } from 'next/navigation';
 import { getById } from '@/controller/SKPController';
+import { useRouter } from 'next/navigation';
 const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
-    const { IdRhk, IdSkp } = useParams();
+    const router = useRouter()
+    const { IdRhk, IdSkp, IdPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -164,7 +166,7 @@ const page = () => {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                    <Card type="inner" title="Pegawai Yang Dinilai"  className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
@@ -197,7 +199,7 @@ const page = () => {
                             </div>
                         </div>
                     </Card>
-                    <Card type="inner" title="Pegawai Yang Penilai Kinerja" extra={<Button type="primary" shape="circle" icon={<ReloadOutlined />} />} className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Penilai Kinerja" className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
@@ -284,6 +286,23 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>3 Dokument</td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/1/bukti_dukung`)}>
+                                                        Lihat
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    
+                                                </div>
+                                            </td>
                                         </tr>
                                     </>
                                 ))}
@@ -320,13 +339,11 @@ const page = () => {
                                 </td>
                                 <td>
                                     {item.feedback || (
-                                        <td>
-                                            <div className="flex items-center justify-center">
-                                                <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
-                                                    Tambah
-                                                </Button>
-                                            </div>
-                                        </td>
+                                        <div className="flex items-center justify-center">
+                                            <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
+                                                Tambah
+                                            </Button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>
