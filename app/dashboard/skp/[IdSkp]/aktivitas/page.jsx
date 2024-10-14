@@ -70,6 +70,8 @@ const page = () => {
         }
     };
 
+    console.log(periksa);
+
     const generateColumns = (status) => [
         {
             title: 'ID',
@@ -147,8 +149,25 @@ const page = () => {
                                     title: `Setujui laporan aktivitas ini?`,
                                     icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
                                     content: `Klik tombol ok untuk menyetujui aktivitas harian ini`,
-                                    onOk() {
-                                        console.log('OK');
+                                    async onOk() {
+                                        const dt = {
+                                            ...record, 
+                                            msg: {
+                                                status: 'Terima', 
+                                                message: '' 
+                                            },
+                                            rhk: record.rhk._id,
+                                            user_id: String(record.user_id)
+                                        };
+                                        console.log(dt);
+                                        
+
+                                        const res = await update(record._id, dt);
+                                        console.log(res);
+                                        
+                                        if (res.ok) {
+                                            fetchData();
+                                        }
                                     },
                                     onCancel() {
                                         console.log('Cancel');
@@ -166,8 +185,21 @@ const page = () => {
                                     title: `Tolak laporan aktivitas ini?`,
                                     icon: <CloseCircleFilled style={{ color: '#ef4444' }} />,
                                     content: `Klik tombol ok untuk menolak aktivitas harian ini`,
-                                    onOk() {
-                                        console.log('OK');
+                                    async onOk() {
+                                        const dt = {
+                                            ...record, 
+                                            msg: {
+                                                status: 'Tolak', 
+                                                message: '' 
+                                            },
+                                            rhk: record.rhk._id,
+                                            user_id: String(record.user_id)
+                                        };
+
+                                        const res = await update(record._id, dt);
+                                        if (res.ok) {
+                                            fetchData();
+                                        }
                                     },
                                     onCancel() {
                                         console.log('Cancel');
@@ -182,9 +214,6 @@ const page = () => {
             )
         }
     ];
-
-    const handleTerima = () => {};
-    const handleTolak = () => {};
 
     return (
         <div className="w-full flex flex-col gap-y-4">

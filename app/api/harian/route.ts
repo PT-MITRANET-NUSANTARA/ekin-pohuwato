@@ -19,8 +19,8 @@ const harianSchema = Joi.object({
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
     msg: Joi.object({
-        status: Joi.boolean().optional().label('status msg'),
-        message: Joi.string().optional().label('message msg')
+        status: Joi.string().optional().label('status msg'),
+        message: Joi.string().optional().allow('').label('message msg')
     })
         .optional()
         .label('msg'),
@@ -119,7 +119,6 @@ export async function PUT(req: NextRequest) {
     await dbConnect();
 
     try {
-        const user_id = req.headers.get('user-id');
         const body = await req.json();
         const id = req.nextUrl.searchParams.get('id');
 
@@ -127,12 +126,12 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const errors = validateHarianData({ ...body, user_id });
+        const errors = validateHarianData(body);
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const updatedHarian = await Harian.findOneAndUpdate({ _id: id, user_id }, body, { new: true });
+        const updatedHarian = await Harian.findOneAndUpdate({ _id: id }, body, { new: true });
 
         if (!updatedHarian) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));

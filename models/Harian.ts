@@ -32,6 +32,7 @@ export interface IHarian extends Document {
 }
 
 // Define the Harian schema
+
 const HarianSchema: Schema = new Schema(
   {
     absence: {
@@ -64,6 +65,7 @@ const HarianSchema: Schema = new Schema(
       message: {
         type: String,
         required: false,
+        default: '',
       },
     },
     rhk: {
