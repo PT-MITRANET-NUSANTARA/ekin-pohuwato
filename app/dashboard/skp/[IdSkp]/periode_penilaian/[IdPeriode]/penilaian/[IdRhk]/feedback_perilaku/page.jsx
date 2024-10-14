@@ -14,8 +14,8 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
-    const router = useRouter()
-    const { IdRhk, IdSkp, IdPeriode } = useParams();
+    const router = useRouter();
+    const { IdRhk, IdSkp, IdPeriode, IdPenilaian } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -279,18 +279,25 @@ const page = () => {
                                             <td>{aspek.jenis}</td>
                                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>
-                                                       {aspek.indikator}
-                                                    </p>
+                                                    <p>{aspek.indikator}</p>
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                        Lihat
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
                                     </>
                                 ))}
                             </>
                         ))}
-                         <tr>
+                        <tr>
                             <td colSpan={6} className="text-left px-2">
                                 Tambahan
                             </td>

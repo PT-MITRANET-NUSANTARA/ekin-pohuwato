@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal } from '@/components';
 import { getById } from '@/controller/SKPController';
-import {store, destroy, update} from '@/controller/penilaianController'
+import { store, destroy, update } from '@/controller/penilaianController';
 
 import { dummyFeedback } from '@/data';
 const { Title } = Typography;
@@ -49,39 +49,37 @@ const page = () => {
         }
     };
 
-    const onSubmit = async (value) => {  
+    const onSubmit = async (value) => {
         try {
             let data;
-    
+
             if (penilaian) {
                 data = {
                     ...penilaian,
-                    ratingKinerja: value.rating,
+                    ratingKinerja: value.rating
                 };
-    
+
                 console.log(data);
-    
+
                 // Call the update function and handle response
                 const res = await update(penilaian._id, data);
                 console.log(res);
             } else {
                 data = {
                     ratingKinerja: value.rating,
-                    periodePenilaian: IdRhk,
+                    periodePenilaian: IdRhk
                 };
-    
+
                 const res = await store(data);
                 console.log(res);
             }
-    
+
             // Close modal on success
             setModal((prev) => ({ ...prev, trigger: false }));
         } catch (err) {
             console.error(err); // Log the error
         }
     };
-    
-    
 
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
@@ -279,7 +277,13 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                            <td></td>
+                                            <td>
+                                                <div className="flex items-center justify-center">
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                                        Lihat
+                                                    </Button>
+                                                </div>
+                                            </td>
                                             <td></td>
                                             <td></td>
                                         </tr>
