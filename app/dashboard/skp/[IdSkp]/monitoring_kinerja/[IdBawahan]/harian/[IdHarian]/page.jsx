@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
@@ -17,17 +17,18 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const page = () => {
     const router = useRouter();
-    const {IdBawahan, IdHarian} = useParams();
+    const { IdBawahan, IdHarian } = useParams();
     const [loading, setLoading] = useState(true);
     const { data, setData } = useFetchData(getData);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     const [dt, setDT] = useState(null);
-    const MENIT = process.env.NEXT_PUBLIC_TIME
+    const MENIT = process.env.NEXT_PUBLIC_TIME;
     useEffect(() => {
         if (data) {
             fetchData();
@@ -38,7 +39,7 @@ const page = () => {
         try {
             const harian = await getByUserIdAbsence(IdBawahan, IdHarian);
             console.log(harian);
-            
+
             const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
             setDT(calculateTotalMinutes(harian_terima));
             setHarian(harian_terima);
@@ -52,19 +53,19 @@ const page = () => {
 
     const calculateTotalMinutes = (data) => {
         let menit = 0;
-        let date = ''
-        data.forEach(item => {
-          const currentDate = dayjs(item.date).format('YYYY-MM-DD'); // Mengambil tanggal dalam format YYYY-MM-DD
-          date = currentDate
-          const start = dayjs(`${currentDate} ${item.startDateTime}`, 'YYYY-MM-DD HH:mm:ss');
-          const end = dayjs(`${currentDate} ${item.endDateTime}`, 'YYYY-MM-DD HH:mm:ss');
-      
-          const minutes = end.diff(start, 'minute');
-          menit += minutes;
+        let date = '';
+        data.forEach((item) => {
+            const currentDate = dayjs(item.date).format('YYYY-MM-DD'); // Mengambil tanggal dalam format YYYY-MM-DD
+            date = currentDate;
+            const start = dayjs(item.startDateTime);
+            const end = dayjs(item.endDateTime);
+
+            const minutes = end.diff(start, 'minute');
+            menit += minutes;
         });
-      
-        return {menit, date};
-      };
+
+        return { menit, date };
+    };
 
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
@@ -72,11 +73,9 @@ const page = () => {
     console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
-      
         handleClose();
     };
 
- 
     const Column = [
         {
             title: 'ID',
@@ -84,6 +83,17 @@ const page = () => {
             key: '_id',
             sorter: (a, b) => a._id.length - b._id.length,
             width: '10%'
+        },
+        {
+            title: 'RHK',
+            dataIndex: 'rhk',
+            key: 'rhk',
+            render: (_, record) => (
+                <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat Visi ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    {record.rhk._id}
+                </Button>
+            ),
+            width: '30%'
         },
         {
             title: 'Tanggal',
@@ -138,7 +148,7 @@ const page = () => {
                                 );
                             case 'Terima':
                                 return (
-                                    <Tag color="red" className="capitalize w-fit">
+                                    <Tag color="green" className="capitalize w-fit">
                                         {record.msg.status}
                                     </Tag>
                                 );
@@ -177,6 +187,14 @@ const page = () => {
             width: '240px'
         },
         {
+            title: 'SKP',
+            dataIndex: 'skp',
+            key: 'skp',
+            render: (_, record) => (record.isSKP ? <CheckCircleOutlined /> : <CloseCircleOutlined />),
+
+            width: '240px'
+        },
+        {
             title: 'Bukti',
             dataIndex: 'file',
             key: 'file',
@@ -210,85 +228,56 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
+                        onClick={() => {
+                            confirm({
+                                title: `Tambahkan ke dalam SKP?`,
+                                icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                content: <span>Klik ok untuk menambahkan kedalam SKP</span>,
+                                async onOk() {
+                                    const dt = {
+                                        ...record,
+                                        msg: {
+                                            status: 'Terima',
+                                            message: ''
+                                        },
+                                        rhk: record.rhk._id,
+                                        user_id: String(record.user_id)
+                                    };
+                                    const res = await update(record._id, dt);
+                                    if (res.ok) {
+                                        fetchData();
+                                    }
+                                },
+                                onCancel() {
+                                    console.log('Cancel');
+                                }
+                            });
+                        }}
                         size="middle"
                         icon={<PlusOutlined />}
                     >
-                      Tambah Kedalam SKP
+                        Tambah Kedalam SKP
                     </Button>
-                    
                 </Space>
             )
         }
     ];
 
-    const formFields = [
-     
+    const rhkFields = [
         {
-            label: 'Nama Kegiatan',
-            name: 'namaKegiatan',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama kegiatan wajib diisi'
-                }
-            ]
+            label: 'Deksripsi',
+            name: 'desc',
+            type: 'longtext'
         },
         {
-            label: 'Waktu Mulai',
-            name: 'startDateTime',
-            type: 'time',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field waktu mulai wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Waktu Selesai',
-            name: 'endDateTime',
-            type: 'time',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field waktu selesai wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Deskripsi Kegiatan',
-            name: 'deskripsiKegiatan',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field deskripsi wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Tautan Kegiatan',
-            name: 'tautan',
+            label: 'Jenis',
+            name: 'jenis',
             type: 'text'
         },
         {
-            label: 'Bukti Aktivitas',
-            name: 'files',
-            type: 'upload'
-        },
-        {
-            label: 'Progress',
-            name: 'progress',
-            type: 'slider',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field progress wajib diisi'
-                }
-            ],
-            min: 1,
-            max: 100
+            label: 'Klasisfikasi',
+            name: 'klasifikasi',
+            type: 'text'
         }
     ];
 
@@ -315,14 +304,11 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Detail Data Harian
                         </Title>
-                        <div>
-                          
-                        </div>
+                        <div></div>
                     </div>
                     <div>
                         <Card type="inner" title="Status" className="mb-6">
                             <div className="grid grid-flow-row divide-y text-xs">
-                              
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">Tanggal</span>
                                     <p className="text-right uppercase">{dt?.date}</p>
@@ -341,7 +327,7 @@ const page = () => {
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={harian} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
         </div>
