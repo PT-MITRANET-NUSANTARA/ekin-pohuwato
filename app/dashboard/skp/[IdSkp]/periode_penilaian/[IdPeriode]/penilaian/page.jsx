@@ -3,46 +3,85 @@
 import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DataTable } from '@/components';
 import { dummyBawahan } from '@/data';
+import { getData } from '@/controller/AuthorizationController';
+import useFetchData from '@/hooks/useFetchData';
+import { getById, getBySKP } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
+    const {data, setData} = useFetchData(getData);
+    const [skp, setSKP] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {   
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
 
+    const fetchData = async () => { 
+        try {
+            const skp = await getById(IdSkp);
+            const bawahan = await getBySKP(skp.data._id)
+            setBawahan(bawahan.data);
+            setSKP(skp.data);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);       
+        }
+    }
+
+    
+    
     const Column = [
         {
-            title: 'NIP',
-            dataIndex: 'nip',
-            key: 'nip',
+            title: 'ID',
+            dataIndex: 'user_id',
+            key: 'user_id',
             sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '10%'
+            width: '10%',
         },
         {
-            title: 'RHK Yang di Intervensi',
+            title: 'Nama',
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
+            }
         },
         {
-            title: 'Hasil RHK',
+            title: 'Nama Organisasi',
+            dataIndex: 'unor',
+            key: 'unor',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            width: '30%',
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
+            }
+        },
+        {
+            title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            width: '30%'
-        },
-        {
-            title: 'Hasil RHK',
-            dataIndex: 'golru',
-            key: 'golru',
             sorter: (a, b) => a.golru.length - b.golru.length,
-            width: '30%'
+            width: '30%',
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
+            }
         },
+        
         {
             title: 'Action',
             key: 'action',
@@ -51,7 +90,7 @@ const page = () => {
                     <Button
                         // type='primary'
                         size="middle"
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record.nip}/penilaian_rhk`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record._id}/penilaian_rhk`)}
                     >
                         Penilaian
                     </Button>
@@ -60,7 +99,7 @@ const page = () => {
                         // type='primary'
                         size="middle"
                         color="danger"
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record.nip}/feedback_perilaku`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record._id}/feedback_perilaku`)}
                     >
                         Feedback Perilaku
                     </Button>
@@ -90,25 +129,25 @@ const page = () => {
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">periode skp</span>
-                        <p className="text-right capitalize">1 Januari 2024 - 31 Desember 2024</p>
+                        <p className="text-right capitalize">{skp?.periode_awal + '-' + skp?.periode_akhir}</p>
                     </div>
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">jabatan</span>
-                        <p className="text-right uppercase">KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN </p>
+                        <p className="text-right uppercase">{skp?.jabatan[skp.jabatan.length - 1].nama_jabatan}</p>
                     </div>
                     <div className="flex items-start justify-between py-2">
                         <span className="uppercase font-semibold">unit kerja</span>
                         <div className="flex flex-col gap-y-2 text-right items-end">
-                            <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
-                            <small>ID : 8ae482855a71b686015a74eabbde7454</small>
+                            <p>{skp?.jabatan[skp.jabatan.length - 1].unor.nama}</p>
+                            <small>ID : {skp?.jabatan[skp.jabatan.length - 1].unor.id}</small>
                             <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                         </div>
                     </div>
                     <div className="flex items-start justify-between py-2">
                         <span className="uppercase font-semibold">unit kerja induk</span>
                         <div className="flex flex-col gap-y-2 text-right items-end">
-                            <p>BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN</p>
-                            <small>ID : 8ae482855a71b686015a74eabbde7454</small>
+                            <p>{skp?.jabatan[skp.jabatan.length - 1].unor.induk.nama}</p>
+                            <small>ID : {skp?.jabatan[skp.jabatan.length - 1].unor.induk.id}</small>
                         </div>
                     </div>
                 </div>
@@ -119,7 +158,7 @@ const page = () => {
                     <Button type="primary">Lihat Kurva</Button>
                     <Button type="primary">Pembinaan Bawahan</Button>
                 </div>
-                <DataTable columns={Column} data={dummyBawahan} loading={false} />
+                <DataTable columns={Column} data={bawahan} loading={loading} />
                 {/* <Tabs defaultActiveKey="1" type="card">
                     <Tabs.Items tab="Pelaksanaan Kinerja" key="1">
                         <table className="normaltable">
