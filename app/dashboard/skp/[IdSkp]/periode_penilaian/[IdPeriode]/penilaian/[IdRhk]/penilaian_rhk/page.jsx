@@ -293,7 +293,8 @@ const page = () => {
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
-                                            <p>{item.desc}</p>
+                                            <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
@@ -324,7 +325,6 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                           
 
                                             <td>
                                                 {' '}
@@ -336,13 +336,11 @@ const page = () => {
                                                         const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
 
                                                         // Check if h.date is less than or equal to endDateTime
-                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
+                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
                                                     })
                                                 )}
                                             </td>
-                                            <td>
-                                               
-                                            </td>
+                                            <td></td>
                                             {/* <td></td> */}
                                         </tr>
                                     </>
@@ -383,7 +381,7 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-                                
+
                                 <td></td>
                                 <td></td>
                             </tr>

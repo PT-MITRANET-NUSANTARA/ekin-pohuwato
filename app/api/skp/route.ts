@@ -67,7 +67,22 @@ export async function GET(req: NextRequest) {
         let skps = [];
 
         if (user_id) {
-            if (periode_id) {
+            if (skp_id) {
+                
+                skps = await SKP.findOne({
+                    user_id: user_id, // Pastikan user_id sesuai
+                    periodeRKT: periode_id, // Pastikan periode_id sesuai
+                    skp: { $in: [skp_id] } // Cek apakah skp_id ada di dalam array skp
+                  })  .populate({
+                    path: 'rhks',
+                    populate: [
+                        { path: 'rhk', populate: { path: 'rkt' } },
+                        { path: 'aspek', populate: { path: 'rhk' } }
+                    ]
+                })
+                .populate('perilakus');;
+            }
+            else if (periode_id) {
                 skps = await SKP.findOne({ user_id, periodeRKT: periode_id })
                     .populate({
                         path: 'rhks',

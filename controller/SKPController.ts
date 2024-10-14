@@ -52,6 +52,25 @@ export const getByUserIdAndPeriode = async (id: string, periode: string) => {
     }
 }
 
+export const getBySKPAndPeriode = async (id: string, periode: string, skp: string) => {
+    try {
+
+        const response = await apiRequest('/api/skp', {
+            method: 'GET',
+            headers: {
+                'user-id': id,
+                'periode-id': periode,
+                'skp-id' : skp,
+            },
+        });
+        
+        return response;
+    } catch (error) {
+        console.error("Error fetching by user ID:", error);
+        throw error; // rethrow the error to handle it further up the call stack
+    }
+}
+
 export const getById = async (id: string) => {
     try {
         
