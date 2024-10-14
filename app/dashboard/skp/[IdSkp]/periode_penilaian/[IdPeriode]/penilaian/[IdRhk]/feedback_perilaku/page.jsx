@@ -130,7 +130,7 @@ const page = () => {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                    <Card type="inner" title="Pegawai Yang Dinilai" extra={<Button type="primary" shape="circle" icon={<ReloadOutlined />} />} className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Dinilai"  className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
@@ -163,7 +163,7 @@ const page = () => {
                             </div>
                         </div>
                     </Card>
-                    <Card type="inner" title="Pegawai Yang Dinilai" extra={<Button type="primary" shape="circle" icon={<ReloadOutlined />} />} className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Penilai"  className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>

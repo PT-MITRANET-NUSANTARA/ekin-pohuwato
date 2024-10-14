@@ -8,36 +8,33 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getAll, store, destroy, update } from '@/controller/periodePenilaianController';
-import {  getById } from '@/controller/SKPController';
-
+import { getById } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
 const page = () => {
-
-    const router = useRouter()
+    const router = useRouter();
     const { IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [data, setData] = useState(null)
+    const [data, setData] = useState(null);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
-        fetchData()
-    }, [])
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const skp = await getById(IdSkp)
-            const skpAtasan = skp.data.skp
-            const data = await getAll(skpAtasan[skpAtasan.length - 1]._id)
-            setData(data.data)
-            setLoading(false)
+            const skp = await getById(IdSkp);
+            const skpAtasan = skp.data.skp;
+            const data = await getAll(skpAtasan[skpAtasan.length - 1]._id);
+            setData(data.data);
+            setLoading(false);
         } catch (error) {
             console.log(error);
-            
         }
-    }
+    };
 
     const Column = [
         {
@@ -66,23 +63,17 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/nilai/${record._id}`)}
                         // type='primary'
                         size="middle"
                         color="default"
-                        icon={<EyeOutlined />}
+                        icon={<DatabaseOutlined />}
                     />
-
-                  
                 </Space>
             )
         }
     ];
-
- 
- 
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -103,9 +94,7 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Data Periode Penilaian
                         </Title>
-                        <div>
-                         
-                        </div>
+                        <div></div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
                 </div>

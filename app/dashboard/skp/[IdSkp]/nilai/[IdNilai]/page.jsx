@@ -1,40 +1,15 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, Input, InputNumber, Modal, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, InputNumber, Modal, Select, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
 import { CrudModal } from '@/components';
 import { dummyFeedback } from '@/data';
+import { title } from 'process';
 const { Title } = Typography;
+const { Option } = Select;
 const page = () => {
-    const router = useRouter();
-    const { IdSkp, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-
-    const onSubmit = () => {
-        setModal((prev) => ({ ...prev, trigger: false }));
-    };
-
-    const onClose = () => {
-        setModal((prev) => ({ ...prev, trigger: false }));
-    };
-
-    const ratingFileds = [
-        {
-            label: 'Beri Rating',
-            name: 'rating',
-            type: 'rating',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field rating wajib di isi'
-                }
-            ]
-        }
-    ];
-
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -51,7 +26,7 @@ const page = () => {
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
                         <Title className="mt-2" level={5}>
-                            Sasaran Kinerja Pegawai
+                            Pengisian Feedback Atasan
                         </Title>
                         <div className="flex items-center gap-x-2">
                             <Button type="default" icon={<PrinterOutlined />}>
@@ -59,9 +34,6 @@ const page = () => {
                             </Button>
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
-                            </Button>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
-                                Buat Rating Hasil Kinerja
                             </Button>
                         </div>
                     </div>
@@ -96,7 +68,7 @@ const page = () => {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                    <Card type="inner" title="Pegawai Yang Penilai" className="col-span-6 w-full">
+                    <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
                         <div className="grid grid-flow-row divide-y text-xs">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
@@ -169,6 +141,7 @@ const page = () => {
                             <th>NO</th>
                             <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                             <th>RENCANA HASIL KERJA</th>
+                            <th>RENCANA AKSI</th>
                             <th>ASPEK</th>
                             <th>INDIKATOR KINERJA INDIVIDU</th>
                             <th>TARGET TAHUNAN</th>
@@ -199,6 +172,7 @@ const page = () => {
                                     </Tag>
                                 </div>
                             </td>
+                            <td rowSpan={3}></td>
                             <td>kualitas</td>
                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                 <div className="flex flex-col gap-y-2 text-left">
@@ -209,13 +183,7 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/penilaian_rhk/1/bukti_dukung`)}>
-                                        Lihat
-                                    </Button>
-                                </div>
-                            </td>
+                            <td></td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -230,11 +198,7 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
+                            <td></td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -249,91 +213,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
+                            <td></td>
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr>
-                            <td colSpan={6} className="text-left px-2">
-                                Utama
-                            </td>
-                        </tr>
-                        <tr>
-                            <td rowSpan={3}>1</td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <p>Indikator: Presentase Nilai Capaian Kinerja Sasaran Strategi</p>
-                                </div>
-                            </td>
-                            <td rowSpan={3} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>Meningkatnya kualitas pelayanan publik, akuntabilitas kinerja Pemerintah, Keuangan dan Aset</p>
-                                    <Tag color="blue" className="w-fit">
-                                        ogranisasi
-                                    </Tag>
-                                </div>
-                            </td>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>kualitas</td>
-                            <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                <div className="flex flex-col gap-y-2 text-left">
-                                    <p>
-                                        Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan Pengolahan Data dan informasi
-                                        kepegawaian
-                                    </p>
-                                </div>
-                            </td>
-                            <td>3 Dokument</td>
-                            <td>
-                                <div className="flex items-center justify-center">
-                                    <Button type="primary">Lihat</Button>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+
                         <tr>
                             <td colSpan={5}>Rating Hasil Kinerja</td>
                             <td colSpan={4}></td>
@@ -363,7 +247,11 @@ const page = () => {
                                 </div>
                             </td>
                             <td></td>
-                            <td></td>
+                            <td>
+                                <div className="flex items-center justify-center">
+                                    
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td colSpan={2}>Rating Perilaku Kerja :</td>
@@ -377,7 +265,6 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
             </Card>
         </div>
     );
