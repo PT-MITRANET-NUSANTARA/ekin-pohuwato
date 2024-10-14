@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
                 skps = await SKP.findOne({ user_id, periodeRKT: periode_id })
                     .populate({
                         path: 'rhks',
-                        populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek' }]
+                        populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek', populate: {path: 'rhk'} }]
                     })
                     .populate('perilakus');
             } else {
@@ -103,11 +103,14 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     try {
         const user_id = req.headers.get('user-id');
-        const atasan = req.nextUrl.searchParams.get('ataasan');
+        const atasan = req.nextUrl.searchParams.get('atasan');
         if (!user_id) {
             return NextResponse.json(createResponse(400, 'User ID is required', null));
         }
-
+        console.log('HERE',atasan);
+        console.log('HEREE', typeof atasan);
+        
+        
         const body = await req.json();
         const bodyWithUser = { ...body, user_id };
 

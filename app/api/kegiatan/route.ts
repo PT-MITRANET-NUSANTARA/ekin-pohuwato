@@ -23,6 +23,8 @@ const kegiatanSchema = Joi.object({
   total_anggaran: Joi.number().required().label('Total Anggaran'),
   __v: Joi.optional(),
   _id: Joi.optional(),
+  renstra: Joi.optional(),
+  tujuan: Joi.optional(),
   id: Joi.optional(),
 }).messages({
   'any.required': '{{#label}} wajib diisi.',

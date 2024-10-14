@@ -24,6 +24,7 @@ const programSchema = Joi.object({
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
+  renstra: Joi.optional()
 }).messages({
   'any.required': '{{#label}} wajib diisi.',
   'string.base': '{{#label}} harus berupa teks.',

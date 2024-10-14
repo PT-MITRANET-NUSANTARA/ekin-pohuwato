@@ -7,26 +7,28 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
+import { getById,  store as storeSKP } from '@/controller/SKPController';
+
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
     const [data, setData] = useState(null);
     const [aspek, setAspek] = useState(null);
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getByUserIdAndPeriode(dataItem.id_asn, SKP.periodeRKT);
-                setData(response.data);
-                const aspek = response.data.rhks
-                    .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
-                    .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
-                setAspek(aspek);
-            } catch (error) {
-                console.log(error);
-            }
-        };
+      
         fetchData();
     }, []);
-
+    const fetchData = async () => {
+        try {
+            const response = await getByUserIdAndPeriode(dataItem.id_asn, SKP.periodeRKT);
+            setData(response.data);
+            const aspek = response.data.rhks
+                .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
+                .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
+            setAspek(aspek);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const aspekColumns = [
         {
             title: 'ID',
@@ -40,7 +42,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             dataIndex: 'desc',
             key: 'desc',
             sorter: (a, b) => a.jenis.length - b.jenis.length,
-            width: '30%'
+            width: '30%',
+            render: (text, record) => record.rhk.desc
         },
         {
             title: 'Target Tahunan',
@@ -260,6 +263,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                     };
 
                                                     const rhk = await storeRHK(dataItem.id_asn, dt);
+                                                    fetchData();
                                                     message.success('Berhasil Menambahkan RHK');
                                                 }
                                                 setModal({ trigger: false });
@@ -295,6 +299,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                     },
                                                 };
                                                 const res = await storeAspek(dt);
+                                                fetchData();
+
                                                 message.success('Berhasil Menambahkan Aspek');
                                                 setModal({ trigger: false });
                                             }

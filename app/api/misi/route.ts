@@ -11,6 +11,7 @@ const misiSchema = Joi.object({
   _id: Joi.optional(),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
+  periode: Joi.optional(),
 }).messages({
   'any.required': '{{#label}} wajib diisi.',
   'string.base': '{{#label}} harus berupa teks.',
