@@ -272,7 +272,7 @@ const page = () => {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={5}>Rating Hasil Kinerja</td>
+                            <td colSpan={6}>Rating Hasil Kinerja</td>
                             <td colSpan={4}></td>
                         </tr>
                     </tbody>
@@ -301,13 +301,13 @@ const page = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    {item.feedback || (
+                                    {/* {item.feedback || (
                                         <div className="flex items-center justify-center">
                                             <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
                                                 Tambah
                                             </Button>
                                         </div>
-                                    )}
+                                    )} */}
                                 </td>
                             </tr>
                         ))}

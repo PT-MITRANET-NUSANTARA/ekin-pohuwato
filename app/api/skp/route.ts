@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
                 .populate('perilakus')
                 .populate({
                     path: 'rhks',
-                    populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek' }]
+                    populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek' }, {path: 'harians'}]
                 })
                 .populate('skp').populate('penilaians');
         } else {
