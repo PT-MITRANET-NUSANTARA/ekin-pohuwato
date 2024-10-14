@@ -90,6 +90,13 @@ SKPSchema.virtual('perilakus', {
     justOne: false
 });
 
+SKPSchema.virtual('penilaians', {
+    ref: 'Penilaian',
+    localField: '_id',
+    foreignField: 'skp',
+    justOne: false
+});
+
 const SKP = mongoose.models.SKP || mongoose.model<ISKP>('SKP', SKPSchema);
 
 export default SKP;

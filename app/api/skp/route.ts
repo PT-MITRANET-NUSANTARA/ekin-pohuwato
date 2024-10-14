@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
                     path: 'rhks',
                     populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek' }]
                 })
-                .populate('skp');
+                .populate('skp').populate('penilaians');
         } else {
             skps = await SKP.find({});
         }
