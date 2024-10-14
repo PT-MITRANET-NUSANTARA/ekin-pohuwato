@@ -9,6 +9,7 @@ const aspekSchema = Joi.object({
   jenis: Joi.string().valid('kualitas', 'kuantitas', 'waktu', 'deskripsi').required().label('Jenis'),
   indikator: Joi.string().required().label('Indikator'),
   target_tahunan: Joi.object().required().label('Target Tahunan'),
+  feedback: Joi.array().items(Joi.object()).optional().label('Feedback'),
   desc: Joi.string().optional().label('Deskripsi'),
   __v: Joi.optional(),
   _id: Joi.optional(),

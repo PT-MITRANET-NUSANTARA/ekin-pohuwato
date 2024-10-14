@@ -59,7 +59,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const newData = await getAll(unor.id);
+                const newData = await getAll(IdSkp);
                 setData(newData.data);
                 setAlert({
                     show: true,

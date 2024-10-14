@@ -236,10 +236,7 @@ const page = () => {
                                 async onOk() {
                                     const dt = {
                                         ...record,
-                                        msg: {
-                                            status: 'Terima',
-                                            message: ''
-                                        },
+                                        isSKP: true,
                                         rhk: record.rhk._id,
                                         user_id: String(record.user_id)
                                     };
