@@ -10,9 +10,10 @@ import { title } from 'process';
 const { Title } = Typography;
 const { Option } = Select;
 import { getById } from '@/controller/SKPController';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 const page = () => {
+    const router = useRouter();
     const { IdSkp, IdNilai } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ const page = () => {
     const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [skp, setSkp] = useState(null);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     useEffect(() => {
         fetchData();
@@ -49,6 +51,31 @@ const page = () => {
 
     console.log(data);
 
+    const customSubmit = (values, type, id, formData) => {
+        console.log(values);
+        const query = new URLSearchParams(values).toString();
+        router.push(`/document/${id}/form_penilaian?${query}`);
+    };
+
+    const handleClose = () => {
+        setModal({ trigger: false, modalData: null });
+    };
+
+    const formPerjanjian = [
+        {
+            label: 'Lokasi',
+            name: 'lokasi',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+       
+    ];
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -68,7 +95,7 @@ const page = () => {
                             Nilai
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<PrinterOutlined />}>
+                            <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Upload`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}>
                                 Cetak Form Penilaian
                             </Button>
                             <Button type="default" icon={<PrinterOutlined />}>
@@ -287,6 +314,7 @@ const page = () => {
                     </tbody>
                 </table>
             </Card>
+            <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
         </div>
     );
 };

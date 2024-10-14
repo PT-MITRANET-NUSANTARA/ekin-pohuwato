@@ -1,6 +1,15 @@
+"use client"
+
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 const page = () => {
+    const router = useRouter();
+
+
+    const params = new URLSearchParams(window.location.search);
+    const paramEntries = Object.fromEntries(params.entries());
+    console.log("asdasd", paramEntries);
     return (
         <div className="p-6">
             <div className="header">
