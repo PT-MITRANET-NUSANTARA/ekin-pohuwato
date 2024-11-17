@@ -1,15 +1,12 @@
 'use client';
-
-import { login } from '@/controller/loginController';
-import { Button, Form, Input, Card, message, Typography } from 'antd';
+import { Button, Card, Form, Input, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { setToken } from '@/controller/AuthorizationController';
+import React, { useState } from 'react';
 
 const { Title } = Typography;
 
-const Page = () => {
+const page = () => {
     const [data, setData] = useState({
         username: '',
         password: ''
@@ -57,16 +54,16 @@ const Page = () => {
     };
 
     return (
-        <section className="w-full min-h-screen h-full flex items-center">
+        <div className="w-full min-h-screen h-full flex items-center">
             <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-blue-500">
                 <Card className="max-w-md w-ful p-3">
-                    <div className="mb-6">
+                    <div className='mb-6'>
                         <Title level={4}>Selamat Datang!!</Title>
                         <p>Aplikasi Pemantauan Kinerja ASN Kab Pohuwato.</p>
                     </div>
-                    <Form layout="vertical" onFinish={onSubmit}>
+                    <Form layout="vertical" onFinish={onSubmit} >
                         <Form.Item
-                            className="m-0 mb-2"
+                            className='m-0 mb-2'
                             label="Username"
                             name="username"
                             rules={[
@@ -76,11 +73,11 @@ const Page = () => {
                                 }
                             ]}
                         >
-                            <Input size="large" prefix={<UserOutlined />} placeholder="Masukan Username" name="username" value={data.username} onChange={handleInputChange} />
+                            <Input size="large" prefix={<UserOutlined />} placeholder='Masukan Username' name="username" value={data.username} onChange={handleInputChange} />
                         </Form.Item>
 
                         <Form.Item
-                            className="m-0 mb-4"
+                            className='m-0 mb-4'
                             label="Password"
                             name="password"
                             rules={[
@@ -90,11 +87,11 @@ const Page = () => {
                                 }
                             ]}
                         >
-                            <Input.Password prefix={<LockOutlined />} placeholder="Masukan Password" size="large" name="password" value={data.password} onChange={handleInputChange} />
+                            <Input.Password prefix={<LockOutlined />} placeholder='Masukan Password'  size="large" name="password" value={data.password} onChange={handleInputChange} />
                         </Form.Item>
 
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" size="large" className="w-full">
+                            <Button type="primary" htmlType="submit" size='large' className='w-full'>
                                 Login
                             </Button>
                         </Form.Item>
@@ -102,12 +99,12 @@ const Page = () => {
                 </Card>
             </div>
             <div className="hidden w-full h-full min-h-screen lg:flex items-center justify-center bg-white">
-                <div className="w-96">
-                    <img src="/teamverify.png" className="w-full" />
+                <div className='w-96'>
+                    <img src='/teamverify.png' className='w-full' />
                 </div>
             </div>
-        </section>
+        </div>
     );
 };
 
-export default Page;
+export default page;

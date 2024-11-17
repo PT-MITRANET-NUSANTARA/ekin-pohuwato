@@ -241,3 +241,12 @@ export const dummyHasilPenilaian = [
     }
 ]
 
+export const dummyTpp = Array.from({ length: 10}, (_, index) => ({
+  _id: (index + 1), 
+  unit_organisasi: "unit",
+  idasn: 123123123,
+  nama: 'Test'+ index + 1,
+  jabatan: 'Petinggi',
+  status: (index === 6 ? 'menerima' : index === 1 ? "tidak menerima" : "undifined"),
+}))
+

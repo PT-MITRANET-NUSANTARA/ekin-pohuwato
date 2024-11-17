@@ -95,11 +95,10 @@ const page = () => {
 
     const Column = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Tujuan',
@@ -110,7 +109,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: tujuanFields, trigger: true, modalData: record.tujuan, title: `Lihat Tujuan ${record.tujuan._id}`, type: 'show' })} icon={<SearchOutlined />}>
-                        {record.tujuan._id}
+                        Info
                     </Button>
                 </>
             )

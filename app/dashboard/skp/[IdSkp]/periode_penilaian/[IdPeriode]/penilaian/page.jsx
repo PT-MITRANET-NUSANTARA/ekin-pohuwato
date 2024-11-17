@@ -42,11 +42,10 @@ const page = () => {
     
     const Column = [
         {
-            title: 'ID',
-            dataIndex: 'user_id',
-            key: 'user_id',
-            sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '10%',
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Nama',

@@ -99,11 +99,10 @@ const page = () => {
 
     const Column = [
         {
-            title: 'ID',
-            dataIndex: 'id_sapk',
-            key: 'id_sapk',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Unit',

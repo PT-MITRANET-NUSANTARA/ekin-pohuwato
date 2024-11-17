@@ -136,10 +136,9 @@ const page = () => {
 
     const Column = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
             width: '5%'
         },
         {
@@ -267,7 +266,6 @@ const page = () => {
         }
     ];
 
-    console.log(data);
 
     const formFields = [
         {
