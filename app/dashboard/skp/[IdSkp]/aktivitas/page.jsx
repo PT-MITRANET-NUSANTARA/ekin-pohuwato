@@ -83,11 +83,10 @@ const page = () => {
     const generateColumns = (status) => {
         const columns = [
             {
-                title: 'ID',
-                dataIndex: '_id',
-                key: '_id',
-                sorter: (a, b) => a._id.length - b._id.length,
-                width: '1%'
+                title: 'No',
+                dataIndex: 'index',
+                render: (text, record, index) => index + 1,
+                width: '5%'
             },
             {
                 title: 'RHK',

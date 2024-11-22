@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
@@ -9,17 +9,16 @@ import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
 import { getAll as getAllProgram } from '@/controller/ProgramController';
 import { getAll as getAllTujuan } from '@/controller/TujuanController';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
-import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { dummyTpp } from '@/data/dummyData';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    // const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [kegiatan, setKegiatan] = useState(null);
@@ -27,11 +26,11 @@ const page = () => {
     const [tujuan, setTujuan] = useState(null);
     const [program, setProgram] = useState(null);
 
-    useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+    // useEffect(() => {
+    //     if (data) {
+    //         fetchData();
+    //     }
+    // }, [data]);
 
     const fetchData = async () => {
         try {
@@ -69,7 +68,7 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-            console.log(response)
+            console.log(response);
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
@@ -108,69 +107,62 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Kegiatan',
-            dataIndex: 'kegiatan',
-            key: 'kegiatan',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%',
-            render: (_, record) => (
-                <Button onClick={() => setModal({ formFields: kegiatanFields, trigger: true, modalData: record.kegiatan, title: `Lihat Kegiatan ${record.kegiatan._id}`, type: 'show' })} icon={<SearchOutlined />}>
-                    Info
-                </Button>
-            )
+            title: 'Unit Organisasi',
+            dataIndex: 'unit_organisasi',
+            key: 'unit_organisasi',
+            sorter: (a, b) => a.unit_organisasi.length - b.unit_organisasi.length
         },
         {
-            title: 'Nama',
-            dataIndex: 'name',
-            key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            title: 'ID ASN',
+            dataIndex: 'idasn',
+            key: 'idasn',
+            sorter: (a, b) => a.idasn.length - b.idasn.length
         },
-
         {
-            title: 'Indikator Kinerja',
-            dataIndex: 'indikator_kinerja',
-            key: 'indikator_kinerja',
+            title: 'namaa',
+            dataIndex: 'nama',
+            key: 'nama',
+            sorter: (a, b) => a.nama.length - b.nama.length
+        },
+        {
+            title: 'Jabatan',
+            dataIndex: 'jabatan',
+            key: 'jabatan',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length
+        },
+        {
+            title: 'Status Kehadiran',
+            dataIndex: 'status',
+            key: 'status',
+            sorter: (a, b) => a.status.length - b.status.length,
             width: '30%',
-            render: (_, record) => (
+            render: (_, { status }) => (
                 <>
-                    <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
-                        Info
-                    </Button>
-                    <Modal open={indikatorModal.trigger} onCancel={() => setIndikatorModal({ modalData: null, trigger: false })} footer={null}>
-                        <Table
-                            className="mt-8"
-                            dataSource={indikatorModal.modalData?.map((item, index) => ({ ...item, key: index }))}
-                            pagination={false}
-                            bordered
-                            columns={[
-                                {
-                                    title: 'Indikator',
-                                    dataIndex: 'name',
-                                    key: 'name'
-                                },
-                                {
-                                    title: 'Target',
-                                    dataIndex: 'target',
-                                    key: 'target'
-                                },
-                                {
-                                    title: 'Satuan',
-                                    dataIndex: 'satuan',
-                                    key: 'satuan'
-                                }
-                            ]}
-                        />
-                    </Modal>
+                    {(() => {
+                        switch (status) {
+                            case 'menerima':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'tidak menerima':
+                                return (
+                                    <Tag color="red" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            default:
+                                return (
+                                    <Tag color="error" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                        }
+                    })()}
                 </>
-            )
-        },
-        {
-            title: 'Total Anggaran',
-            dataIndex: 'total_anggaran',
-            key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            ),
+            searchable: true
         },
 
         {
@@ -202,136 +194,61 @@ const page = () => {
                         icon={<DeleteOutlined />}
                     />
 
-                    <Button
+                    {/* <Button
                         onClick={() => router.push(`/dashboard/kegiatans/${record._id}`)}
                         // type='primary'
                         size="middle"
                         color="primary"
                         variant="outlined"
                         icon={<DatabaseOutlined />}
-                    />
+                    /> */}
                 </Space>
             )
         }
     ];
 
-    
     const formFields = [
         {
-            label: 'Renstra',
-            name: 'renstra',
+            label: 'Pegawai',
+            name: 'pegawai',
             type: 'select',
             rules: [
                 {
                     required: true,
-                    message: 'Field renstra wajib di isi'
+                    message: 'Field pegawai wajib di isi'
                 }
             ],
-            options: renstra?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
-                value: item._id,
-                id: item._id
-            }))
-        },
-        {
-            label: 'Tujuan',
-            name: 'tujuan',
-            type: 'select',
-            rules: [
+            options: [
                 {
-                    required: true,
-                    message: 'Field tujuan wajib di isi'
-                }
-            ],
-            options: tujuan?.map((item) => ({
-                label: item.name,
-                value: item._id,
-                id_option_parent: item.renstra._id,
-                id: item._id
-            })),
-            parentField: 'renstra'
-        },
-        {
-            label: 'Program',
-            name: 'program',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field program wajib di isi'
-                }
-            ],
-            options: program?.map((item) => ({
-                label: item.name,
-                value: item._id,
-                id_option_parent: item.tujuan._id,
-                id: item._id
-            })),
-            parentField: 'tujuan'
-        },
-        {
-            label: 'Kegiatan',
-            name: 'kegiatan',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field kegiatan wajib di isi'
-                }
-            ],
-            options: kegiatan?.map((item) => ({
-                label: item.name,
-                value: item._id,
-                id_option_parent: item.program._id,
-                id: item._id
-            })),
-            parentField: 'program'
-        },
-        {
-            label: 'Sub Kegiatan',
-            name: 'name',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field sub kegiatan wajib di isi'
-                }
-            ]
-        },
-
-        {
-            label: 'Indikator Kinerja',
-            name: 'indikator_kinerja',
-            type: 'repeater',
-            obj: { name: 'longtext', target: 'number', satuan: 'string' },
-            rules: [
-                {
-                    required: true,
-                    message: 'Field indikator kinerja wajib di isi'
+                    label: 'pegawai a',
+                    value: '001'
                 }
             ]
         },
         {
-            label: 'Total Anggaran',
-            name: 'total_anggaran',
-            type: 'number',
+            label: 'Status',
+            name: 'status',
+            type: 'select',
             rules: [
                 {
                     required: true,
-                    message: 'Field total anggaran selesai wajib di isi'
+                    message: 'Field status wajib di isi'
                 }
             ],
-            min: 0
-        }
+            options: [
+                {
+                    label: 'diterima',
+                    value: 'diterima'
+                },
+                {
+                    label: 'tidak diterima',
+                    value: 'tidak diterima'
+                }
+            ]
+        },
+        
     ];
 
-    const kegiatanFields = [
-        {
-            label: 'Kegiatan',
-            name: 'name',
-            type: 'text'
-        }
-    ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -354,7 +271,7 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Sub Kegiatan
+                            Data TPP
                         </Title>
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
@@ -363,7 +280,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
+                        <DataTable columns={Column} data={dummyTpp} loading={false} />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
