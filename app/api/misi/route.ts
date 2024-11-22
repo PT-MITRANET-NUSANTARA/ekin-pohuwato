@@ -37,9 +37,13 @@ export async function GET(req: NextRequest) {
     const id = req.nextUrl.searchParams.get('id');
     let misis;
     if (id) {
-      misis = await Misi.findOne({ _id: id }).populate('visi'); // Populate the visi reference
+      misis = await Misi.findOne({ _id: id }).populate('visi');
     } else {
-      misis = await Misi.find({}).populate('visi'); // Populate the visi reference
+      misis = await Misi.find({}) .populate({
+        path: 'visi',
+        populate: {
+          path: 'periode'
+        }}); 
     }
 
     return NextResponse.json(createResponse(200, 'Success', misis, true));
