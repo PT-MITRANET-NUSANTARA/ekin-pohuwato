@@ -90,6 +90,7 @@ const page = () => {
                 deskripsiKegiatan: values.deskripsiKegiatan,
                 tautan: values.tautan,
                 files: updatedListImage,
+                
                 user_id: data.user.idASN,
                 progress: values.progress
             };

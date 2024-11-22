@@ -199,7 +199,7 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.desc}</p>
+                                                    <p>{item.rhk.rkt? item.rhk.rkt.name : item.rhk.desc}</p>
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
                                             </td>
@@ -218,15 +218,11 @@ const page = () => {
                                                 <tr>
                                                     <td>{aspek.jenis}</td>
                                                     <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                        <div className="flex flex-col gap-y-2 text-left">
-                                                            <p>
-                                                                Jumlah Dokumen Pelaksanaan Program dan Kegiatan Bidang, yang meilputi Dokumen perencanaan Pengadaan ASN, Dokumen perencanaan kegiatan pemberhentian ASN serta Dokumen Perencanaan
-                                                                Pengolahan Data dan informasi kepegawaian
-                                                            </p>
-                                                           
-                                                        </div>
-                                                    </td>
-                                                    <td>3 Dokument</td>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{aspek.indikator}</p>
+                                                </div>
+                                            </td>
+                                            <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                                 </tr>
                                             </>
                                         ))}

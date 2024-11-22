@@ -7,7 +7,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
-import { getById,  store as storeSKP } from '@/controller/SKPController';
+import { getById,  store as storeSKP, getBySKPAndPeriode} from '@/controller/SKPController';
 
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
@@ -19,7 +19,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
     }, []);
     const fetchData = async () => {
         try {
-            const response = await getByUserIdAndPeriode(dataItem.id_asn, SKP.periodeRKT);
+            const response = await getBySKPAndPeriode(dataItem.id_asn, SKP.periodeRKT, SKP._id);
+            console.log('MATRIK', response);
+            
             setData(response.data);
             const aspek = response.data.rhks
                 .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
@@ -132,7 +134,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                     message: 'Field rhk wajib di isi'
                 }
             ],
-            options: data?.rhks.map((item) => ({ value: item._id, label: item.desc }))
+            options: data?.rhks?.map((item) => ({ value: item._id, label: item.desc }))
         },
         {
             label: 'Jenis',

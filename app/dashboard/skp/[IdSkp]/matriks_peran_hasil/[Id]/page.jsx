@@ -17,7 +17,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const page = () => {
-    const { Id } = useParams();
+    const { Id, IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     const { data, setData, loading } = useFetchData(getData);
@@ -132,6 +132,8 @@ const page = () => {
         }
     ];
 
+    console.log(SKP);
+    
     const rhkColumns = [
         {
             title: 'ID',
@@ -255,6 +257,8 @@ const page = () => {
             )
         }
     ];
+
+    
 
     const RhkFields = [
         {

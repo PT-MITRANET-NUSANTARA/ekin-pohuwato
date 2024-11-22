@@ -333,7 +333,8 @@ const page = () => {
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
-                                            <p>{item.desc}</p>
+                                        <p>{item.rhk.rkt? item.rhk.rkt.name : item.rhk.desc}</p>
+
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>

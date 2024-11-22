@@ -67,27 +67,50 @@ export async function GET(req: NextRequest) {
         let skps = [];
 
         if (user_id) {
-            if (periode_id) {
+            if (skp_id) {
+                
+                skps = await SKP.findOne({
+                    user_id: user_id, // Pastikan user_id sesuai
+                    periodeRKT: periode_id, // Pastikan periode_id sesuai
+                    skp: { $in: [skp_id] } // Cek apakah skp_id ada di dalam array skp
+                  })  .populate({
+                    path: 'rhks',
+                    populate: [
+                        { path: 'rhk', populate: { path: 'rkt' } },
+                        { path: 'aspek', populate: { path: 'rhk' } }
+                    ]
+                })
+                .populate('perilakus');;
+            }
+            else if (periode_id) {
                 skps = await SKP.findOne({ user_id, periodeRKT: periode_id })
                     .populate({
                         path: 'rhks',
-                        populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek', populate: {path: 'rhk'} }]
+                        populate: [
+                            { path: 'rhk', populate: { path: 'rkt' } },
+                            { path: 'aspek', populate: { path: 'rhk' } }
+                        ]
                     })
                     .populate('perilakus');
             } else {
                 skps = id ? await SKP.findOne({ _id: id, user_id }).populate('rhks').populate('perilakus') : await SKP.find({ user_id }).populate('rhks');
             }
-        }
-        else if (skp_id) {
+        } else if (skp_id) {
             skps = await SKP.find({ skp: { $in: [skp_id] } });
         } else if (id) {
             skps = await SKP.findOne({ _id: id })
                 .populate('perilakus')
                 .populate({
                     path: 'rhks',
-                    populate: [{ path: 'rhk', populate: { path: 'rkt' } }, { path: 'aspek' }, {path: 'harians'}]
+                    populate: [
+                        { path: 'rhk', populate: { path: 'rkt' } }, // Populate 'rhk' dan 'rkt' di dalamnya
+                        { path: 'aspek' }, // Populate 'aspek'
+                        { path: 'harians' }, // Populate 'harians'
+                        { path: 'rkt' } // Populate 'rkt' secara langsung dari 'rhks'
+                    ]
                 })
-                .populate('skp').populate('penilaians');
+                .populate('skp') // Populate 'skp'
+                .populate('penilaians'); // Populate 'penilaians'
         } else {
             skps = await SKP.find({});
         }
@@ -107,10 +130,9 @@ export async function POST(req: NextRequest) {
         if (!user_id) {
             return NextResponse.json(createResponse(400, 'User ID is required', null));
         }
-        console.log('HERE',atasan);
+        console.log('HERE', atasan);
         console.log('HEREE', typeof atasan);
-        
-        
+
         const body = await req.json();
         const bodyWithUser = { ...body, user_id };
 

@@ -117,6 +117,7 @@ const page = () => {
 
             return img;
         });
+        handleClose();
 
         console.log(updatedListImage);
         
@@ -127,7 +128,7 @@ const page = () => {
         console.log(response);
 
         if (response.ok) {
-            const newData = await getByUnitId(unor.induk.id);
+            const newData = await getByUnitId(unor.id);
             setDT(newData.data);
             setAlert({
                 show: true,
