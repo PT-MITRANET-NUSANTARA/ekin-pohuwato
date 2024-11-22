@@ -111,8 +111,6 @@ const page = () => {
             title: 'Kegiatan',
             dataIndex: 'kegiatan',
             key: 'kegiatan',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%',
             render: (_, record) => (
                 <Button onClick={() => setModal({ formFields: kegiatanFields, trigger: true, modalData: record.kegiatan, title: `Lihat Kegiatan ${record.kegiatan._id}`, type: 'show' })} icon={<SearchOutlined />}>
                     Info
@@ -124,14 +122,12 @@ const page = () => {
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
         },
 
         {
             title: 'Indikator Kinerja',
             dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
-            width: '30%',
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
@@ -168,9 +164,8 @@ const page = () => {
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
-            key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            key: 'total_anggaran',
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
         },
 
         {

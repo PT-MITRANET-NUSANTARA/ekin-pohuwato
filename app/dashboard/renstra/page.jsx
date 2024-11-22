@@ -12,6 +12,7 @@ import { getAll as getAllMisi } from '@/controller/MisiController';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
 
 import Link from 'next/link';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 const page = () => {
@@ -105,7 +106,7 @@ const page = () => {
             title: 'Misi',
             dataIndex: 'misi',
             key: 'misi',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.misi.length - b.misi.length,
             width: '30%',
             render: (_, record) => (
                 <>
@@ -141,14 +142,14 @@ const page = () => {
             dataIndex: 'periode_start',
             key: 'periode_start',
             sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
             sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Action',

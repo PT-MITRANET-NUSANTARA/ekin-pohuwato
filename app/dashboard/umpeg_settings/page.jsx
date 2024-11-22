@@ -108,8 +108,7 @@ const page = () => {
             title: 'Unit',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%',
+            sorter: (a, b) => a.nama_unor.length - b.nama_unor.length,
             searchable: true
         },
         {
@@ -117,7 +116,6 @@ const page = () => {
             dataIndex: 'jabatan',
             key: 'jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            width: '30%',
             render: (_, record) => {
                 const matchingItem = UMPEG?.find(item => item.unit.id_sapk === record.id_sapk);
     
@@ -175,7 +173,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field role wajib di isi'
                 }
             ],
             options: selectedUnit

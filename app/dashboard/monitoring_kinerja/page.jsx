@@ -81,14 +81,12 @@ const page = () => {
             dataIndex: 'nama',
             key: 'nama',
             sorter: (a, b) => a.nama.length - b.nama.length,
-            width: '30%'
         },
         {
             title: 'Anggota',
             dataIndex: 'anggota',
             key: 'anggota',
             sorter: (a, b) => a.anggota.length - b.anggota.length,
-            width: '30%',
             searchable: true
         },
         {
@@ -121,7 +119,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field role wajib di isi'
                 }
             ],
             options: [

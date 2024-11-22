@@ -59,15 +59,13 @@ const page = () => {
             title: 'Name',
             dataIndex: 'nama_asn',
             key: 'nama_asn',
-            sorter: (a, b) => a.tim_kerja.length - b.tim_kerja.length,
-            width: '30%'
+            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length,
         },
         {
             title: 'Unit Kerja',
             dataIndex: 'unit',
             key: 'unit',
-            sorter: (a, b) => a.tim_kerja.length - b.tim_kerja.length,
-            width: '30%',
+            sorter: (a, b) => a.unit.length - b.unit.length,
             render: (_, record) => (
                 record.unor && record.unor.nama ? record.unor.nama : 'No Unit'
             ),
@@ -77,7 +75,7 @@ const page = () => {
             title: 'Jabatan',
             dataIndex: 'nama_jabatan',
             key: 'nama_jabatan',
-            sorter: (a, b) => a.ketua_tim.length - b.ketua_tim.length,
+            sorter: (a, b) => a.nama_jabatan.length - b.nama_jabatan.length,
             width: '30%'
         },
         // {

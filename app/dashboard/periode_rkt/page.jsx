@@ -13,6 +13,7 @@ const { Title } = Typography;
 import { store as upload } from '@/controller/DokumentController';
 import { getData } from '@/controller/AuthorizationController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { dateFormatter } from '@/utils';
 const page = () => {
     const router = useRouter();
     const { data, setData } = useFetchData(getData);
@@ -156,22 +157,20 @@ const page = () => {
             title: 'Periode Mulai',
             dataIndex: 'periode_start',
             key: 'periode_start',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Perjanjian Kinerja',
             dataIndex: 'perjanjianKinerja',
             key: 'perjanjianKinerja',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%',
             render: (_, record) => (
                 <>
                     {console.log(record)}

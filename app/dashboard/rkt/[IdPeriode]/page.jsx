@@ -145,14 +145,12 @@ const page = () => {
             title: 'Sub Kegiatan',
             dataIndex: 'subKegiatan',
             key: 'subKegiatan',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '5%'
+            sorter: (a, b) => a.subKegiatan.length - b.subKegiatan.length,
         },
         {
             title: 'Input',
             dataIndex: 'input',
             key: 'input',
-            width: '30%',
             render: (input) => (
                 <div>
                     <div key="name">
@@ -171,7 +169,6 @@ const page = () => {
             title: 'Output',
             dataIndex: 'output',
             key: 'output',
-            width: '30%',
             render: (input) => (
                 <div>
                     <div key="name">
@@ -190,7 +187,6 @@ const page = () => {
             title: 'Outcome',
             dataIndex: 'outcome',
             key: 'outcome',
-            width: '30%',
             render: (input) => (
                 <div>
                     <div key="name">
@@ -210,7 +206,6 @@ const page = () => {
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran - b.total_anggaran,
-            width: '30%'
         },
         {
             title: 'Action',
@@ -275,7 +270,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field sub kegiatan wajib di isi'
                 }
             ],
             options: subkegiatans?.map((item) => ({ value: item._id, label: item.name }))
@@ -298,7 +293,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field input nama wajib di isi'
                 }
             ]
         },
@@ -309,7 +304,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field target capaian wajib di isi'
                 }
             ]
         },
@@ -320,7 +315,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field input satuan wajib di isi'
                 }
             ]
         },
@@ -332,7 +327,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field output nama wajib di isi'
                 }
             ]
         },
@@ -343,7 +338,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field output target capaian wajib di isi'
                 }
             ]
         },
@@ -354,7 +349,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field output satuan wajib di isi'
                 }
             ]
         },
@@ -366,7 +361,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field outcome nama wajib di isi'
                 }
             ]
         },
@@ -377,7 +372,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field outcome target capaian wajib di isi'
                 }
             ]
         },
@@ -388,7 +383,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field outcome satuan wajib di isi'
                 }
             ]
         },
@@ -399,7 +394,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field total anggaran wajib di isi'
                 }
             ],
             min: 0

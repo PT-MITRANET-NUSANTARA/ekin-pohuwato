@@ -13,6 +13,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
 import TextArea from 'antd/es/input/TextArea';
 import { useRouter } from 'next/navigation';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -92,7 +93,6 @@ const page = () => {
                 title: 'RHK',
                 dataIndex: 'rhk',
                 key: 'rhk',
-                width: '30%',
                 render: (_, record) => (
                     <>
                         <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat Visi ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
@@ -105,16 +105,14 @@ const page = () => {
                 title: 'IdASN',
                 dataIndex: 'IdASN',
                 key: 'IdASN',
-                sorter: (a, b) => a.date.length - b.date.length,
-                width: '30%',
+                sorter: (a, b) => a.IdASN.length - b.IdASN.length,
                 render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.userId
             },
             {
                 title: 'Nama',
                 dataIndex: 'name',
                 key: 'name',
-                sorter: (a, b) => a.date.length - b.date.length,
-                width: '30%',
+                sorter: (a, b) => a.name.length - b.name.length,
                 render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.nama_asn
             },
             {
@@ -122,35 +120,33 @@ const page = () => {
                 dataIndex: 'date',
                 key: 'date',
                 sorter: (a, b) => a.date.length - b.date.length,
-                width: '30%'
             },
             {
                 title: 'Deskripsi Kegiatan',
                 dataIndex: 'deskripsiKegiatan',
                 key: 'deskripsiKegiatan',
                 sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
-                width: '30%'
             },
             {
                 title: 'Nama Kegiatan',
                 dataIndex: 'namaKegiatan',
                 key: 'namaKegiatan',
                 sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
-                width: '30%'
             },
             {
                 title: 'Waktu Mulai',
                 dataIndex: 'startDateTime',
                 key: 'startDateTime',
                 sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
-                width: '30%'
+                render: (record) => dateFormatter(record)
             },
             {
                 title: 'Waktu Selesai',
                 dataIndex: 'endDateTime',
                 key: 'endDateTime',
                 sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
-                width: '30%'
+                render: (record) => dateFormatter(record)
+
             },
             {
                 title: 'Status',

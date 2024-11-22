@@ -104,8 +104,7 @@ const page = () => {
             title: 'Tujuan',
             dataIndex: 'tujuan',
             key: 'tujuan',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%',
+            sorter: (a, b) => a.tujuan.length - b.tujuan.length,
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: tujuanFields, trigger: true, modalData: record.tujuan, title: `Lihat Tujuan ${record.tujuan._id}`, type: 'show' })} icon={<SearchOutlined />}>
@@ -119,13 +118,11 @@ const page = () => {
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
         },
         {
             title: 'Indikator Kinerja',
             dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
-            width: '30%',
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>
@@ -163,8 +160,7 @@ const page = () => {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
         },
 
         {
@@ -207,88 +203,6 @@ const page = () => {
                     />
                 </Space>
             )
-        }
-    ];
-
-    console.log('tujuan', tujuan);
-    console.log('renstra', renstra);
-
-    const nana = [
-        {
-            _id: '670a7db99d7ed2c9e14333e9',
-            name: '"Meningkatnya kualitas dan profesionalisme\nASN"\n',
-            sasaran_strategis: '"Terwujudnya ASN\nyang profesional,\nkompeten dan\nkompetitif"\n',
-            indikator_kinerja: [
-                {
-                    name: 'Indeks Profesionalitas ASN\n',
-                    target: 85,
-                    satuan: '%',
-                    _id: '670a7db99d7ed2c9e14333ea'
-                },
-                {
-                    name: 'Indeks Profesionalitas ASN\n',
-                    target: 34,
-                    satuan: '%',
-                    _id: '670a9a6b1d36757ac90c78e6'
-                }
-            ],
-            renstra: {
-                _id: '670a7d9f9d7ed2c9e14333dd',
-                periode_start: '2020-09-26T16:00:00.000Z',
-                periode_end: '2024-11-07T16:00:00.000Z',
-                misi: ['670a7d7d9d7ed2c9e14333bf', '670a7d829d7ed2c9e14333c5', '670a7d889d7ed2c9e14333cb', '670a7d8d9d7ed2c9e14333d1'],
-                createdAt: '2024-10-12T13:46:07.860Z',
-                updatedAt: '2024-10-12T13:46:07.860Z',
-                __v: 0
-            },
-            createdAt: '2024-10-12T13:46:33.285Z',
-            updatedAt: '2024-10-12T15:48:59.914Z',
-            __v: 0
-        }
-    ];
-
-    const nini = [
-        {
-            _id: '670a7d9f9d7ed2c9e14333dd',
-            periode_start: '2020-09-26T16:00:00.000Z',
-            periode_end: '2024-11-07T16:00:00.000Z',
-            misi: [
-                {
-                    _id: '670a7d7d9d7ed2c9e14333bf',
-                    name: 'Mewujudkan pemerintahan yang baik,  Masyarakat  tertib  dan religius',
-                    visi: '670a7d729d7ed2c9e14333b6',
-                    createdAt: '2024-10-12T13:45:33.144Z',
-                    updatedAt: '2024-10-12T13:45:33.144Z',
-                    __v: 0
-                },
-                {
-                    _id: '670a7d829d7ed2c9e14333c5',
-                    name: 'Mewujudkan masyarakat yang produktif dan inovatif',
-                    visi: '670a7d729d7ed2c9e14333b6',
-                    createdAt: '2024-10-12T13:45:38.269Z',
-                    updatedAt: '2024-10-12T13:45:38.269Z',
-                    __v: 0
-                },
-                {
-                    _id: '670a7d889d7ed2c9e14333cb',
-                    name: 'Meningkatkan kualitas pembangunan infrastruktur dan lingkungan',
-                    visi: '670a7d729d7ed2c9e14333b6',
-                    createdAt: '2024-10-12T13:45:44.264Z',
-                    updatedAt: '2024-10-12T13:45:44.264Z',
-                    __v: 0
-                },
-                {
-                    _id: '670a7d8d9d7ed2c9e14333d1',
-                    name: 'Meningkatkan derajat kesehatan masyarakat dan Pendidikan',
-                    visi: '670a7d729d7ed2c9e14333b6',
-                    createdAt: '2024-10-12T13:45:49.834Z',
-                    updatedAt: '2024-10-12T13:45:49.834Z',
-                    __v: 0
-                }
-            ],
-            createdAt: '2024-10-12T13:46:07.860Z',
-            updatedAt: '2024-10-12T13:46:07.860Z',
-            __v: 0
         }
     ];
 

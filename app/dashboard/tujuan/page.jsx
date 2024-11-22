@@ -119,14 +119,12 @@ const page = () => {
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '15%'
         },
         {
             title: 'Renstra',
             dataIndex: 'renstra',
             key: 'renstra',
             sorter: (a, b) => a.renstra.length - b.renstra.length,
-            width: '15%',
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: renstraFields, trigger: true, modalData: record.renstra, title: `Lihat Renstra ${record.renstra._id}`, type: 'show' })} icon={<SearchOutlined />}>
@@ -140,13 +138,11 @@ const page = () => {
             dataIndex: 'sasaran_strategis',
             key: 'sasaran_strategis',
             sorter: (a, b) => a.sasaran_strategis.length - b.sasaran_strategis.length,
-            width: '20%'
         },
         {
             title: 'Indikator Kinerja',
             dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
-            width: '30%',
             render: (_, record) => (
                 <>
                     <Button icon={<SearchOutlined />} onClick={() => setIndikatorModal({ modalData: record.indikator_kinerja, trigger: true })}>

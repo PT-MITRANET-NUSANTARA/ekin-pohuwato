@@ -103,7 +103,6 @@ const page = () => {
             dataIndex: 'visi',
             key: 'visi',
             sorter: (a, b) => a.visi.length - b.visi.length,
-            width: '10%',
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record.visi, title: `Lihat Visi ${record.visi._id}`, type: 'show' })} icon={<SearchOutlined />}>
@@ -116,8 +115,7 @@ const page = () => {
             title: 'Misi',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Action',
@@ -152,10 +150,6 @@ const page = () => {
         }
     ];
 
-
-    console.log(periode)
-
-    console.log(data)
     const misiFields = [
         {
             label: 'Periode',

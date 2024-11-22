@@ -3,6 +3,7 @@
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
+import { dateFormatter } from '@/utils';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
@@ -89,51 +90,45 @@ const page = () => {
             key: 'rhk',
             render: (_, record) => (
                 <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat Visi ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
-                    {record.rhk._id}
+                    Info
                 </Button>
-            ),
-            width: '30%'
+            )
         },
         {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
             sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%'
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Deskripsi Kegiatan',
             dataIndex: 'deskripsiKegiatan',
             key: 'deskripsiKegiatan',
             sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
-            width: '30%'
         },
         {
             title: 'Nama Kegiatan',
             dataIndex: 'namaKegiatan',
             key: 'namaKegiatan',
             sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
-            width: '30%'
         },
         {
             title: 'Waktu Mulai',
             dataIndex: 'startDateTime',
             key: 'startDateTime',
             sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
-            width: '30%'
         },
         {
             title: 'Waktu Selesai',
             dataIndex: 'endDateTime',
             key: 'endDateTime',
             sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
-            width: '30%'
         },
         {
             title: 'Status',
             dataIndex: 'msg',
             key: 'msg',
-            sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
                 <>
                     {console.log(record)}

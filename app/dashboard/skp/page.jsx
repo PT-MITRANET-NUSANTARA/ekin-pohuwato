@@ -64,7 +64,6 @@ const page = () => {
         }
     };
 
-    console.log(data?.user);
     
 
     const onSubmit = async (values, type, id) => {
@@ -143,7 +142,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field renstra wajib di isi'
+                    message: 'Field periode rkt wajib di isi'
                 }
             ],
             options: periodeRKT?.map((item) => ({
@@ -180,7 +179,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode selesai wajib di isi'
+                    message: 'Field pendekatan wajib di isi'
                 }
             ],
             options: [

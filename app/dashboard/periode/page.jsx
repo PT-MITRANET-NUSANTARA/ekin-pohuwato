@@ -1,6 +1,7 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
+import { dateFormatter } from '@/utils';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
@@ -8,6 +9,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/PeriodeController';
+
 const { Title } = Typography;
 
 const page = () => {
@@ -77,15 +79,17 @@ const page = () => {
             title: 'Periode Mulai',
             dataIndex: 'periode_start',
             key: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            width: '30%',
+            render: (record) => dateFormatter(record),
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            width: '30%',
+            render: (record) => dateFormatter(record),
         },
         {
             title: 'Action',

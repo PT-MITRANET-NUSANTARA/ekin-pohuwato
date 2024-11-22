@@ -2,6 +2,7 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
+import { dateFormatter } from '@/utils';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -100,15 +101,16 @@ const page = () => {
             title: 'Periode Mulai',
             dataIndex: 'periodeStart',
             key: 'periodeStart',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periodeStart.length - b.periodeStart.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periodeEnd',
             key: 'periodeEnd',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periodeEnd.length - b.periodeEnd.length,
+            render: (record) => dateFormatter(record)
+
         },
         {
             title: 'Action',
@@ -173,7 +175,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field periode selesai wajib di isi'
                 }
             ]
         }

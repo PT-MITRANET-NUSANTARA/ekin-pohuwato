@@ -60,33 +60,33 @@ const Page = () => {
         <section className="w-full min-h-screen h-full flex items-center">
             <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-blue-500">
                 <Card className="max-w-md w-ful p-3">
-                    <div className="mb-6">
+                    <div className='flex items-start w-24 mb-8'>
+                        <img src='/brand.png' />
+                    </div>
+                    <div className="mb-4">
                         <Title level={4}>Selamat Datang!!</Title>
                         <p>Aplikasi Pemantauan Kinerja ASN Kab Pohuwato.</p>
                     </div>
                     <Form layout="vertical" onFinish={onSubmit}>
                         <Form.Item
-                            className="m-0 mb-2"
                             label="Username"
                             name="username"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Please input your username!'
+                                    message: 'Username tidak boleh kosong!'
                                 }
                             ]}
                         >
                             <Input size="large" prefix={<UserOutlined />} placeholder="Masukan Username" name="username" value={data.username} onChange={handleInputChange} />
                         </Form.Item>
-
                         <Form.Item
-                            className="m-0 mb-4"
                             label="Password"
                             name="password"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Please input your password!'
+                                    message: 'Password tidak boleh kosong !'
                                 }
                             ]}
                         >

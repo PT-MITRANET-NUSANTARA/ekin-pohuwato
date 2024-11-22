@@ -100,14 +100,12 @@ const page = () => {
             dataIndex: 'jenis',
             key: 'jenis',
             sorter: (a, b) => a.jenis.length - b.jenis.length,
-            width: '30%'
         },
         {
             title: 'Indikator',
             dataIndex: 'indikator',
             key: 'indikator',
             sorter: (a, b) => a.indikator.length - b.indikator.length,
-            width: '30%'
         },
 
         {
@@ -147,7 +145,6 @@ const page = () => {
             dataIndex: 'rhk',
             key: 'rhk',
             sorter: (a, b) => a.rhk.length - b.rhk.length,
-            width: '30%',
             render: (_, record) => ( 
                 record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name
             )
@@ -157,7 +154,6 @@ const page = () => {
             dataIndex: 'intervensi',
             key: 'intervensi',
             sorter: (a, b) => a.intervensi.length - b.intervensi.length,
-            width: '30%',
             render: (_, record) => ( 
                 record.desc
             )
@@ -235,7 +231,6 @@ const page = () => {
             dataIndex: 'content',
             key: 'content',
             sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
         },
         {
             title: 'Action',
@@ -269,7 +264,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field rhk wajib di isi'
                 }
             ],
             options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name }))
@@ -281,7 +276,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field klasifikasi wajib di isi'
                 }
             ],
             options: [
@@ -302,7 +297,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field jenis wajib di isi'
                 }
             ],
             options: [
@@ -323,7 +318,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field isi intervensi mulai wajib di isi'
                 }
             ]
         }
@@ -337,7 +332,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field jenis wajib di isi'
                 }
             ],
             options: [
@@ -366,7 +361,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field indikator wajib di isi'
                 }
             ]
         }
@@ -380,7 +375,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field content wajib di isi'
                 }
             ]
         }

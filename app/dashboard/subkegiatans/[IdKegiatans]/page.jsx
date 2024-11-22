@@ -3,6 +3,7 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
+import dateFormatter from "";
 import React, { useCallback, useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByKegiatanId} from '@/controller/SubKegiatanController';
 import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
@@ -105,35 +106,30 @@ const page = () => {
             dataIndex: 'kegiatan',
             key: 'kegiatan',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
         },
         {
             title: 'Indikator Kinerja',
             dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
+            sorter: (a, b) => a.indikator_kinerja.length - b.indikator_kinerja.length,
         },
         {
             title: 'Target Indikator',
             dataIndex: 'target_indikator',
             key: 'target_indikator',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
+            sorter: (a, b) => a.target_indikator.length - b.target_indikator.length,
         },
         {
             title: 'Satuan',
             dataIndex: 'satuan',
             key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.satuan.length - b.satuan.length,
         },
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
         },
         {
             title: 'Action',
@@ -182,7 +178,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field kegiatan wajib di isi'
                 }
             ],
             options: kegiatan?.map((item) => ({ value: item._id, label: item.name }))
@@ -206,7 +202,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field indikator kinerja wajib di isi'
                 }
             ]
         },
@@ -217,7 +213,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field target indikator wajib di isi'
                 }
             ]
         },
@@ -228,7 +224,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field satuan wajib di isi'
                 }
             ]
         },
@@ -240,7 +236,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode selesai wajib di isi'
+                    message: 'Field total anggaran wajib di isi'
                 }
             ],
             min: 0

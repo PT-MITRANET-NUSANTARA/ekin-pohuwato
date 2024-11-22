@@ -83,7 +83,6 @@ const page = () => {
             dataIndex: 'tanggal',
             key: 'tanggal',
             sorter: (a, b) => a.tanggal.length - b.tanggal.length,
-            width: '30%'
         },
         {
             title: 'Action',
@@ -115,7 +114,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field role wajib di isi'
                 }
             ],
             options: [

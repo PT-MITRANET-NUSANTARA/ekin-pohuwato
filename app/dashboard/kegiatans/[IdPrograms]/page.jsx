@@ -96,37 +96,32 @@ const page = () => {
         {
             title: 'Program',
             dataIndex: 'program',
-            key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            key: 'program',
+            sorter: (a, b) => a.program.length - b.program.length,
         },
         {
             title: 'Indikator Kinerja',
             dataIndex: 'indikator_kinerja',
             key: 'indikator_kinerja',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            sorter: (a, b) => a.indikator_kinerja.length - b.indikator_kinerja.length,
         },
         {
             title: 'Target Indikator',
             dataIndex: 'target_indikator',
             key: 'target_indikator',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            sorter: (a, b) => a.target_indikator.length - b.target_indikator.length,
         },
         {
             title: 'Satuan',
             dataIndex: 'satuan',
             key: 'satuan',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            sorter: (a, b) => a.satuan.length - b.satuan.length,
         },
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
         },
 
         {
@@ -167,7 +162,6 @@ const page = () => {
             )
         }
     ];
-    console.log(program);
     
     const formFields = [
         {

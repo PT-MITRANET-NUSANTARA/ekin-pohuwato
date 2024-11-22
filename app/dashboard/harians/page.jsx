@@ -81,14 +81,11 @@ const page = () => {
             dataIndex: 'tanggal',
             key: 'tanggal',
             sorter: (a, b) => a.tanggal.length - b.tanggal.length,
-            width: '30%'
         },
         {
             title: 'Status Kehadiran',
             dataIndex: 'status',
             key: 'status',
-            sorter: (a, b) => a.status.length - b.status.length,
-            width: '30%',
             render: (_, { status }) => (
                 <>
                     {(() => {

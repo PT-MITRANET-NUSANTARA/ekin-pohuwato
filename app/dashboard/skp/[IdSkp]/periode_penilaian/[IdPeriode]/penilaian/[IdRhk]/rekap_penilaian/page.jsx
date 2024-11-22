@@ -23,42 +23,36 @@ const page = () => {
             dataIndex: 'nip',
             key: 'nip',
             sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '30%'
         },
         {
             title: 'Peroide Mulai',
             dataIndex: 'nama',
             key: 'nama',
             sorter: (a, b) => a.nama.length - b.nama.length,
-            width: '30%'
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'jabatan',
             key: 'jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            width: '30%'
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'rating_hasil_kinerja',
             key: 'rating_hasil_kinerja',
             sorter: (a, b) => a.rating_hasil_kinerja.length - b.rating_hasil_kinerja.length,
-            width: '30%'
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'rating_perilaku_kerja',
             key: 'rating_perilaku_kerja',
             sorter: (a, b) => a.rating_perilaku_kerja.length - b.rating_perilaku_kerja.length,
-            width: '30%'
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'predikat_kinerja_periodik',
             key: 'predikat_kinerja_periodik',
             sorter: (a, b) => a.predikat_kinerja_periodik.length - b.predikat_kinerja_periodik.length,
-            width: '30%'
         },
     ];
     return (

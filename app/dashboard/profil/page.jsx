@@ -37,21 +37,17 @@ const page = () => {
             const selectedJabatan = jabatan.mapData.data[0];
             const unit = await getAllPosjabByUnit(data?.token, selectedJabatan.unor.induk.id);
             const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
-            
+
             const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
             console.log('AtASAN', isAtasan);
-            
+
             let bawahan = [];
             let unor = [];
-            
+
             if (isAtasan) {
                 // Filter bawahan based on the selectedJabatan conditions
-                bawahan = unit.mapData.data.filter(
-                    (item) => 
-                        (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) ||
-                        item.unor.atasan?.unor_id === selectedJabatan.unor.id
-                );
-            
+                bawahan = unit.mapData.data.filter((item) => (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
+
                 // Filter unor based on selectedJabatan.unor.id
                 unor = unit.mapData.data
                     .filter((item) => item.unor.id === selectedJabatan.unor.id)
@@ -59,22 +55,19 @@ const page = () => {
                         ...item, // Spread the existing properties of the object
                         isPemimpin: item.userId === selectedJabatan.userId // Set isPemimpin to true if userId matches
                     }));
-                
             } else {
                 // If not an atasan, set bawahan as an empty array
                 bawahan = [];
-                unor = unit.mapData.data
-                .filter((item) => item.unor.id === selectedJabatan.unor.id)
+                unor = unit.mapData.data.filter((item) => item.unor.id === selectedJabatan.unor.id);
             }
             const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
             setFoto(foto);
             setBawahan(bawahan);
-            setUnor(unor)
+            setUnor(unor);
         } catch (error) {
             console.error(error);
         }
     };
-    console.log('UNOR',unor);
 
     const Column = [
         {
@@ -82,31 +75,27 @@ const page = () => {
             dataIndex: 'userId',
             key: 'userId',
             sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '30%',
             searchable: true
         },
         {
             title: 'Nama',
             dataIndex: 'nama_asn',
             key: 'nama_asn',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%',
+            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length,
             searchable: true
         },
         {
             title: 'Jabatan',
             dataIndex: 'nama_jabatan',
             key: 'nama_jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            width: '30%',
+            sorter: (a, b) => a.nama_jabatan.length - b.nama_jabatan.length,
             searchable: true
         },
         {
             title: 'Unit Kerja',
             dataIndex: 'unitkerja',
             key: 'unitkerja',
-            sorter: (a, b) => a.golru.length - b.golru.length,
-            width: '30%',
+            sorter: (a, b) => a.unitkerja.length - b.unitkerja.length,
             searchable: true,
             render: (text, record) => record.unor?.nama || 'N/A' // Safely render `unor.nama` or 'N/A' if not available
         }
@@ -117,15 +106,14 @@ const page = () => {
             title: 'idASN',
             dataIndex: 'userId',
             key: 'userId',
-            sorter: (a, b) => a.nip.length - b.nip.length,
-            width: '30%',
+            sorter: (a, b) => a.userId.length - b.userId.length,
             searchable: true
         },
         {
             title: 'Nama',
             dataIndex: 'nama_asn',
             key: 'nama_asn',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length,
             width: '30%',
             searchable: true
         },
@@ -133,35 +121,28 @@ const page = () => {
             title: 'Jabatan',
             dataIndex: 'nama_jabatan',
             key: 'nama_jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            width: '30%',
+            sorter: (a, b) => a.nama_jabatan.length - b.nama_jabatan.length,
             searchable: true
         },
         {
             title: 'Unit Kerja',
             dataIndex: 'unitkerja',
             key: 'unitkerja',
-            sorter: (a, b) => a.golru.length - b.golru.length,
-            width: '30%',
+            sorter: (a, b) => a.unitKerja.length - b.unitKerja.length,
             searchable: true,
             render: (text, record) => record.unor?.nama || 'N/A' // Safely render `unor.nama` or 'N/A' if not available
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (text, record) => {
+                // If isPemimpin is true, render a Badge with "Pimpinan", otherwise render an empty string
+                return record.isPemimpin ? <Badge count="Pimpinan" style={{ backgroundColor: '#52c41a' }} /> : '';
+            }
         }
-,
-{
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    sorter: (a, b) => a.golru.length - b.golru.length,
-    width: '30%',
-    searchable: true,
-    render: (text, record) => {
-        // If isPemimpin is true, render a Badge with "Pimpinan", otherwise render an empty string
-        return record.isPemimpin ? <Badge count="Pimpinan" style={{ backgroundColor: '#52c41a' }} /> : '';
-    }
-}
-        
     ];
-    
+
     return (
         <div className="w-full grid grid-cols-12 gap-2">
             <div className="col-span-12 mb-6">
@@ -194,20 +175,17 @@ const page = () => {
                             </div>
                         </Tabs.Items>
                         <Tabs.Items tab="List Pegawai Satuan Unit Kerja" key="2">
-                            <DataTable columns={ColumnUnor} data={unor? unor : []} loading={loading} />
+                            <DataTable columns={ColumnUnor} data={unor ? unor : []} loading={loading} />
                         </Tabs.Items>
                         <Tabs.Items tab="List Pegawai Bawahan" key="3">
-                            <DataTable columns={Column} data={bawahan? bawahan : []} loading={loading} />
-                        </Tabs.Items>
-                        <Tabs.Items tab="Klaim Pimpinan Unit Kerja" key="4">
-                            Data UNit
+                            <DataTable columns={Column} data={bawahan ? bawahan : []} loading={loading} />
                         </Tabs.Items>
                     </Tabs>
                 </Card>
             </div>
             <div className="col-span-2">
                 {/* <Avatar src={foto} shape="square" size={200} className="border-4 border-blue-500" /> */}
-                <Image src={foto}  className="w-full border-4 border-blue-500 rounded-lg"  />
+                <Image src={foto} className="w-full border-4 border-blue-500 rounded-lg" />
             </div>
             <div className="col-span-6">
                 <Card>
@@ -292,7 +270,7 @@ const page = () => {
                                 <div className="flex flex-col gap-y-2 text-right items-end">
                                     <p>{user?.jabatan.unor.nama} </p>
                                     <small>ID : {user?.jabatan.unor.id}</small>
-                                    <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
+                                    {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
                                 </div>
                             </div>
                             <div className="flex items-start justify-between py-2">

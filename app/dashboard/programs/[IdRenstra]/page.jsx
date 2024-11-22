@@ -101,43 +101,37 @@ const page = () => {
             title: 'Renstra',
             dataIndex: 'renstra',
             key: 'renstra',
-            sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
+            sorter: (a, b) => a.renstra.length - b.renstra.length,
         },
         {
             title: 'Nama',
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
-            width: '30%'
         },
         {
             title: 'Sasaran Strategis',
             dataIndex: 'sasaran_strategis',
             key: 'sasaran_strategis',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%'
+            sorter: (a, b) => a.sasaran_strategis.length - b.sasaran_strategis.length,
         },
         {
             title: 'Satuan',
             dataIndex: 'satuan',
             key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.satuan.length - b.satuan.length,
         },
         {
             title: 'Target Indikator',
             dataIndex: 'target_indikator',
             key: 'target_indikator',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.target_indikator.length - b.target_indikator.length,
         },
         {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'satuan',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%'
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
         },
 
         {
@@ -243,7 +237,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field stuan wajib di isi'
+                    message: 'Field satuan wajib di isi'
                 }
             ]
         },

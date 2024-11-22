@@ -121,21 +121,18 @@ const page = () => {
             title: 'Periode RKT',
             dataIndex: 'periodeRKT',
             key: 'periodeRKT',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '5%'
+            sorter: (a, b) => a.periodeRKT.length - b.periodeRKT.length,
         },
         {
             title: 'Sub Kegiatan',
             dataIndex: 'subKegiatan',
             key: 'subKegiatan',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '5%'
+            sorter: (a, b) => a.subKegiatan.length - b.subKegiatan.length,
         },
         {
             title: 'Input',
             dataIndex: 'input',
             key: 'input',
-            width: '30%',
             render: (_, record) => (
                 <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
                     Info
@@ -146,7 +143,6 @@ const page = () => {
             title: 'Output',
             dataIndex: 'output',
             key: 'output',
-            width: '30%',
             render: (_, record) => (
                 <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
                     Info
@@ -157,7 +153,6 @@ const page = () => {
             title: 'Outcome',
             dataIndex: 'outcome',
             key: 'outcome',
-            width: '30%',
             render: (_, record) => (
                 <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.outcome, trigger: true })}>
                     Info
@@ -169,7 +164,6 @@ const page = () => {
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran - b.total_anggaran,
-            width: '30%'
         },
         {
             title: 'Action',
@@ -235,7 +229,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field periode rkt wajib di isi'
                 }
             ],
             options: periodeRKT?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
@@ -247,7 +241,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field sub kegiatan wajib di isi'
                 }
             ],
             options: subKegiatan?.map((item) => ({ value: item._id, label: item.name }))
@@ -271,7 +265,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field input wajib di isi'
                 }
             ]
         },
@@ -284,7 +278,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field output wajib di isi'
                 }
             ]
         },
@@ -297,7 +291,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field outcome wajib di isi'
                 }
             ]
         },
@@ -309,7 +303,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field nama wajib di isi'
+                    message: 'Field total anggaran wajib di isi'
                 }
             ],
             min: 1

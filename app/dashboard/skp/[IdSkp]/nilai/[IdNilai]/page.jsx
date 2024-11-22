@@ -53,7 +53,6 @@ const page = () => {
         }
     };
 
-    console.log(data);
 
     const customSubmit = (values, type, id, formData) => {
         console.log(values);

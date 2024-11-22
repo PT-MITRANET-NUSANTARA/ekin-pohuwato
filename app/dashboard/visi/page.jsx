@@ -95,8 +95,6 @@ const page = () => {
             title: 'Periode',
             dataIndex: 'periode',
             key: 'periode',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%',
             render: (_, record) => (
                 <>
                     <Button onClick={() => setModal({ formFields: periodeFields, trigger: true, modalData: record.periode, title: `Lihat Periode ${record.periode._id}`, type: 'show' })} icon={<SearchOutlined />}>
@@ -111,8 +109,7 @@ const page = () => {
             title: 'Visi',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Action',
@@ -162,7 +159,7 @@ const page = () => {
         },
         {
             label: 'Visi',
-            name: 'name',
+            name: 'visi',
             type: 'longtext',
             rules: [
                 {

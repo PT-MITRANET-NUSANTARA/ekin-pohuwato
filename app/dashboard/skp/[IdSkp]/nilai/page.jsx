@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getAll, store, destroy, update } from '@/controller/periodePenilaianController';
 import { getById } from '@/controller/SKPController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -47,15 +48,15 @@ const page = () => {
             title: 'Periode Mulai',
             dataIndex: 'periodeStart',
             key: 'periodeStart',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periodeStart.length - b.periodeStart.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periodeEnd',
             key: 'periodeEnd',
-            sorter: (a, b) => a.content.length - b.content.length,
-            width: '30%'
+            sorter: (a, b) => a.periodeEnd.length - b.periodeEnd.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Action',
