@@ -123,14 +123,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: record, title: `Misi ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: record, title: `Edit Misi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -139,7 +139,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: record, title: `Delete Misi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger

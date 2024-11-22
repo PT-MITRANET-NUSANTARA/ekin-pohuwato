@@ -127,7 +127,7 @@ const page = () => {
                                 },
                                 {
                                     title: 'Visi',
-                                    dataIndex: 'visi',
+                                    dataIndex: ['visi', 'name'],
                                     key: 'visi'
                                 }
                             ]}
@@ -157,13 +157,13 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -172,7 +172,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger

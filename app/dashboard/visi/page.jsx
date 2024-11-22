@@ -1,6 +1,7 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
+import { dateFormatter } from '@/utils';
 import { dummyVisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
@@ -125,7 +126,7 @@ const page = () => {
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Edit Visi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Edit Visi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -134,7 +135,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Delete Visi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Delete Visi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger
@@ -156,11 +157,11 @@ const page = () => {
                     message: 'Field periode wajib di isi'
                 }
             ],
-            options: periode?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
+            options: periode?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
         },
         {
             label: 'Visi',
-            name: 'visi',
+            name: 'name',
             type: 'longtext',
             rules: [
                 {

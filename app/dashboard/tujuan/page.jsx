@@ -118,7 +118,7 @@ const page = () => {
             title: 'Tujuan',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.name.length - b.name.length
         },
         {
             title: 'Renstra',
@@ -137,7 +137,7 @@ const page = () => {
             title: 'Sasaran Strategis',
             dataIndex: 'sasaran_strategis',
             key: 'sasaran_strategis',
-            sorter: (a, b) => a.sasaran_strategis.length - b.sasaran_strategis.length,
+            sorter: (a, b) => a.sasaran_strategis.length - b.sasaran_strategis.length
         },
         {
             title: 'Indikator Kinerja',
@@ -185,8 +185,8 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: record,
-                                title: `Tujuan ${record._id}`,
+                                modalData: { ...record, renstra: record.renstra._id },
+                                title: `Edit Tujuan ${record._id}`,
                                 type: 'show',
                                 formFields: formFields
                             })
@@ -198,7 +198,7 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: record,
+                                modalData: { ...record, renstra: record.renstra._id },
                                 title: `Edit Tujuan ${record._id}`,
                                 type: 'edit',
                                 formFields: formFields
@@ -214,7 +214,7 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: record,
+                                modalData: { ...record, renstra: record.renstra._id },
                                 title: `Delete Tujuan ${record._id}`,
                                 type: 'delete',
                                 formFields: formFields
@@ -290,8 +290,6 @@ const page = () => {
             type: 'date'
         }
     ];
-
-    console.log(data);
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
