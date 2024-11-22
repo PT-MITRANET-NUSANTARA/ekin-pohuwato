@@ -89,6 +89,7 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
+            
             width: '5%'
         },
         {
@@ -102,7 +103,6 @@ const page = () => {
                     </Button>
                 </>
                 // console.log(record)
-                
             )
         },
         {
@@ -110,6 +110,7 @@ const page = () => {
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.length - b.name.length,
+            searchable: true
         },
         {
             title: 'Action',

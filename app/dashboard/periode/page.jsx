@@ -78,17 +78,16 @@ const page = () => {
         {
             title: 'Periode Mulai',
             dataIndex: 'periode_start',
-            key: 'content',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
-            width: '30%',
+            key: 'periode_start',
+            sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
             render: (record) => dateFormatter(record),
+            searchable: true
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
-            key: 'content',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
-            width: '30%',
+            key: 'periode_end',
+            sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
             render: (record) => dateFormatter(record),
         },
         {
