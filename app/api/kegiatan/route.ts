@@ -60,7 +60,15 @@ export async function GET(req: NextRequest) {
       kegiatans = await Kegiatan.find({ program: program_id }).populate('program').populate('subKegiatans');
     } 
     else {
-      kegiatans = await Kegiatan.find({}).populate('program')
+      kegiatans = await Kegiatan.find({}).populate({
+        path: 'program',
+        populate: {
+          path: 'tujuan',
+          populate: {
+            path: 'renstra'
+          }
+        }
+      })
     }
 
     return NextResponse.json(createResponse(200, 'Success', kegiatans, true));
