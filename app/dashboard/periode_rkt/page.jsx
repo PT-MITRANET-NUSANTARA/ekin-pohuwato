@@ -158,14 +158,16 @@ const page = () => {
             title: 'Periode Mulai',
             dataIndex: 'periode_start',
             key: 'periode_start',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
+
             render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
+
             render: (record) => dateFormatter(record)
         },
         {
@@ -248,8 +250,6 @@ const page = () => {
                     message: 'Field periode mulai wajib di isi'
                 }
             ],
-            min: 1,
-            max: 3000
         },
         {
             label: 'Periode Selesai',
@@ -261,8 +261,6 @@ const page = () => {
                     message: 'Field periode selesai wajib di isi'
                 }
             ],
-            min: 1,
-            max: 3000
         }
     ];
 

@@ -141,14 +141,15 @@ const page = () => {
             title: 'Peroide Mulai',
             dataIndex: 'periode_start',
             key: 'periode_start',
-            sorter: (a, b) => a.periode_start.length - b.periode_start.length,
+            sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
+
             render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
-            sorter: (a, b) => a.periode_end.length - b.periode_end.length,
+            sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
             render: (record) => dateFormatter(record)
         },
         {
@@ -205,7 +206,7 @@ const page = () => {
                 }
             ],
             options: periode?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))

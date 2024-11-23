@@ -17,6 +17,7 @@ import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import {  getByUnitId } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -131,7 +132,7 @@ const page = () => {
                 }
             ],
             options: resntra?.map((item) => ({
-                label: item.periode_start + ' - ' + item.periode_end,
+                label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end),
                 value: item._id
             }))
         },
@@ -146,7 +147,7 @@ const page = () => {
                 }
             ],
             options: periodeRKT?.map((item) => ({
-                label: item.periode_start + ' - ' + item.periode_end,
+                label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end),
                 value: item._id
             }))
         },

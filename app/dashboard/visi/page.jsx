@@ -119,7 +119,7 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record, title: `Visi ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Visi ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"

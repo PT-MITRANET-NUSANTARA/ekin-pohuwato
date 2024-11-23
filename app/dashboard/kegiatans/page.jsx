@@ -11,6 +11,7 @@ import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -175,14 +176,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Kegiatan ${record._id}`, type: 'show', formFields: formFields })}
+                        onClick={() => console.log(record)}
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
+                        onClick={() => setModal({ trigger: true, modalData: {...record}, title: `Edit Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -223,7 +224,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))

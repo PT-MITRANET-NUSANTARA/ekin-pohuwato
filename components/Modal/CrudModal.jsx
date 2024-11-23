@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker, Slider, Rate } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Upload, message, TimePicker, Slider, Rate, Tooltip } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
@@ -12,7 +12,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [fileList, setFileList] = useState([]);
     const [imageList, setImageList] = useState([]);
     const [selectValues, setSelectValues] = useState({}); // Menyimpan nilai parent
-    const dokument_url = process.env.NEXT_PUBLIC_API_IMAGE_URL
+    const dokument_url = process.env.NEXT_PUBLIC_API_IMAGE_URL;
 
     useEffect(() => {
         if (isModalOpen) {
@@ -43,8 +43,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 }
 
                 form.setFieldsValue(formattedData); // Set nilai field pada form
-
-                
             } else {
                 form.resetFields(); // Reset form jika tidak ada data
             }
@@ -146,10 +144,9 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         }
     };
 
-    console.log(data);
 
     const renderFormInput = (field) => {
-        const isDisabled = type === 'show' || type === 'delete' ;
+        const isDisabled = type === 'show' || type === 'delete';
         switch (field.type) {
             case 'text':
                 return <Input placeholder={`Enter ${field.label}`} size="large" disabled={isDisabled} />;
@@ -169,14 +166,21 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 const options = field.options?.filter((option) => !field.parentField || option.id_option_parent === parentValue);
 
                 return (
-                    <Select mode={field.mode} size="large" placeholder={`Select ${field.label}`} allowClear disabled={field.parentField && !parentValue || isDisabled} onChange={(value) => handleSelectChange(value, field.name)} optionLabelProp='label'>
+                    <Select
+                        mode={field.mode}
+                        size="large"
+                        placeholder={`Select ${field.label}`}
+                        allowClear
+                        disabled={(field.parentField && !parentValue) || isDisabled}
+                        onChange={(value) => handleSelectChange(value, field.name)}
+                        optionLabelProp="label"
+                    >
                         {options?.map((option) => (
-                            <Option key={option.id} value={option.value} label={option.label
-                            }>
-                               <div className='flex flex-col'>
+                            <Option key={option.id} value={option.value} label={option.label}>
+                                <div className="flex flex-col">
                                     <span>{option.label}</span>
                                     <small>{option.value}</small>
-                               </div>
+                                </div>
                             </Option>
                         ))}
                     </Select>
@@ -263,19 +267,20 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     });
 
     return (
-        <Modal 
-            width={width} 
-            title={title} 
-            open={isModalOpen} 
-            onClose={onClose} 
+        <Modal
+            width={width}
+            title={title}
+            open={isModalOpen}
+            onClose={onClose}
             onCancel={() => {
                 onClose();
                 form.resetFields();
                 setFileList([]);
                 setImageList([]);
-                setSelectValues({})
-            }} 
-            footer={null}>
+                setSelectValues({});
+            }}
+            footer={null}
+        >
             {extraContent}
             <Form form={form} layout="vertical" name="crudForm" className="flex flex-col gap-y-2 mt-6" onFinish={handleSubmit}>
                 {formFields?.map((field, index) => (
@@ -292,12 +297,13 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 )}
                 {type === 'delete' && (
                     <Form.Item className="mt-2">
-                        <Button type="primary" danger htmlType="submit">
-                            Delete
-                        </Button>
+                        <Tooltip title="Hapus Record Yang Dipilih?">
+                            <Button type="primary" danger htmlType="submit">
+                                Delete
+                            </Button>
+                        </Tooltip>
                     </Form.Item>
                 )}
-               
             </Form>
         </Modal>
     );

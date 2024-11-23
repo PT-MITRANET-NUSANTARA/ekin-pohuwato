@@ -8,9 +8,8 @@ import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from 
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { dummyAktivitas } from '@/data/dummyData';
+import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
-import { getByUserId as getRHKByUserId } from '@/controller/RHKController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
@@ -90,7 +89,7 @@ const page = () => {
                 deskripsiKegiatan: values.deskripsiKegiatan,
                 tautan: values.tautan,
                 files: updatedListImage,
-                
+
                 user_id: data.user.idASN,
                 progress: values.progress
             };
@@ -141,8 +140,6 @@ const page = () => {
         console.log('Operation completed');
         handleClose();
     };
-
-
 
     const Column = [
         {
@@ -215,8 +212,7 @@ const page = () => {
                                         <Tag color="yellow" className="capitalize w-fit">
                                             {record.msg.status}
                                         </Tag>
-                                        <span className='text-red-500'>{record.msg.message}</span>
-                                        
+                                        <span className="text-red-500">{record.msg.message}</span>
                                     </div>
                                 );
                             default:
@@ -317,7 +313,7 @@ const page = () => {
             type: 'select',
 
             options: periode?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))

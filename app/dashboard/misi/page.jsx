@@ -5,6 +5,7 @@ import { dummyMisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { dateFormatter } from '@/utils';
 import { getAll, store, update, destroy } from '@/controller/MisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllVisi } from '@/controller/VisiController';
@@ -162,7 +163,7 @@ const page = () => {
                 }
             ],
             options: periode?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             })),

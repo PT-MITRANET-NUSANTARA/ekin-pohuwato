@@ -1,14 +1,14 @@
 'use client';
 
 import { CrudModal, DataTable } from '@/components';
-import { dummyTujuan, dummyVisiMisi } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tooltip, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/TujuanController';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -209,21 +209,21 @@ const page = () => {
                         variant="outlined"
                         icon={<EditOutlined />}
                     />
-
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
-                                modalData: { ...record, renstra: record.renstra._id },
-                                title: `Delete Tujuan ${record._id}`,
-                                type: 'delete',
-                                formFields: formFields
-                            })
-                        }
-                        size="middle"
-                        danger
-                        icon={<DeleteOutlined />}
-                    />
+                    
+                        <Button
+                            onClick={() =>
+                                setModal({
+                                    trigger: true,
+                                    modalData: { ...record, renstra: record.renstra._id },
+                                    title: `Delete Tujuan ${record._id}`,
+                                    type: 'delete',
+                                    formFields: formFields
+                                })
+                            }
+                            size="middle"
+                            danger
+                            icon={<DeleteOutlined />}
+                        />
                 </Space>
             )
         }
@@ -240,7 +240,7 @@ const page = () => {
                     message: 'Field renstra wajib di isi'
                 }
             ],
-            options: renstra?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
+            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
         },
         {
             label: 'Tujuan',

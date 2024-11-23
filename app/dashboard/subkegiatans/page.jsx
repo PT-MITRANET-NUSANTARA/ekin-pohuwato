@@ -12,6 +12,7 @@ import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -223,7 +224,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${item.periode_start} - ${item.periode_end}`,
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))

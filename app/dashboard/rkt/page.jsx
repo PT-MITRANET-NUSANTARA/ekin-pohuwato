@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getData } from '@/controller/AuthorizationController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -232,7 +233,7 @@ const page = () => {
                     message: 'Field periode rkt wajib di isi'
                 }
             ],
-            options: periodeRKT?.map((item) => ({ value: item._id, label: item.periode_start + ' - ' + item.periode_end }))
+            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
         },
         {
             label: 'Sub  Kegiatan',

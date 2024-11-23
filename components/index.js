@@ -8,3 +8,4 @@ export { default as SearchPegawai } from './Select/SearchPegawai';
 export { default as TambahPegawai } from './Modal/TambahPegawai';
 export { default as OverviewCard } from './Card/Overviewcard';
 export { default as MatriksCard } from './Card/MatriksCard';
+export { default as FilterField } from "./FilterField/FilterField";

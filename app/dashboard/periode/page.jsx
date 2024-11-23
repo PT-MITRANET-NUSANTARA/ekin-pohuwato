@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataTable, FilterField } from '@/components';
 import { dateFormatter } from '@/utils';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -148,6 +148,19 @@ const page = () => {
         }
     ];
 
+    const filterFiled = [
+        {
+            id: 1,
+            name: 'periode mulai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample',
+                }
+            ]
+        }
+    ]
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -167,7 +180,7 @@ const page = () => {
             />
             <Card className="">
                 <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex items-center justify-between mb-4">
                         <Title className="mt-2" level={5}>
                             Data Periode
                         </Title>
@@ -177,6 +190,9 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
+                <div className='w-full'>
+                    <FilterField fields={filterFiled}></FilterField>
+                </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} loading={loading} />
                     </div>
