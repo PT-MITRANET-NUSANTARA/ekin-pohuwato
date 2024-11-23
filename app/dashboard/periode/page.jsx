@@ -203,9 +203,9 @@ const page = () => {
                                 </Button>
                             </div>
                         </div>
-                        <div className="w-full">
+                        {/* <div className="w-full">
                             <FilterField fields={filterFiled}></FilterField>
-                        </div>
+                        </div> */}
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
                         </div>
