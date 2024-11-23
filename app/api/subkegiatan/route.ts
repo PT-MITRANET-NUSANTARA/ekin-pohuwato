@@ -63,7 +63,18 @@ export async function GET(req: NextRequest) {
       subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
     }
     else {
-      subKegiatans = await SubKegiatan.find({}).populate('kegiatan');
+      subKegiatans = await SubKegiatan.find({}).populate({
+        path: 'kegiatan',
+        populate: {
+          path: 'program',
+          populate: {
+            path: 'tujuan',
+            populate: {
+              path: 'renstra'
+            }
+          }
+        }
+      });
     }
 
     return NextResponse.json(createResponse(200, 'Success', subKegiatans, true));

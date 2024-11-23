@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         } else if (unit_id) {
             rkts = await RKT.find({ 'unit.id': unit_id });
         } else {
-            rkts = await RKT.find({});
+            rkts = await RKT.find({}).populate('periodeRKT').populate('subKegiatan');
         }
 
         return NextResponse.json(createResponse(200, 'Success', rkts, true));
