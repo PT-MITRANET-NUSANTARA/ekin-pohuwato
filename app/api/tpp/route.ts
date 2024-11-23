@@ -9,6 +9,7 @@ const tppSchema = Joi.object({
     user_id: Joi.string().required().label('User ID'),
     jabatan: Joi.object().required().label('Jabatan'),
     status: Joi.boolean().required().label('Status'),
+    unit: Joi.object().required().label('Unit'),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT')
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
 
     try {
         const user_id = req.headers.get('user-id');
+        const unit_id = req.headers.get('unit-id');
         const periodeRKT = req.headers.get('periodeRKT');
         const id = req.nextUrl.searchParams.get('id');
         let tpps;
@@ -43,7 +45,11 @@ export async function GET(req: NextRequest) {
             tpps = await TPP.findOne({ user_id, periodeRKT }).populate('periodeRKT');
         } else if (user_id) {
             tpps = await TPP.find({ user_id }).populate('periodeRKT');
-        } else {
+        }
+        else if(unit_id) {
+            tpps = await TPP.find({ 'unit.induk.id': unit_id }).populate('periodeRKT');
+        }
+        else {
             tpps = await TPP.find({}).populate('periodeRKT');
         }
 

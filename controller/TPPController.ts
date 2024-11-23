@@ -16,6 +16,21 @@ export const getByUserId = async (id: string) => {
     }
 };
 
+export const getByUnitId = async (id: string) => {
+    try {
+        const response = await apiRequest('/api/tpp', {
+            method: 'GET',
+            headers: {
+                'unit-id': id,
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error("Error fetching TPP by unit ID:", error);
+        throw error; // Re-throw the error for higher-level handling
+    }
+}
+
 // Fetch TPP data by user ID and PeriodeRKT
 export const getByUserIdAndPeriode = async (userId: string, periodeRKT: string) => {
     try {

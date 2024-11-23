@@ -4,60 +4,74 @@ import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography }
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/SubKegiatanController';
-import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
-import { getAll as getAllProgram } from '@/controller/ProgramController';
-import { getAll as getAllTujuan } from '@/controller/TujuanController';
-import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { destroy, getAll, getByUnitId, store, update } from '@/controller/TPPController';
+import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyTpp } from '@/data/dummyData';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    // const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const { data, setData, msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const [kegiatan, setKegiatan] = useState(null);
-    const [renstra, setRenstra] = useState(null);
-    const [tujuan, setTujuan] = useState(null);
-    const [program, setProgram] = useState(null);
-
-    // useEffect(() => {
-    //     if (data) {
-    //         fetchData();
-    //     }
-    // }, [data]);
+    const [periode, setPeriode] = useState(null);
+    const [pegawai, setPegawai] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [tpp, setTpp] = useState(null);
+    const [unor, setUnor] = useState(null);
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
 
     const fetchData = async () => {
         try {
-            const kegiatan = await getAllKegiatan();
-            const renstra = await getAllRenstra();
-            const tujuan = await getAllTujuan();
-            const program = await getAllProgram();
-            setRenstra(renstra.data);
-            setTujuan(tujuan.data);
-            setProgram(program.data);
-            setKegiatan(kegiatan.data);
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
+            const selectedJabatan = jabatan.mapData.data[0];
+            const struktur = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
+            setPegawai(struktur.mapData.data);
+            const periode = await getAllPeriode(selectedJabatan.unor.induk.id);
+            setPeriode(periode.data);
+            setUnor(selectedJabatan.unor.induk.id);
+            const tpp = await getByUnitId(selectedJabatan.unor.induk.id);
+            setTpp(tpp.data);
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
 
+    console.log(pegawai);
+    
+
     const onSubmit = async (values, type, id) => {
         try {
             let response;
+            const jabatan = pegawai.find((item) => item.id_asn === values.pegawai);
+            const dt = {
+                periodeRKT: values.periodeRKT,
+                jabatan: jabatan,
+                unit: jabatan.unor,
+                user_id : jabatan.id_asn,
+                status: values.status
+            };
 
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -70,8 +84,8 @@ const page = () => {
 
             console.log(response);
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const data = await getByUnitId(unor);
+                setTpp(data.data);
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -107,31 +121,31 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Unit Organisasi',
-            dataIndex: 'unit_organisasi',
-            key: 'unit_organisasi',
-            sorter: (a, b) => a.unit_organisasi.length - b.unit_organisasi.length
-        },
-        {
             title: 'ID ASN',
-            dataIndex: 'idasn',
+            dataIndex: ['jabatan', 'id_asn'],
             key: 'idasn',
             sorter: (a, b) => a.idasn.length - b.idasn.length
         },
         {
-            title: 'namaa',
-            dataIndex: 'nama',
+            title: 'Unit Organisasi',
+            dataIndex: ['unit', 'nama'],
+            key: 'unit_organisasi',
+            sorter: (a, b) => a.unit_organisasi.length - b.unit_organisasi.length
+        },
+        {
+            title: 'Nama',
+            dataIndex: ['jabatan', 'nama_asn'],
             key: 'nama',
             sorter: (a, b) => a.nama.length - b.nama.length
         },
         {
             title: 'Jabatan',
-            dataIndex: 'jabatan',
+            dataIndex: ['jabatan', 'nama_jabatan'],
             key: 'jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length
         },
         {
-            title: 'Status Kehadiran',
+            title: 'Status',
             dataIndex: 'status',
             key: 'status',
             sorter: (a, b) => a.status.length - b.status.length,
@@ -139,26 +153,13 @@ const page = () => {
             render: (_, { status }) => (
                 <>
                     {(() => {
-                        switch (status) {
-                            case 'menerima':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                            case 'tidak menerima':
-                                return (
-                                    <Tag color="red" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                            default:
-                                return (
-                                    <Tag color="error" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                        }
+                       if (status) {
+                           return <Tag color="green">Menerima</Tag>;
+                       }
+                       else
+                          {
+                            return <Tag color="red">Tidak Menerima</Tag>;
+                          }
                     })()}
                 </>
             ),
@@ -209,6 +210,23 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Periode RKT',
+            name: 'periodeRKT',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field pegawai wajib di isi'
+                }
+            ],
+            options : periode?.map((item) => ({
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
+
+        {
             label: 'Pegawai',
             name: 'pegawai',
             type: 'select',
@@ -218,12 +236,12 @@ const page = () => {
                     message: 'Field pegawai wajib di isi'
                 }
             ],
-            options: [
-                {
-                    label: 'pegawai a',
-                    value: '001'
-                }
-            ]
+            options : pegawai?.map((item) => ({
+                label: item.nama_asn,
+                value: item.id_asn,
+                id: item.id_asn
+            }))
+            
         },
         {
             label: 'Status',
@@ -237,18 +255,16 @@ const page = () => {
             ],
             options: [
                 {
-                    label: 'diterima',
-                    value: 'diterima'
+                    label: 'Menerima',
+                    value: true
                 },
                 {
-                    label: 'tidak diterima',
-                    value: 'tidak diterima'
+                    label: 'Tidak Menerima',
+                    value: false
                 }
             ]
-        },
-        
+        }
     ];
-
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -280,7 +296,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dummyTpp} loading={false} />
+                        <DataTable columns={Column} data={tpp} loading={loading} />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>

@@ -4,12 +4,17 @@ export interface ITPP extends Document {
   user_id: string;
   jabatan: Object;
   status: boolean; 
+  unit: Object;
   periodeRKT: mongoose.Schema.Types.ObjectId; 
 }
 
 const TPPSchema: Schema = new Schema({
   user_id: {
     type: String,
+    required: true
+  },
+  unit: {
+    type: Object,
     required: true
   },
   jabatan: {
