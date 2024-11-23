@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable } from '@/components';
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tooltip, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -209,21 +209,21 @@ const page = () => {
                         variant="outlined"
                         icon={<EditOutlined />}
                     />
-                    
-                        <Button
-                            onClick={() =>
-                                setModal({
-                                    trigger: true,
-                                    modalData: { ...record, renstra: record.renstra._id },
-                                    title: `Delete Tujuan ${record._id}`,
-                                    type: 'delete',
-                                    formFields: formFields
-                                })
-                            }
-                            size="middle"
-                            danger
-                            icon={<DeleteOutlined />}
-                        />
+
+                    <Button
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, renstra: record.renstra._id },
+                                title: `Delete Tujuan ${record._id}`,
+                                type: 'delete',
+                                formFields: formFields
+                            })
+                        }
+                        size="middle"
+                        danger
+                        icon={<DeleteOutlined />}
+                    />
                 </Space>
             )
         }
@@ -308,24 +308,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Tujuan
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Tujuan
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dateFormatter } from '@/utils';
 import { dummyVisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -90,7 +90,7 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
-            
+
             width: '5%'
         },
         {
@@ -119,14 +119,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Visi ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record, periode: record.periode._id }, title: `Visi ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Edit Visi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record, periode: record.periode._id }, title: `Edit Visi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -135,7 +135,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: {...record, periode: record.periode._id}, title: `Delete Visi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record, periode: record.periode._id }, title: `Delete Visi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger
@@ -201,24 +201,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Visi
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: visiFields })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Visi
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: visiFields })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data}  />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

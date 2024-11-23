@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/KegiatanController';
 import { getAll as getAllProgram } from '@/controller/ProgramController';
@@ -124,7 +124,7 @@ const page = () => {
             title: 'Nama',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.name.length - b.name.length
         },
         {
             title: 'Indikator Kinerja',
@@ -167,7 +167,7 @@ const page = () => {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
-            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length,
+            sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length
         },
 
         {
@@ -176,14 +176,58 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => console.log(record)}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    renstra: {
+                                        label: `${dateFormatter(record.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.program.tujuan.renstra.periode_end)}`,
+                                        value: record.program.tujuan.renstra._id
+                                    },
+                                    tujuan: {
+                                        label: record.program.tujuan.name,
+                                        value: record.program.tujuan._id
+                                    },
+                                    program: {
+                                        label: record.program.name,
+                                        value: record.program._id
+                                    }
+                                },
+                                title: `Edit Program ${record._id}`,
+                                type: 'show',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: {...record}, title: `Edit Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    renstra: {
+                                        label: `${dateFormatter(record.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.program.tujuan.renstra.periode_end)}`,
+                                        value: record.program.tujuan.renstra._id
+                                    },
+                                    tujuan: {
+                                        label: record.program.tujuan.name,
+                                        value: record.program.tujuan._id
+                                    },
+                                    program: {
+                                        label: record.program.name,
+                                        value: record.program._id
+                                    }
+                                },
+                                title: `Edit Program ${record._id}`,
+                                type: 'edit',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -192,7 +236,29 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Kegiatan ${record._id}`, type: 'delete', formFields: formFields })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    renstra: {
+                                        label: `${dateFormatter(record.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.program.tujuan.renstra.periode_end)}`,
+                                        value: record.program.tujuan.renstra._id
+                                    },
+                                    tujuan: {
+                                        label: record.program.tujuan.name,
+                                        value: record.program.tujuan._id
+                                    },
+                                    program: {
+                                        label: record.program.name,
+                                        value: record.program._id
+                                    }
+                                },
+                                title: `Edit Program ${record._id}`,
+                                type: 'delete',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         danger
@@ -331,24 +397,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Kegiatan
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Kegiatan
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} loading={loading} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dummyMisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
@@ -60,7 +60,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
             console.log(response);
-            
 
             if (response.ok) {
                 const data = await getAll();
@@ -116,7 +115,7 @@ const page = () => {
             title: 'Misi',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.name.length - b.name.length
         },
         {
             title: 'Action',
@@ -124,14 +123,14 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'show' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'show' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -140,7 +139,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: {...record, visi: record.visi._id, periode: record.visi.periode}, title: `Edit Misi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger
@@ -166,7 +165,7 @@ const page = () => {
                 label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
                 id: item._id
-            })),
+            }))
         },
         {
             label: 'Visi',
@@ -178,12 +177,12 @@ const page = () => {
                     message: 'Field visi wajib di isi'
                 }
             ],
-            options: visi?.map((item) => ({ 
+            options: visi?.map((item) => ({
                 label: item.name,
                 value: item._id,
                 id_option_parent: item.periode._id,
                 id: item._id
-             })),
+            })),
             parentField: 'periode'
         },
         {
@@ -225,24 +224,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Misi
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: misiFields })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Misi
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: misiFields })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data}  />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

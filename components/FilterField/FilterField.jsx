@@ -7,7 +7,7 @@ const FilterField = ({ fields, data }) => {
     return (
         <>
             <hr className="mb-4" />
-            <Form className="w-full mb-4 inline-flex gap-2">
+            <Form className="w-full mb-2 inline-flex gap-2">
                 <div className="grid grid-cols-12 w-full gap-4">
                     {fields.map((fieldItem) => {
                         return (
