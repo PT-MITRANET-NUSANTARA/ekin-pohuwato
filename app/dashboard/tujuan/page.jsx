@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable, LoaderPage } from '@/components';
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tooltip, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -13,11 +13,13 @@ import { dateFormatter } from '@/utils';
 const { Title } = Typography;
 
 const page = () => {
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const { data, setData, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false)    
 
     useEffect(() => {
         if (data) {
@@ -29,14 +31,20 @@ const page = () => {
         try {
             const data = await getAllRenstra();
             setRenstra(data.data);
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
     const onSubmit = async (values, type, id) => {
         try {
+            setSubmitLoading(true)
             let response;
             const dt = values;
+
+            console.log(dt);
+
+            
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -80,6 +88,8 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false);
+        
 
         console.log('Operation completed');
         handleClose();
@@ -326,7 +336,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
                 </Card>
             )}

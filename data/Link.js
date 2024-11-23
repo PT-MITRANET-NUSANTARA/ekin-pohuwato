@@ -8,11 +8,7 @@ export const DashboardLink = [
       label: 'Dashboard',
       path: "/dashboard",
     },
-    {
-      icon: BlockOutlined,
-      label: 'TPP',
-      path: "/dashboard/tpp",
-    },
+   
     {
       icon: RocketOutlined,
       label: 'Visi Misi Periode',
@@ -87,6 +83,11 @@ export const DashboardLink = [
       icon: AuditOutlined,
       label: 'SKP',
       path: "/dashboard/skp",
+    },
+    {
+      icon: BlockOutlined,
+      label: 'TPP',
+      path: "/dashboard/tpp",
     },
     {
       icon: SettingOutlined,

@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, getByUnitId, store, update } from '@/controller/TPPController';
 import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
@@ -50,21 +50,23 @@ const page = () => {
         }
     };
 
-    console.log(pegawai);
-    
-
     const onSubmit = async (values, type, id) => {
+        setLoading(true);
         try {
             let response;
             const jabatan = pegawai.find((item) => item.id_asn === values.pegawai);
+            console.log(values);
+            
             const dt = {
                 periodeRKT: values.periodeRKT,
                 jabatan: jabatan,
                 unit: jabatan.unor,
-                user_id : jabatan.id_asn,
+                user_id: jabatan.id_asn,
                 status: values.status
             };
-
+            
+            
+            
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -107,10 +109,12 @@ const page = () => {
                 description: error.message,
                 type: 'error'
             });
-        }
+        } 
+        setLoading(false);
 
         console.log('Operation completed');
         handleClose();
+
     };
 
     const Column = [
@@ -149,17 +153,14 @@ const page = () => {
             dataIndex: 'status',
             key: 'status',
             sorter: (a, b) => a.status.length - b.status.length,
-            width: '30%',
             render: (_, { status }) => (
                 <>
                     {(() => {
-                       if (status) {
-                           return <Tag color="green">Menerima</Tag>;
-                       }
-                       else
-                          {
+                        if (status) {
+                            return <Tag color="green">Menerima</Tag>;
+                        } else {
                             return <Tag color="red">Tidak Menerima</Tag>;
-                          }
+                        }
                     })()}
                 </>
             ),
@@ -172,14 +173,38 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Sub Kegiatan ${record._id}`, type: 'show', formFields: formFields })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    periodeRKT: record.periodeRKT._id ,
+                                    pegawai: record.jabatan.id_asn
+                                },
+                                title: `Edit Sub Kegiatan ${record._id}`,
+                                type: 'show',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Sub Kegiatan ${record._id}`, type: 'edit', formFields: formFields })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    periodeRKT: record.periodeRKT._id ,
+                                    pegawai:  record.jabatan.id_asn
+                                },
+                                title: `Edit Sub Kegiatan ${record._id}`,
+                                type: 'edit',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -188,7 +213,19 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Sub Kegiatan ${record._id}`, type: 'delete', formFields: formFields })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                  periodeRKT: record.periodeRKT._id ,
+                                    pegawai:  record.jabatan.id_asn
+                                },
+                                title: `Edit Sub Kegiatan ${record._id}`,
+                                type: 'delete',
+                                formFields: formFields
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         danger
@@ -219,10 +256,9 @@ const page = () => {
                     message: 'Field pegawai wajib di isi'
                 }
             ],
-            options : periode?.map((item) => ({
+            options: periode?.map((item) => ({
                 label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
                 value: item._id,
-                id: item._id
             }))
         },
 
@@ -236,12 +272,11 @@ const page = () => {
                     message: 'Field pegawai wajib di isi'
                 }
             ],
-            options : pegawai?.map((item) => ({
+            options: pegawai?.map((item) => ({
                 label: item.nama_asn,
                 value: item.id_asn,
                 id: item.id_asn
             }))
-            
         },
         {
             label: 'Status',
@@ -283,24 +318,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data TPP
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data TPP
+                            </Title>
+                            <div>
+                                <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={tpp} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={tpp} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };
