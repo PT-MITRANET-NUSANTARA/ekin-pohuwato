@@ -158,7 +158,18 @@ const page = () => {
                     value: 'sample',
                 }
             ]
-        }
+        },
+        {
+            id: 2,
+            name: 'periode mulai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample',
+                }
+            ]
+        },
+        
     ]
 
     const handleClose = () => {
