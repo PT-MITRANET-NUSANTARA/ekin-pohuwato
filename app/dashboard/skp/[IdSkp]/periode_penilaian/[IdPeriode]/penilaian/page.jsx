@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,30 +16,28 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
-    const {data, setData} = useFetchData(getData);
+    const { data, setData } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [loading, setLoading] = useState(true);
-    useEffect(() => {   
+    useEffect(() => {
         if (data) {
             fetchData();
         }
     }, [data]);
 
-    const fetchData = async () => { 
+    const fetchData = async () => {
         try {
             const skp = await getById(IdSkp);
-            const bawahan = await getBySKP(skp.data._id)
+            const bawahan = await getBySKP(skp.data._id);
             setBawahan(bawahan.data);
             setSKP(skp.data);
             setLoading(false);
         } catch (error) {
-            console.log(error);       
+            console.log(error);
         }
-    }
+    };
 
-    
-    
     const Column = [
         {
             title: 'No',
@@ -77,7 +75,7 @@ const page = () => {
                 return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
             }
         },
-        
+
         {
             title: 'Action',
             key: 'action',
@@ -150,10 +148,14 @@ const page = () => {
                     <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
+                    <Button type="default" icon={<PrinterOutlined />}>
+                        Cetak Dokumen Evaluasi Kinerja
+                    </Button>
                     <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
                         Lihat Kurva
                     </Button>
                     <Button type="primary">Pembinaan Bawahan</Button>
+                   
                 </div>
                 <DataTable columns={Column} data={bawahan} loading={loading} />
                 {/* <Tabs defaultActiveKey="1" type="card">

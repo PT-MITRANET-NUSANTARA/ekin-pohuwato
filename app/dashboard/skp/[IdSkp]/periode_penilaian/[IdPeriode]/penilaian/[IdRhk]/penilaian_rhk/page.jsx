@@ -158,12 +158,10 @@ const page = () => {
                             Sasaran Kinerja Pegawai
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<PrinterOutlined />}>
+                            {/* <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Form Penilaian
-                            </Button>
-                            <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak Dokumen Evaluasi Kinerja
-                            </Button>
+                            </Button> */}
+                           
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
                                 Buat Rating Hasil Kinerja
                             </Button>

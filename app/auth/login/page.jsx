@@ -15,6 +15,7 @@ const Page = () => {
         password: ''
     });
     const router = useRouter();
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -31,6 +32,7 @@ const Page = () => {
 
     const onSubmit = async (values) => {
         try {
+            setSubmitLoading(true)  
             const response = await login(data.username, data.password);
             if (response.success) {
                 const match = response.mapData.redirect_uri.match(/access_token=([^&]*)/);
@@ -54,6 +56,7 @@ const Page = () => {
             message.error('An error occurred while logging in. Please try again later.');
             console.log(error);
         }
+        setSubmitLoading(false);
     };
 
     return (
@@ -94,7 +97,7 @@ const Page = () => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" size="large" className="w-full">
+                            <Button loading={submitLoading} type="primary" htmlType="submit" size="large" className="w-full">
                                 Login
                             </Button>
                         </Form.Item>

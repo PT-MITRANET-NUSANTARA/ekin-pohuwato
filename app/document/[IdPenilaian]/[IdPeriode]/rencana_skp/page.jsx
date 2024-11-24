@@ -79,14 +79,14 @@ const page = () => {
         }
     };
 
-    console.log("atasan", atasan)
+    console.log('atasan', atasan);
 
     return (
         <div className="p-6">
             <div className="header">
-                <h1>evaluasi kinerja pegawai</h1>
+                <h1>SASARAN KINERJA PEGAWAI</h1>
                 <p>pendekatan hasil kinerja kuantitatif</p>
-                <p className="periode">periode : {dayjs(periode?.periodeStart).format('MMMM')}</p>
+                <p>BAGI PEJABAT ADMINISTRASI DAN PEJABAT FUNGSIONAL</p>
             </div>
             <table className="subheader">
                 <tbody>
@@ -146,12 +146,6 @@ const page = () => {
                     </tr>
                 </tbody>
             </table>
-            <div className="uppercase mt-2 p-2 bg-sky-300 font-semibold border border-black">
-                <p>CAPAIAN KINERJA ORGANISASI</p>-
-            </div>
-            <div className="uppercase p-2 bg-sky-300 font-semibold border border-black">
-                <p>pola distribusi</p>-
-            </div>
             <table className="w-full border border-black mt-2">
                 <tbody className="w-full border border-black">
                     <tr className="border border-black">
@@ -231,9 +225,7 @@ const page = () => {
                     </tr>
                 </tbody>
             </table>
-            <div className="uppercase mt-2 p-2 bg-sky-300 font-semibold border border-black">
-                <p>RATING HASIL KERJA</p> {penilaian?.ratingKinerja} 
-            </div>
+
             <table className="w-full border border-black mt-2">
                 <tbody className="w-full border border-black">
                     <tr className="font-bold">
@@ -269,12 +261,7 @@ const page = () => {
                     ))}
                 </tbody>
             </table>
-            <div className="uppercase mt-2 p-2 bg-sky-300 font-semibold border border-black">
-                <p>RATING PERILAKU KINERJA</p> {penilaian?.ratingPerilaku}
-            </div>
-            <div className="uppercase mt-2 p-2 bg-sky-300 font-semibold border border-black">
-                <p>PREDIKAT KINERJA PEGAWAI</p>-
-            </div>
+
             <table className="w-full mt-6">
                 <tbody className="w-full">
                     <tr className="text-center">
