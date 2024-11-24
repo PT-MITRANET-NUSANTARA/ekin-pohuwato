@@ -20,6 +20,8 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [renstra, setRenstra] = useState(null);
     const [tujuan, setTujuan] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
+
 
     useEffect(() => {
         if (data) {
@@ -46,7 +48,7 @@ const page = () => {
         try {
             let response;
             console.log(values);
-
+            setSubmitLoading(true)
             switch (type) {
                 case 'create':
                     response = await store(values);
@@ -90,6 +92,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false) 
 
         handleClose();
     };
@@ -385,7 +388,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <CrudModal  isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
                 </Card>
             )}

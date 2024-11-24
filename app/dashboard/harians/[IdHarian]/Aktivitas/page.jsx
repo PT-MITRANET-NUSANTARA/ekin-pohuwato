@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
@@ -27,6 +27,8 @@ const page = () => {
     const [rhk, setRHK] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [skp, setSKP] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
+    
 
     useEffect(() => {
         if (data) {
@@ -63,6 +65,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
+            setSubmitLoading(true)
             let response;
             let dt = {};
             const updatedListImage = listImage.map((img) => {
@@ -136,6 +139,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false)
 
         console.log('Operation completed');
         handleClose();
@@ -143,18 +147,18 @@ const page = () => {
 
     const Column = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
             sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%'
+            width: '30%',
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Deskripsi Kegiatan',
@@ -273,33 +277,58 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
-                        // type='primary'
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
+                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
+                                },
+                                title: `Renstra ${record._id}`,
+                                type: 'show'
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="default"
                         icon={<EyeOutlined />}
                     />
+                    <Button
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
+                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
+                                },
+                                title: `Renstra ${record._id}`,
+                                type: 'edit'
+                            })
+                        }
+                        // type='primary'
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
+                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
+                                },
+                                title: `Delete Renstra ${record._id}`,
+                                type: 'delete'
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
-                    />
-
-                    <Button
-                        onClick={() => router.push(`/dashboard/harians/${record._id}/Aktivitas`)}
-                        // type='primary'
-                        size="middle"
-                        color="danger"
-                        icon={<DatabaseOutlined />}
                     />
                 </Space>
             )
@@ -324,7 +353,7 @@ const page = () => {
             type: 'select',
 
             options: skp?.map((item) => ({
-                label: `${item.periode_awal} - ${item.periode_akhir}`,
+                label: `${dateFormatter(item.periode_awal)} - ${dateFormatter(item.periode_akhir)}`,
                 value: item._id,
                 id_option_parent: item.periodeRKT,
                 id: item._id
@@ -435,24 +464,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Detail Data Harian
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Detail Data Harian
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={harian} loading={loading} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={harian} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

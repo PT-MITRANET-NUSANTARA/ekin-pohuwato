@@ -297,7 +297,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 )}
                 {type === 'delete' && (
                     <Form.Item className="mt-2">
-                        <Tooltip title="Hapus Record Yang Dipilih?">
+                        <Tooltip color='red' title="Apakah anda yakin ingin menghapus? tindakan ini tidak dapat dibatalkan, dan data yang dihapus tidak dapat dipulih">
                             <Button type="primary" danger htmlType="submit" loading={isLoading}>
                                 Delete
                             </Button>

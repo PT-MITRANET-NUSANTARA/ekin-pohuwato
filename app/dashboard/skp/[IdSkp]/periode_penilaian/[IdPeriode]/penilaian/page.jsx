@@ -136,7 +136,6 @@ const page = () => {
                         <div className="flex flex-col gap-y-2 text-right items-end">
                             <p>{skp?.jabatan[skp.jabatan.length - 1].unor.nama}</p>
                             <small>ID : {skp?.jabatan[skp.jabatan.length - 1].unor.id}</small>
-                            <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} />
                         </div>
                     </div>
                     <div className="flex items-start justify-between py-2">

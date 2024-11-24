@@ -27,6 +27,8 @@ const page = () => {
     const [subKegiatan, setSubkegiatans] = useState(null);
     const [unor, setUnor] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false)
+    
 
     useEffect(() => {
         if (data) {
@@ -60,6 +62,7 @@ const page = () => {
             let dt = values;
             dt = { ...dt, unit: unor };
             console.log(dt);
+            setSubmitLoading(true)
 
             switch (type) {
                 case 'create':
@@ -105,10 +108,13 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false)
 
         console.log('Operation completed');
         handleClose();
     };
+
+    
 
     const Column = [
         {
@@ -116,28 +122,6 @@ const page = () => {
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
-        },
-        {
-            title: 'Periode RKT',
-            dataIndex: 'periodeRKT',
-            key: 'periodeRKT',
-            sorter: (a, b) => a.periodeRKT.length - b.periodeRKT.length
-        },
-        {
-            title: 'Sub Kegiatan',
-            dataIndex: 'subKegiatan',
-            key: 'subKegiatan',
-            sorter: (a, b) => a.subKegiatan.length - b.subKegiatan.length
-        },
-        {
-            title: 'Input',
-            dataIndex: 'input',
-            key: 'input',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
-                    Info
-                </Button>
-            )
         },
         {
             title: 'Output',
@@ -314,6 +298,8 @@ const page = () => {
         setModal({ trigger: false, modalData: null });
     };
 
+    console.log(dt)
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -345,7 +331,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={dt} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                         <Modal open={customModal.trigger} onCancel={() => setCustomModal({ modalData: null, trigger: false })} footer={null}>
                             {customModal.modalData ? (
                                 <Table

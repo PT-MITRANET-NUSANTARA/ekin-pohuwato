@@ -23,6 +23,8 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [misi, setMisi] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
+
 
     useEffect(() => {
         if (data) {
@@ -43,6 +45,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id) => {
         try {
+            setSubmitLoading(true);
             let response;
 
             switch (type) {
@@ -89,6 +92,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -302,7 +306,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                     </div>
                 </Card>
             )}

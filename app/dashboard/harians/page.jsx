@@ -9,6 +9,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyHarian } from '@/data/dummyData';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -81,6 +82,7 @@ const page = () => {
             dataIndex: 'tanggal',
             key: 'tanggal',
             sorter: (a, b) => a.tanggal.length - b.tanggal.length,
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Status Kehadiran',
