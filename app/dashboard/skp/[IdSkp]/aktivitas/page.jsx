@@ -120,6 +120,8 @@ const page = () => {
                 dataIndex: 'date',
                 key: 'date',
                 sorter: (a, b) => a.date.length - b.date.length,
+                render: (record) => dateFormatter(record)
+
             },
             {
                 title: 'Deskripsi Kegiatan',
@@ -138,14 +140,14 @@ const page = () => {
                 dataIndex: 'startDateTime',
                 key: 'startDateTime',
                 sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
-                render: (record) => dateFormatter(record)
+                // render: (record) => dateFormatter(record)
             },
             {
                 title: 'Waktu Selesai',
                 dataIndex: 'endDateTime',
                 key: 'endDateTime',
                 sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
-                render: (record) => dateFormatter(record)
+                // render: (record) => dateFormatter(record)
 
             },
             {

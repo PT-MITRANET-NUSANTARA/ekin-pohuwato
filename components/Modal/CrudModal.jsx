@@ -6,7 +6,7 @@ import { UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/i
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
-const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width }) => {
+const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, type = 'show', children, width, isLoading }) => {
     const [form] = Form.useForm();
     const { Option } = Select;
     const [fileList, setFileList] = useState([]);
@@ -289,16 +289,16 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                     </Form.Item>
                 ))}
                 {type !== 'show' && type !== 'delete' && (
-                    <Form.Item className="mt-2">
-                        <Button type="primary" htmlType="submit">
+                    <Form.Item className="mt-2" >
+                        <Button type="primary" htmlType="submit" loading={isLoading}>
                             Submit
                         </Button>
                     </Form.Item>
                 )}
                 {type === 'delete' && (
                     <Form.Item className="mt-2">
-                        <Tooltip title="Hapus Record Yang Dipilih?">
-                            <Button type="primary" danger htmlType="submit">
+                        <Tooltip color='red' title="Apakah anda yakin ingin menghapus? tindakan ini tidak dapat dibatalkan, dan data yang dihapus tidak dapat dipulih">
+                            <Button type="primary" danger htmlType="submit" loading={isLoading}>
                                 Delete
                             </Button>
                         </Tooltip>

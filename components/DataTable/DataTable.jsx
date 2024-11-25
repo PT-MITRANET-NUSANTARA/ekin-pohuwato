@@ -5,7 +5,7 @@ import { Button, Input, Skeleton, Space, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 
-const DataTable = ({ columns, data, loading }) => {
+const DataTable = ({ columns, data }) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -129,18 +129,11 @@ const DataTable = ({ columns, data, loading }) => {
         }));
 
     return (
-        <>
-            {loading ? (
-                <Skeleton active />
-            ) : (
-                <Table
-                    columns={enhancedColumns}
-                    dataSource={data}
-                    loading={loading}
-                    pagination={{ pageSize: 10 }} // Adjust pagination if needed
-                />
-            )}
-        </>
+        <Table
+            columns={enhancedColumns}
+            dataSource={data}
+            pagination={{ pageSize: 10 }} // Adjust pagination if needed
+        />
     );
 };
 

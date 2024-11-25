@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, List, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
@@ -23,6 +23,8 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [loadingData, setLoadingData] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false)
+
     useEffect(() => {
         if (data) {
             fetchData();
@@ -47,6 +49,7 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: unor };
+            setSubmitLoading(true)
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -90,6 +93,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false)
 
         console.log('Operation completed');
         handleClose();
@@ -184,14 +188,14 @@ const page = () => {
                             size="middle"
                             color="default"
                             onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
-                            icon={<EyeOutlined />}
+                            icon={<DownloadOutlined />}
                         />
                         <Button
                             // type='primary'
                             size="middle"
                             color="default"
                             onClick={() => router.push('/document/1/perjanjian_kinerja')}
-                            icon={<DownloadOutlined />}
+                            icon={<EyeOutlined />}
                         />
                     </Space>
                 </>
@@ -364,7 +368,10 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
+            {loadingData ? (
+                <DataLoading loadingData={loadingData} />
+            ) : (
+                <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
@@ -377,11 +384,13 @@ const page = () => {
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dt} loading={loadingData} />
+                        <DataTable columns={Column} data={dt} />
                     </div>
-                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+                    <CrudModal isLoading={submitLoading} title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </div>
             </Card>
+            )}
+            
         </div>
     );
 };

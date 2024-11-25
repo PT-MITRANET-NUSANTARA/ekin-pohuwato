@@ -132,7 +132,6 @@ const page = () => {
         }
     ];
 
-    console.log(SKP);
     
     const rhkColumns = [
         {
@@ -203,14 +202,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: {...record, rhk: record.rhk._id}, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: {...record, rhk: record.rhk._id}, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}

@@ -74,7 +74,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             title: 'Action',
             key: 'action',
             render: (_, record) => {
-                const { target_tahunan, ...rest } = record;
+                const { target_tahunan, rhk , ...rest } = record;
                 return (
                     <Space size="small">
                         <Button
@@ -84,6 +84,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     trigger: true,
                                     modalData: {
                                         ...rest,
+                                        rhk: rhk._id,
                                         target_tahunan: target_tahunan?.target,
                                         satuan: target_tahunan?.satuan
                                     },
@@ -104,6 +105,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     trigger: true,
                                     modalData: {
                                         ...rest,
+                                        rhk: rhk._id,
                                         target_tahunan: target_tahunan?.target,
                                         satuan: target_tahunan?.satuan
                                     },

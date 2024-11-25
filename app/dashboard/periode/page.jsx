@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable, FilterField } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
 import { dateFormatter } from '@/utils';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -16,9 +16,10 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-
+    const [submitLoading, setSubmitLoading] = useState(false)
     const onSubmit = async (values, type, id) => {
         try {
+            setSubmitLoading(true);
             let response;
 
             switch (type) {
@@ -63,6 +64,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -88,7 +90,7 @@ const page = () => {
             dataIndex: 'periode_end',
             key: 'periode_end',
             sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
-            render: (record) => dateFormatter(record),
+            render: (record) => dateFormatter(record)
         },
         {
             title: 'Action',
@@ -155,11 +157,21 @@ const page = () => {
             options: [
                 {
                     label: 'sample',
-                    value: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 2,
+            name: 'periode mulai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
                 }
             ]
         }
-    ]
+    ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -178,27 +190,31 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                        <Title className="mt-2" level={5}>
-                            Data Periode
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-4">
+                            <Title className="mt-2" level={5}>
+                                Data Periode
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        {/* <div className="w-full">
+                            <FilterField fields={filterFiled}></FilterField>
+                        </div> */}
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} />
+                        </div>
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                     </div>
-                <div className='w-full'>
-                    <FilterField fields={filterFiled}></FilterField>
-                </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

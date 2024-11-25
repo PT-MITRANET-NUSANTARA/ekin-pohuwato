@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Modal, Skeleton, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUnitId } from '@/controller/RKTController';
 import useFetchData from '@/hooks/useFetchData';
@@ -27,6 +27,8 @@ const page = () => {
     const [subKegiatan, setSubkegiatans] = useState(null);
     const [unor, setUnor] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false)
+    
 
     useEffect(() => {
         if (data) {
@@ -60,7 +62,8 @@ const page = () => {
             let dt = values;
             dt = { ...dt, unit: unor };
             console.log(dt);
-            
+            setSubmitLoading(true)
+
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -79,7 +82,7 @@ const page = () => {
             }
 
             console.log(response);
-            
+
             if (response.ok) {
                 const newData = await getByUnitId(unor.id);
                 setDT(newData.data);
@@ -105,11 +108,13 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false)
 
         console.log('Operation completed');
         handleClose();
     };
 
+    
 
     const Column = [
         {
@@ -117,28 +122,6 @@ const page = () => {
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
-        },
-        {
-            title: 'Periode RKT',
-            dataIndex: 'periodeRKT',
-            key: 'periodeRKT',
-            sorter: (a, b) => a.periodeRKT.length - b.periodeRKT.length,
-        },
-        {
-            title: 'Sub Kegiatan',
-            dataIndex: 'subKegiatan',
-            key: 'subKegiatan',
-            sorter: (a, b) => a.subKegiatan.length - b.subKegiatan.length,
-        },
-        {
-            title: 'Input',
-            dataIndex: 'input',
-            key: 'input',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
-                    Info
-                </Button>
-            )
         },
         {
             title: 'Output',
@@ -164,7 +147,7 @@ const page = () => {
             title: 'Total Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
-            sorter: (a, b) => a.total_anggaran - b.total_anggaran,
+            sorter: (a, b) => a.total_anggaran - b.total_anggaran
         },
         {
             title: 'Action',
@@ -315,6 +298,8 @@ const page = () => {
         setModal({ trigger: false, modalData: null });
     };
 
+    console.log(dt)
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -328,54 +313,59 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data RKT
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+            {loadingData ? (
+                <DataLoading loadingData={loadingData} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data RKT
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={dt} />
+                        </div>
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                        <Modal open={customModal.trigger} onCancel={() => setCustomModal({ modalData: null, trigger: false })} footer={null}>
+                            {customModal.modalData ? (
+                                <Table
+                                    className="mt-8"
+                                    dataSource={customModal.modalData.map((item, index) => ({
+                                        ...item,
+                                        key: index
+                                    }))}
+                                    pagination={false}
+                                    bordered
+                                    columns={[
+                                        {
+                                            title: 'Name',
+                                            dataIndex: 'name',
+                                            key: 'name'
+                                        },
+                                        {
+                                            title: 'Target',
+                                            dataIndex: 'target',
+                                            key: 'target'
+                                        },
+                                        {
+                                            title: 'Satuan',
+                                            dataIndex: 'satuan',
+                                            key: 'satuan'
+                                        }
+                                    ]}
+                                />
+                            ) : null}
+                        </Modal>
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dt} loading={loadingData} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
-                    <Modal open={customModal.trigger} onCancel={() => setCustomModal({ modalData: null, trigger: false })} footer={null}>
-                        {customModal.modalData ? (
-                            <Table
-                                className="mt-8"
-                                dataSource={customModal.modalData.map((item, index) => ({
-                                    ...item,
-                                    key: index
-                                }))}
-                                pagination={false}
-                                bordered
-                                columns={[
-                                    {
-                                        title: 'Name',
-                                        dataIndex: 'name',
-                                        key: 'name'
-                                    },
-                                    {
-                                        title: 'Target',
-                                        dataIndex: 'target',
-                                        key: 'target'
-                                    },
-                                    {
-                                        title: 'Satuan',
-                                        dataIndex: 'satuan',
-                                        key: 'satuan'
-                                    }
-                                ]}
-                            />
-                        ) : null}
-                    </Modal>
-                </div>
-            </Card>
+                </Card>
+            )}
+         
         </div>
     );
 };

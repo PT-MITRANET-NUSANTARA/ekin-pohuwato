@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
@@ -23,6 +23,8 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [misi, setMisi] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
+
 
     useEffect(() => {
         if (data) {
@@ -43,6 +45,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id) => {
         try {
+            setSubmitLoading(true);
             let response;
 
             switch (type) {
@@ -63,7 +66,6 @@ const page = () => {
             }
 
             console.log(response);
-            
 
             if (response.ok) {
                 const data = await getAll();
@@ -90,6 +92,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -158,13 +161,17 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'show' })}
+                        onClick={() =>
+                            setModal({ trigger: true, modalData: { ...record, misi: record.misi?.map((item) => ({ value: item._id, label: item.name })), periode: record.misi[0].visi.periode._id }, title: `Edit Renstra ${record._id}`, type: 'show' })
+                        }
                         // type='primary'
                         size="middle"
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        onClick={() =>
+                            setModal({ trigger: true, modalData: { ...record, misi: record.misi?.map((item) => ({ value: item._id, label: item.name })), periode: record.misi[0].visi.periode._id }, title: `Edit Renstra ${record._id}`, type: 'edit' })
+                        }
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -173,7 +180,14 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: { ...record , misi: record.misi?.map((item) => ({value: item._id, label: item.name})), periode: record.misi[0].visi.periode._id}, title: `Edit Renstra ${record._id}`, type: 'delete' })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, misi: record.misi?.map((item) => ({ value: item._id, label: item.name })), periode: record.misi[0].visi.periode._id },
+                                title: `Edit Renstra ${record._id}`,
+                                type: 'delete'
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         danger
@@ -192,7 +206,6 @@ const page = () => {
             )
         }
     ];
-
 
     const formFields = [
         {
@@ -275,24 +288,28 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Renstra
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Renstra
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} />
+                        </div>
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };
