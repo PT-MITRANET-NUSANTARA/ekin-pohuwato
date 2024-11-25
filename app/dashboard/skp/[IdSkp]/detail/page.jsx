@@ -33,6 +33,8 @@ const page = () => {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdSkp);
             const selectedJabatan = jabatan.mapData.data[0];
+            console.log(skp.data.rhks);
+
             setSkp(skp.data);
             setJabatan(selectedJabatan);
             setLoadingData(false);
@@ -199,13 +201,13 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.rhk.desc}</p>
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.desc}</p>
+                                                    <p>{item.rkt? item.rkt.name : item.desc}</p>
                                                     <Tag color="blue" className="w-fit">
                                                         {item.klasifikasi ? item.klasifikasi : ''}
                                                     </Tag>
@@ -218,11 +220,11 @@ const page = () => {
                                                 <tr>
                                                     <td>{aspek.jenis}</td>
                                                     <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{aspek.indikator}</p>
-                                                </div>
-                                            </td>
-                                            <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                                        <div className="flex flex-col gap-y-2 text-left">
+                                                            <p>{aspek.indikator}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                                 </tr>
                                             </>
                                         ))}

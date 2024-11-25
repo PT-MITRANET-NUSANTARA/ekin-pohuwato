@@ -71,7 +71,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [jabatan] };
+            dt = { ...dt, jabatan: [jabatan], user_id : data.user.idASN};
             switch (type) {
                 case 'create':
                     response = await store(data.user.idASN, dt, '1');
@@ -243,9 +243,8 @@ const page = () => {
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>
+                                                {isJT === false &&  <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>}
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
-                                             
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
 
@@ -280,7 +279,7 @@ const page = () => {
                                                 <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: item, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
                                                     Edit
                                                 </Button>
-                                                <Button danger variant="filled" type="primary" icon={<DeleteOutlined />}>
+                                                <Button onClick={() => setModal({ modalData: item, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })} danger variant="filled" type="primary" icon={<DeleteOutlined />}>
                                                     Hapus
                                                 </Button>
                                             </div>

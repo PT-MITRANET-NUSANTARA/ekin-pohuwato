@@ -1,10 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DashboardSider, DashboardFooter } from '../../components';
 import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Dropdown, Layout, message, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
-import { logOut } from '@/controller/AuthorizationController';
+import { getData, logOut } from '@/controller/AuthorizationController';
+import useFetchData from '@/hooks/useFetchData';
+import { getFotoByNIP } from '@/controller/IDSN/DataUtamaController';
+import Image from 'next/image';
 const { Header, Content } = Layout;
 
 const layout = ({ children }) => {
@@ -13,7 +16,28 @@ const layout = ({ children }) => {
         duration: 5, 
         maxCount: 1
     });
+    const { data, loading } = useFetchData(getData); // Assuming getData is the function fetching the token and NIP
+    const [foto, setFoto] = useState(null);
 
+    useEffect(() => {
+        if (data) {
+            fetchData(); // You're fetching data when `data` changes
+        }
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
+            console.log(foto);
+            
+            setFoto(foto);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    console.log(foto);
+    
     const items = [
         {
             key: '1',
@@ -64,7 +88,9 @@ const layout = ({ children }) => {
                             <Dropdown menu={{ items }}>
                                 <a onClick={(e) => e.preventDefault()}>
                                     <Space>
-                                        <Avatar className="bg-color-primary-100 text-color-primary-500 font-semibold">U</Avatar>
+                                        <Avatar className="bg-color-primary-100 text-color-primary-500 font-semibold">
+                                            {foto ? <Image src={foto} alt="Foto Profil" width={30} height={30} /> : 'A'}
+                                        </Avatar>
                                         {/* <DownOutlined /> */}
                                     </Space>
                                 </a>

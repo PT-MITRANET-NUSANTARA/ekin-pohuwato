@@ -64,6 +64,11 @@ const page = () => {
     console.log(tujuan);
     console.log(program);
 
+    useEffect(() => {
+        // Automatically open print dialog when page is loaded
+        window.print();
+    }, []);
+
     return (
         <div className="p-12">
             <div className="mb-4">

@@ -18,6 +18,7 @@ const PeriodeRKTSchema: Schema = new Schema(
         unit: {
             type: Object,
             required: true
+            
         },
         periode_end: {
             type: Date,
