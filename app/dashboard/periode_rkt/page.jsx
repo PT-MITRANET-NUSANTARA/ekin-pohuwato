@@ -188,14 +188,14 @@ const page = () => {
                             size="middle"
                             color="default"
                             onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
-                            icon={<EyeOutlined />}
+                            icon={<DownloadOutlined />}
                         />
                         <Button
                             // type='primary'
                             size="middle"
                             color="default"
                             onClick={() => router.push('/document/1/perjanjian_kinerja')}
-                            icon={<DownloadOutlined />}
+                            icon={<EyeOutlined />}
                         />
                     </Space>
                 </>
