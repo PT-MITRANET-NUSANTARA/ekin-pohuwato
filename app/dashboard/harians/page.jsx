@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
 import React, { useState } from 'react';
@@ -145,41 +145,45 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Parent Select',
-            name: 'parent_select',
-            type: 'select',
-            options: [
-                { id: 'P1', value: '01', label: 'Option 01' },
-                { id: 'P2', value: '02', label: 'Option 02' }
+            label: 'Tanggal',
+            name: 'tanggal',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: "Field tanggal wajib di isi",
+                }
             ]
         },
         {
-            label: 'Child Select',
-            name: 'child_select',
+            label: 'Status',
+            name: 'status',
             type: 'select',
-            parentField: 'parent_select',
             options: [
-                { id: 'C1', id_option_parent: '01', value: 'C1', label: 'Child 1 of 01' },
-                { id: 'C2', id_option_parent: '02', value: 'C2', label: 'Child 2 of 02' }
+                {
+                    label: 'Hadir',
+                    value: 'hadir'
+                },
+                {
+                    label: 'Izin',
+                    value: 'izin'
+                },
+                {
+                    label: 'Sakit',
+                    value: 'sakit'
+                },
+                {
+                    label: 'Alpha',
+                    value: 'alpha'
+                }
+            ],
+            rules: [
+                {
+                    required: true,
+                    message: "Field status wajib di isi",
+                }
             ]
         },
-        {
-            label: 'Grandchild Select',
-            name: 'grandchild_select',
-            type: 'select',
-            parentField: 'child_select',
-            options: [
-                { id: 'G1', id_option_parent: 'C1', value: 'G1', label: 'Grandchild 1 of C1' },
-                { id: 'G2', id_option_parent: 'C2', value: 'G2', label: 'Grandchild 2 of C2' }
-            ]
-        },
-        {
-            label: 'somthing',
-            name: 'something',
-            type: 'slider',
-            min: 10,
-            max: 200
-        }
     ];
 
     const handleClose = () => {
@@ -206,8 +210,8 @@ const page = () => {
                             Data Harian
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<ReloadOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
-                                Sinkronisasi Harian
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
+                                Tambah
                             </Button>
                         </div>
                     </div>
