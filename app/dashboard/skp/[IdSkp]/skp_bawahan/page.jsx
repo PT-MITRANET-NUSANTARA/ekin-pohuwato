@@ -10,6 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
+import { getBySKP } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -29,19 +30,10 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-
-            const selectedJabatan = jabatan.mapData.data[0];
-            console.log(selectedJabatan.unor.id);
-
-            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-            console.log(unit);
-
-            const bawahan = unit.mapData.data.filter((item) => (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
-
-            setJabatan(selectedJabatan);
-
-            setUnor(bawahan);
+            const response = await getBySKP(IdSkp);
+            console.log(response.data);
+            
+            setUnor(response.data);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -55,71 +47,44 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Name',
-            dataIndex: 'nama_asn',
-            key: 'nama_asn',
-            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length,
+            title: 'Nama',
+            dataIndex: 'name',
+            key: 'name',
+            sorter: (a, b) => a.name.length - b.name.length,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
+            }
         },
         {
-            title: 'Unit Kerja',
-            dataIndex: 'unit',
-            key: 'unit',
-            sorter: (a, b) => a.unit.length - b.unit.length,
-            render: (_, record) => (record.unor && record.unor.nama ? record.unor.nama : 'No Unit')
+            title: 'Nama Organisasi',
+            dataIndex: 'unor',
+            key: 'unor',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
+            }
         },
-
         {
             title: 'Jabatan',
-            dataIndex: 'nama_jabatan',
-            key: 'nama_jabatan',
-            sorter: (a, b) => a.nama_jabatan.length - b.nama_jabatan.length,
-            width: '30%'
+            dataIndex: 'jabatan',
+            key: 'jabatan',
+            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
+            }
         },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            sorter: (a, b) => a.status.length - b.status.length,
-            render: (_, { status }) => (
-                <>
-                    {(() => {
-                        switch (status) {
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                            case 'belum':
-                                return (
-                                    <Tag color="red" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                            case 'pengajuan':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                            default:
-                                return (
-                                    <Tag color="error" className="capitalize">
-                                        {status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
-                </>
-            ),
-            searchable: true
-        },
+        
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
+                    
                     <Button
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
                         // type='primary'
                         size="middle"
                         icon={<EyeOutlined />}
