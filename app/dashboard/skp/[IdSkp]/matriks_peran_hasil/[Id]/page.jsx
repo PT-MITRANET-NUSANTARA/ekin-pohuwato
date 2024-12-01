@@ -99,13 +99,13 @@ const page = () => {
             title: 'Jenis',
             dataIndex: 'jenis',
             key: 'jenis',
-            sorter: (a, b) => a.jenis.length - b.jenis.length,
+            sorter: (a, b) => a.jenis.length - b.jenis.length
         },
         {
             title: 'Indikator',
             dataIndex: 'indikator',
             key: 'indikator',
-            sorter: (a, b) => a.indikator.length - b.indikator.length,
+            sorter: (a, b) => a.indikator.length - b.indikator.length
         },
 
         {
@@ -132,32 +132,26 @@ const page = () => {
         }
     ];
 
-    
     const rhkColumns = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'RHK Yang di Intervensi',
             dataIndex: 'rhk',
             key: 'rhk',
             sorter: (a, b) => a.rhk.length - b.rhk.length,
-            render: (_, record) => ( 
-                record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name
-            )
+            render: (_, record) => (record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name)
         },
         {
             title: 'Hasil RHK',
             dataIndex: 'intervensi',
             key: 'intervensi',
             sorter: (a, b) => a.intervensi.length - b.intervensi.length,
-            render: (_, record) => ( 
-                record.desc
-            )
+            render: (_, record) => record.desc
         },
         // {
         //     title: 'Rencana Aksi',
@@ -202,14 +196,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: {...record, rhk: record.rhk._id}, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: {...record, rhk: record.rhk._id}, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -221,17 +215,16 @@ const page = () => {
 
     const rencanaAksiColumn = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Content',
             dataIndex: 'content',
             key: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
+            sorter: (a, b) => a.content.length - b.content.length
         },
         {
             title: 'Action',
@@ -256,8 +249,6 @@ const page = () => {
             )
         }
     ];
-
-    
 
     const RhkFields = [
         {
@@ -388,7 +379,7 @@ const page = () => {
         loading: false,
         data: dummyIntervensiRhk,
         columns: rhkColumns,
-        fields: RhkFields,
+        fields: RhkFields
     };
 
     const aspekData = {

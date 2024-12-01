@@ -33,11 +33,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
     };
     const aspekColumns = [
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            sorter: (a, b) => a._id.length - b._id.length,
-            width: '10%'
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
         },
         {
             title: 'Name',
