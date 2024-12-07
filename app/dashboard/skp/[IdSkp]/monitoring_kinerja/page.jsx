@@ -2,40 +2,39 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyBawahan } from '@/data/dummyData';
-import {getBySKP} from '@/controller/SKPController'
+import { getBySKP } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { IdSkp, IdOrganisasi, IdTanggal, } = useParams();
+    const { IdSkp, IdOrganisasi, IdTanggal } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [dataBawahan, setDataBawahan] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-            fetchData();
+        fetchData();
     }, []);
-    
+
     const fetchData = async () => {
         try {
             const response = await getBySKP(IdSkp);
             console.log(response.data);
             setDataBawahan(response.data);
-            setLoading(false)
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
 
     console.log(dataBawahan);
-    
 
     const Column = [
         {
@@ -74,13 +73,12 @@ const page = () => {
                 return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
             }
         },
-        
+
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    
                     <Button
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
                         // type='primary'
@@ -91,8 +89,6 @@ const page = () => {
             )
         }
     ];
-
-    
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -107,16 +103,20 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Bawahan Monitoring Kinerja
-                        </Title>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Bawahan Monitoring Kinerja
+                            </Title>
+                        </div>
+                        <DataTable columns={Column} data={dataBawahan} loading={loading} />
                     </div>
-                    <DataTable columns={Column} data={dataBawahan} loading={loading} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

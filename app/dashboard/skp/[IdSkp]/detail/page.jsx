@@ -254,7 +254,7 @@ const page = () => {
                                                 </ol>
                                             </div>
                                         </td>
-                                        <td>{item.feedback || 'N/A'}</td>
+                                        <td>{item.feedback || ''}</td>
                                     </tr>
                                 ))}
                             </tbody>

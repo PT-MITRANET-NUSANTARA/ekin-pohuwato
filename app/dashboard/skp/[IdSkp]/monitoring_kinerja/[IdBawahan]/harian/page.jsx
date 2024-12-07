@@ -2,19 +2,20 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyBawahan, dummyHarian } from '@/data/dummyData';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const {IdSkp, IdBawahan} = useParams();
+    const { IdSkp, IdBawahan } = useParams();
     const { IdOrganisasi, IdTanggal } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
@@ -83,6 +84,7 @@ const page = () => {
             dataIndex: 'tanggal',
             key: 'tanggal',
             sorter: (a, b) => a.tanggal.length - b.tanggal.length,
+            render: (record) => dateFormatter(record) 
         },
         {
             title: 'Status Kehadiran',
@@ -188,17 +190,21 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Harian
-                        </Title>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Harian
+                            </Title>
+                        </div>
+                        <DataTable columns={Column} data={dummyHarian} loading={loading} />
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                     </div>
-                    <DataTable columns={Column} data={dummyHarian} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

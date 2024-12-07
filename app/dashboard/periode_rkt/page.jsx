@@ -1,9 +1,9 @@
 'use client';
 
 import { CrudModal, DataLoading, DataTable } from '@/components';
-import { dummyPeriodePenilaian } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, List, Space, Typography, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { dummyfileList, dummyPeriodePenilaian } from '@/data/dummyData';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Typography, Upload } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined, OrderedListOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,9 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [loadingData, setLoadingData] = useState(true);
-    const [submitLoading, setSubmitLoading] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
 
     useEffect(() => {
         if (data) {
@@ -49,7 +51,7 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: unor };
-            setSubmitLoading(true)
+            setSubmitLoading(true);
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -93,7 +95,7 @@ const page = () => {
                 type: 'error'
             });
         }
-        setSubmitLoading(false)
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -107,7 +109,7 @@ const page = () => {
 
     const perjanjianSubmit = async (values, type, id, listImage, fileList) => {
         console.log('SUBMIT', listImage, fileList);
-        
+
         const updatedListImage = listImage.map((img) => {
             const matchingFile = fileList.find((file) => file.uid === img.uid);
 
@@ -124,7 +126,6 @@ const page = () => {
         handleClose();
 
         console.log(updatedListImage);
-        
 
         const periode = dt.find((item) => item._id === id);
         periode.perjanjianKinerja = updatedListImage;
@@ -184,19 +185,32 @@ const page = () => {
                     <Space size="small">
                         <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
                         <Button
-                            // type='primary'
                             size="middle"
                             color="default"
                             onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
                             icon={<DownloadOutlined />}
                         />
-                        <Button
-                            // type='primary'
-                            size="middle"
-                            color="default"
-                            onClick={() => router.push('/document/1/perjanjian_kinerja')}
-                            icon={<EyeOutlined />}
-                        />
+                        <Button size="middle" color="default" onClick={() => setFileModal({trigger: true, modalData: dummyfileList})} icon={<OrderedListOutlined />} />
+                        <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
+                            <List
+                                className='my-6'
+                                itemLayout="horizontal"
+                                dataSource={fileModal.modalData}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        <div className="w-full flex justify-between items-center">
+                                            <div>
+                                                <p>{item.filename}</p>
+                                                <small>{item.deskripsi}</small>
+                                            </div>
+                                            <div>
+                                                <Button size='small' icon={<DownloadOutlined />} />
+                                            </div>
+                                        </div>
+                                    </List.Item>
+                                )}
+                            />
+                        </Modal>
                     </Space>
                 </>
             )
@@ -241,7 +255,6 @@ const page = () => {
             )
         }
     ];
-    console.log(dt);
 
     const rktFields = [
         {
@@ -253,7 +266,7 @@ const page = () => {
                     required: true,
                     message: 'Field periode mulai wajib di isi'
                 }
-            ],
+            ]
         },
         {
             label: 'Periode Selesai',
@@ -264,7 +277,7 @@ const page = () => {
                     required: true,
                     message: 'Field periode selesai wajib di isi'
                 }
-            ],
+            ]
         }
     ];
 
@@ -372,25 +385,24 @@ const page = () => {
                 <DataLoading loadingData={loadingData} />
             ) : (
                 <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Periode RKT
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: onSubmit })}>
-                                Tambah
-                            </Button>
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Periode RKT
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: rktFields, onSubmit: onSubmit })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={dt} />
+                        </div>
+                        <CrudModal isLoading={submitLoading} title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dt} />
-                    </div>
-                    <CrudModal isLoading={submitLoading} title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
             )}
-            
         </div>
     );
 };

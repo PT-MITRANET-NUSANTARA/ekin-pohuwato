@@ -13,6 +13,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
     const [imageList, setImageList] = useState([]);
     const [selectValues, setSelectValues] = useState({}); // Menyimpan nilai parent
     const dokument_url = process.env.NEXT_PUBLIC_API_IMAGE_URL;
+    const dateFormat = 'YYYY-MM-DD';
 
     useEffect(() => {
         if (isModalOpen) {
@@ -144,22 +145,21 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
         }
     };
 
-
     const renderFormInput = (field) => {
         const isDisabled = type === 'show' || type === 'delete';
         switch (field.type) {
             case 'text':
-                return <Input placeholder={`Enter ${field.label}`} size="large" disabled={isDisabled} />;
+                return <Input placeholder={`Enter ${field.label}`} size="large" disabled={isDisabled} {...field.extra} />;
             case 'number':
-                return <InputNumber placeholder={`Enter ${field.label}`} min={field.min} max={field.max} className="w-full" size="large" disabled={isDisabled} />;
+                return <InputNumber placeholder={`Enter ${field.label}`} min={field.min} max={field.max} className="w-full" size="large" disabled={isDisabled} {...field.extra} />;
             case 'longtext':
                 return <TextArea placeholder={field.label} rows={4} disabled={isDisabled} />;
             case 'date':
-                return <DatePicker className="w-full" size="large" disabled={isDisabled} />;
+                return <DatePicker className="w-full" size="large" disabled={isDisabled} {...field.extra} />;
             case 'time':
-                return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} />;
+                return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} {...field.extra} />;
             case 'rating':
-                return <Rate className="w-full" size="large" disabled={isDisabled} />;
+                return <Rate className="w-full" size="large" disabled={isDisabled} {...field.extra}/>;
 
             case 'select':
                 const parentValue = field.parentField ? selectValues[field.parentField] : null;
@@ -174,6 +174,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         disabled={(field.parentField && !parentValue) || isDisabled}
                         onChange={(value) => handleSelectChange(value, field.name)}
                         optionLabelProp="label"
+                        {...field.extra}
                     >
                         {options?.map((option) => (
                             <Option key={option.id} value={option.value} label={option.label}>
@@ -289,7 +290,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                     </Form.Item>
                 ))}
                 {type !== 'show' && type !== 'delete' && (
-                    <Form.Item className="mt-2" >
+                    <Form.Item className="mt-2">
                         <Button type="primary" htmlType="submit" loading={isLoading}>
                             Submit
                         </Button>
@@ -297,7 +298,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 )}
                 {type === 'delete' && (
                     <Form.Item className="mt-2">
-                        <Tooltip color='red' title="Apakah anda yakin ingin menghapus? tindakan ini tidak dapat dibatalkan, dan data yang dihapus tidak dapat dipulih">
+                        <Tooltip color="red" title="Apakah anda yakin ingin menghapus? tindakan ini tidak dapat dibatalkan, dan data yang dihapus tidak dapat dipulih">
                             <Button type="primary" danger htmlType="submit" loading={isLoading}>
                                 Delete
                             </Button>

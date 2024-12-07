@@ -250,3 +250,10 @@ export const dummyTpp = Array.from({ length: 10}, (_, index) => ({
   status: (index === 6 ? 'menerima' : index === 1 ? "tidak menerima" : "undifined"),
 }))
 
+export const dummyfileList = Array.from({ length: 10}, (_, index) => ({
+  _id: (index + 1), 
+  filename: 'file' + index,
+  deskripsi: 'ini adalah file nomor' + index,
+}))
+
+
