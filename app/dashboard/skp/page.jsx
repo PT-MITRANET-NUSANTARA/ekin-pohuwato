@@ -14,7 +14,7 @@ import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPCon
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
-import {  getByUnitId } from '@/controller/PeriodeRKTController';
+import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 import { dateFormatter } from '@/utils';
@@ -65,13 +65,11 @@ const page = () => {
         }
     };
 
-    
-
     const onSubmit = async (values, type, id) => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [jabatan], user_id : data.user.idASN};
+            dt = { ...dt, jabatan: [jabatan], user_id: data.user.idASN };
             switch (type) {
                 case 'create':
                     response = await store(data.user.idASN, dt, '1');
@@ -155,6 +153,7 @@ const page = () => {
             label: 'Periode Mulai',
             name: 'periode_awal',
             type: 'date',
+            extra: { minDate: '2019-08-01', maxDate: '2020-10-31' },
             rules: [
                 {
                     required: true,
@@ -243,7 +242,7 @@ const page = () => {
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
-                                                {isJT === false &&  <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>}
+                                                {isJT === false && <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>}
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
