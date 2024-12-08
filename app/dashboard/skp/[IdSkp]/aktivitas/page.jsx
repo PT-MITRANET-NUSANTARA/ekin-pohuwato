@@ -130,14 +130,6 @@ const page = () => {
                 key: 'msg',
                 render: (_, record) => <Tag color={record.msg.status === 'Periksa' ? 'blue' : record.msg.status === 'Terima' ? 'green' : 'yellow'}>{record.msg.status}</Tag>
             },
-
-            {
-                title: 'Progress',
-                dataIndex: 'progress',
-                key: 'progress',
-                render: (_, record) => <span>{record.progress} %</span>,
-                width: '240px'
-            },
             {
                 title: 'Bukti',
                 dataIndex: 'file',

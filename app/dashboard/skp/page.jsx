@@ -18,6 +18,7 @@ import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 import { dateFormatter } from '@/utils';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
@@ -153,7 +154,7 @@ const page = () => {
             label: 'Periode Mulai',
             name: 'periode_awal',
             type: 'date',
-            extra: { minDate: '2019-08-01', maxDate: '2020-10-31' },
+            extra: { maxDate: dayjs('2019-08-01', 'YYYY-MM-DD')  },
             rules: [
                 {
                     required: true,
