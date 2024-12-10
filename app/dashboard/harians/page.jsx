@@ -3,33 +3,56 @@
 import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import React, { useEffect, useState } from 'react';
+import { destroy, getAll, store, update, getByUserId } from '@/controller/AbsenceController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
+import { getData } from '@/controller/AuthorizationController';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const { data ,msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [absence, setAbsence] = useState(null); 
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (data) {
+            fetchData();
+        } 
+    }, [data]);
+
+    const fetchData = async () => {
+        try {
+            const absence = await getByUserId(data.user.idASN );
+            setAbsence(absence.data);
+            setLoading(false);
+        } catch (error) {
+            
+        }
+    }
+
 
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-
+            
+            const dt = { ...values, user_id : data.user.idASN  };
+            console.log(dt);
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(data.user.idASN  , dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -39,14 +62,15 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-
+            console.log(response);
+            
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const absence = await getByUserId(data.user.idASN );
+                setAbsence(absence.data);
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Absence' : type === 'edit' ? 'Berhasil Mengedit Absence' : 'Berhasil Menambahkan Absence',
                     type: 'success'
                 });
             } else {
@@ -145,36 +169,25 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Tanggal',
-            name: 'tanggal',
-            type: 'date',
-            rules: [
-                {
-                    required: true,
-                    message: "Field tanggal wajib di isi",
-                }
-            ]
-        },
-        {
             label: 'Status',
             name: 'status',
             type: 'select',
             options: [
                 {
                     label: 'Hadir',
-                    value: 'hadir'
+                    value: 'Hadir'
                 },
                 {
                     label: 'Izin',
-                    value: 'izin'
+                    value: 'Sakit'
                 },
                 {
                     label: 'Sakit',
-                    value: 'sakit'
+                    value: 'Izin'
                 },
                 {
                     label: 'Alpha',
-                    value: 'alpha'
+                    value: 'Alpha'
                 }
             ],
             rules: [
@@ -183,6 +196,19 @@ const page = () => {
                     message: "Field status wajib di isi",
                 }
             ]
+        },
+        {
+            label: 'Tanggal',
+            name: 'date',
+            type: 'date',
+            extra: { maxDate: dayjs(), minDate: dayjs() },
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+
         },
     ];
 
@@ -211,11 +237,11 @@ const page = () => {
                         </Title>
                         <div className="flex items-center gap-x-2">
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
-                                Tambah
+                                Tambah Absence
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={dummyHarian} loading={loading} />
+                    <DataTable columns={Column} data={absence} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
