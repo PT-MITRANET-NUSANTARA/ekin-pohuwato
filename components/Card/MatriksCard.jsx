@@ -7,21 +7,19 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
-import { getById,  store as storeSKP, getBySKPAndPeriode} from '@/controller/SKPController';
-
+import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
     const [data, setData] = useState(null);
     const [aspek, setAspek] = useState(null);
     useEffect(() => {
-      
         fetchData();
     }, []);
     const fetchData = async () => {
         try {
             const response = await getBySKPAndPeriode(dataItem.id_asn, SKP.periodeRKT, SKP._id);
             console.log('MATRIK', response);
-            
+
             setData(response.data);
             const aspek = response.data.rhks
                 .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
@@ -73,7 +71,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             title: 'Action',
             key: 'action',
             render: (_, record) => {
-                const { target_tahunan, rhk , ...rest } = record;
+                console.log(record);
                 return (
                     <Space size="small">
                         <Button
@@ -82,15 +80,15 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                 setModal({
                                     trigger: true,
                                     modalData: {
-                                        ...rest,
-                                        rhk: rhk._id,
-                                        target_tahunan: target_tahunan?.target,
-                                        satuan: target_tahunan?.satuan
+                                        ...record,
+                                        rhk: record?.rhk?._id,
+                                        target_tahunan: record?.target_tahunan?.target,
+                                        satuan: `${record?.target_tahunan?.satuan}`
                                     },
                                     title: 'Edit Aspek',
                                     type: 'edit',
                                     formFields: AspekFields,
-                                    onSubmit: () => {}
+                                    onSubmit: () => console.log(modalData)
                                 })
                             }
                             size="middle"
@@ -103,10 +101,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                 setModal({
                                     trigger: true,
                                     modalData: {
-                                        ...rest,
-                                        rhk: rhk._id,
-                                        target_tahunan: target_tahunan?.target,
-                                        satuan: target_tahunan?.satuan
+                                        ...record,
+                                        rhk: record?.rhk?._id,
+                                        target_tahunan: record?.target_tahunan?.target,
+                                        satuan: record?.target_tahunan?.satuan
                                     },
                                     title: 'Delete Aspek',
                                     type: 'delete',
@@ -196,11 +194,18 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             rules: [
                 {
                     required: true,
-                    message: 'Field target tahunan wajib di isi'
+                    message: 'Field satuan wajib di isi'
+                },
+                {
+                    validator: (_, value) => {
+                        if (typeof value !== 'string') {
+                            return Promise.reject('Satuan harus berupa teks');
+                        }
+                        return Promise.resolve();
+                    }
                 }
-            ]
-        },
-       
+            ],
+        }
     ];
 
     return (
@@ -298,8 +303,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                                     indikator: value.indikator,
                                                     target_tahunan: {
                                                         target: value.target_tahunan,
-                                                        satuan: value.satuan
-                                                    },
+                                                        satuan: String(value.satuan)
+                                                    }
                                                 };
                                                 const res = await storeAspek(dt);
                                                 fetchData();
