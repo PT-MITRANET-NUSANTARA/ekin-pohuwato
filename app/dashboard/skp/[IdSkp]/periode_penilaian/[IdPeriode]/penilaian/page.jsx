@@ -148,7 +148,7 @@ const page = () => {
                     <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                         Rekap Penilaian Bawahan
                     </Button>
-                    <Button type="default" icon={<PrinterOutlined />}>
+                    <Button type="default" icon={<PrinterOutlined />} onClick={() => router.push('/document/1/evaluasi_kinerja')}>
                         Cetak Dokumen Evaluasi Kinerja
                     </Button>
                     <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>

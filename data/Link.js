@@ -80,7 +80,7 @@ export const DashboardLink = [
     },
     {
         icon: FieldTimeOutlined,
-        label: 'Harians',
+        label: 'Harian',
         path: '/dashboard/harians'
     },
     {

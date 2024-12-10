@@ -12,6 +12,7 @@ import { useParams } from 'next/navigation';
 import { getById, getByUserIdAndPeriode, store as storeSKP } from '@/controller/SKPController';
 import { dummyIntervensiRhk } from '@/data';
 import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
+import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -19,6 +20,7 @@ const { Option } = Select;
 const page = () => {
     const { Id, IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const router = useRouter();
 
     const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
@@ -414,7 +416,7 @@ const page = () => {
                         Data Matriks SKP
                     </Title>
                     <div className="flex items-center gap-x-2">
-                        <Button type="default" icon={<PrinterOutlined />}>
+                        <Button type="default" icon={<PrinterOutlined />} onClick={() => router.push('/document/1/matriks_peran_hasil')}>
                             Cetak
                         </Button>
                     </div>

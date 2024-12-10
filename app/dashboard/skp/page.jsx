@@ -154,6 +154,7 @@ const page = () => {
             label: 'Periode Mulai',
             name: 'periode_awal',
             type: 'date',
+            extra: { maxDate: dayjs('2019-08-01', 'YYYY-MM-DD')  },
             rules: [
                 {
                     required: true,

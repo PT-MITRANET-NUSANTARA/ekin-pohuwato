@@ -10,6 +10,8 @@ import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import { CrudModal } from '@/components';
+import dayjs from 'dayjs';
 const { Title } = Typography;
 const page = () => {
     const { IdSkp } = useParams();
@@ -18,9 +20,7 @@ const page = () => {
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    console.log(jabatan);
-
-    console.log(data);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     useEffect(() => {
         if (data) {
@@ -43,7 +43,46 @@ const page = () => {
         }
     };
 
-    console.log(skp);
+    const cetakSkpSubmit = (values) => {
+        const query = new URLSearchParams(values).toString();
+        router.push(`/document/1/1/rencana_skp?${query}`);
+    };
+
+    const cetakSkpFields = [
+        {
+            label: 'Tanggal',
+            name: 'tanggal',
+            type: 'date',
+            extra: { minDate: dayjs(), maxDate: dayjs() },
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tanggal wajib diisi'
+                }
+            ]
+        },
+        {
+            label: 'Lokasi',
+            name: 'lokasi',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib diisi'
+                }
+            ]
+        },
+        {
+            label: 'Anchor Pegawai Yang Dinilai (Opsional)',
+            name: 'anchor_dinilai',
+            type: 'text'
+        },
+        {
+            label: 'Anchor Pejabat Yang Menilai (Opsional)',
+            name: 'anchor_penilai',
+            type: 'text'
+        }
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -70,7 +109,7 @@ const page = () => {
                             <Button type="default" icon={<DotChartOutlined />} onClick={() => router.push(`/dashboard/skp/${IdSkp}/matriks_peran_hasil`)}>
                                 Lihat Matriks
                             </Button>
-                            <Button type="default" icon={<PrinterOutlined />}>
+                            <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: `Cetak Rencana SKP`, type: 'create', formFields: cetakSkpFields, onSubmit: cetakSkpSubmit })}>
                                 Cetak
                             </Button>
                         </div>
@@ -207,7 +246,7 @@ const page = () => {
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rkt? item.rkt.name : item.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
                                                     <Tag color="blue" className="w-fit">
                                                         {item.klasifikasi ? item.klasifikasi : ''}
                                                     </Tag>
@@ -291,6 +330,7 @@ const page = () => {
                     </>
                 )}
             </Card>
+            <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={() => setModal({ trigger: false, modalData: null })} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
         </div>
     );
 };

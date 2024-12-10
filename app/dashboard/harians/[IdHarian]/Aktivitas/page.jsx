@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, DataLoading } from '@/components';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined } from '@ant-design/icons';
+import { DataTable, CrudModal, DataLoading, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
@@ -14,6 +14,7 @@ import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
+import { dummyfileList } from '@/data/dummyData';
 
 const { Title } = Typography;
 
@@ -22,13 +23,14 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const { data, setData } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     const [rhk, setRHK] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [skp, setSKP] = useState(null);
-    const [submitLoading, setSubmitLoading] = useState(false)
-    
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -65,7 +67,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
-            setSubmitLoading(true)
+            setSubmitLoading(true);
             let response;
             let dt = {};
             const updatedListImage = listImage.map((img) => {
@@ -139,7 +141,7 @@ const page = () => {
                 type: 'error'
             });
         }
-        setSubmitLoading(false)
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -159,34 +161,6 @@ const page = () => {
             sorter: (a, b) => a.date.length - b.date.length,
             width: '30%',
             render: (record) => dateFormatter(record)
-        },
-        {
-            title: 'Deskripsi Kegiatan',
-            dataIndex: 'deskripsiKegiatan',
-            key: 'deskripsiKegiatan',
-            sorter: (a, b) => a.deskripsiKegiatan.length - b.deskripsiKegiatan.length,
-            width: '30%'
-        },
-        {
-            title: 'Nama Kegiatan',
-            dataIndex: 'namaKegiatan',
-            key: 'namaKegiatan',
-            sorter: (a, b) => a.namaKegiatan.length - b.namaKegiatan.length,
-            width: '30%'
-        },
-        {
-            title: 'Waktu Mulai',
-            dataIndex: 'startDateTime',
-            key: 'startDateTime',
-            sorter: (a, b) => a.startDateTime.length - b.startDateTime.length,
-            width: '30%'
-        },
-        {
-            title: 'Waktu Selesai',
-            dataIndex: 'endDateTime',
-            key: 'endDateTime',
-            sorter: (a, b) => a.endDateTime.length - b.endDateTime.length,
-            width: '30%'
         },
         {
             title: 'Status',
@@ -227,17 +201,6 @@ const page = () => {
             )
         },
         {
-            title: 'Tautan',
-            dataIndex: 'tautan',
-            key: 'tautan',
-            render: (_, record) => (
-                <Button variant="link" color="primary" onClick={() => window.open(`${record.tautan}`, '_blank')}>
-                    {record.tautan}
-                </Button>
-            ),
-            width: '240px'
-        },
-        {
             title: 'Progress',
             dataIndex: 'progress',
             key: 'progress',
@@ -249,25 +212,29 @@ const page = () => {
             dataIndex: 'file',
             key: 'file',
             render: (_, record) => (
-                <li className="flex flex-col gap-y-1 w-full">
-                    {record.files.map((item) => (
-                        <li>
-                            <Button
-                                variant="link"
-                                color="primary"
-                                onClick={() => {
-                                    if (item.type === 'image/jpeg' || item.type === 'image/png') {
-                                        window.open(`/document/fileViewer/${item.fileId}`, '_blank');
-                                    } else {
-                                        window.open(`/document/fileViewer/${item.fileId}`, '_blank');
-                                    }
-                                }}
-                            >
-                                {item.name}
-                            </Button>
-                        </li>
-                    ))}
-                </li>
+                <>
+                    <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: dummyfileList })} icon={<OrderedListOutlined />} />
+                    <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
+                        <List
+                            className="my-6"
+                            itemLayout="horizontal"
+                            dataSource={fileModal.modalData}
+                            renderItem={(item) => (
+                                <List.Item>
+                                    <div className="w-full flex justify-between items-center">
+                                        <div>
+                                            <p>{item.filename}</p>
+                                            <small>{item.deskripsi}</small>
+                                        </div>
+                                        <div>
+                                            <Button size="small" icon={<DownloadOutlined />} />
+                                        </div>
+                                    </div>
+                                </List.Item>
+                            )}
+                        />
+                    </Modal>
+                </>
             ),
             width: '240px'
         },
@@ -330,10 +297,57 @@ const page = () => {
                         color="danger"
                         icon={<DeleteOutlined />}
                     />
+                    <Button
+                        icon={<ExclamationOutlined />}
+                        type="default"
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Harian',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'title',
+                                        label: 'Nama Kegiatan',
+                                        children: record.namaKegiatan
+                                    },
+                                    {
+                                        key: 'desc',
+                                        label: 'Deskripsi',
+                                        children: record.deskripsiKegiatan
+                                    },
+                                    {
+                                        key: 'start_time',
+                                        label: 'Waktu Mulai',
+                                        children: record.startDateTime
+                                    },
+                                    {
+                                        key: 'end_time',
+                                        label: 'Waktu Selesai',
+                                        children: record.endDateTime
+                                    },
+                                    {
+                                        key: 'skp',
+                                        label: 'SKP',
+                                        children: record.isSKP ? 'SKP' : 'Bukan SKP'
+                                    },
+                                    {
+                                        key: 'progress',
+                                        label: 'Progress',
+                                        children: <Progress type="circle" percent={record.progress} size={80} />
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
+                    />
                 </Space>
             )
         }
     ];
+
+    console.log(rhk)
 
     const formFields = [
         {
@@ -483,6 +497,7 @@ const page = () => {
                             <DataTable columns={Column} data={harian} loading={loading} />
                         </div>
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                        <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}
