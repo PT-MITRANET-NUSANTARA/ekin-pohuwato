@@ -12,6 +12,7 @@ import { getById as getPenilaian } from '@/controller/periodePenilaianController
 
 import { dummyFeedback } from '@/data';
 import dayjs from 'dayjs';
+import { dateFormatter } from '@/utils';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
@@ -172,7 +173,7 @@ const page = () => {
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">periode</span>
                             <Tag color="blue" className="capitalize">
-                                {data?.periode_awal + ' - ' + data?.periode_akhir}
+                                {data?.periode_awal && data?.periode_akhir ? dateFormatter(data.periode_awal) + '-' + dateFormatter(data.periode_akhir) : 'Tanggal tidak tersedia'}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
@@ -346,7 +347,7 @@ const page = () => {
                             </>
                         ))}
                         <tr>
-                            <td colSpan={6} className="text-left px-2">
+                            <td colSpan={9} className="text-left px-2">
                                 Tambahan
                             </td>
                         </tr>
