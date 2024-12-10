@@ -190,7 +190,7 @@ const page = () => {
                             onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
                             icon={<DownloadOutlined />}
                         />
-                        <Button size="middle" color="default" onClick={() => setFileModal({trigger: true, modalData: dummyfileList})} icon={<OrderedListOutlined />} />
+                        <Button size="middle" color="default" onClick={() => setFileModal({trigger: true, modalData: record.perjanjianKinerja})} icon={<OrderedListOutlined />} />
                         <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
                             <List
                                 className='my-6'
@@ -200,11 +200,16 @@ const page = () => {
                                     <List.Item>
                                         <div className="w-full flex justify-between items-center">
                                             <div>
-                                                <p>{item.filename}</p>
-                                                <small>{item.deskripsi}</small>
+                                                <p>{item.name}</p>
+                                                <small>{item.fileId}</small>
                                             </div>
                                             <div>
-                                                <Button size='small' icon={<DownloadOutlined />} />
+                                                <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                                    const a = document.createElement('a');
+                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                    a.download = item.name;
+                                                    a.click();
+                                                }} />
                                             </div>
                                         </div>
                                     </List.Item>
