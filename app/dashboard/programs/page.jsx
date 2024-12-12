@@ -250,15 +250,6 @@ const page = () => {
                         danger
                         icon={<DeleteOutlined />}
                     />
-
-                    <Button
-                        onClick={() => router.push(`/dashboard/kegiatans/${record._id}`)}
-                        // type='primary'
-                        size="middle"
-                        variant="outlined"
-                        color="primary"
-                        icon={<DatabaseOutlined />}
-                    />
                 </Space>
             )
         }

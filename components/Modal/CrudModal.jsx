@@ -20,22 +20,22 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             if (data) {
                 const formattedData = Object.fromEntries(
                     Object.entries(data).map(([key, value]) => {
-                        // Jika nilai berupa string tanggal atau waktu, konversi ke objek dayjs
-                        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+                        // Validasi string sebagai tanggal dengan format tertentu
+                        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
                             return [key, dayjs(value)]; // Format sebagai tanggal
                         }
 
-                        // Jika field bertipe 'time', konversi menggunakan format waktu
+                        // Validasi string sebagai waktu dengan format tertentu
                         const isTimeField = formFields?.some((field) => field.name === key && field.type === 'time');
-                        if (isTimeField) {
-                            return [key, dayjs(value, 'HH:mm')]; // Format sebagai time
+                        if (isTimeField && typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) {
+                            return [key, dayjs(value, 'HH:mm')]; // Format sebagai waktu
                         }
 
-                        return [key, value]; // Untuk field lainnya, biarkan nilainya tetap
+                        return [key, value]; // Biarkan nilai lainnya tetap
                     })
                 );
 
-                // Mengambil dan mengatur gambar jika ada field upload
+                // Mengatur nilai form dan gambar
                 const imgKey = formFields?.find((field) => field.type === 'upload')?.name;
                 if (imgKey) {
                     const imgList = data[imgKey];
@@ -159,7 +159,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
             case 'time':
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" disabled={isDisabled} {...field.extra} />;
             case 'rating':
-                return <Rate className="w-full" size="large" disabled={isDisabled} {...field.extra}/>;
+                return <Rate className="w-full" size="large" disabled={isDisabled} {...field.extra} />;
 
             case 'select':
                 const parentValue = field.parentField ? selectValues[field.parentField] : null;

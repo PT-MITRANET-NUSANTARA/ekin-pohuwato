@@ -248,14 +248,6 @@ const page = () => {
                         danger
                         icon={<DeleteOutlined />}
                     />
-                    <Button
-                        onClick={() => router.push(`/dashboard/rkt/${record._id}/`)}
-                        // type='primary'
-                        size="middle"
-                        color="primary"
-                        variant="outlined"
-                        icon={<DatabaseOutlined />}
-                    />
                 </Space>
             )
         }

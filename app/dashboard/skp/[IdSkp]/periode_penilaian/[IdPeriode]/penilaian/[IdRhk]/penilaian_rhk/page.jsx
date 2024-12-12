@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, Input, InputNumber, Modal, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, Input, InputNumber, Modal, Table, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ const page = () => {
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
@@ -162,7 +163,7 @@ const page = () => {
                             {/* <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Form Penilaian
                             </Button> */}
-                           
+
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
                                 Buat Rating Hasil Kinerja
                             </Button>
@@ -308,9 +309,34 @@ const page = () => {
                                     </td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
                                         <div className="flex items-center justify-center">
-                                            <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item.id}/bukti_dukung`)}>
+                                            <Button type="primary" onClick={() => setBuktiModal({ modalData: null, trigger: true })}>
                                                 Lihat
                                             </Button>
+                                            <Modal open={buktiModal.trigger} onCancel={() => setBuktiModal({ modalData: null, trigger: false })} footer={null}>
+                                                <Table
+                                                    className="mt-8"
+                                                    dataSource={buktiModal.modalData?.map((item, index) => ({ ...item, key: index }))}
+                                                    pagination={false}
+                                                    bordered
+                                                    columns={[
+                                                        {
+                                                            title: 'Indikator',
+                                                            dataIndex: 'name',
+                                                            key: 'name'
+                                                        },
+                                                        {
+                                                            title: 'Target',
+                                                            dataIndex: 'target',
+                                                            key: 'target'
+                                                        },
+                                                        {
+                                                            title: 'Satuan',
+                                                            dataIndex: 'satuan',
+                                                            key: 'satuan'
+                                                        }
+                                                    ]}
+                                                />
+                                            </Modal>
                                         </div>
                                     </td>
                                 </tr>
