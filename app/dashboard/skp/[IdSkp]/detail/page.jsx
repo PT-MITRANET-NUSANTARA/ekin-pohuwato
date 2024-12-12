@@ -56,7 +56,6 @@ const page = () => {
             label: 'Tanggal',
             name: 'tanggal',
             type: 'date',
-            extra: { minDate: dayjs(), maxDate: dayjs() },
             rules: [
                 {
                     required: true,
@@ -75,18 +74,11 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Anchor Pegawai Yang Dinilai (Opsional)',
-            name: 'anchor_dinilai',
-            type: 'text'
-        },
-        {
-            label: 'Anchor Pejabat Yang Menilai (Opsional)',
-            name: 'anchor_penilai',
-            type: 'text'
-        }
+       
     ];
 
+    console.log(skp);
+    
     
  
 
@@ -299,7 +291,7 @@ const page = () => {
                                                 </ol>
                                             </div>
                                         </td>
-                                        <td>{item.feedback || ''}</td>
+                                        <td>{item.espektasi || ''}</td>
                                     </tr>
                                 ))}
                             </tbody>

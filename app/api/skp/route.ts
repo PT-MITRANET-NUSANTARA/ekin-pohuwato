@@ -163,7 +163,8 @@ export async function POST(req: NextRequest) {
                         skp: newSKP._id,
                         rkt: rkt._id,
                         jenis: 'utama',
-                        klasifikasi: 'organisasi'
+                        klasifikasi: 'organisasi',
+                        desc: rkt.name,
                     });
                     await rhk.save();
                 }

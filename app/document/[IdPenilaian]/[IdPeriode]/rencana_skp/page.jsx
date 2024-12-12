@@ -200,13 +200,7 @@ const page = () => {
                                 </div>
                             </td>
                             <td className="border border-black p-2 text-center">
-                                {/* {item.feedback || (
-                                        <div className="flex items-center justify-center">
-                                            <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
-                                                Tambah
-                                            </Button>
-                                        </div>
-                                    )} */}
+                            {item.espektasi || ''}
                             </td>
                         </tr>
                     ))}
