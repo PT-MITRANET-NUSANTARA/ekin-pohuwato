@@ -257,9 +257,9 @@ const page = () => {
             key: 'file',
             render: (_, record) => (
                 <>
-                    <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: dummyfileList })} icon={<OrderedListOutlined />} />
+                    <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
                     <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                        <List
+                    <List
                             className="my-6"
                             itemLayout="horizontal"
                             dataSource={fileModal.modalData}
@@ -267,11 +267,16 @@ const page = () => {
                                 <List.Item>
                                     <div className="w-full flex justify-between items-center">
                                         <div>
-                                            <p>{item.filename}</p>
-                                            <small>{item.deskripsi}</small>
+                                            <p>{item.name}</p>
+                                            <small>{item.fileId}</small>
                                         </div>
                                         <div>
-                                            <Button size="small" icon={<DownloadOutlined />} />
+                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                                    const a = document.createElement('a');
+                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                    a.download = item.name;
+                                                    a.click();
+                                                }} />
                                         </div>
                                     </div>
                                 </List.Item>
@@ -297,11 +302,13 @@ const page = () => {
                                 async onOk() {
                                     const dt = {
                                         ...record,
-                                        isSKP: true,
+                                        isSKP: !record.isSKP,
                                         rhk: record.rhk._id,
                                         user_id: String(record.user_id)
                                     };
                                     const res = await update(record._id, dt);
+                                    console.log(res);
+                                    
                                     if (res.ok) {
                                         fetchData();
                                     }
@@ -314,7 +321,7 @@ const page = () => {
                         size="middle"
                         icon={<PlusOutlined />}
                     >
-                        Tambah Kedalam SKP
+                        {record.isSKP ? 'Keluarkan dari SKP' : 'Tambahkan ke SKP'}
                     </Button>
                     <Button
                         icon={<ExclamationOutlined />}

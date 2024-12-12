@@ -50,6 +50,13 @@ PeriodeRKTSchema.virtual('SKPS', {
     justOne: false
 });
 
+PeriodeRKTSchema.virtual('TPPS', {
+    ref: 'TPP',
+    localField: '_id',
+    foreignField: 'periodeRKT',
+    justOne: false
+});
+
 const PeriodeRKT = mongoose.models.PeriodeRKT || mongoose.model<IPeriodeRKT>('PeriodeRKT', PeriodeRKTSchema);
 
 export default PeriodeRKT;

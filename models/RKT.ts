@@ -95,6 +95,13 @@ const RKTSchema: Schema = new Schema(
     { timestamps: true }
 );
 
+RKTSchema.virtual('rhks', {
+    ref: 'RHK',
+    localField: '_id',
+    foreignField: 'rkt',
+    justOne: false
+})
+
 const RKT = mongoose.models.RKT || mongoose.model<IRKT>('RKT', RKTSchema);
 
 export default RKT;

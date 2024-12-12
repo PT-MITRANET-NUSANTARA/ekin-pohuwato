@@ -3,13 +3,14 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading } from '@/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyBawahan, dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
+import {getByUserId} from '@/controller/AbsenceController'
 
 const { Title } = Typography;
 
@@ -20,6 +21,20 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+
+    useEffect(() => {
+        fetchData();
+    })
+
+    const fetchData = async () => {
+        try {
+            const data = await getByUserId(IdBawahan);
+            setData(data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -81,10 +96,9 @@ const page = () => {
         },
         {
             title: 'Tanggal',
-            dataIndex: 'tanggal',
-            key: 'tanggal',
-            sorter: (a, b) => a.tanggal.length - b.tanggal.length,
-            render: (record) => dateFormatter(record) 
+            dataIndex: 'date',
+            key: 'date',
+            render: (record) => record 
         },
         {
             title: 'Status Kehadiran',
@@ -200,7 +214,7 @@ const page = () => {
                                 Data Harian
                             </Title>
                         </div>
-                        <DataTable columns={Column} data={dummyHarian} loading={loading} />
+                        <DataTable columns={Column} data={data} loading={loading} />
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                     </div>
                 </Card>

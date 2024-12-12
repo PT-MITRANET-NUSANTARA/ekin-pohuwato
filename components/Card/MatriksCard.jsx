@@ -7,7 +7,9 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
-import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
+import { getById,  store as storeSKP, getBySKPAndPeriode} from '@/controller/SKPController';
+import {update as updateAspek, destroy as destroyAspek}  from '@/controller/AspekController'
+
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
     const [data, setData] = useState(null);
@@ -29,6 +31,11 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
             console.log(error);
         }
     };
+
+    console.log(data);
+    console.log(aspek);
+    
+    
     const aspekColumns = [
         {
             title: 'No',
@@ -88,7 +95,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     title: 'Edit Aspek',
                                     type: 'edit',
                                     formFields: AspekFields,
-                                    onSubmit: () => console.log(modalData)
+                                    onSubmit: async (values) => {
+                                        const dt = {...values, rhk: rhk._id,}
+                                    }
                                 })
                             }
                             size="middle"
@@ -109,7 +118,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     title: 'Delete Aspek',
                                     type: 'delete',
                                     formFields: AspekFields,
-                                    onSubmit: () => {}
+                                    onSubmit: async(values) => {
+                                        const dt = {...values}
+                                        console.log(values);
+                                        console.log(record);
+                                        
+                                        
+                                    }
                                 })
                             }
                             size="middle"

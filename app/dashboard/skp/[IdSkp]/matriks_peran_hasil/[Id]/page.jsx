@@ -10,6 +10,8 @@ import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
 import { getById, getByUserIdAndPeriode, store as storeSKP } from '@/controller/SKPController';
+import {update as updateRHK, destroy as destroyRHK}  from '@/controller/RHKController'
+import {update as updateAspek, destroy as destroyAspek}  from '@/controller/AspekController'
 import { dummyIntervensiRhk } from '@/data';
 import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
 import { useRouter } from 'next/navigation';
@@ -53,42 +55,42 @@ const page = () => {
         }
     };
 
-    const submitRhk = async (value) => {
-        const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
-        console.log(value);
-        const skp = response.data;
-        console.log(skp);
+    // const submitRhk = async (value) => {
+    //     const response = await getByUserIdAndPeriode(dataItem.userId, SKP.periodeRKT);
+    //     console.log(value);
+    //     const skp = response.data;
+    //     console.log(skp);
 
-        if (skp) {
-            const dt = {
-                ...value,
-                skp: skp._id
-            };
-            const rhk = await storeRHK(dataItem.userId, dt);
-            console.log(rhk);
+    //     if (skp) {
+    //         const dt = {
+    //             ...value,
+    //             skp: skp._id
+    //         };
+    //         const rhk = await storeRHK(dataItem.userId, dt);
+    //         console.log(rhk);
 
-            message.success('Berhasil Menambahkan RHK');
-        } else {
-            const data = {
-                periode_awal: SKP.periode_awal,
-                periode_akhir: SKP.periode_akhir,
-                skp: [SKP._id],
-                periodeRKT: SKP.periodeRKT,
-                pendekatan: SKP.pendekatan,
-                renstra: SKP.renstra,
-                jabatan: [dataItem]
-            };
-            const newSKP = await storeSKP(dataItem.userId, data, '0');
-            const dt = {
-                ...value,
-                skp: newSKP?.data._id
-            };
+    //         message.success('Berhasil Menambahkan RHK');
+    //     } else {
+    //         const data = {
+    //             periode_awal: SKP.periode_awal,
+    //             periode_akhir: SKP.periode_akhir,
+    //             skp: [SKP._id],
+    //             periodeRKT: SKP.periodeRKT,
+    //             pendekatan: SKP.pendekatan,
+    //             renstra: SKP.renstra,
+    //             jabatan: [dataItem]
+    //         };
+    //         const newSKP = await storeSKP(dataItem.userId, data, '0');
+    //         const dt = {
+    //             ...value,
+    //             skp: newSKP?.data._id
+    //         };
 
-            const rhk = await storeRHK(dataItem.userId, dt);
-            message.success('Berhasil Menambahkan RHK');
-        }
-        setModal(...modal, { trigger: false });
-    };
+    //         const rhk = await storeRHK(dataItem.userId, dt);
+    //         message.success('Berhasil Menambahkan RHK');
+    //     }
+    //     setModal(...modal, { trigger: false });
+    // };
 
     const aspekColumns = [
         {
@@ -117,7 +119,20 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: async(values) => {
+                            const dt = values;
+                            console.log(dt);
+                            console.log(record);
+                            
+                            // const response = await updateAspek(record._id, dt);
+                            // if (response.ok) {
+                            //     message.success('Berhasil Mengubah Aspek');
+                            //     setModal({ trigger: false });
+                            // }else
+                            // {
+                            //     message.error('Gagal Mengubah Aspek');
+                            // }
+                        } })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
@@ -198,14 +213,40 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: async (values) => {
+                            console.log(record);
+                            let dt = values;
+                            console.log(dt);
+                            
+                            dt = { ...dt, skp: record.skp, };
+                            const response = await updateRHK(record._id, dt);
+                            console.log(response);
+                            
+                            if (response.ok) {
+                                message.success('Berhasil Mengubah RHK');
+                                setModal({ trigger: false });
+                            }else
+                            {
+                                message.error('Gagal Mengubah RHK');
+                            }
+                            
+                        } })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
 
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: async(values) => {
+                            const response = await destroyRHK(record._id);
+                            if (response.ok) {
+                                message.success('Berhasil Menghapus RHK');
+                                setModal({ trigger: false });
+                            }else
+                            {
+                                message.error('Gagal Menghapus RHK');
+                            }
+                        } })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -251,6 +292,7 @@ const page = () => {
             )
         }
     ];
+
 
     const RhkFields = [
         {

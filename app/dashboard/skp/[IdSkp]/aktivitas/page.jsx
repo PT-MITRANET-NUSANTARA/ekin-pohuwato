@@ -136,26 +136,31 @@ const page = () => {
                 key: 'file',
                 render: (_, record) => (
                     <>
-                        <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: dummyfileList })} icon={<OrderedListOutlined />} />
+                        <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
                         <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                            <List
-                                className="my-6"
-                                itemLayout="horizontal"
-                                dataSource={fileModal.modalData}
-                                renderItem={(item) => (
-                                    <List.Item>
-                                        <div className="w-full flex justify-between items-center">
-                                            <div>
-                                                <p>{item.filename}</p>
-                                                <small>{item.deskripsi}</small>
-                                            </div>
-                                            <div>
-                                                <Button size="small" icon={<DownloadOutlined />} />
-                                            </div>
+                        <List
+                            className="my-6"
+                            itemLayout="horizontal"
+                            dataSource={fileModal.modalData}
+                            renderItem={(item) => (
+                                <List.Item>
+                                    <div className="w-full flex justify-between items-center">
+                                        <div>
+                                            <p>{item.name}</p>
+                                            <small>{item.fileId}</small>
                                         </div>
-                                    </List.Item>
-                                )}
-                            />
+                                        <div>
+                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                                    const a = document.createElement('a');
+                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                    a.download = item.name;
+                                                    a.click();
+                                                }} />
+                                        </div>
+                                    </div>
+                                </List.Item>
+                            )}
+                        />
                         </Modal>
                     </>
                 ),
