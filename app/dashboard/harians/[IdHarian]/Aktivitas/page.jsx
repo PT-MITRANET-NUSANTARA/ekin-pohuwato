@@ -184,7 +184,7 @@ const page = () => {
             dataIndex: 'msg',
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
-            render: (_, record) => (
+                render: (_, record) => (
                 <>
                     {console.log(record)}
                     {(() => {
