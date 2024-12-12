@@ -82,13 +82,11 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    
                     <Button
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/skp_bawahan/${record.id}`)}
                         // type='primary'
                         size="middle"
-                        icon={<EyeOutlined />}
-                    />
+                    >Detail</Button>
                 </Space>
             )
         }
@@ -126,7 +124,6 @@ const page = () => {
                         <p className="text-right uppercase"> </p>
                     </div> */}
                         </div>
-
                         <DataTable columns={Column} data={unor} loading={false}></DataTable>
                     </>
                 )}
