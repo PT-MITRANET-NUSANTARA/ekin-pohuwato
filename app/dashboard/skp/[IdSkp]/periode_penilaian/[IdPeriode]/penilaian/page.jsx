@@ -10,6 +10,7 @@ import { dummyBawahan } from '@/data';
 import { getData } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
 import { getById, getBySKP } from '@/controller/SKPController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -123,7 +124,7 @@ const page = () => {
                 <div className="grid grid-flow-row divide-y text-xs mb-12">
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">periode skp</span>
-                        <p className="text-right capitalize">{skp?.periode_awal + '-' + skp?.periode_akhir}</p>
+                        <p className="text-right capitalize">{skp?.periode_awal && skp?.periode_akhir ? dateFormatter(skp.periode_awal) + '-' + dateFormatter(skp.periode_akhir) : 'Tanggal tidak tersedia'}</p>
                     </div>
                     <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">jabatan</span>
@@ -155,7 +156,6 @@ const page = () => {
                         Lihat Kurva
                     </Button>
                     <Button type="primary">Pembinaan Bawahan</Button>
-                   
                 </div>
                 <DataTable columns={Column} data={bawahan} loading={loading} />
                 {/* <Tabs defaultActiveKey="1" type="card">

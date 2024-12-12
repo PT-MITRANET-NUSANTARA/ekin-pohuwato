@@ -62,7 +62,6 @@ export async function GET(req: NextRequest) {
                     path: 'rhk',
                     populate: {
                         path: 'skp',
-                        
                     }
                 });
             } else {

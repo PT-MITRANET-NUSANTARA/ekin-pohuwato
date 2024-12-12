@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
@@ -57,7 +57,7 @@ const page = () => {
             console.log(error);
         }
     };
-
+    
     console.log('harian', harian);
 
     const params = new URLSearchParams(window.location.search);
@@ -86,7 +86,7 @@ const page = () => {
 
             dt = {
                 absence: paramEntries._id,
-                date: new Date(paramEntries.tanggal),
+                date: new Date(paramEntries.date),
                 startDateTime: dayjs(values.startDateTime).format('HH:mm:ss').toString(),
                 endDateTime: dayjs(values.endDateTime).format('HH:mm:ss').toString(),
                 rhk: values.rhk,
@@ -98,6 +98,9 @@ const page = () => {
                 user_id: data.user.idASN,
                 progress: values.progress
             };
+
+            console.log(dt);
+            
             switch (type) {
                 case 'create':
                     response = await store(data.user.idASN, dt);
@@ -154,6 +157,7 @@ const page = () => {
             render: (text, record, index) => index + 1,
             width: '5%'
         },
+        
         {
             title: 'Tanggal',
             dataIndex: 'date',
@@ -161,6 +165,19 @@ const page = () => {
             sorter: (a, b) => a.date.length - b.date.length,
             width: '30%',
             render: (record) => dateFormatter(record)
+        },
+        {
+            title: 'RHK',
+            dataIndex: 'rhk',
+            key: 'rhk',
+            render: (_, record) => (
+                <>
+                    <Button onClick={() => setModal({ formFields: rhkFields, trigger: true, modalData: record.rhk, title: `Lihat RHK ${record.rhk._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                        Info
+                    </Button>
+                </>
+                // console.log(record)
+            )
         },
         {
             title: 'Status',
@@ -208,12 +225,22 @@ const page = () => {
             width: '240px'
         },
         {
+            title: 'Tautan',
+            dataIndex: 'tautan',
+            key: 'tautan',
+            render: (_, record) => (
+                <a href={record.tautan} target="_blank" rel="noopener noreferrer">
+                    Lihat Tautan
+                </a>
+            ),
+        },
+        {
             title: 'Bukti',
             dataIndex: 'file',
             key: 'file',
             render: (_, record) => (
                 <>
-                    <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: dummyfileList })} icon={<OrderedListOutlined />} />
+                    <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
                     <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
                         <List
                             className="my-6"
@@ -223,11 +250,16 @@ const page = () => {
                                 <List.Item>
                                     <div className="w-full flex justify-between items-center">
                                         <div>
-                                            <p>{item.filename}</p>
-                                            <small>{item.deskripsi}</small>
+                                            <p>{item.name}</p>
+                                            <small>{item.fileId}</small>
                                         </div>
                                         <div>
-                                            <Button size="small" icon={<DownloadOutlined />} />
+                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                                    const a = document.createElement('a');
+                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                    a.download = item.name;
+                                                    a.click();
+                                                }} />
                                         </div>
                                     </div>
                                 </List.Item>
@@ -265,6 +297,7 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
+                                formFields: formFields,
                                 modalData: {
                                     ...record,
                                     skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
@@ -284,6 +317,7 @@ const page = () => {
                             setModal({
                                 trigger: true,
                                 modalData: {
+                                    formFields: formFields,
                                     ...record,
                                     skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
                                     rhk: { label: record.rhk.desc, value: record.rhk._id }
@@ -326,11 +360,11 @@ const page = () => {
                                         label: 'Waktu Selesai',
                                         children: record.endDateTime
                                     },
-                                    {
-                                        key: 'skp',
-                                        label: 'SKP',
-                                        children: record.isSKP ? 'SKP' : 'Bukan SKP'
-                                    },
+                                    // {
+                                    //     key: 'skp',
+                                    //     label: 'SKP',
+                                    //     children: record.isSKP ? 'SKP' : 'Bukan SKP'
+                                    // },
                                     {
                                         key: 'progress',
                                         label: 'Progress',
@@ -348,6 +382,26 @@ const page = () => {
     ];
 
     console.log(rhk)
+
+    const rhkFields = [
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'text'
+        },
+        {
+            label: 'Klasifikasi',
+            name: 'klasifikasi',
+            type: 'text'
+        },
+        {
+            label: 'RHK',
+            name: 'desc',
+            type: 'longtext'
+        }
+        
+    ];
+
 
     const formFields = [
         {
@@ -488,7 +542,7 @@ const page = () => {
                                 Detail Data Harian
                             </Title>
                             <div>
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({  formFields: formFields,modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                     Tambah
                                 </Button>
                             </div>
@@ -496,7 +550,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={harian} loading={loading} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>

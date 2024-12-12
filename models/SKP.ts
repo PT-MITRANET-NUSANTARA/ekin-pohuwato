@@ -97,6 +97,13 @@ SKPSchema.virtual('penilaians', {
     justOne: false
 });
 
+SKPSchema.virtual('periodePenilaian', {
+    ref: 'PeriodePenilaian',
+    localField: '_id',
+    foreignField: 'skp',
+    justOne: true
+});
+
 const SKP = mongoose.models.SKP || mongoose.model<ISKP>('SKP', SKPSchema);
 
 export default SKP;

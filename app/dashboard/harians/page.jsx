@@ -103,10 +103,10 @@ const page = () => {
         },
         {
             title: 'Tanggal',
-            dataIndex: 'tanggal',
-            key: 'tanggal',
-            sorter: (a, b) => a.tanggal.length - b.tanggal.length,
+            dataIndex: 'date',
+            key: 'date',
             render: (record) => dateFormatter(record)
+            
         },
         {
             title: 'Status Kehadiran',
@@ -215,6 +215,7 @@ const page = () => {
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
+
 
     return (
         <div className="w-full flex flex-col gap-y-4">

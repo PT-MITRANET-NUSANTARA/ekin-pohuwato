@@ -13,6 +13,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
+import { title } from 'process';
 
 const { Title } = Typography;
 
@@ -117,12 +118,19 @@ const page = () => {
 
     };
 
+    console.log(tpp)
+
     const Column = [
         {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
+        },
+        {
+            title: "Periode RKT",
+            dataIndex: ['periodeRKT'],
+            render: (record) => dateFormatter(record.periode_start) + ' - ' + dateFormatter(record.periode_end)
         },
         {
             title: 'ID ASN',
