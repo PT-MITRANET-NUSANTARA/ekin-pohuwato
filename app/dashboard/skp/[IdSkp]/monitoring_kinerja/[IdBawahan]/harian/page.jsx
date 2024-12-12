@@ -98,7 +98,7 @@ const page = () => {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
-            render: (record) => record 
+            render: (record) => record ? dateFormatter(record) : 'undifined' 
         },
         {
             title: 'Status Kehadiran',

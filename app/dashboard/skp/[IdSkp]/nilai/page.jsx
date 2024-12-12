@@ -68,8 +68,9 @@ const page = () => {
                         // type='primary'
                         size="middle"
                         color="default"
-                        icon={<DatabaseOutlined />}
-                    />
+                    >
+                        Detail
+                    </Button>
                 </Space>
             )
         }
@@ -94,7 +95,11 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Data Periode Penilaian
                         </Title>
-                        <div></div>
+                        <div>
+                            <Button type='primary' onClick={() => router.push(`nilai/rencana_aksi`)}>
+                                Rencana Aksi
+                            </Button>
+                        </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
                 </div>

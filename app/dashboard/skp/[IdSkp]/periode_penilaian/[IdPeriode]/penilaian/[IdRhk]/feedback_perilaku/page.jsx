@@ -17,6 +17,7 @@ const { Option } = Select;
 
 import { store, destroy, update } from '@/controller/penilaianController';
 import dayjs from 'dayjs';
+import { dateFormatter } from '@/utils';
 
 const page = () => {
     const router = useRouter();
@@ -214,7 +215,7 @@ const page = () => {
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">periode</span>
                             <Tag color="blue" className="capitalize">
-                                {data?.periode_awal + ' - ' + data?.periode_akhir}
+                                {data?.periode_awal && data?.periode_akhir ? dateFormatter(data?.periode_awal) + ' - ' + dateFormatter(data?.periode_akhir) : 'tanggal tinggal tersedia'}
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
@@ -333,7 +334,7 @@ const page = () => {
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
-                                        <p>{item.rhk.rkt? item.rhk.rkt.name : item.rhk.desc}</p>
+                                            <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
 
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
@@ -366,15 +367,6 @@ const page = () => {
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                             <td>
-                                                <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${IdRhk}/${item._id}/bukti_dukung`)}>
-                                                        Lihat
-                                                    </Button>
-                                                </div>
-                                            </td>
-
-                                            <td>
-                                                {' '}
                                                 {getRealisasi(
                                                     aspek,
                                                     item.harians?.filter((h) => {
@@ -383,11 +375,13 @@ const page = () => {
                                                         const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
 
                                                         // Check if h.date is less than or equal to endDateTime
-                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
+                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
                                                     })
                                                 )}
                                             </td>
-                                            <td></td>
+
+                                            <td> </td>
+                                            {/* <td></td> */}
                                         </tr>
                                     </>
                                 ))}
@@ -427,16 +421,16 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
+                                <td></td>
                                 <td>
                                     {item.feedback || (
                                         <div className="flex items-center justify-center">
-                                            <Button type="primary" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
+                                            <Button size="small" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
                                                 Tambah
                                             </Button>
                                         </div>
                                     )}
                                 </td>
-                                <td></td>
                             </tr>
                         ))}
                         <tr>
