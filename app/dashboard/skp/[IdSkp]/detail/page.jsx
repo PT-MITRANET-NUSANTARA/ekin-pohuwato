@@ -45,8 +45,11 @@ const page = () => {
 
     const cetakSkpSubmit = (values) => {
         const query = new URLSearchParams(values).toString();
-        router.push(`/document/1/1/rencana_skp?${query}`);
+        router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
+
+    console.log(jabatan);
+    
 
     const cetakSkpFields = [
         {
@@ -83,6 +86,9 @@ const page = () => {
             type: 'text'
         }
     ];
+
+    
+ 
 
     return (
         <div className="w-full flex flex-col gap-y-4">

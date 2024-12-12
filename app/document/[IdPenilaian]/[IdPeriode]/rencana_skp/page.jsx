@@ -3,84 +3,54 @@
 import dayjs from 'dayjs';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
+import useFetchData from '@/hooks/useFetchData';
 
 const page = () => {
     const router = useRouter();
     dayjs.locale('id');
     const { IdPenilaian, IdPeriode } = useParams();
+    
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { data, setData, loading } = useFetchData(getData);
     const [atasan, setAtasan] = useState(null);
-    const [bawahan, setBawahan] = useState(null);
-    const [penilaian, setPenilaian] = useState(null);
+    const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [loadingData, setLoadingData] = useState(true);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (data) {
+            fetchData();
+            
+        }
+    }, [data]);
 
     const fetchData = async () => {
         try {
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdPenilaian);
-            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
-            setPenilaian(penilaian);
-            const periodePenilaian = await getPenilaian(IdPeriode);
-            setPeriode(periodePenilaian.data);
-            const skpAtasan = skp.data.skp[skp.data.skp.length - 1];
-            const bawahan = skp.data.jabatan[skp.data.skp.length - 1];
-            const jabatan = skpAtasan.jabatan;
+            setSkp(skp.data);
+            console.log(skp.data);
+            
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
 
-            const atasan = jabatan.find((item) => {
-                return item.unor.induk.id === bawahan.unor.induk.id;
-            });
-
-            setData(skp.data);
-            setBawahan(bawahan);
-            setAtasan(atasan);
+            setLoadingData(false);
         } catch (error) {
             console.log(error);
         }
     };
+  
 
-    const getRealisasi = (aspek, harian) => {
-        if (aspek.jenis === 'kualitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-            if (percentase) {
-                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
-                return percent + '%';
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'kuantitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
+    console.log('atasan', jabatan);
 
-            if (percentase) {
-                const target = aspek.target_tahunan.target;
-                const realisasi = percentase.progress;
-                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
-
-                return percent + ' ' + aspek.target_tahunan.satuan;
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'waktu') {
-            return harian.length + ' ' + aspek.target_tahunan.satuan;
-        } else {
-            return '';
-        }
-    };
-
-    console.log('atasan', atasan);
-
+    // useEffect(() => {
+    //     // Automatically open print dialog when page is loaded
+    //     window.print();
+    // }, []);
     return (
         <div className="p-6">
             <div className="header">
@@ -107,18 +77,18 @@ const page = () => {
                     <tr className="data">
                         <td>1</td>
                         <td>nama</td>
-                        <td>{bawahan?.nama_asn}</td>
+                        <td> {data?.user.nama}</td>
                         <td>1</td>
                         <td>nama</td>
-                        <td>{atasan?.nama_asn}</td>
+                        <td> {jabatan?.unor.atasan.asn.nama_atasan}</td>
                     </tr>
                     <tr className="data">
                         <td>2</td>
                         <td>nip</td>
-                        <td>{bawahan?.id_asn}</td>
+                        <td>{data?.user.nipBaru}</td>
                         <td>2</td>
                         <td>nip</td>
-                        <td>{atasan?.id_asn}</td>
+                        <td> {jabatan?.unor.atasan.asn.nip_atasan}</td>
                     </tr>
                     {/* <tr className="data">
                         <td>3</td>
@@ -131,18 +101,18 @@ const page = () => {
                     <tr className="data">
                         <td>4</td>
                         <td>JABATAN</td>
-                        <td>{bawahan?.nama_jabatan}</td>
+                        <td> {jabatan?.nama_jabatan}</td>
                         <td>4</td>
                         <td>JABATAN</td>
-                        <td>{atasan?.nama_jabatan}</td>
+                        <td>{jabatan?.unor.atasan.unor_jabatan}</td>
                     </tr>
                     <tr className="data">
                         <td>5</td>
                         <td>UNIT KERJA</td>
-                        <td>{bawahan?.unor.nama}</td>
+                        <td>{jabatan?.unor.nama}</td>
                         <td>5</td>
                         <td>UNIT KERJA</td>
-                        <td>{atasan?.unor.nama}</td>
+                        <td>{jabatan?.unor.atasan.unor_nama} </td>
                     </tr>
                 </tbody>
             </table>
@@ -159,9 +129,7 @@ const page = () => {
                         <td className="border border-black p-2 text-center">RENCANA HASIL KERJA </td>
                         <td className="border border-black p-2 text-center">ASPEK</td>
                         <td className="border border-black p-2 text-center">INDKATOR KINERJA INDIVIDU</td>
-                        <td className="border border-black p-2 text-center">TARGET/SESUAI EKSPEKTASI</td>
-                        <td className="border border-black p-2 text-center">RELASI BERDASARKAN BUKTI DUKUNG</td>
-                        <td className="border border-black p-2 text-center">UMPAN BALIK BERKELANJUTAN BERDASARKAN BUKTI DUKUNG</td>
+                        <td className="border border-black p-2 text-center">TARGET</td>
                     </tr>
                     <tr>
                         <td colSpan={8} className="border border-black font-semibold">
@@ -169,7 +137,7 @@ const page = () => {
                         </td>
                     </tr>
 
-                    {data?.rhks.map((item, index) => (
+                    {skp?.rhks.map((item, index) => (
                         <>
                             <tr>
                                 <td className="border border-black p-2 text-center" rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
@@ -198,21 +166,6 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td className="border border-black p-2 text-center">{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-
-                                        <td className="border border-black p-2 text-center">
-                                            {' '}
-                                            {getRealisasi(
-                                                aspek,
-                                                item.harians?.filter((h) => {
-                                                    const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                                    const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
-                                                    console.log(h);
-                                                    // Check if h.date is less than or equal to endDateTime
-                                                    return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
-                                                })
-                                            )}
-                                        </td>
-                                        <td className="border border-black p-2 text-center"></td>
                                     </tr>
                                 </>
                             ))}
@@ -220,7 +173,7 @@ const page = () => {
                     ))}
                     <tr>
                         <td colSpan={8} className="border border-black font-semibold">
-                            Utama
+                            Tambahan
                         </td>
                     </tr>
                 </tbody>
@@ -231,10 +184,9 @@ const page = () => {
                     <tr className="font-bold">
                         <td className="border border-black p-2 text-center">NO</td>
                         <td className="border border-black p-2 text-center">PERILAKU KERJA</td>
-                        <td className="border border-black p-2 text-center">EKSPEKTASI KHUSU PIMPINAN</td>
-                        <td className="border border-black p-2 text-center">UMPAN BALIK BERKELANJUTAN BERDASARKAN BUKTI DUKUNG</td>
+                        <td className="border border-black p-2 text-center">EKSPEKTASI KHUSUS PIMPINAN</td>
                     </tr>
-                    {data?.perilakus?.map((item, index) => (
+                    {skp?.perilakus?.map((item, index) => (
                         <tr key={index}>
                             <td className="border border-black p-2 text-center">{index + 1}</td>
                             <td className="border border-black p-2 text-center" style={{ padding: '8px' }}>
@@ -256,7 +208,6 @@ const page = () => {
                                         </div>
                                     )} */}
                             </td>
-                            <td className="border border-black p-2 text-center"></td>
                         </tr>
                     ))}
                 </tbody>
@@ -276,12 +227,12 @@ const page = () => {
                         </td>
                     </tr>
                     <tr className="text-center">
-                        <td className="pt-24">{bawahan?.nama_asn}</td>
+                        <td className="pt-24">{data?.user.nama}</td>
                         <td className="pt-24">{atasan?.nama_asn}</td>
                     </tr>
                     <tr className="text-center">
-                        <td className="">{bawahan?.id_asn}</td>
-                        <td className="">{atasan?.id_asn}</td>
+                        <td className="">   {jabatan?.unor.atasan.asn.nama_atasan}</td>
+                        <td className="">  {jabatan?.unor.atasan.asn.nip_atasan}</td>
                     </tr>
                 </tbody>
             </table>
