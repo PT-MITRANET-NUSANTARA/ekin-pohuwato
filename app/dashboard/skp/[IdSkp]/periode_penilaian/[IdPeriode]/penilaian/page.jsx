@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined, FileOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -93,10 +93,12 @@ const page = () => {
                     <Button
                         // type='primary'
                         size="middle"
-                        color="danger"
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record._id}/feedback_perilaku`)}
                     >
                         Feedback Perilaku
+                    </Button>
+                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push('/document/1/hasil_skp')}>
+                        Cetak
                     </Button>
                 </Space>
             )

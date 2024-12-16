@@ -18,7 +18,7 @@ const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
@@ -59,7 +59,6 @@ const page = () => {
     };
 
     console.log(data);
-    
 
     const onSubmit = async (value) => {
         try {
@@ -473,7 +472,11 @@ const page = () => {
                                                     })
                                                 )}
                                             </td>
-                                            <td></td>
+                                            <td>
+                                                <div className="p-3">
+                                                    <Button size='small' icon={<PlusOutlined/>} onClick={() => setModal({ title: 'Tambah Feedback', trigger: true, formFields: feedbackFields })}>Tambah</Button>
+                                                </div>
+                                            </td>
                                             {/* <td></td> */}
                                         </tr>
                                     </>

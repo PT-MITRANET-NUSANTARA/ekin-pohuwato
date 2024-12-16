@@ -419,6 +419,8 @@ const page = () => {
         }
     ];
 
+    
+
     const rhkData = {
         loading: false,
         data: dummyIntervensiRhk,

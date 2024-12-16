@@ -144,8 +144,9 @@ const page = () => {
                         // type='primary'
                         size="middle"
                         color="danger"
-                        icon={<DatabaseOutlined />}
-                    />
+                    >
+                        Detail
+                    </Button>
                 </Space>
             )
         }

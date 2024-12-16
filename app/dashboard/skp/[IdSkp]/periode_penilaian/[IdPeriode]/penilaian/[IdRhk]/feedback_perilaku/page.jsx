@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Form, InputNumber, message, Modal, Select, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CrudModal } from '@/components';
@@ -200,12 +200,6 @@ const page = () => {
                             Pengisian Feedback Atasan
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak Form Penilaian
-                            </Button>
-                            <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak Dokumen Evaluasi Kinerja
-                            </Button>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
                                 Buat Rating Perilaku Kerja
                             </Button>
@@ -422,38 +416,42 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-                                <td>{item.espektasi}</td>
                                 <td>
-                                    {item.feedback}
-                                    <br />
-                                    {item.like !== null ? <Tag color={item.like ? 'green' : 'red'}>{item.like ? 'baik' : 'buruk'}</Tag> : ''}
-                                    <div className="flex items-center justify-center">
-                                        <Button
-                                            size="small"
-                                            onClick={() =>
-                                                setModal({
-                                                    trigger: true,
-                                                    modalData: { content: item.feedback, category: item.like },
-                                                    title: 'Edit Feedback',
-                                                    formFields: formFields,
-                                                    onSubmit: async (values) => {
-                                                        console.log('HERE');
+                                    <div className="flex items-center justify-center">{item.espektasi}</div>
+                                </td>
+                                <td>
+                                    <div className="flex flex-col items-center justify-center gap-y-2">
+                                        {item.feedback}
+                                        {item.like !== null ? <Tag className='m-0' color={item.like ? 'green' : 'red'}>{item.like ? 'baik' : 'buruk'}</Tag> : ''}
+                                        <div className="flex items-center justify-center">
+                                            <Button
+                                                icon={<EditOutlined />}
+                                                size="small"
+                                                onClick={() =>
+                                                    setModal({
+                                                        trigger: true,
+                                                        modalData: { content: item.feedback, category: item.like },
+                                                        title: 'Edit Feedback',
+                                                        formFields: formFields,
+                                                        onSubmit: async (values) => {
+                                                            console.log('HERE');
 
-                                                        const dt = { ...item, feedback: values.content, like: values.category };
-                                                        console.log('PERILAKU', dt);
-                                                        const res = await updatePerilaku(item._id, dt);
-                                                        console.log(res);
-                                                        if (res.ok) {
-                                                            fetchData();
-                                                            setModal({ trigger: false, modalData: {} });
-                                                            message.success('Data Berhsil Di Ubah');
+                                                            const dt = { ...item, feedback: values.content, like: values.category };
+                                                            console.log('PERILAKU', dt);
+                                                            const res = await updatePerilaku(item._id, dt);
+                                                            console.log(res);
+                                                            if (res.ok) {
+                                                                fetchData();
+                                                                setModal({ trigger: false, modalData: {} });
+                                                                message.success('Data Berhsil Di Ubah');
+                                                            }
                                                         }
-                                                    }
-                                                })
-                                            }
-                                        >
-                                            Edit
-                                        </Button>
+                                                    })
+                                                }
+                                            >
+                                                Edit
+                                            </Button>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
