@@ -45,15 +45,17 @@ const page = () => {
 
     const cetakSkpSubmit = (values) => {
         const query = new URLSearchParams(values).toString();
-        router.push(`/document/1/1/rencana_skp?${query}`);
+        router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
+
+    console.log(jabatan);
+    
 
     const cetakSkpFields = [
         {
             label: 'Tanggal',
             name: 'tanggal',
             type: 'date',
-            extra: { minDate: dayjs(), maxDate: dayjs() },
             rules: [
                 {
                     required: true,
@@ -72,17 +74,13 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Anchor Pegawai Yang Dinilai (Opsional)',
-            name: 'anchor_dinilai',
-            type: 'text'
-        },
-        {
-            label: 'Anchor Pejabat Yang Menilai (Opsional)',
-            name: 'anchor_penilai',
-            type: 'text'
-        }
+       
     ];
+
+    console.log(skp);
+    
+    
+ 
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -293,7 +291,7 @@ const page = () => {
                                                 </ol>
                                             </div>
                                         </td>
-                                        <td>{item.feedback || ''}</td>
+                                        <td>{item.espektasi || ''}</td>
                                     </tr>
                                 ))}
                             </tbody>

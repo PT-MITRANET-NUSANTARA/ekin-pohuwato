@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Skeleton, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, message, Skeleton, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -9,12 +9,13 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { update } from '@/controller/PerilakuController'
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { CrudModal } from '@/components';
 import dayjs from 'dayjs';
 const { Title } = Typography;
 const page = () => {
-    const { IdSkp } = useParams();
+    const { IdSkp, IdBawahan } = useParams();
     const router = useRouter();
     const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
@@ -30,13 +31,11 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const skp = await getById(IdSkp);
-            const selectedJabatan = jabatan.mapData.data[0];
+            const skp = await getById(IdBawahan);
             console.log(skp.data.rhks);
 
             setSkp(skp.data);
-            setJabatan(selectedJabatan);
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -88,7 +87,7 @@ const page = () => {
         {
             label: 'Ekspektasi',
             name: 'ekspektasi',
-            type: 'text',
+            type: 'longtext',
             rules: [
                 {
                     required: true,
@@ -224,13 +223,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nama}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nipBaru}
+                                            {jabatan?.nipBaru ? jabatan?.nipBaru : ''}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -332,8 +331,20 @@ const page = () => {
                                         </td>
                                         <td>
                                             <div className='flex flex-col gap-y-2 items-center'>
-                                                {item.feedback || ''}
-                                                <Button size="small" onClick={() => setModal({ trigger: true, modalData: null, title: 'Edit ekspektasi khusus pimpinan', type: 'edit', formFields: ekspektasiPimpinanFields })}>
+                                                {item.espektasi || ''}
+                                                <Button size="small" onClick={() => setModal({ trigger: true, modalData: null, title: 'Edit ekspektasi khusus pimpinan', type: 'edit', formFields: ekspektasiPimpinanFields, onSubmit: async (values) => {
+                                                    const dt = {...item, espektasi: values.ekspektasi}
+                                                    console.log(dt);
+                                                    
+                                                    const res = await update(item._id, dt);
+                                                    console.log(res);
+                                                    
+                                                    if (res.ok) {
+                                                        fetchData();
+                                                        message.success('Data berhasil diubah');
+                                                        setModal({ trigger: false, modalData: null });
+                                                    }
+                                                } })}>
                                                     Edit
                                                 </Button>
                                             </div>

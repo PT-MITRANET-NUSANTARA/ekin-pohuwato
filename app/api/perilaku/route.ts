@@ -9,8 +9,8 @@ const perilakuSchema = Joi.object({
   name: Joi.string().required().label('Nama Perilaku'),
   isi: Joi.array().items(Joi.string().required()).required().label('Isi Perilaku'),
   espektasi: Joi.string().optional().label('Espektasi'),
-  feedback: Joi.string().optional().label('Feedback'),
-  like: Joi.boolean().optional().label('Like'),
+  feedback: Joi.string().optional().label('Feedback').allow(''),
+  like: Joi.boolean().optional().label('Like').allow(null),
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
@@ -98,7 +98,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Perilaku not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedPerilaku));
+    return NextResponse.json(createResponse(200, 'Success', updatedPerilaku, true));
   } catch (error) {
     console.log(error);
     
