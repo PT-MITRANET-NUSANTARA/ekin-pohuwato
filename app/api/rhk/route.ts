@@ -8,8 +8,8 @@ import Harian from '@/models/Harian';
 
 const rhkSchema = Joi.object({
     skp: Joi.string().required().label('SKP'),
-    rhk: Joi.string().optional().label('RHK'),
-    rkt: Joi.string().optional().label('RKT'),
+    rhk: Joi.string().optional().label('RHK').allow(null),
+    rkt: Joi.string().optional().label('RKT').allow(null),
     desc: Joi.string().required().label('Deskripsi'),
     jenis: Joi.string().valid('utama', 'tambahan', 'Utama', 'Tambahan').required().label('Jenis'),
     rencana: Joi.object().label('Rencana'),

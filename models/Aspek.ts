@@ -13,7 +13,7 @@ export interface IAspek extends Document {
   indikator: string; 
   target_tahunan: string; 
   desc? : string;
-  feedback: [Object];
+  feedback: Object;
 }
 
 const AspekSchema: Schema = new Schema({
@@ -32,9 +32,9 @@ const AspekSchema: Schema = new Schema({
     required: true
   },
   feedback: {
-    type: [Object],
+    type: Object,
     required: false,
-    default: []
+    default: null
   },
   target_tahunan: {
     type: Object,

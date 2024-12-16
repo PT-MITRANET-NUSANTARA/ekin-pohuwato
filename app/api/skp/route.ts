@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
                 .populate({
                     path: 'rhks',
                     populate: [
-                        { path: 'rhk', populate: { path: 'rkt' } }, // Populate 'rhk' dan 'rkt' di dalamnya
+                        { path: 'rhk', populate: [{ path: 'rkt' }, {path: 'harians'}] }, // Populate 'rhk' dan 'rkt' di dalamnya
                         { path: 'aspek' }, // Populate 'aspek'
                         { path: 'harians' }, // Populate 'harians'
                         { path: 'rkt' } // Populate 'rkt' secara langsung dari 'rhks'

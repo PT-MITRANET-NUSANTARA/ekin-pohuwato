@@ -55,6 +55,9 @@ const page = () => {
         }
     };
 
+    console.log(data);
+    
+
     const onSubmit = async (value) => {
         try {
             let data;
@@ -406,9 +409,8 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-
-                                <td></td>
-                                <td></td>
+                                <td>{item.espektasi || ''}</td>
+                                <td>{item.feedback || ''}</td>
                             </tr>
                         ))}
                         <tr>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, InputNumber, Modal, Select, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, InputNumber, message, Modal, Select, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { dummyFeedback } from '@/data';
 import { title } from 'process';
 import { useParams } from 'next/navigation';
 import { getById } from '@/controller/SKPController';
+import { update as updatePerilaku } from '@/controller/PerilakuController';
 import { useRouter } from 'next/navigation';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 
@@ -88,11 +89,11 @@ const page = () => {
             options: [
                 {
                     label: 'baik',
-                    value: 'baik'
+                    value: true
                 },
                 {
                     label: 'buruk',
-                    value: 'buruk'
+                    value: false
                 }
             ]
         }
@@ -421,15 +422,39 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-                                <td></td>
+                                <td>{item.espektasi}</td>
                                 <td>
-                                    {item.feedback || (
-                                        <div className="flex items-center justify-center">
-                                            <Button size="small" onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: formFields })}>
-                                                Tambah
-                                            </Button>
-                                        </div>
-                                    )}
+                                    {item.feedback}
+                                    <br />
+                                    {item.like !== null ? <Tag color={item.like ? 'green' : 'red'}>{item.like ? 'baik' : 'buruk'}</Tag> : ''}
+                                    <div className="flex items-center justify-center">
+                                        <Button
+                                            size="small"
+                                            onClick={() =>
+                                                setModal({
+                                                    trigger: true,
+                                                    modalData: { content: item.feedback, category: item.like },
+                                                    title: 'Edit Feedback',
+                                                    formFields: formFields,
+                                                    onSubmit: async (values) => {
+                                                        console.log('HERE');
+
+                                                        const dt = { ...item, feedback: values.content, like: values.category };
+                                                        console.log('PERILAKU', dt);
+                                                        const res = await updatePerilaku(item._id, dt);
+                                                        console.log(res);
+                                                        if (res.ok) {
+                                                            fetchData();
+                                                            setModal({ trigger: false, modalData: {} });
+                                                            message.success('Data Berhsil Di Ubah');
+                                                        }
+                                                    }
+                                                })
+                                            }
+                                        >
+                                            Edit
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -443,7 +468,7 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={dummyFeedback} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
             </Card>
         </div>
     );
