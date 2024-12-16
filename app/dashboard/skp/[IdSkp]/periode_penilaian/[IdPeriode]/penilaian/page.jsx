@@ -97,7 +97,7 @@ const page = () => {
                     >
                         Feedback Perilaku
                     </Button>
-                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push('/document/1/hasil_skp')}>
+                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push(`/document/${record._id}/hasil_skp`)}>
                         Cetak
                     </Button>
                 </Space>

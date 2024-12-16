@@ -10,7 +10,7 @@ const aspekSchema = Joi.object({
   indikator: Joi.string().required().label('Indikator'),
   target_tahunan: Joi.object().required().label('Target Tahunan'),
   feedback: Joi.object().optional().label('Feedback'),
-  desc: Joi.string().optional().label('Deskripsi'),
+  desc: Joi.string().optional().label('Deskripsi').allow(''),
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
@@ -97,7 +97,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(createResponse(404, 'Aspek not found', null));
     }
 
-    return NextResponse.json(createResponse(200, 'Success', updatedAspek));
+    return NextResponse.json(createResponse(200, 'Success', updatedAspek, true));
   } catch (error) {
     console.log(error);
     
