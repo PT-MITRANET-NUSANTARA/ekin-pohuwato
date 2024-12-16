@@ -34,7 +34,7 @@ const RHKSchema: Schema = new Schema(
         desc: {
             type: String,
             required: false,
-            default: ''
+        default: ''
         },
         rhk: {
             type: Schema.Types.ObjectId,

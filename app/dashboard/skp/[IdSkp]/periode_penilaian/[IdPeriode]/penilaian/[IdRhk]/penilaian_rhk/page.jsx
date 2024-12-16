@@ -58,6 +58,9 @@ const page = () => {
         }
     };
 
+    console.log(data);
+    
+
     const onSubmit = async (value) => {
         try {
             let data;
@@ -511,11 +514,8 @@ const page = () => {
                                         </ol>
                                     </div>
                                 </td>
-
-                                <td></td>
-                                <td>
-                                    <Button onClick={() => setModal({ trigger: true, formFields: feedbackFields, title: 'Tambah Feedback' })}>Tambah</Button>
-                                </td>
+                                <td>{item.espektasi || ''}</td>
+                                <td>{item.feedback || ''}</td>
                             </tr>
                         ))}
                         <tr>
