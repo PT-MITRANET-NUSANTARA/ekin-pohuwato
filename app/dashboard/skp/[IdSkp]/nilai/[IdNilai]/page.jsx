@@ -13,6 +13,7 @@ import { getById } from '@/controller/SKPController';
 import { useParams, useRouter } from 'next/navigation';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import dayjs from 'dayjs';
+import { dateFormatter } from '@/utils';
 
 const page = () => {
     const router = useRouter();
@@ -135,13 +136,16 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
                             </Button>
+                            <Button type="primary" icon={<PrinterOutlined />}>
+                                Cetak Hasil SKP
+                            </Button>
                         </div>
                     </div>
                     <div className="grid grid-flow-row divide-y text-xs">
                         <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">periode</span>
                             <Tag color="blue" className="capitalize">
-                                {data?.periode_awal + ' - ' + data?.periode_akhir}
+                                {data?.periode_awal && data?.periode_akhir ?  dateFormatter(data?.periode_awal)  + ' - ' + dateFormatter(data?.periode_akhir) : 'tanggal tidak tersedia'} 
                             </Tag>
                         </div>
                         <div className="flex items-center justify-between py-2">
