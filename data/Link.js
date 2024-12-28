@@ -1,4 +1,4 @@
-import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined } from '@ant-design/icons';
 import path from 'path';
 
 export const DashboardLink = [
@@ -87,6 +87,16 @@ export const DashboardLink = [
         icon: BlockOutlined,
         label: 'TPP',
         path: '/dashboard/tpp'
+    },
+    {
+        icon: UserSwitchOutlined,
+        label: 'Verifikator',
+        path: '/dashboard/verifikator'
+    },
+    {
+        icon: VerifiedOutlined,
+        label: 'Verifikasi SKP',
+        path: '/dashboard/verifikasi_skp'
     },
     {
         icon: SettingOutlined,

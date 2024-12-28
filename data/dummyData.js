@@ -256,4 +256,21 @@ export const dummyfileList = Array.from({ length: 10}, (_, index) => ({
   deskripsi: 'ini adalah file nomor' + index,
 }))
 
+export const dummyVerifikator = Array.from({ length: 10}, (_, index) => ({
+  _id: (index + 1), 
+  nama_lengkap: 'verifikator' + index,
+  username: 'user' + index,
+}))
+
+export const dummySKPVerification = Array.from({ length: 10}, (_, index) => ({
+  _id: (index + 1), 
+  nama_skp: 'skp' + index,
+  periode_skp: 'periode' + index,
+  status: (index === 6 ? 'tolak' : index === 1 ? "terima" : "periksa"),
+  datadiri: 'datadiri' + index,
+  atasan: 'atasan' + index,
+}))
+
+
+
 

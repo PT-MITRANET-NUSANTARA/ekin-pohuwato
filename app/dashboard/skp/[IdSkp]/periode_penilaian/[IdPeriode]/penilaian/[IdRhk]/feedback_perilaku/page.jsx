@@ -103,7 +103,21 @@ const page = () => {
         {
             label: 'Beri Rating',
             name: 'rating',
-            type: 'rating',
+            type: 'select',
+            options: [
+                {
+                    label: 'Diatas Ekspektasi',
+                    value: 'Diatas Ekspektasi'
+                },
+                {
+                    label: 'Sesuai Ekspektasi',
+                    value: 'Sesuai Ekspektasi'
+                },
+                {
+                    label: 'Dibawah Ekspektasi',
+                    value: 'Dibawah Ekspektasi'
+                }
+            ],
             rules: [
                 {
                     required: true,
@@ -112,6 +126,43 @@ const page = () => {
             ]
         }
     ];
+
+    // const predikatFields = [
+    //     {
+    //         label: 'Beri Rating',
+    //         name: 'rating',
+    //         type: 'select',
+    //         options: [
+    //             {
+    //                 label: 'Istimewa',
+    //                 value: 'Istimewa'
+    //             },
+    //             {
+    //                 label: 'Baik',
+    //                 value: 'Baik'
+    //             },
+    //             {
+    //                 label: 'Butuh Perbaikan',
+    //                 value: 'Butuh Perbaikan'
+    //             },
+    //             {
+    //                 label: 'Kurang (Misconduct)',
+    //                 value: 'Kurang (Misconduct)'
+    //             }
+    //             ,
+    //             {
+    //                 label: 'Sangat Kurang',
+    //                 value: 'Sangat Kurang'
+    //             }
+    //         ],
+    //         rules: [
+    //             {
+    //                 required: true,
+    //                 message: 'Field rating wajib di isi'
+    //             }
+    //         ]
+    //     }
+    // ];
 
     const onSubmit = async (value) => {
         try {
@@ -200,9 +251,12 @@ const page = () => {
                             Pengisian Feedback Atasan
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Rating Perilaku Kerja', formFields: ratingFileds })}>
                                 Buat Rating Perilaku Kerja
                             </Button>
+                            {/* <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
+                                Buat Predikat Kinerja
+                            </Button> */}
                         </div>
                     </div>
 
@@ -422,7 +476,13 @@ const page = () => {
                                 <td>
                                     <div className="flex flex-col items-center justify-center gap-y-2">
                                         {item.feedback}
-                                        {item.like !== null ? <Tag className='m-0' color={item.like ? 'green' : 'red'}>{item.like ? 'baik' : 'buruk'}</Tag> : ''}
+                                        {item.like !== null ? (
+                                            <Tag className="m-0" color={item.like ? 'green' : 'red'}>
+                                                {item.like ? 'baik' : 'buruk'}
+                                            </Tag>
+                                        ) : (
+                                            ''
+                                        )}
                                         <div className="flex items-center justify-center">
                                             <Button
                                                 icon={<EditOutlined />}

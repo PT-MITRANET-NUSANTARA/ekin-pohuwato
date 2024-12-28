@@ -102,7 +102,21 @@ const page = () => {
         {
             label: 'Beri Rating',
             name: 'rating',
-            type: 'rating',
+            type: 'select',
+            options: [
+                {
+                    label: 'Diatas Ekspektasi',
+                    value: 'Diatas Ekspektasi'
+                },
+                {
+                    label: 'Sesuai Ekspektasi',
+                    value: 'Sesuai Ekspektasi'
+                },
+                {
+                    label: 'Dibawah Ekspektasi',
+                    value: 'Dibawah Ekspektasi'
+                },
+            ],
             rules: [
                 {
                     required: true,
@@ -181,7 +195,7 @@ const page = () => {
                                 Cetak Form Penilaian
                             </Button> */}
 
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Feedback', formFields: ratingFileds })}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Rating Hasil Kerja', formFields: ratingFileds })}>
                                 Buat Rating Hasil Kinerja
                             </Button>
                         </div>

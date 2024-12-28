@@ -1,11 +1,11 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined, FileOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined, FileOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DataTable } from '@/components';
+import { CrudModal, DataTable } from '@/components';
 import { dummyBawahan } from '@/data';
 import { getData } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
@@ -17,6 +17,8 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+
     const { data, setData } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
     const [bawahan, setBawahan] = useState(null);
@@ -87,7 +89,7 @@ const page = () => {
                         size="middle"
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record._id}/penilaian_rhk`)}
                     >
-                        Penilaian
+                        Hasil Kerja
                     </Button>
 
                     <Button
@@ -95,7 +97,10 @@ const page = () => {
                         size="middle"
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/${record._id}/feedback_perilaku`)}
                     >
-                        Feedback Perilaku
+                        Perilaku
+                    </Button>
+                    <Button icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
+                        Tambah Predikat
                     </Button>
                     <Button icon={<FileOutlined />} size="middle" onClick={() => router.push('/document/1/hasil_skp')}>
                         Cetak
@@ -105,6 +110,45 @@ const page = () => {
         }
     ];
 
+    const predikatFields = [
+        {
+            label: 'Beri Rating',
+            name: 'rating',
+            type: 'select',
+            options: [
+                {
+                    label: 'Istimewa',
+                    value: 'Istimewa'
+                },
+                {
+                    label: 'Baik',
+                    value: 'Baik'
+                },
+                {
+                    label: 'Butuh Perbaikan',
+                    value: 'Butuh Perbaikan'
+                },
+                {
+                    label: 'Kurang (Misconduct)',
+                    value: 'Kurang (Misconduct)'
+                },
+                {
+                    label: 'Sangat Kurang',
+                    value: 'Sangat Kurang'
+                }
+            ],
+            rules: [
+                {
+                    required: true,
+                    message: 'Field rating wajib di isi'
+                }
+            ]
+        }
+    ];
+
+    const onClose = () => {
+        setModal((prev) => ({ ...prev, trigger: false }));
+    };
     return (
         <div className="flex flex-col gap-y-4">
             <Breadcrumb
@@ -160,6 +204,8 @@ const page = () => {
                     <Button type="primary">Pembinaan Bawahan</Button>
                 </div>
                 <DataTable columns={Column} data={bawahan} loading={loading} />
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+
                 {/* <Tabs defaultActiveKey="1" type="card">
                     <Tabs.Items tab="Pelaksanaan Kinerja" key="1">
                         <table className="normaltable">

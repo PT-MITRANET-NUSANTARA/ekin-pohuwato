@@ -7,11 +7,11 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { store as storeRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
-import { getById,  store as storeSKP, getBySKPAndPeriode} from '@/controller/SKPController';
-import {update as updateAspek, destroy as destroyAspek}  from '@/controller/AspekController'
-
+import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
+import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setModal, modal }) => {
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [data, setData] = useState(null);
     const [aspek, setAspek] = useState(null);
     useEffect(() => {
@@ -34,8 +34,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
 
     console.log(data);
     console.log(aspek);
-    
-    
+
     const aspekColumns = [
         {
             title: 'No',
@@ -96,7 +95,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     type: 'edit',
                                     formFields: AspekFields,
                                     onSubmit: async (values) => {
-                                        const dt = {...values, rhk: rhk._id,}
+                                        const dt = { ...values, rhk: rhk._id };
                                     }
                                 })
                             }
@@ -118,12 +117,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                                     title: 'Delete Aspek',
                                     type: 'delete',
                                     formFields: AspekFields,
-                                    onSubmit: async(values) => {
-                                        const dt = {...values}
+                                    onSubmit: async (values) => {
+                                        const dt = { ...values };
                                         console.log(values);
                                         console.log(record);
-                                        
-                                        
                                     }
                                 })
                             }
@@ -219,7 +216,140 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                         return Promise.resolve();
                     }
                 }
-            ],
+            ]
+        }
+    ];
+
+    const rhkColumns = [
+        {
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
+        },
+        {
+            title: 'RHK Yang di Intervensi',
+            dataIndex: 'rhk',
+            key: 'rhk',
+            sorter: (a, b) => a.rhk.length - b.rhk.length,
+            render: (_, record) => (record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name)
+        },
+        {
+            title: 'Hasil RHK',
+            dataIndex: 'intervensi',
+            key: 'intervensi',
+            sorter: (a, b) => a.intervensi.length - b.intervensi.length,
+            render: (_, record) => record.desc
+        },
+        {
+            title: 'Aspek',
+            dataIndex: 'aspek',
+            key: 'aspek',
+            render: (record) =>
+                record.length >= 0 ? (
+                    <Button
+                        onClick={() =>
+                          setInfoModal({
+                            title: "Data Aspek"
+                            
+                          })  
+                        }
+                    >
+                        Periksa
+                    </Button>
+                ) : (
+                    <Button
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                title: 'Tambah Aspek',
+                                type: 'create',
+                                formFields: AspekFields,
+                                onSubmit: async (value) => {
+                                    const dt = {
+                                        rhk: value.rhk,
+                                        jenis: value.jenis,
+                                        indikator: value.indikator,
+                                        target_tahunan: {
+                                            target: value.target_tahunan,
+                                            satuan: String(value.satuan)
+                                        }
+                                    };
+                                    const res = await storeAspek(dt);
+                                    fetchData();
+
+                                    message.success('Berhasil Menambahkan Aspek');
+                                    setModal({ trigger: false });
+                                }
+                            })
+                        }
+                    >
+                        Tambah
+                    </Button>
+                )
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button
+                        // type='primary'
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, rhk: record.rhk._id },
+                                title: 'Edit RHK Intervensi',
+                                type: 'edit',
+                                formFields: RhkFields,
+                                onSubmit: async (values) => {
+                                    console.log(record);
+                                    let dt = values;
+                                    console.log(dt);
+
+                                    dt = { ...dt, skp: record.skp };
+                                    const response = await updateRHK(record._id, dt);
+                                    console.log(response);
+
+                                    if (response.ok) {
+                                        message.success('Berhasil Mengubah RHK');
+                                        setModal({ trigger: false });
+                                    } else {
+                                        message.error('Gagal Mengubah RHK');
+                                    }
+                                }
+                            })
+                        }
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+
+                    <Button
+                        // type='primary'
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, rhk: record.rhk._id },
+                                title: 'Delete RHK Intervensi',
+                                type: 'delete',
+                                formFields: RhkFields,
+                                onSubmit: async (values) => {
+                                    const response = await destroyRHK(record._id);
+                                    if (response.ok) {
+                                        message.success('Berhasil Menghapus RHK');
+                                        setModal({ trigger: false });
+                                    } else {
+                                        message.error('Gagal Menghapus RHK');
+                                    }
+                                }
+                            })
+                        }
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+                </Space>
+            )
         }
     ];
 
@@ -243,7 +373,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                             Lihat SKP
                         </Button>
                     </div>
-                    <Collapse bordered>
+                    <DataTable columns={rhkColumns} data={data?.rhks} loading={rhkData.loading} />
+
+                    {/* <Collapse bordered>
                         <Collapse.Panel
                             key="1"
                             header="RHK Yang di Intervensi"
@@ -336,14 +468,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData, setMo
                         >
                             <DataTable columns={aspekColumns} data={aspek} loading={aspekData.loading} />
                         </Collapse.Panel>
-                        {/* <Collapse.Panel
-                            key="3"
-                            header="Rencana Aksi"
-                            extra={<Button onClick={() => setModal({ trigger: true, title: 'Tambah Rencana Aksi', type: 'create', formFields: rencanaAksiData.fields, onSubmit: () => {} })}>Tambah Rencana Aksi</Button>}
-                        >
-                            <DataTable columns={rencanaAksiData.columns} data={rencanaAksiData.data} loading={rencanaAksiData.loading} />
-                        </Collapse.Panel> */}
-                    </Collapse>
+                     
+                    </Collapse> */}
                 </div>
             </div>
         </Card>
