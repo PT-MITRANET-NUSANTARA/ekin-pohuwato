@@ -149,112 +149,7 @@ const page = () => {
         }
     ];
 
-    const rhkColumns = [
-        {
-            title: 'No',
-            dataIndex: 'index',
-            render: (text, record, index) => index + 1,
-            width: '5%'
-        },
-        {
-            title: 'RHK Yang di Intervensi',
-            dataIndex: 'rhk',
-            key: 'rhk',
-            sorter: (a, b) => a.rhk.length - b.rhk.length,
-            render: (_, record) => (record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name)
-        },
-        {
-            title: 'Hasil RHK',
-            dataIndex: 'intervensi',
-            key: 'intervensi',
-            sorter: (a, b) => a.intervensi.length - b.intervensi.length,
-            render: (_, record) => record.desc
-        },
-        // {
-        //     title: 'Rencana Aksi',
-        //     dataIndex: 'rencana_aksi',
-        //     key: 'rencana_aksi',
-        //     sorter: (a, b) => a.rencana_aksi.length - b.rencana_aksi.length,
-        //     width: '30%',
-        //     render: (_, record) => (
-        //         <div className="flex flex-col gap-y-2">
-        //             <ul className="list-disc list-inside">
-        //                 {record.rencana_aksi.map((item) => (
-        //                     <li>{item.content}</li>
-        //                 ))}
-        //             </ul>
-        //             <Button type="primary" className="w-fit" onClick={() => setRencanaAksiModal(true)}>
-        //                 Tambah
-        //             </Button>
-        //         </div>
-        //     )
-        // },
-        // {
-        //     title: 'Rencana Aksi',
-        //     dataIndex: 'jenis_rhk',
-        //     key: 'jenis_rhk',
-        //     sorter: (a, b) => a.jenis_rhk.length - b.jenis_rhk.length,
-        //     width: '30%',
-        //     render: (_, record) => (
-        //         <div className="flex flex-col gap-y-2">
-        //             <Tag color="blue" className="w-fit">
-        //                 {record.jenis_rhk}
-        //             </Tag>
-        //             <Button type="default" className="w-fit" onClick={() => setJenisRhkModal(true)}>
-        //                 Ubah Jenis
-        //             </Button>
-        //         </div>
-        //     )
-        // },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Edit RHK Intervensi', type: 'edit', formFields: RhkFields, onSubmit: async (values) => {
-                            console.log(record);
-                            let dt = values;
-                            console.log(dt);
-                            
-                            dt = { ...dt, skp: record.skp, };
-                            const response = await updateRHK(record._id, dt);
-                            console.log(response);
-                            
-                            if (response.ok) {
-                                message.success('Berhasil Mengubah RHK');
-                                setModal({ trigger: false });
-                            }else
-                            {
-                                message.error('Gagal Mengubah RHK');
-                            }
-                            
-                        } })}
-                        size="middle"
-                        icon={<EditOutlined />}
-                    />
-
-                    <Button
-                        // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: { ...record, rhk: record.rhk._id }, title: 'Delete RHK Intervensi', type: 'delete', formFields: RhkFields, onSubmit: async(values) => {
-                            const response = await destroyRHK(record._id);
-                            if (response.ok) {
-                                message.success('Berhasil Menghapus RHK');
-                                setModal({ trigger: false });
-                            }else
-                            {
-                                message.error('Gagal Menghapus RHK');
-                            }
-                        } })}
-                        size="middle"
-                        color="danger"
-                        icon={<DeleteOutlined />}
-                    />
-                </Space>
-            )
-        }
-    ];
+    
 
     const rencanaAksiColumn = [
         {
@@ -424,7 +319,6 @@ const page = () => {
     const rhkData = {
         loading: false,
         data: dummyIntervensiRhk,
-        columns: rhkColumns,
         fields: RhkFields
     };
 

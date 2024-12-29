@@ -360,11 +360,6 @@ const page = () => {
                                         label: 'Waktu Selesai',
                                         children: record.endDateTime
                                     },
-                                    // {
-                                    //     key: 'skp',
-                                    //     label: 'SKP',
-                                    //     children: record.isSKP ? 'SKP' : 'Bukan SKP'
-                                    // },
                                     {
                                         key: 'progress',
                                         label: 'Progress',

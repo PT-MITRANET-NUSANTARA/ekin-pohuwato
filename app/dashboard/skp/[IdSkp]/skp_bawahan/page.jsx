@@ -32,13 +32,15 @@ const page = () => {
         try {
             const response = await getBySKP(IdSkp);
             console.log(response.data);
-            
+
             setUnor(response.data);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
         }
     };
+
+    console.log(data);
     const Column = [
         {
             title: 'No',
@@ -67,16 +69,25 @@ const page = () => {
             }
         },
         {
-            title: 'Jabatan',
-            dataIndex: 'jabatan',
-            key: 'jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
-            render: (_, record) => {
-                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
-                return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
-            }
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (_, { status }) => (
+                <>
+                    {(() => {
+                        switch (status) {
+                            case 'approved':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        Diterima
+                                    </Tag>
+                                );
+                        }
+                    })()}
+                </>
+            ),
+            searchable: true
         },
-        
         {
             title: 'Action',
             key: 'action',
@@ -86,7 +97,17 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/skp_bawahan/${record._id}`)}
                         // type='primary'
                         size="middle"
-                    >Detail</Button>
+                    >
+                        Detail
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            // logic of ajukan skp goes here
+                        }}
+                        size="middle"
+                    >
+                        Ajukan SKP
+                    </Button>
                 </Space>
             )
         }
