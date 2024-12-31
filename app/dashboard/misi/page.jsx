@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
 import { dummyMisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
@@ -18,8 +18,7 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [submitLoading, setSubmitLoading] = useState(false)
-
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const [visi, setVisi] = useState(null);
     const [periode, setPeriode] = useState(null);
@@ -43,7 +42,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id) => {
         try {
-            setSubmitLoading(true)
+            setSubmitLoading(true);
             let response;
 
             switch (type) {
@@ -210,6 +209,29 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'periode',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'visi',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        }
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -233,7 +255,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data Misi
                             </Title>
@@ -243,8 +265,11 @@ const page = () => {
                                 </Button>
                             </div>
                         </div>
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
+                        </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data}  />
+                            <DataTable columns={Column} data={data} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>

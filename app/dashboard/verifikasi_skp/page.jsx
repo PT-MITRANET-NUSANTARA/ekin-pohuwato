@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Tag, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
 import Link from 'next/link';
@@ -119,6 +119,39 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'periode skp',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'atasan',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'status skp',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -141,7 +174,7 @@ const page = () => {
             ) : ( */}
             <Card className="">
                 <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex items-center justify-between mb-4">
                         <Title className="mt-2" level={5}>
                             Data verifikasi SKP
                         </Title>
@@ -151,6 +184,9 @@ const page = () => {
                                 </Button> */}
                         </div>
                     </div>
+                    <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
+                        </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={dummySKPVerification} />
                     </div>

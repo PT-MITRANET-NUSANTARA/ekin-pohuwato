@@ -150,10 +150,10 @@ const page = () => {
         }
     ];
 
-    const filterFiled = [
+    const filterFileds = [
         {
             id: 1,
-            name: 'periode mulai',
+            name: 'Periode Mulai',
             options: [
                 {
                     label: 'sample',
@@ -163,7 +163,7 @@ const page = () => {
         },
         {
             id: 2,
-            name: 'periode mulai',
+            name: 'Periode Selesai',
             options: [
                 {
                     label: 'sample',
@@ -205,9 +205,9 @@ const page = () => {
                                 </Button>
                             </div>
                         </div>
-                        {/* <div className="w-full">
-                            <FilterField fields={filterFiled}></FilterField>
-                        </div> */}
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
+                        </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
                         </div>

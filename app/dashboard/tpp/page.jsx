@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, DataLoading } from '@/components';
+import { DataTable, CrudModal, DataLoading, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, getByUnitId, store, update } from '@/controller/TPPController';
 import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
@@ -57,7 +57,7 @@ const page = () => {
             let response;
             const jabatan = pegawai.find((item) => item.id_asn === values.pegawai);
             console.log(values);
-            
+
             const dt = {
                 periodeRKT: values.periodeRKT,
                 jabatan: jabatan,
@@ -65,9 +65,7 @@ const page = () => {
                 user_id: jabatan.id_asn,
                 status: values.status
             };
-            
-            
-            
+
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -110,15 +108,14 @@ const page = () => {
                 description: error.message,
                 type: 'error'
             });
-        } 
+        }
         setLoading(false);
 
         console.log('Operation completed');
         handleClose();
-
     };
 
-    console.log(tpp)
+    console.log(tpp);
 
     const Column = [
         {
@@ -128,7 +125,7 @@ const page = () => {
             width: '5%'
         },
         {
-            title: "Periode RKT",
+            title: 'Periode RKT',
             dataIndex: ['periodeRKT'],
             render: (record) => dateFormatter(record.periode_start) + ' - ' + dateFormatter(record.periode_end)
         },
@@ -186,7 +183,7 @@ const page = () => {
                                 trigger: true,
                                 modalData: {
                                     ...record,
-                                    periodeRKT: record.periodeRKT._id ,
+                                    periodeRKT: record.periodeRKT._id,
                                     pegawai: record.jabatan.id_asn
                                 },
                                 title: `Edit Sub Kegiatan ${record._id}`,
@@ -205,8 +202,8 @@ const page = () => {
                                 trigger: true,
                                 modalData: {
                                     ...record,
-                                    periodeRKT: record.periodeRKT._id ,
-                                    pegawai:  record.jabatan.id_asn
+                                    periodeRKT: record.periodeRKT._id,
+                                    pegawai: record.jabatan.id_asn
                                 },
                                 title: `Edit Sub Kegiatan ${record._id}`,
                                 type: 'edit',
@@ -226,8 +223,8 @@ const page = () => {
                                 trigger: true,
                                 modalData: {
                                     ...record,
-                                  periodeRKT: record.periodeRKT._id ,
-                                    pegawai:  record.jabatan.id_asn
+                                    periodeRKT: record.periodeRKT._id,
+                                    pegawai: record.jabatan.id_asn
                                 },
                                 title: `Edit Sub Kegiatan ${record._id}`,
                                 type: 'delete',
@@ -266,7 +263,7 @@ const page = () => {
             ],
             options: periode?.map((item) => ({
                 label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
-                value: item._id,
+                value: item._id
             }))
         },
 
@@ -309,6 +306,39 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'periode rkt',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'pegawai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'status',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        }
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -331,7 +361,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data TPP
                             </Title>
@@ -340,6 +370,9 @@ const page = () => {
                                     Tambah
                                 </Button>
                             </div>
+                        </div>
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={tpp} />

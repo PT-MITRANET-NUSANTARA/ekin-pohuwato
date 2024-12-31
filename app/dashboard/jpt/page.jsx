@@ -263,13 +263,6 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Data SKP
                         </Title>
-                        <div>
-                            {isJT && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                    Tambah
-                                </Button>
-                            )}
-                        </div>
                     </div>
                     <div className="w-full mb-4">
                         <FilterField fields={filterFileds}></FilterField>
@@ -319,15 +312,6 @@ const page = () => {
                                                     <span className="uppercase font-semibold">jenis pegawai</span>
                                                     <p className="text-right capitalize">{isAtasan ? 'Pimpinan' : 'Bawahan'}</p>
                                                 </div>
-                                            </div>
-
-                                            <div className="flex w-full items-center justify-end gap-x-2 ">
-                                                <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: item, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
-                                                    Edit
-                                                </Button>
-                                                <Button onClick={() => setModal({ modalData: item, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })} danger variant="filled" type="primary" icon={<DeleteOutlined />}>
-                                                    Hapus
-                                                </Button>
                                             </div>
                                         </div>
                                     </Card>

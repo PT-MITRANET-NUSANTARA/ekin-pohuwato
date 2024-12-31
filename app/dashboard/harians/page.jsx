@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/AbsenceController';
 import useFetchData from '@/hooks/useFetchData';
@@ -17,38 +17,35 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data ,msg, status } = useFetchData(getData);
+    const { data, msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const [absence, setAbsence] = useState(null); 
+    const [absence, setAbsence] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (data) {
             fetchData();
-        } 
+        }
     }, [data]);
 
     const fetchData = async () => {
         try {
-            const absence = await getByUserId(data.user.idASN );
+            const absence = await getByUserId(data.user.idASN);
             setAbsence(absence.data);
             setLoading(false);
-        } catch (error) {
-            
-        }
-    }
-
+        } catch (error) {}
+    };
 
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-            
-            const dt = { ...values, user_id : data.user.idASN  };
+
+            const dt = { ...values, user_id: data.user.idASN };
             console.log(dt);
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN  , dt);
+                    response = await store(data.user.idASN, dt);
                     break;
 
                 case 'edit':
@@ -63,9 +60,9 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
             console.log(response);
-            
+
             if (response.ok) {
-                const absence = await getByUserId(data.user.idASN );
+                const absence = await getByUserId(data.user.idASN);
                 setAbsence(absence.data);
                 setAlert({
                     show: true,
@@ -106,7 +103,6 @@ const page = () => {
             dataIndex: 'date',
             key: 'date',
             render: (record) => dateFormatter(record)
-            
         },
         {
             title: 'Status Kehadiran',
@@ -193,7 +189,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: "Field status wajib di isi",
+                    message: 'Field status wajib di isi'
                 }
             ]
         },
@@ -207,15 +203,26 @@ const page = () => {
                     required: true,
                     message: 'Field periode mulai wajib di isi'
                 }
-            ],
+            ]
+        }
+    ];
 
-        },
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'status kehadiran',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        }
     ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -242,7 +249,12 @@ const page = () => {
                             </Button>
                         </div>
                     </div>
-                    <DataTable columns={Column} data={absence} loading={loading} />
+                    <div className="w-full">
+                        <FilterField fields={filterFileds}></FilterField>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={absence} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>

@@ -113,6 +113,11 @@ const page = () => {
 
         },
         {
+            title: 'Nama Penilai',
+            dataIndex: 'nama_penilai',
+            key: 'nama_penilai',
+        },
+        {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
@@ -177,6 +182,17 @@ const page = () => {
                 {
                     required: true,
                     message: 'Field periode selesai wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Nama Penilai',
+            name: 'nama_penilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama penilai wajib di isi'
                 }
             ]
         }

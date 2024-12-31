@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
 import { dateFormatter } from '@/utils';
 import { dummyVisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -16,7 +16,7 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [submitLoading, setSubmitLoading] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [periode, setPeriode] = useState(null);
 
     useEffect(() => {
@@ -36,7 +36,7 @@ const page = () => {
 
     const onSubmit = async (values, type, id) => {
         try {
-            setSubmitLoading(true)
+            setSubmitLoading(true);
             let response;
 
             switch (type) {
@@ -81,7 +81,7 @@ const page = () => {
                 type: 'error'
             });
         }
-        setSubmitLoading(false)
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -101,7 +101,7 @@ const page = () => {
             key: 'periode',
             render: (_, record) => (
                 <>
-                    <Button onClick={() => setModal({ formFields: periodeFields, trigger: true, modalData: record.periode, title: `Lihat Periode ${record.periode._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    <Button onClick={() => setModal({ formFields: periodeFields, trigger: true, modalData: {periode_end : dateFormatter(record.periode.periode_end), periode_start: dateFormatter(record.periode.periode_start), ...record.periode }, title: `Lihat Periode ${record.periode._id}`, type: 'show' })} icon={<SearchOutlined />}>
                         Info
                     </Button>
                 </>
@@ -187,6 +187,19 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'Periode',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -208,7 +221,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data Visi
                             </Title>
@@ -218,10 +231,13 @@ const page = () => {
                                 </Button>
                             </div>
                         </div>
-                        <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data}  />
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
                         </div>
-                        <CrudModal isLoading={submitLoading}  title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} />
+                        </div>
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
                 </Card>
             )}
