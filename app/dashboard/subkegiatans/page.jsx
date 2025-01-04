@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, DataLoading, FilterField } from '@/components';
+import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/SubKegiatanController';
 import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
@@ -20,6 +20,8 @@ const page = () => {
     const router = useRouter();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
@@ -115,7 +117,30 @@ const page = () => {
             dataIndex: 'kegiatan',
             key: 'kegiatan',
             render: (_, record) => (
-                <Button onClick={() => setModal({ formFields: kegiatanFields, trigger: true, modalData: record.kegiatan, title: `Lihat Kegiatan ${record.kegiatan._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                <Button
+                    icon={<SearchOutlined />}
+                    onClick={() => {
+                        setInfoModal({
+                            title: 'Informasi Kegiatan',
+                            trigger: true,
+                            type: 'desc',
+                            data: [
+                                {
+                                    key: 'name',
+                                    label: 'Nama Kegiatan',
+                                    children: record.kegiatan.name
+                                },
+                                {
+                                    key: 'total_anggaran',
+                                    label: 'Total Anggaran',
+                                    children: record.kegiatan.total_anggaran
+                                }
+                            ],
+                            isLoading: false,
+                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                        });
+                    }}
+                >
                     Info
                 </Button>
             )
@@ -177,33 +202,54 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() =>
-                            setModal({
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Subkegiatan',
                                 trigger: true,
-                                modalData: {
-                                    ...record,
-                                    renstra: {
-                                        label: `${dateFormatter(record.kegiatan.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.kegiatan.program.tujuan.renstra.periode_end)}`,
-                                        value: record.kegiatan.program.tujuan.renstra._id
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'name',
+                                        label: 'Nama Subkegiatan',
+                                        children: record.name
                                     },
-                                    tujuan: {
-                                        label: record.kegiatan.program.tujuan.name,
-                                        value: record.kegiatan.program.tujuan._id
+                                    {
+                                        key: 'name_kegiatan',
+                                        label: 'Nama Kegiatan',
+                                        children: record.kegiatan.name
                                     },
-                                    program: {
-                                        label: record.kegiatan.program.name,
-                                        value: record.kegiatan.program._id
+                                    {
+                                        key: 'total_anggaran',
+                                        label: 'Total Anggaran',
+                                        children: record.total_anggaran
                                     },
-                                    kegiatan: {
-                                        label: record.kegiatan.name,
-                                        value: record.kegiatan._id
+                                    {
+                                        key: 'indikator_kinerja',
+                                        label: 'Indikator Kinerja',
+                                        children: (
+                                            <List
+                                                dataSource={record.indikator_kinerja}
+                                                renderItem={(item) => (
+                                                    <List.Item>
+                                                        <div className="flex flex-col">
+                                                            <Typography.Title level={5} className="m-0">
+                                                                Indikator : {item.name}
+                                                            </Typography.Title>
+                                                            <Typography.Text>Satuan : {item.satuan}</Typography.Text>
+                                                            <Typography.Text>Target : {item.target}</Typography.Text>
+                                                        </div>
+                                                    </List.Item>
+                                                )}
+                                            />
+                                        )
                                     }
-                                },
-                                title: `Edit Program ${record._id}`,
-                                type: 'show',
-                                formFields: formFields
-                            })
-                        }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+
+                            console.log(record);
+                        }}
                         // type='primary'
                         size="middle"
                         color="default"
@@ -481,6 +527,7 @@ const page = () => {
                             <DataTable columns={Column} data={data} loading={loading} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <InfoModal width={600} close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}

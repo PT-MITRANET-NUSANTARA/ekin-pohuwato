@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Modal, Skeleton, Space, Table, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Skeleton, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, DataLoading, FilterField } from '@/components';
+import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUnitId } from '@/controller/RKTController';
 import useFetchData from '@/hooks/useFetchData';
@@ -21,6 +21,8 @@ const page = () => {
     const [dt, setDT] = useState([]);
     const { data, setData } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [periodeRKT, setPeriodeRKT] = useState(null);
@@ -155,14 +157,92 @@ const page = () => {
                 return (
                     <Space size="small">
                         <Button
-                            onClick={() =>
-                                setModal({
+                            onClick={() => {
+                                setInfoModal({
+                                    title: 'Informasi Kegiatan',
                                     trigger: true,
-                                    modalData: record, // Data yang sudah di-reverse transform
-                                    title: `Renstra ${record._id}`,
-                                    type: 'show'
-                                })
-                            }
+                                    type: 'desc',
+                                    data: [
+                                        {
+                                            key: 'name',
+                                            label: 'Nama RKT',
+                                            children: record.name
+                                        },
+                                        {
+                                            key: 'total_anggaran',
+                                            label: 'Total Anggaran',
+                                            children: record.total_anggaran
+                                        },
+                                        {
+                                            key: 'unit_organisasi',
+                                            label: 'Unit Organisasi',
+                                            children: record.unit.nama
+                                        },
+                                        {
+                                            key: 'input',
+                                            label: 'Input',
+                                            children: (
+                                                <List
+                                                    dataSource={record.input}
+                                                    renderItem={(item) => (
+                                                        <List.Item>
+                                                            <div className="flex flex-col">
+                                                                <Typography.Title level={5} className="m-0">
+                                                                    Indikator : {item.name}
+                                                                </Typography.Title>
+                                                                <Typography.Text>Satuan : {item.satuan}</Typography.Text>
+                                                                <Typography.Text>Target : {item.target}</Typography.Text>
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            )
+                                        },
+                                        {
+                                            key: 'output',
+                                            label: 'Output',
+                                            children: (
+                                                <List
+                                                    dataSource={record.output}
+                                                    renderItem={(item) => (
+                                                        <List.Item>
+                                                            <div className="flex flex-col">
+                                                                <Typography.Title level={5} className="m-0">
+                                                                    Indikator : {item.name}
+                                                                </Typography.Title>
+                                                                <Typography.Text>Satuan : {item.satuan}</Typography.Text>
+                                                                <Typography.Text>Target : {item.target}</Typography.Text>
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            )
+                                        },
+                                        {
+                                            key: 'outcome',
+                                            label: 'Outcome',
+                                            children: (
+                                                <List
+                                                    dataSource={record.outcome}
+                                                    renderItem={(item) => (
+                                                        <List.Item>
+                                                            <div className="flex flex-col">
+                                                                <Typography.Title level={5} className="m-0">
+                                                                    Indikator : {item.name}
+                                                                </Typography.Title>
+                                                                <Typography.Text>Satuan : {item.satuan}</Typography.Text>
+                                                                <Typography.Text>Target : {item.target}</Typography.Text>
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            )
+                                        }
+                                    ],
+                                    isLoading: false,
+                                    onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                                });
+                            }}
                             size="middle"
                             color="default"
                             icon={<EyeOutlined />}
@@ -195,7 +275,7 @@ const page = () => {
                             danger
                             icon={<DeleteOutlined />}
                         />
-                        <Button onClick={() => router.push(`/dashboard/programs/${record._id}`)} size="middle" color="primary" variant="outlined" icon={<DatabaseOutlined />} />
+                        {/* <Button onClick={() => router.push(`/dashboard/programs/${record._id}`)} size="middle" color="primary" variant="outlined" icon={<DatabaseOutlined />} /> */}
                     </Space>
                 );
             }
@@ -355,6 +435,7 @@ const page = () => {
                             <DataTable columns={Column} data={dt} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                        <InfoModal width={600} close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                         <Modal open={customModal.trigger} onCancel={() => setCustomModal({ modalData: null, trigger: false })} footer={null}>
                             {customModal.modalData ? (
                                 <Table

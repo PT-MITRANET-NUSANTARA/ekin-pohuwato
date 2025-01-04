@@ -1,7 +1,7 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable, FilterField, LoaderPage } from '@/components';
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tooltip, Typography } from 'antd';
+import { CrudModal, DataLoading, DataTable, FilterField, InfoModal, LoaderPage } from '@/components';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Table, Tooltip, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -15,6 +15,8 @@ const { Title } = Typography;
 const page = () => {
     const { data, setData, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
@@ -135,7 +137,29 @@ const page = () => {
             sorter: (a, b) => a.renstra.length - b.renstra.length,
             render: (_, record) => (
                 <>
-                    <Button onClick={() => setModal({ formFields: renstraFields, trigger: true, modalData: record.renstra, title: `Lihat Renstra ${record.renstra._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    <Button
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Renstra',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'periode_start',
+                                        label: 'Periode Mulai',
+                                        children: dateFormatter(record.renstra.periode_start)
+                                    },
+                                    {
+                                        key: 'periode_end',
+                                        label: 'Periode Akhir',
+                                        children: dateFormatter(record.renstra.periode_end)
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
+                    >
                         Info
                     </Button>
                 </>
@@ -190,15 +214,52 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() =>
-                            setModal({
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Tujuan',
                                 trigger: true,
-                                modalData: { ...record, renstra: record.renstra._id },
-                                title: `Edit Tujuan ${record._id}`,
-                                type: 'show',
-                                formFields: formFields
-                            })
-                        }
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'name',
+                                        label: 'Tujuan',
+                                        children: record.name
+                                    },
+                                    {
+                                        key: 'sasaran_strategis',
+                                        label: 'Sasaran Strategis',
+                                        children: record.sasaran_strategis
+                                    },
+                                    {
+                                        key: 'renstra',
+                                        label: 'Periode Renstra',
+                                        children: dateFormatter(record.renstra.periode_start) + ', Sampai ' + dateFormatter(record.renstra.periode_end)
+                                    },
+                                    {
+                                        key: 'indikator_kinerja',
+                                        label: 'Indikator Kinerja',
+                                        children: (
+                                            <List
+                                                dataSource={record.indikator_kinerja}
+                                                renderItem={(item) => (
+                                                    <List.Item>
+                                                        <div className="flex flex-col">
+                                                            <Typography.Title level={5} className="m-0">
+                                                                Indikator : {item.name}
+                                                            </Typography.Title>
+                                                            <Typography.Text>Satuan : {item.satuan}</Typography.Text>
+                                                            <Typography.Text>Target : {item.target}</Typography.Text>
+                                                        </div>
+                                                    </List.Item>
+                                                )}
+                                            />
+                                        )
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
                         size="middle"
                         icon={<EyeOutlined />}
                     />
@@ -309,7 +370,7 @@ const page = () => {
                     value: 'sample'
                 }
             ]
-        },
+        }
     ];
 
     const handleClose = () => {
@@ -351,6 +412,7 @@ const page = () => {
                             <DataTable columns={Column} data={data} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <InfoModal width={600} close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}

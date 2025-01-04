@@ -1,7 +1,7 @@
 import { Descriptions, List, Modal, Table, Typography } from 'antd';
 import React from 'react';
 
-const InfoModal = ({ title, isModalOpen, close, data, type = 'paragraf', isLoading = false, columns = [], ...props }) => {
+const InfoModal = ({ title, isModalOpen, close, data, type = 'paragraf', isLoading = false, columns = [], width = 520 , ...props}) => {
     const jsxs = {
         // 'paragraf': (
         //     <div className="flex flex-col gap-4">
@@ -15,7 +15,7 @@ const InfoModal = ({ title, isModalOpen, close, data, type = 'paragraf', isLoadi
     };
 
     return (
-        <Modal title={title} open={isModalOpen} onClose={close} onCancel={close} footer={null} {...props}>
+        <Modal width={width} title={title} open={isModalOpen} onClose={close} onCancel={close} footer={null} {...props}>
             <div className="mt-4">{jsxs[type]}</div>
         </Modal>
     );

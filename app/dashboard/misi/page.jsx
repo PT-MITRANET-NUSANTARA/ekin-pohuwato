@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dummyMisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
@@ -16,6 +16,8 @@ const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -108,7 +110,25 @@ const page = () => {
             sorter: (a, b) => a.visi.length - b.visi.length,
             render: (_, record) => (
                 <>
-                    <Button onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: record.visi, title: `Lihat Visi ${record.visi._id}`, type: 'show' })} icon={<SearchOutlined />}>
+                    <Button
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Visi',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'visi',
+                                        label: 'Visi',
+                                        children: record.visi.name
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
+                        icon={<SearchOutlined />}
+                    >
                         Info
                     </Button>
                 </>
@@ -126,7 +146,27 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'show' })}
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Misi',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'visi',
+                                        label: 'Visi',
+                                        children: record.visi.name
+                                    },
+                                    {
+                                        key: 'misi',
+                                        label: 'Misi',
+                                        children: record.name
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -272,6 +312,7 @@ const page = () => {
                             <DataTable columns={Column} data={data} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                        <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}

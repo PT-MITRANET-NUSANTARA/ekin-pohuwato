@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dateFormatter } from '@/utils';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -14,9 +14,10 @@ const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data, setData, loading, msg, status } = useFetchData(getAll);
-    const [submitLoading, setSubmitLoading] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false);
     const onSubmit = async (values, type, id) => {
         try {
             setSubmitLoading(true);
@@ -98,7 +99,27 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Periode ${record._id}`, type: 'show' })}
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Periode',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'periode_start',
+                                        label: 'Periode Mulai',
+                                        children: dateFormatter(record.periode_start)
+                                    },
+                                    {
+                                        key: 'periode_end',
+                                        label: 'Periode Akhir',
+                                        children: dateFormatter(record.periode_end)
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -212,6 +233,7 @@ const page = () => {
                             <DataTable columns={Column} data={data} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
+                        <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}
