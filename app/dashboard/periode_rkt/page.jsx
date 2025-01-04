@@ -190,10 +190,10 @@ const page = () => {
                             onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
                             icon={<DownloadOutlined />}
                         />
-                        <Button size="middle" color="default" onClick={() => setFileModal({trigger: true, modalData: record.perjanjianKinerja})} icon={<OrderedListOutlined />} />
+                        <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.perjanjianKinerja })} icon={<OrderedListOutlined />} />
                         <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
                             <List
-                                className='my-6'
+                                className="my-6"
                                 itemLayout="horizontal"
                                 dataSource={fileModal.modalData}
                                 renderItem={(item) => (
@@ -204,12 +204,16 @@ const page = () => {
                                                 <small>{item.fileId}</small>
                                             </div>
                                             <div>
-                                                <Button size='small' icon={<DownloadOutlined />} onClick={() => {
-                                                    const a = document.createElement('a');
-                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                    a.download = item.name;
-                                                    a.click();
-                                                }} />
+                                                <Button
+                                                    size="small"
+                                                    icon={<DownloadOutlined />}
+                                                    onClick={() => {
+                                                        const a = document.createElement('a');
+                                                        a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                        a.download = item.name;
+                                                        a.click();
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     </List.Item>
@@ -226,14 +230,16 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Periode RKT ${record._id}`, type: 'show', formFields: rktFields, onSubmit: onSubmit })}
-                        // type='primary'
-                        size="middle"
-                        color="default"
-                        icon={<EyeOutlined />}
-                    />
-                    <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Periode RKT ${record._id}`, type: 'edit', formFields: rktFields, onSubmit: onSubmit })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) },
+                                title: `Edit Periode RKT ${record._id}`,
+                                type: 'edit',
+                                formFields: rktFields,
+                                onSubmit: onSubmit
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -242,7 +248,16 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Periode RKT ${record._id}`, type: 'delete', formFields: rktFields, onSubmit: onSubmit })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) },
+                                title: `Delete Periode RKT ${record._id}`,
+                                type: 'delete',
+                                formFields: rktFields,
+                                onSubmit: onSubmit
+                            })
+                        }
                         // type='primary'
                         size="middle"
                         danger
@@ -381,7 +396,7 @@ const page = () => {
                     value: 'sample'
                 }
             ]
-        },
+        }
     ];
 
     const handleClose = () => {
