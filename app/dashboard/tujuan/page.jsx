@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable, LoaderPage } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField, LoaderPage } from '@/components';
 import { Alert, Breadcrumb, Button, Card, Modal, Space, Table, Tooltip, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [renstra, setRenstra] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [submitLoading, setSubmitLoading] = useState(false)    
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -38,13 +38,12 @@ const page = () => {
     };
     const onSubmit = async (values, type, id) => {
         try {
-            setSubmitLoading(true)
+            setSubmitLoading(true);
             let response;
             const dt = values;
 
             console.log(dt);
 
-            
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -89,7 +88,6 @@ const page = () => {
             });
         }
         setSubmitLoading(false);
-        
 
         console.log('Operation completed');
         handleClose();
@@ -301,6 +299,19 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'rentra',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -323,7 +334,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data Tujuan
                             </Title>
@@ -332,6 +343,9 @@ const page = () => {
                                     Tambah
                                 </Button>
                             </div>
+                        </div>
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />

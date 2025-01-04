@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
 import { dummyfileList, dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined, OrderedListOutlined } from '@ant-design/icons';
@@ -361,6 +361,29 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'periode mulai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'periode selesai',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -383,7 +406,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data Periode RKT
                             </Title>
@@ -392,6 +415,9 @@ const page = () => {
                                     Tambah
                                 </Button>
                             </div>
+                        </div>
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={dt} />

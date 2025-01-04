@@ -2,9 +2,9 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { getAll} from '@/controller/IDSN/UnitController';
+import { getAll } from '@/controller/IDSN/UnitController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ const page = () => {
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const [unit, setUnit]   = useState(null);
+    const [unit, setUnit] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedUnor, setSelectedUnor] = useState(null);
     const [UMPEG, setUMPEG] = useState(null);
@@ -36,13 +36,11 @@ const page = () => {
             const unit = await getAll(data.token);
             const umpeg = await getAllUmpeg();
             setUMPEG(umpeg.data);
-            setUnit(unit.mapData)
-            
+            setUnit(unit.mapData);
         } catch (error) {
             console.log(error);
         }
     };
-    
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -51,20 +49,20 @@ const page = () => {
             console.log(id);
             const dt = {
                 unit: selectedUnor,
-                jabatan : values
-            }
-            
+                jabatan: values
+            };
+
             switch (type) {
                 case 'edit':
                     response = await update(selectedUnor.id_sapk, dt);
-                    if (response.status = 404) {
+                    if ((response.status = 404)) {
                         response = await store(dt);
                     }
                     break;
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            
+
             if (response.ok) {
                 const unit = await getAll(data.token);
                 const umpeg = await getAllUmpeg();
@@ -117,8 +115,8 @@ const page = () => {
             key: 'jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length,
             render: (_, record) => {
-                const matchingItem = UMPEG?.find(item => item.unit.id_sapk === record.id_sapk);
-    
+                const matchingItem = UMPEG?.find((item) => item.unit.id_sapk === record.id_sapk);
+
                 if (matchingItem) {
                     return (
                         <Tag color="blue" className="capitalize">
@@ -140,20 +138,18 @@ const page = () => {
                         onClick={async () => {
                             const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
                             const jabatan_nama = jabatan.mapData.data
-                            .map(({ nama_jabatan }) => ({
-                                label: nama_jabatan,
-                                value: nama_jabatan
-                            }))
-                            .filter((item, index, self) => 
-                                index === self.findIndex((t) => t.value === item.value)
-                            );
+                                .map(({ nama_jabatan }) => ({
+                                    label: nama_jabatan,
+                                    value: nama_jabatan
+                                }))
+                                .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
                             setSelectedUnor(record);
                             setSelectedUnit(jabatan_nama);
-                            setModal({ 
-                                trigger: true, 
-                                modalData: record, 
-                                title: `Edit Admin ${record._id}`, 
-                                type: 'edit' 
+                            setModal({
+                                trigger: true,
+                                modalData: record,
+                                title: `Edit Admin ${record._id}`,
+                                type: 'edit'
                             });
                         }}
                         size="middle"
@@ -163,7 +159,6 @@ const page = () => {
             )
         }
     ];
-    
 
     const formFields = [
         {
@@ -177,6 +172,19 @@ const page = () => {
                 }
             ],
             options: selectedUnit
+        }
+    ];
+
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'unit',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
         }
     ];
 
@@ -204,7 +212,12 @@ const page = () => {
                             Data Admin
                         </Title>
                     </div>
-                    <DataTable columns={Column} data={unit} loading={loading} />
+                    <div className="w-full mb-4">
+                        <FilterField fields={filterFileds}></FilterField>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={unit} loading={loading} />
+                    </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>

@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Modal, Skeleton, Space, Table, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, DataLoading } from '@/components';
+import { DataTable, CrudModal, DataLoading, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUnitId } from '@/controller/RKTController';
 import useFetchData from '@/hooks/useFetchData';
@@ -27,8 +27,7 @@ const page = () => {
     const [subKegiatan, setSubkegiatans] = useState(null);
     const [unor, setUnor] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [submitLoading, setSubmitLoading] = useState(false)
-    
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -62,7 +61,7 @@ const page = () => {
             let dt = values;
             dt = { ...dt, unit: unor };
             console.log(dt);
-            setSubmitLoading(true)
+            setSubmitLoading(true);
 
             switch (type) {
                 case 'create':
@@ -108,13 +107,11 @@ const page = () => {
                 type: 'error'
             });
         }
-        setSubmitLoading(false)
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
     };
-
-    
 
     const Column = [
         {
@@ -294,11 +291,34 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'periode rkt',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        },
+        {
+            id: 1,
+            name: 'sub kegiatan',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        }
+    ];
+
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
 
-    console.log(dt)
+    console.log(dt);
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -318,7 +338,7 @@ const page = () => {
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-4">
                             <Title className="mt-2" level={5}>
                                 Data RKT
                             </Title>
@@ -327,6 +347,9 @@ const page = () => {
                                     Tambah
                                 </Button>
                             </div>
+                        </div>
+                        <div className="w-full">
+                            <FilterField fields={filterFileds}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={dt} />
@@ -365,7 +388,6 @@ const page = () => {
                     </div>
                 </Card>
             )}
-         
         </div>
     );
 };

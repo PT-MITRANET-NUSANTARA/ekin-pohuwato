@@ -1,4 +1,4 @@
-import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined } from '@ant-design/icons';
+import {AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import path from 'path';
 
 export const DashboardLink = [
@@ -39,15 +39,15 @@ export const DashboardLink = [
                 path: '/dashboard/tujuan'
             },
             {
-                label: 'Programs',
+                label: 'Program',
                 path: '/dashboard/programs'
             },
             {
-                label: 'Kegiatans',
+                label: 'Kegiatan',
                 path: '/dashboard/kegiatans'
             },
             {
-                label: 'Sub Kegiatans',
+                label: 'Sub Kegiatan',
                 path: '/dashboard/subkegiatans'
             }
         ]
@@ -97,6 +97,11 @@ export const DashboardLink = [
         icon: VerifiedOutlined,
         label: 'Verifikasi SKP',
         path: '/dashboard/verifikasi_skp'
+    },
+    {
+        icon: UsergroupAddOutlined,
+        label: 'JPT',
+        path: '/dashboard/jpt'
     },
     {
         icon: SettingOutlined,
