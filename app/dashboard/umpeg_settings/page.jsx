@@ -135,6 +135,8 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
+                        color='primary'
+                        variant='outlined'
                         onClick={async () => {
                             const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
                             const jabatan_nama = jabatan.mapData.data
@@ -162,7 +164,7 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Role',
+            label: 'Jabatan',
             name: 'role',
             type: 'select',
             rules: [
@@ -209,7 +211,7 @@ const page = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
-                            Data Admin
+                            Data Admin UMPEG
                         </Title>
                     </div>
                     <div className="w-full mb-4">
