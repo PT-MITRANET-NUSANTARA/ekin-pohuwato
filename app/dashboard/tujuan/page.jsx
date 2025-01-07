@@ -138,6 +138,7 @@ const page = () => {
             render: (_, record) => (
                 <>
                     <Button
+                        icon={<SearchOutlined />}
                         onClick={() => {
                             setInfoModal({
                                 title: 'Informasi Renstra',

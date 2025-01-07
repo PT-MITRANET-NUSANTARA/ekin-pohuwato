@@ -11,9 +11,8 @@ import Link from 'next/link';
 const { Title } = Typography;
 
 const page = () => {
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: ()=> {}});
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-
 
     const Column = [
         {
@@ -23,14 +22,14 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'nama',
-            dataIndex: 'nama',
-            key: "nama"
+            title: 'Unit',
+            dataIndex: 'unit',
+            key: 'unit'
         },
         {
-            title: 'username',
-            dataIndex: 'username',
-            key: 'username',
+            title: 'Jabatan',
+            dataIndex: 'jabatan',
+            key: 'jabatan'
         },
         {
             title: 'Action',
@@ -52,21 +51,6 @@ const page = () => {
                         color="primary"
                         icon={<EditOutlined />}
                     />
-
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
-                                modalData: record,
-                                title: `Hapus Admin Verifikator`,
-                                type: 'delete',
-                                formFields: formFields
-                            })
-                        }
-                        size="middle"
-                        danger
-                        icon={<DeleteOutlined />}
-                    />
                 </Space>
             )
         }
@@ -74,27 +58,22 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama Lengkap',
-            name: 'nama',
-            type: 'text',
+            label: 'Jabatan',
+            name: 'role',
+            type: 'select',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ],
             rules: [
                 {
                     required: true,
                     message: 'Field nama lengkap wajib di isi'
-                },
-            ],
-        },
-        {
-            label: 'Username',
-            name: 'username',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field username wajib di isi'
-                },
-            ],
-        },
+                }
+            ]
+        }
     ];
 
     const handleClose = () => {
@@ -117,24 +96,24 @@ const page = () => {
             {/* {loading ? (
                 <DataLoading loadingData={loading} />
             ) : ( */}
-                <Card className="">
-                    <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
-                            <Title className="mt-2" level={5}>
-                                Data Admin Verifikator
-                            </Title>
-                            <div>
-                                {/* <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+            <Card className="">
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between mb-12">
+                        <Title className="mt-2" level={5}>
+                            Data Admin Verifikator
+                        </Title>
+                        <div>
+                            {/* <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                     Tambah
                                 </Button> */}
-                            </div>
                         </div>
-                        <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={dummyVerifikator} />
-                        </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={modal.onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                </Card>
+                    <div className="overflow-x-auto">
+                        <DataTable columns={Column} data={dummyVerifikator} />
+                    </div>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={modal.onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
+                </div>
+            </Card>
             {/* )} */}
         </div>
     );

@@ -210,7 +210,18 @@ const page = () => {
                     />
                     <Button
                         onClick={() =>
-                            setModal({ trigger: true, modalData: { ...record, misi: record.misi?.map((item) => ({ value: item._id, label: item.name })), periode: record.misi[0].visi.periode._id }, title: `Edit Renstra ${record._id}`, type: 'edit' })
+                            setModal({
+                                trigger: true,
+                                modalData: {
+                                    ...record,
+                                    misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
+                                    periode: record.misi[0].visi.periode._id,
+                                    periode_start: dateFormatter(record.periode_start),
+                                    periode_end: dateFormatter(record.periode_end)
+                                },
+                                title: `Edit Renstra ${record._id}`,
+                                type: 'edit'a
+                            })
                         }
                         // type='primary'
                         size="middle"
@@ -223,7 +234,13 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, misi: record.misi?.map((item) => ({ value: item._id, label: item.name })), periode: record.misi[0].visi.periode._id },
+                                modalData: {
+                                    ...record,
+                                    misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
+                                    periode: record.misi[0].visi.periode._id,
+                                    periode_start: dateFormatter(record.periode_start),
+                                    periode_end: dateFormatter(record.periode_end)
+                                },
                                 title: `Edit Renstra ${record._id}`,
                                 type: 'delete'
                             })

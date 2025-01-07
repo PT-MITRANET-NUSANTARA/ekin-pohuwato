@@ -1,4 +1,4 @@
-import {AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import path from 'path';
 
 export const DashboardLink = [
@@ -88,25 +88,16 @@ export const DashboardLink = [
         label: 'TPP',
         path: '/dashboard/tpp'
     },
-    {
-        icon: UserSwitchOutlined,
-        label: 'Verifikator',
-        path: '/dashboard/verifikator'
-    },
-    {
-        icon: VerifiedOutlined,
-        label: 'Verifikasi SKP',
-        path: '/dashboard/verifikasi_skp'
-    },
-    {
-        icon: UsergroupAddOutlined,
-        label: 'JPT',
-        path: '/dashboard/jpt'
-    },
+   
+
     {
         icon: SettingOutlined,
         label: 'Settings',
         children: [
+            {
+                label: 'Verifikator Setting',
+                path: '/dashboard/verifikator_settings'
+            },
             {
                 label: 'UMPEG Settings',
                 path: '/dashboard/umpeg_settings'
@@ -114,10 +105,30 @@ export const DashboardLink = [
             {
                 label: 'Web Settings',
                 path: '/dashboard/web_settings'
-            },
+            }
+        ]
+    },
+    {
+        icon: UserSwitchOutlined,
+        label: 'UMPEG',
+        children: [
             {
                 label: 'Monitoring Kinerja',
                 path: '/dashboard/monitoring_kinerja'
+            }
+        ]
+    },
+    {
+        icon: UsergroupAddOutlined,
+        label: 'Verifikator',
+        children: [
+            {
+                label: 'Verifikasi SKP',
+                path: '/dashboard/verifikasi_skp'
+            },
+            {
+                label: 'JPT',
+                path: '/dashboard/jpt'
             }
         ]
     }
