@@ -98,6 +98,11 @@ const page = () => {
             width: '5%'
         },
         {
+            title: 'Nama Periode',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
             title: 'Periode Mulai',
             dataIndex: 'periodeStart',
             key: 'periodeStart',
@@ -112,11 +117,7 @@ const page = () => {
             render: (record) => dateFormatter(record)
 
         },
-        {
-            title: 'Nama Penilai',
-            dataIndex: 'nama_penilai',
-            key: 'nama_penilai',
-        },
+      
         {
             title: 'Action',
             key: 'action',
@@ -162,7 +163,17 @@ const page = () => {
     };
 
     const formFields = [
-      
+        {
+            label: 'Nama Periode',
+            name: 'name',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama periode wajib di isi'
+                }
+            ]
+        },
         {
             label: 'Periode Mulai',
             name: 'periodeStart',
@@ -185,17 +196,7 @@ const page = () => {
                 }
             ]
         },
-        {
-            label: 'Nama Penilai',
-            name: 'nama_penilai',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama penilai wajib di isi'
-                }
-            ]
-        }
+        
     ];
 
     return (

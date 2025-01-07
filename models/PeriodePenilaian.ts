@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 // Define the interface for the PeriodePenilaian document
 export interface IPeriodePenilaian extends Document {
+    name: string;
     periodeStart: Date;
     periodeEnd: Date;
     skp: mongoose.Schema.Types.ObjectId; // Reference to SKP document
@@ -12,6 +13,10 @@ export interface IPeriodePenilaian extends Document {
 // Define the schema for PeriodePenilaian
 const PeriodePenilaianSchema: Schema = new Schema(
     {
+        name: {
+            type: String,
+            require: true
+        },
         periodeStart: {
             type: Date,
             required: true
