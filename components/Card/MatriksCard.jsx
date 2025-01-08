@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Collapse, Dropdown, message, Space } from 'antd';
+import { Button, Card, Collapse, Dropdown, message, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import DataTable from '../DataTable/DataTable';
 import { getByUserIdAndPeriode } from '@/controller/SKPController';
@@ -33,6 +33,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const statusColors = {
+        draft: 'blue',
+        submitted: 'orange',
+        approved: 'green',
+        rejected: 'red'
     };
 
     const handleModalSubmit = async (key, value) => {
@@ -80,6 +87,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         }
     };
 
+    console.log(SKP);
     const AspekFields = [
         {
             label: 'RHK',
@@ -322,7 +330,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
     ];
 
     return (
-        <Card type="inner" title={dataItem.id_asn}>
+        <Card type="inner" title={dataItem.id_asn} extra={<Tag color={statusColors[SKP.status]}>{SKP.status}</Tag>}>
             <div className="grid grid-flow-row divide-y text-xs">
                 <div className="flex items-center justify-between py-2">
                     <span className="uppercase font-semibold">nama</span>
