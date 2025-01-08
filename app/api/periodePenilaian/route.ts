@@ -8,6 +8,7 @@ import { createResponse } from '@/utils/api';
 const periodePenilaianSchema = Joi.object({
   periodeStart: Joi.date().required().label('Periode Mulai'),
   periodeEnd: Joi.date().required().label('Periode Selesai'),
+  name: Joi.string().required().label('Name'),
   skp: Joi.string().hex().length(24).required().label('SKP'), // Expecting string ObjectId
   __v: Joi.optional(),
   _id: Joi.optional(),
