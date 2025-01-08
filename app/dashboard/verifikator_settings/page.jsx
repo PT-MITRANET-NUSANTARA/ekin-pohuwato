@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal } from '@/components';
+import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
 
@@ -76,6 +76,18 @@ const page = () => {
         }
     ];
 
+    const filterFileds = [
+        {
+            id: 1,
+            name: 'unit',
+            options: [
+                {
+                    label: 'sample',
+                    value: 'sample'
+                }
+            ]
+        }
+    ];
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
@@ -107,6 +119,9 @@ const page = () => {
                                     Tambah
                                 </Button> */}
                         </div>
+                    </div>
+                    <div className="w-full mb-4">
+                        <FilterField fields={filterFileds}></FilterField>
                     </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={dummyVerifikator} />
