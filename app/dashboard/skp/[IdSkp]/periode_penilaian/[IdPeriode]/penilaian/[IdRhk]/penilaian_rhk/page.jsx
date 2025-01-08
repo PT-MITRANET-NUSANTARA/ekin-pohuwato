@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, Input, InputNumber, List, Modal, Progress, Table, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, Input, InputNumber, List, message, Modal, Progress, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import { CrudModal, InfoModal } from '@/components';
 import { getById } from '@/controller/SKPController';
 import { store, destroy, update } from '@/controller/penilaianController';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
-
+import {update as updateAspek} from '@/controller/AspekController'
 import { dummyFeedback } from '@/data';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
@@ -137,7 +137,27 @@ const page = () => {
                     message: 'Field feedback wajib diisi'
                 }
             ]
-        }
+        },{
+            label: 'Kategori',
+            name: 'category',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'baik',
+                    value: true
+                },
+                {
+                    label: 'buruk',
+                    value: false
+                }
+            ]
+        }
     ];
 
     const getRealisasi = (aspek, harian) => {
@@ -487,8 +507,28 @@ const page = () => {
                                                 )}
                                             </td>
                                             <td>
-                                                <div className="p-3">
-                                                    <Button size='small' icon={<PlusOutlined/>} onClick={() => setModal({ title: 'Tambah Feedback', trigger: true, formFields: feedbackFields })}>Tambah</Button>
+                                               
+                                                <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
+                                                {aspek.feedback.like != null ? <Tag className='m-0 w-fit' color={aspek.feedback.like ? 'green' : 'red'}>{aspek.feedback.like ? 'baik' : 'buruk'}</Tag> : ''}
+                                                {aspek.feedback.feedback}
+                                                    <Button className='w-fit' size='small' icon={<PlusOutlined/>} onClick={() => setModal({ title: 'Tambah Feedback', trigger: true, formFields: feedbackFields, onSubmit: async (values) => {
+                                                        console.log(values);
+                                                        console.log(aspek);
+                                                        
+                                                        const dt = {...aspek, feedback: {
+                                                            feedback: values.feedback,
+                                                            like: values.category
+                                                        }}
+
+                                                        const res = await updateAspek(aspek._id, dt);
+                                                        console.log(res);
+                                                        
+                                                        if (res.ok) {
+                                                            fetchData();
+                                                            setModal({trigger: false, modalData: {}});
+                                                            message.success('Data Berhasil Di Ubah');
+                                                        }
+                                                    }})}>Edit</Button>
                                                 </div>
                                             </td>
                                             {/* <td></td> */}
@@ -545,7 +585,7 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
                 <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
             </Card>
         </div>

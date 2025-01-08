@@ -13,7 +13,7 @@ Chart.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTitle
 const page = () => {
     const router = useRouter();
     dayjs.locale('id');
-    const { IdPenilaian, IdPeriode } = useParams();
+    const { IdPenilaian } = useParams();
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
     const [data, setData] = useState(null);

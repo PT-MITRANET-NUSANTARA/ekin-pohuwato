@@ -102,7 +102,7 @@ const page = () => {
                     <Button icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
                         Tambah Predikat
                     </Button>
-                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push('/document/1/hasil_skp')}>
+                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push(`/document/${record._id}/hasil_skp`)}>
                         Cetak
                     </Button>
                 </Space>
