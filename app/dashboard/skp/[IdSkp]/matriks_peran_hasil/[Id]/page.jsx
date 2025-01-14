@@ -377,13 +377,12 @@ const page = () => {
 
                         <div className="w-full flex flex-col gap-y-4">
                             {unor?.map((item, index) => {
-                                return <MatriksCard dataItem={item} aspekData={aspekData} rencanaAksiData={rencanaAksiData} rhkData={rhkData} key={index} setModal={setModal} modal={modal} SKP={SKP} />;
+                                return <MatriksCard dataItem={item} aspekData={aspekData} rencanaAksiData={rencanaAksiData} rhkData={rhkData} key={index} modal={modal} SKP={SKP} />;
                             })}
                         </div>
                     </>
                 )}
             </Card>
-            <CrudModal formFields={modal.formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({ trigger: false })} onSubmit={modal.onSubmit} title={modal.title} type={modal.type} />
         </div>
     );
 };

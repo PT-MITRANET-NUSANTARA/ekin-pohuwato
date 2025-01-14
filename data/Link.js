@@ -90,24 +90,7 @@ export const DashboardLink = [
     },
    
 
-    {
-        icon: SettingOutlined,
-        label: 'Settings',
-        children: [
-            {
-                label: 'Verifikator Setting',
-                path: '/dashboard/verifikator_settings'
-            },
-            {
-                label: 'UMPEG Settings',
-                path: '/dashboard/umpeg_settings'
-            },
-            {
-                label: 'Web Settings',
-                path: '/dashboard/web_settings'
-            }
-        ]
-    },
+  
     {
         icon: UserSwitchOutlined,
         label: 'UMPEG',
@@ -131,5 +114,23 @@ export const DashboardLink = [
                 path: '/dashboard/jpt'
             }
         ]
-    }
+    },
+    {
+        icon: SettingOutlined,
+        label: 'Settings',
+        children: [
+            {
+                label: 'Verifikator Setting',
+                path: '/dashboard/verifikator_settings'
+            },
+            {
+                label: 'UMPEG Settings',
+                path: '/dashboard/umpeg_settings'
+            },
+            {
+                label: 'Web Settings',
+                path: '/dashboard/web_settings'
+            }
+        ]
+    },
 ];

@@ -220,7 +220,7 @@ const page = () => {
                                     periode_end: dateFormatter(record.periode_end)
                                 },
                                 title: `Edit Renstra ${record._id}`,
-                                type: 'edit'a
+                                type: 'edit'
                             })
                         }
                         // type='primary'
