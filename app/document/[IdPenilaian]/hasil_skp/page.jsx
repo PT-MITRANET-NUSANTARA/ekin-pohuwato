@@ -157,14 +157,6 @@ const page = () => {
                         <td>nip</td>
                         <td>{atasan?.id_asn}</td>
                     </tr>
-                    {/* <tr className="data">
-                        <td>3</td>
-                        <td>PANGKAT/ GOL. RUANG</td>
-                        <td>Penata Tingkat I / III/d</td>
-                        <td>3</td>
-                        <td>PANGKAT/ GOL. RUANG</td>
-                        <td>Penata Tingkat I / III/d</td>
-                    </tr> */}
                     <tr className="data">
                         <td>4</td>
                         <td>JABATAN</td>

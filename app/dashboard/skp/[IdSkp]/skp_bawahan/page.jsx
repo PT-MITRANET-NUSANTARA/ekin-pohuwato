@@ -52,7 +52,6 @@ const page = () => {
             title: 'Nama',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
             render: (_, record) => {
                 const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
                 return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
@@ -62,7 +61,6 @@ const page = () => {
             title: 'Nama Organisasi',
             dataIndex: 'unor',
             key: 'unor',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
             render: (_, record) => {
                 const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
                 return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
@@ -86,7 +84,6 @@ const page = () => {
                     })()}
                 </>
             ),
-            searchable: true
         },
         {
             title: 'Action',

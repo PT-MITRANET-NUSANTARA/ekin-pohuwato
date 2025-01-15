@@ -36,6 +36,7 @@ const page = () => {
     const [isAtasan, setIsAtasan] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [errorData, setErrorData] = useState({ show: false, message: '' });
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -67,6 +68,7 @@ const page = () => {
     };
 
     const onSubmit = async (values, type, id) => {
+        setSubmitLoading(true);
         try {
             let response;
             let dt = values;
@@ -116,6 +118,8 @@ const page = () => {
         }
 
         console.log('Operation completed');
+        setSubmitLoading(false);
+
         handleClose();
     };
 
@@ -322,10 +326,10 @@ const page = () => {
                                             </div>
 
                                             <div className="flex w-full items-center justify-end gap-x-2 ">
-                                                <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: item, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
+                                                <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: {...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir)}, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
                                                     Edit
                                                 </Button>
-                                                <Button onClick={() => setModal({ modalData: item, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })} danger variant="filled" type="primary" icon={<DeleteOutlined />}>
+                                                <Button onClick={() => setModal({ modalData: {...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir)}, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })} danger variant="filled" type="primary" icon={<DeleteOutlined />}>
                                                     Hapus
                                                 </Button>
                                             </div>
@@ -339,7 +343,7 @@ const page = () => {
                     )}
                 </div>
             </Card>
-            <CrudModal width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={handleClose} type={modal.type}>
+            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={handleClose} type={modal.type}>
                 <CrudModal.Extra>
                     <div className="flex flex-col">
                         <Card className="mt-12 bg-blue-500 text-white mb-6">

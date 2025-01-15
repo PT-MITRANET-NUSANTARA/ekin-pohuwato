@@ -126,7 +126,7 @@ const page = () => {
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: {...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end)}, title: `Edit Periode ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) }, title: `Edit Periode ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         color="primary"
@@ -135,7 +135,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: {...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end)}, title: `Delete Periode ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ trigger: true, modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) }, title: `Delete Periode ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger

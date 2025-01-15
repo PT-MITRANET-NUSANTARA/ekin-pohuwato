@@ -47,7 +47,7 @@ const page = () => {
             title: 'Nama',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
+            searchable: true,
             render: (_, record) => {
                 const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
                 return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
@@ -57,7 +57,7 @@ const page = () => {
             title: 'Nama Organisasi',
             dataIndex: 'unor',
             key: 'unor',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            searchable: true,
             render: (_, record) => {
                 const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
                 return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
@@ -67,7 +67,7 @@ const page = () => {
             title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
+            searchable: true,
             render: (_, record) => {
                 const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
                 return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
@@ -83,8 +83,10 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
                         // type='primary'
                         size="middle"
-                        icon={<DatabaseOutlined />}
-                    />
+                        
+                    >
+                        Detail
+                    </Button>
                 </Space>
             )
         }

@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataTable } from '@/components';
+import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
@@ -13,30 +13,29 @@ import { getAll, store, destroy, update } from '@/controller/periodePenilaianCon
 const { Title } = Typography;
 
 const page = () => {
-
-    const router = useRouter()
+    const router = useRouter();
     const { IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [data, setData] = useState(null)
+    const [data, setData] = useState(null);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState()
     useEffect(() => {
-        fetchData()
-    }, [])
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(IdSkp)
-            setData(data.data)
-            setLoading(false)
+            const data = await getAll(IdSkp);
+            setData(data.data);
+            setLoading(false);
         } catch (error) {
             console.log(error);
-            
         }
-    }
-    
+    };
+
     const onSubmit = async (values, type, id, formData) => {
+        setSubmitLoading(true)
         try {
             let response;
             let dt = values;
@@ -84,11 +83,12 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false)
+
 
         console.log('Operation completed');
         handleClose();
     };
-
 
     const Column = [
         {
@@ -100,24 +100,23 @@ const page = () => {
         {
             title: 'Nama Periode',
             dataIndex: 'name',
-            key: 'name',
+            key: 'name'
         },
         {
             title: 'Periode Mulai',
             dataIndex: 'periodeStart',
             key: 'periodeStart',
-            sorter: (a, b) => a.periodeStart.length - b.periodeStart.length,
+            sorter: (a, b) => new Date(a.periodeStart) - new Date(b.periodeStart),
             render: (record) => dateFormatter(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periodeEnd',
             key: 'periodeEnd',
-            sorter: (a, b) => a.periodeEnd.length - b.periodeEnd.length,
+            sorter: (a, b) => new Date(a.periodeEnd) - new Date(b.periodeEnd),
             render: (record) => dateFormatter(record)
-
         },
-      
+
         {
             title: 'Action',
             key: 'action',
@@ -145,7 +144,7 @@ const page = () => {
                         icon={<DeleteOutlined />}
                     />
 
-                     <Button
+                    <Button
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${record._id}/penilaian`)}
                         // type='primary'
                         size="middle"
@@ -195,8 +194,7 @@ const page = () => {
                     message: 'Field periode selesai wajib di isi'
                 }
             ]
-        },
-        
+        }
     ];
 
     return (
@@ -212,22 +210,26 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Periode Penilaian
-                        </Title>
-                        <div>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                Tambah
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Periode Penilaian
+                            </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
+                        <DataTable columns={Column} data={data} loading={loading} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onSubmit={onSubmit} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
                     </div>
-                    <DataTable columns={Column} data={data} loading={loading} />
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} onSubmit={onSubmit} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
-                </div>
-            </Card>
+                </Card>
+            )}
         </div>
     );
 };

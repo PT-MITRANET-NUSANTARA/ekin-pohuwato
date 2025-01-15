@@ -14,6 +14,7 @@ import CrudModal from '../Modal/CrudModal';
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const [data, setData] = useState(null);
     const [aspek, setAspek] = useState(null);
@@ -43,7 +44,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
     };
 
     const handleModalSubmit = async (key, value) => {
+        setSubmitLoading(true);
         if (key === '1') {
+
             const dt = {
                 rhk: value.rhk,
                 jenis: value.jenis,
@@ -60,6 +63,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
             message.success('Berhasil Menghapus Aspek');
         }
         fetchData();
+        setSubmitLoading(false);
         setModal({ trigger: false });
     };
 
@@ -87,7 +91,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         }
     };
 
-    console.log(SKP);
     const AspekFields = [
         {
             label: 'RHK',
@@ -190,9 +193,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         },
         {
             title: 'Hasil RHK',
-            dataIndex: 'intervensi',
-            key: 'intervensi',
-            sorter: (a, b) => a.intervensi.length - b.intervensi.length,
+            dataIndex: 'desc',
+            key: 'desc',
+            sorter: (a, b) => a.desc.length - b.desc.length,
             render: (_, record) => record.desc
         },
         {
@@ -241,6 +244,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                 type: 'create',
                                 formFields: AspekFields,
                                 onSubmit: async (value) => {
+                                    setSubmitLoading(true);
+
                                     const dt = {
                                         rhk: value.rhk,
                                         jenis: value.jenis,
@@ -252,6 +257,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     };
                                     const res = await storeAspek(dt);
                                     fetchData();
+                                    setSubmitLoading(false);
 
                                     message.success('Berhasil Menambahkan Aspek');
                                     setModal({ trigger: false });
@@ -279,6 +285,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                 type: 'edit',
                                 formFields: rhkData.fields,
                                 onSubmit: async (values) => {
+                                    setSubmitLoading(true);
+
                                     console.log(record);
                                     let dt = values;
                                     console.log(dt);
@@ -293,6 +301,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     } else {
                                         message.error('Gagal Mengubah RHK');
                                     }
+                                    setSubmitLoading(false);
                                 }
                             })
                         }
@@ -310,6 +319,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                 type: 'delete',
                                 formFields: rhkData.fields,
                                 onSubmit: async (values) => {
+                                    setSubmitLoading(true);
+
                                     const response = await destroyRHK(record._id);
                                     if (response.ok) {
                                         message.success('Berhasil Menghapus RHK');
@@ -317,6 +328,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     } else {
                                         message.error('Gagal Menghapus RHK');
                                     }
+                                    setSubmitLoading(false);
                                 }
                             })
                         }
@@ -358,7 +370,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     onSubmit: async (value) => {
                                         const skp = data;
                                         console.log(skp);
-
+                                        setSubmitLoading(true);
                                         if (skp) {
                                             const dt = {
                                                 ...value,
@@ -369,6 +381,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                             console.log(rhk);
 
                                             message.success('Berhasil Menambahkan RHK');
+                                            fetchData();
                                         } else {
                                             const data = {
                                                 periode_awal: SKP.periode_awal,
@@ -389,6 +402,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                             fetchData();
                                             message.success('Berhasil Menambahkan RHK');
                                         }
+                                        setSubmitLoading(false);
+
                                         setModal({ trigger: false });
                                     }
                                 })
@@ -441,7 +456,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                     {/* </Collapse> */}
                 </div>
             </div>
-            <CrudModal formFields={modal.formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({ trigger: false })} onSubmit={modal.onSubmit} title={modal.title} type={modal.type} />
+            <CrudModal isLoading={submitLoading} formFields={modal.formFields} isModalOpen={modal.trigger} data={modal.modalData} onClose={() => setModal({ trigger: false })} onSubmit={modal.onSubmit} title={modal.title} type={modal.type} />
         </Card>
     );
 };

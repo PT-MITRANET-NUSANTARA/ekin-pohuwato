@@ -65,7 +65,6 @@ const page = () => {
             title: 'Unit Kerja',
             dataIndex: 'unit',
             key: 'unit',
-            sorter: (a, b) => a.unit.length - b.unit.length,
             render: (_, record) => (
                 record.unor && record.unor.nama ? record.unor.nama : 'No Unit'
             ),

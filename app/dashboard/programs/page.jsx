@@ -109,7 +109,6 @@ const page = () => {
             title: 'Tujuan',
             dataIndex: 'tujuan',
             key: 'tujuan',
-            sorter: (a, b) => a.tujuan.length - b.tujuan.length,
             render: (_, record) => (
                 <>
                     <Button

@@ -134,7 +134,6 @@ const page = () => {
             title: 'Renstra',
             dataIndex: 'renstra',
             key: 'renstra',
-            sorter: (a, b) => a.renstra.length - b.renstra.length,
             render: (_, record) => (
                 <>
                     <Button

@@ -110,7 +110,6 @@ const page = () => {
             title: 'Misi',
             dataIndex: 'misi',
             key: 'misi',
-            sorter: (a, b) => a.misi.length - b.misi.length,
             width: '30%',
             render: (_, record) => (
                 <>

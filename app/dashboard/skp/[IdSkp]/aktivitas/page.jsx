@@ -335,7 +335,7 @@ const page = () => {
             type: 'text'
         },
         {
-            label: 'Klasisfikasi',
+            label: 'Klasisf ikasi',
             name: 'klasifikasi',
             type: 'text'
         }

@@ -107,7 +107,6 @@ const page = () => {
             title: 'Visi',
             dataIndex: 'visi',
             key: 'visi',
-            sorter: (a, b) => a.visi.length - b.visi.length,
             render: (_, record) => (
                 <>
                     <Button
