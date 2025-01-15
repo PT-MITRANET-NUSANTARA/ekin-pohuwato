@@ -1,20 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-// Interface untuk msg status dengan enum
 enum MsgStatus {
   PERIKSA = 'Periksa',
   TERIMA = 'Terima',
   TOLAK = 'Tolak',
 }
 
-// Interface untuk objek msg
 interface Msg {
   status: MsgStatus;
   message: string;
 }
 
-// Define the Harian interface extending Document
-export interface IHarian extends Document {
+interface IHarian extends Document {
   absence: string;
   date: Date;
   startDateTime: string;
@@ -32,9 +29,11 @@ export interface IHarian extends Document {
   updatedAt?: Date;
 }
 
-// Define the Harian schema
+interface IHarianMethods {}
 
-const HarianSchema: Schema = new Schema(
+interface HarianModel extends mongoose.Model<IHarian, IHarianMethods> {}
+
+const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
   {
     absence: {
       type: String,
@@ -65,8 +64,8 @@ const HarianSchema: Schema = new Schema(
     msg: {
       status: {
         type: String,
-        enum: Object.values(MsgStatus), // Menggunakan enum
-        default: MsgStatus.PERIKSA, // Default status "Periksa"
+        enum: Object.values(MsgStatus), 
+        default: MsgStatus.PERIKSA, 
       },
       message: {
         type: String,
@@ -103,7 +102,6 @@ const HarianSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-// Create the Harian model
 const Harian = mongoose.models.Harian || mongoose.model<IHarian>('Harian', HarianSchema);
 
 export default Harian;

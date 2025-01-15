@@ -1,14 +1,18 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface IPerilaku extends Document {
-  skp: mongoose.Schema.Types.ObjectId; // Reference to the SKP document
+interface IPerilaku extends Document {
+  skp: mongoose.Schema.Types.ObjectId; 
   name: string;
   isi: string[];
   espektasi: string;
   feedback?: object;
 }
 
-const PerilakuSchema: Schema = new Schema({
+interface IPerilakuMethods {}
+
+interface PerilakuModel extends mongoose.Model<IPerilaku, IPerilakuMethods> {}
+
+const PerilakuSchema = new Schema<IPerilaku, PerilakuModel, IPerilakuMethods>({
   skp: {
     type: Schema.Types.ObjectId,
     ref: 'SKP',
@@ -34,6 +38,6 @@ const PerilakuSchema: Schema = new Schema({
 
 });
 
-const Perilaku = mongoose.models.Perilaku || mongoose.model<IPerilaku>('Perilaku', PerilakuSchema);
+const Perilaku = mongoose.models.Perilaku || mongoose.model<IPerilaku, PerilakuModel>('Perilaku', PerilakuSchema);
 
 export default Perilaku;

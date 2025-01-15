@@ -1,25 +1,27 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import SubKegiatan, { ISubKegiatan } from './SubKegiatan'; // Assuming the SubKegiatan model is in a separate file
-import { IPeriodeRKT } from './PeriodeRKT';
 
-export interface base {
-    name: string; // Name of the performance indicator
-    target_capaian: number; // Target for the indicator
-    satuan: string; // Unit of measure
+interface base {
+    name: string;
+    target_capaian: number;
+    satuan: string;
 }
 
-export interface IRKT extends Document {
-    periodeRKT: mongoose.Types.ObjectId | IPeriodeRKT; // Reference to the associated SubKegiatan
-    name: string; // Name of the RKT
+interface IRKT extends Document {
+    periodeRKT: mongoose.Types.ObjectId 
+    name: string; 
     input: base[];
     output: base[];
     outcome: base[];
-    subKegiatan: mongoose.Schema.Types.ObjectId; // Single reference to a SubKegiatan document
+    subKegiatan: mongoose.Schema.Types.ObjectId; 
     unit: Object;
-    total_anggaran: number; // Total budget for the RKT
+    total_anggaran: number; 
 }
 
-const RKTSchema: Schema = new Schema(
+interface IRKTMethods {}
+
+interface RKTModel extends mongoose.Model<IRKT, IRKTMethods> {}
+
+const RKTSchema: Schema = new Schema<IRKT, RKTModel, IRKTMethods>(
     {
         periodeRKT: {
             type: mongoose.Schema.Types.ObjectId,
@@ -102,6 +104,6 @@ RKTSchema.virtual('rhks', {
     justOne: false
 })
 
-const RKT = mongoose.models.RKT || mongoose.model<IRKT>('RKT', RKTSchema);
+const RKT = mongoose.models.RKT || mongoose.model<IRKT, RKTModel>('RKT', RKTSchema);
 
 export default RKT;

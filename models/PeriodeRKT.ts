@@ -1,15 +1,20 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface IPeriodeRKT extends Document {
-    periode_start: Date; // Start date of the period
-    periode_end: Date; // End date of the period
+interface IPeriodeRKT extends Document {
+    periode_start: Date; 
+    periode_end: Date; 
     createdAt?: Date;
     perjanjianKinerja: [string];
     unit: Object;
     updatedAt?: Date;
 }
 
-const PeriodeRKTSchema: Schema = new Schema(
+interface IPeriodeRKTMethods{}
+
+interface PeriodeRKTModel extends mongoose.Model<IPeriodeRKT, IPeriodeRKTMethods> {
+}
+
+const PeriodeRKTSchema = new Schema<IPeriodeRKT, PeriodeRKTModel, IPeriodeRKTMethods>(
     {
         periode_start: {
             type: Date,
@@ -57,6 +62,6 @@ PeriodeRKTSchema.virtual('TPPS', {
     justOne: false
 });
 
-const PeriodeRKT = mongoose.models.PeriodeRKT || mongoose.model<IPeriodeRKT>('PeriodeRKT', PeriodeRKTSchema);
+const PeriodeRKT = mongoose.models.PeriodeRKT || mongoose.model<IPeriodeRKT, PeriodeRKTModel>('PeriodeRKT', PeriodeRKTSchema);
 
 export default PeriodeRKT;

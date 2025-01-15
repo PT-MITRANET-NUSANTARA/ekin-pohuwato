@@ -6,8 +6,7 @@ interface IVerifikasi {
 }
 
 interface IVerifikasiMethods {
-  getUnitName(): string;
-  getJabatanTitle(): string;
+
 }
 
 interface VerifikasiModel extends Model<IVerifikasi, {}, IVerifikasiMethods> {

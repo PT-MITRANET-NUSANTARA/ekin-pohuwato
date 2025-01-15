@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-// Enum untuk status absence
 enum AbsenceStatus {
   HADIR = 'Hadir',
   SAKIT = 'Sakit',
@@ -8,7 +7,6 @@ enum AbsenceStatus {
   ALPHA = 'Alpha',
 }
 
-// Interface untuk Absence
 interface IAbsence extends Document {
   user_id: string;
   date: Date;
@@ -17,8 +15,11 @@ interface IAbsence extends Document {
   updatedAt?: Date;
 }
 
-// Define the Absence schema
-const AbsenceSchema: Schema = new Schema(
+interface IAbsenceMethods {}
+
+interface AbsenceModel extends mongoose.Model<IAbsence, IAbsenceMethods> {}
+
+const AbsenceSchema = new Schema<IAbsence, AbsenceModel, IAbsenceMethods>(
   {
     user_id: {
       type: String,
@@ -31,14 +32,13 @@ const AbsenceSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: Object.values(AbsenceStatus), // Menggunakan enum AbsenceStatus
+      enum: Object.values(AbsenceStatus), 
       required: true,
     },
   },
   { timestamps: true }
 );
 
-// Create the Absence model
 const Absence = mongoose.models.Absence || mongoose.model<IAbsence>('Absence', AbsenceSchema);
 
 export default Absence;

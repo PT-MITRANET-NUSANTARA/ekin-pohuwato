@@ -1,13 +1,20 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Model, Schema } from 'mongoose';
 
-export interface IPeriode extends Document {
+interface IPeriode extends Document {
     periode_start: Date; // Start date of the period
     periode_end: Date; // End date of the period
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-const PeriodeSchema: Schema = new Schema(
+interface IPeriodeMethods{
+
+}
+
+interface PeriodeModel extends Model<IPeriode, {}, IPeriodeMethods> {
+}
+
+const PeriodeSchema: Schema = new Schema<IPeriode, PeriodeModel, IPeriodeMethods>(
     {
         periode_start: {
             type: Date,
@@ -28,6 +35,6 @@ PeriodeSchema.virtual('Visis', {
     justOne: false
 });
 
-const Periode = mongoose.models.Periode || mongoose.model<IPeriode>('Periode', PeriodeSchema);
+const Periode = mongoose.models.Periode || mongoose.model<IPeriode, PeriodeModel>('Periode', PeriodeSchema);
 
 export default Periode;

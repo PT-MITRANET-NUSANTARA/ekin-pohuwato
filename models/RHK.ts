@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IAspek } from './Aspek';
 
 enum Jenis {
     UTAMA = 'utama',
@@ -11,20 +10,24 @@ enum Klasifikasi {
     INDIVIDU = 'individu'
 }
 
-export interface IRHK extends Document {
+interface IRHK extends Document {
     skp: mongoose.Schema.Types.ObjectId;
-    rhk?: mongoose.Schema.Types.ObjectId; // Reference to another RHK document (nullable)
-    rkt?: mongoose.Schema.Types.ObjectId; // Reference to the associated RKT document
-    aspek?: IAspek[];
+    rhk?: mongoose.Schema.Types.ObjectId; 
+    rkt?: mongoose.Schema.Types.ObjectId; 
+    aspek?: mongoose.Schema.Types.ObjectId[];
     jenis: Jenis;
     rencana: Object;
     klasifikasi?: Klasifikasi;
-    createdAt?: Date; // Optional since it will be auto-managed by Mongoose
+    createdAt?: Date; 
     updatedAt?: Date;
     desc: string;
 }
 
-const RHKSchema: Schema = new Schema(
+interface IRHKMethods {}
+
+interface RHKModel extends mongoose.Model<IRHK, IRHKMethods> {}
+
+const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
     {
         skp: {
             type: Schema.Types.ObjectId,
@@ -82,6 +85,6 @@ RHKSchema.virtual('harians', {
     justOne: false
 });
 
-const RHK = mongoose.models.RHK || mongoose.model<IRHK>('RHK', RHKSchema);
+const RHK = mongoose.models.RHK || mongoose.model<IRHK, RHKModel>('RHK', RHKSchema);
 
 export default RHK;
