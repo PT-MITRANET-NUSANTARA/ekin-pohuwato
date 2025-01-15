@@ -57,7 +57,7 @@ const SKPSchema: Schema = new Schema(
             type: String,
             enum: Object.values(Status),
             required: false,
-            default: Status.APPROVED
+            default: Status.DRAFT
         },
         pendekatan: {
             type: String,

@@ -5,8 +5,7 @@ export interface IPerilaku extends Document {
   name: string;
   isi: string[];
   espektasi: string;
-  feedback?: string;
-  like?: boolean;
+  feedback?: object;
 }
 
 const PerilakuSchema: Schema = new Schema({
@@ -28,15 +27,11 @@ const PerilakuSchema: Schema = new Schema({
     required: false
   },
   feedback: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  like: {
-    type: Boolean,
+    type: Object,
     required: false,
     default: null
-  }
+  },
+
 });
 
 const Perilaku = mongoose.models.Perilaku || mongoose.model<IPerilaku>('Perilaku', PerilakuSchema);

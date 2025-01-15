@@ -50,5 +50,6 @@ require('../models/Aspek');
 require('../models/Penilaian');
 require('../models/Harian');
 require('../models/UMPEG');
+require('../models/Verifikasi');
 
 export default dbConnect;
