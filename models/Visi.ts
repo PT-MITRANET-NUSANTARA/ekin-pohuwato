@@ -1,14 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IPeriode } from './Periode';
 
-export interface IVisi extends Document {
+interface IVisi extends Document {
     name: string; // Name of the vision
-    periode: mongoose.Types.ObjectId | IPeriode;
+    periode: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-const VisiSchema: Schema = new Schema(
+interface IVisiMethods {}
+
+interface VisiModel extends mongoose.Model<IVisi, IVisiMethods> {}
+
+const VisiSchema = new Schema<IVisi, VisiModel, IVisiMethods>(
     {
         name: {
             type: String,
@@ -18,8 +21,7 @@ const VisiSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'Periode',
             required: true
-        },
-
+        }
     },
     { timestamps: true }
 );
@@ -29,8 +31,8 @@ VisiSchema.virtual('Misis', {
     localField: '_id',
     foreignField: 'visi',
     justOne: false
-    });
+});
 
-const Visi = mongoose.models.Visi || mongoose.model<IVisi>('Visi', VisiSchema);
+const Visi = mongoose.models.Visi || mongoose.model<IVisi, VisiModel>('Visi', VisiSchema);
 
 export default Visi;

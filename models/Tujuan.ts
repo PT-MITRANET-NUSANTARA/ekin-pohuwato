@@ -1,22 +1,25 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IRenstra } from './Renstra';
 
-export interface IIndikatorKinerja {
-    name: string; // Name of the performance indicator
-    target: number; // Target for the indicator
-    satuan: string; // Unit of measure
+interface IIndikatorKinerja {
+    name: string; 
+    target: number; 
+    satuan: string;
 }
 
-export interface ITujuan extends Document {
-    sasaran_strategis: string; // Strategic target
-    indikator_kinerja: IIndikatorKinerja[]; // Updated to use an array of performance indicators
+interface ITujuan extends Document {
+    sasaran_strategis: string; 
+    indikator_kinerja: IIndikatorKinerja[]; 
     createdAt?: Date;
     updatedAt?: Date;
-    name: string; // Name of the goal
-    renstra: mongoose.Types.ObjectId | IRenstra; // Reference to the associated Renstra
+    name: string;
+    renstra: mongoose.Types.ObjectId 
 }
 
-const TujuanSchema: Schema = new Schema(
+interface ITujuanMethods {}
+
+interface TujuanModel extends mongoose.Model<ITujuan, ITujuanMethods> {}
+
+const TujuanSchema = new Schema<ITujuan, TujuanModel, ITujuanMethods>(
     {
         name: {
             type: String,
@@ -58,6 +61,6 @@ TujuanSchema.virtual('Programs', {
     justOne: false,
 });
 
-const Tujuan = mongoose.models.Tujuan || mongoose.model<ITujuan>('Tujuan', TujuanSchema);
+const Tujuan = mongoose.models.Tujuan || mongoose.model<ITujuan, TujuanModel>('Tujuan', TujuanSchema);
 
 export default Tujuan;

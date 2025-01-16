@@ -1,27 +1,28 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Interface untuk tipe dokumen Dokumen
 export interface IDokumen extends Document {
-    url: string; // URL file dokumen yang di-upload
-    title?: string; // Judul dokumen (optional)
-    description?: string; // Deskripsi dokumen (optional)
+    url: string; 
+    title?: string; 
+    description?: string; 
 }
 
-// Skema Mongoose untuk koleksi 'Dokumen'
-const DokumenSchema: Schema<IDokumen> = new Schema({
+interface IDokumenMethods {}
+
+interface DokumenModel extends Model<IDokumen, IDokumenMethods> {}
+
+const DokumenSchema = new Schema<IDokumen, DokumenModel,IDokumenMethods>({
     url: {
         type: String,
-        required: true, // 'url' wajib ada
+        required: true, 
     },
     title: {
-        type: String, // Opsional: title dokumen
+        type: String, 
     },
     description: {
-        type: String, // Opsional: deskripsi dokumen
+        type: String, 
     },
-}, { timestamps: true }); // Menambahkan createdAt dan updatedAt otomatis
+}, { timestamps: true }); 
 
-// Ekspor model Dokumen, jika belum ada maka dibuat baru
 const Dokumen: Model<IDokumen> = mongoose.models.Dokumen || mongoose.model<IDokumen>('Dokumen', DokumenSchema);
 
 export default Dokumen;

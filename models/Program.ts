@@ -1,27 +1,26 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IRenstra } from './Renstra'; // Assuming the Renstra model is in a separate file
-import { IKegiatan } from './Kegiatan';
 import Kegiatan from './Kegiatan';
 
-export interface IIndikatorKinerja {
-  name: string; // Name of the performance indicator
-  target: number; // Target for the indicator
-  satuan: string; // Unit of measure
+interface IIndikatorKinerja {
+  name: string;
+  target: number; 
+  satuan: string; 
 }
 
-export interface IProgram extends Document {
-  name: string; // Name of the program
-  sasaran_strategis: string; // Strategic target
-  indikator_kinerja: IIndikatorKinerja[]; // Array of performance indicators
-  total_anggaran: number; // Total budget
-  renstra: mongoose.Types.ObjectId | IRenstra; // Reference to the associated Renstra
-  kegiatan: IKegiatan[]; // Array of Kegiatan documents
-  programs: mongoose.Types.ObjectId[] | IProgram[]; // Array of ObjectId references to Program documents or populated Program documents
+interface IProgram extends Document {
+  name: string; 
+  indikator_kinerja: IIndikatorKinerja[];
+  total_anggaran: number;
+  tujuan: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-const ProgramSchema: Schema = new Schema(
+interface IProgramMethods {}
+
+interface ProgramModel extends mongoose.Model<IProgram, IProgramMethods> {}
+
+const ProgramSchema = new Schema<IProgram, ProgramModel, IProgramMethods>(
   {
     name: {
       type: String,
@@ -63,6 +62,6 @@ ProgramSchema.virtual('kegiatans', {
   justOne: false,
 });
 
-const Program = mongoose.models.Program || mongoose.model<IProgram>('Program', ProgramSchema);
+const Program = mongoose.models.Program || mongoose.model<IProgram, ProgramModel>('Program', ProgramSchema);
 
 export default Program;

@@ -1,20 +1,23 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IKegiatan } from './Kegiatan'; // Assuming the Kegiatan model is in a separate file
 
-export interface IIndikatorKinerja {
-  name: string; // Name of the performance indicator
-  target: number; // Target for the performance indicator
-  satuan: string; // Unit of measurement
+interface IIndikatorKinerja {
+  name: string; 
+  target: number; 
+  satuan: string; 
 }
 
-export interface ISubKegiatan extends Document {
-  kegiatan: mongoose.Types.ObjectId | IKegiatan; // Reference to the associated Kegiatan
-  name: string; // Name of the sub-activity (sub-kegiatan)
-  indikator_kinerja: IIndikatorKinerja[]; // Array of performance indicators
-  total_anggaran: number; // Total budget for the sub-activity
+interface ISubKegiatan extends Document {
+  kegiatan: mongoose.Types.ObjectId
+  name: string;
+  indikator_kinerja: IIndikatorKinerja[];
+  total_anggaran: number; 
 }
 
-const SubKegiatanSchema: Schema = new Schema(
+interface ISubKegiatanMethods {}
+
+interface SubKegiatanModel extends mongoose.Model<ISubKegiatan, ISubKegiatanMethods> {}
+
+const SubKegiatanSchema = new Schema<ISubKegiatan, SubKegiatanModel, ISubKegiatanMethods>(
   {
     kegiatan: {
       type: mongoose.Schema.Types.ObjectId,
@@ -56,6 +59,6 @@ SubKegiatanSchema.virtual('PeriodeRKTS', {
   justOne: false,
 });
 
-const SubKegiatan = mongoose.models.SubKegiatan || mongoose.model<ISubKegiatan>('SubKegiatan', SubKegiatanSchema);
+const SubKegiatan = mongoose.models.SubKegiatan || mongoose.model<ISubKegiatan, SubKegiatanModel>('SubKegiatan', SubKegiatanSchema);
 
 export default SubKegiatan;

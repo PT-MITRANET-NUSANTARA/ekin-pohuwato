@@ -1,31 +1,35 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IPeriodePenilaian } from './PeriodePenilaian';
 
-export interface IPenilaian extends Document {
+interface IPenilaian extends Document {
     ratingKinerja?: number;
     ratingPerilaku?: number;
-    periodePenilaian: mongoose.Schema.Types.ObjectId | IPeriodePenilaian; // Reference to PeriodePenilaian document
-    createdAt?: Date; // Optional since it will be auto-managed by Mongoose
-    updatedAt?: Date; // Optional for the same reason
+    periodePenilaian: mongoose.Schema.Types.ObjectId;
+    skp: mongoose.Schema.Types.ObjectId;
+    createdAt?: Date; 
+    updatedAt?: Date; 
 }
 
-const PenilaianSchema: Schema = new Schema(
+interface IPenilaianMethods {}
+
+interface PenilaianModel extends mongoose.Model<IPenilaian, IPenilaianMethods> {}
+
+const PenilaianSchema = new Schema<IPenilaian, PenilaianModel, IPenilaianMethods>(
     {
         ratingKinerja: {
             type: Number,
             required: false,
-            min: 1, // Minimum rating value (adjust as needed)
-            max: 5 // Maximum rating value (adjust as needed)
+            min: 1, 
+            max: 5 
         },
         ratingPerilaku: {
             type: Number,
             required: false,
-            min: 1, // Minimum rating value (adjust as needed)
-            max: 5 // Maximum rating value (adjust as needed)
+            min: 1,
+            max: 5
         },
         periodePenilaian: {
             type: Schema.Types.ObjectId,
-            ref: 'PeriodePenilaian', // Reference to PeriodePenilaian model
+            ref: 'PeriodePenilaian',
             required: true
         },
         skp: {
@@ -35,12 +39,12 @@ const PenilaianSchema: Schema = new Schema(
         }
     },
     {
-        timestamps: true, // Automatically manage createdAt and updatedAt fields
-        toObject: { virtuals: true }, // Ensure virtuals are included when converting to objects
-        toJSON: { virtuals: true } // Ensure virtuals are included when converting to JSON
+        timestamps: true, 
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true } 
     }
 );
 
-const Penilaian = mongoose.models.Penilaian || mongoose.model<IPenilaian>('Penilaian', PenilaianSchema);
+const Penilaian = mongoose.models.Penilaian || mongoose.model<IPenilaian, PenilaianModel>('Penilaian', PenilaianSchema);
 
 export default Penilaian;

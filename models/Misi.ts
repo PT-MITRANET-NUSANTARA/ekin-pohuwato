@@ -1,14 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IVisi } from './Visi';
 
-export interface IMisi extends Document {
+interface IMisi extends Document {
     name: string; // Name of the mission
     createdAt?: Date;
     updatedAt?: Date;
-    visi: mongoose.Types.ObjectId | IVisi;
+    visi: mongoose.Types.ObjectId;
 }
 
-const MisiSchema: Schema = new Schema(
+interface IMisiMethods {}
+
+interface MisiModel extends mongoose.Model<IMisi, IMisiMethods> {}
+
+const MisiSchema  = new Schema<IMisi, MisiModel, IMisiMethods>(
     {
         name: {
             type: String,
@@ -31,6 +34,6 @@ MisiSchema.virtual('Renstras', {
 });
 
 
-const Misi = mongoose.models.Misi || mongoose.model<IMisi>('Misi', MisiSchema);
+const Misi = mongoose.models.Misi || mongoose.model<IMisi, MisiModel>('Misi', MisiSchema);
 
 export default Misi;

@@ -1,18 +1,20 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IProgram } from './Program'; // Assuming the Program model is in a separate file
-import { IMisi } from './Misi';
 
-export interface IRenstra extends Document {
+interface IRenstra extends Document {
     name: string;
     periode_start: string;
     periode_end: string;
-    misi: mongoose.Types.ObjectId | IMisi; 
-    programs: mongoose.Types.ObjectId[] | IProgram[]; // Array of ObjectId references to Program documents or populated Program documents
+    misi: mongoose.Types.ObjectId[];
+    programs: mongoose.Types.ObjectId[];
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-const RenstraSchema: Schema = new Schema(
+interface IRenstraMethods {}
+
+interface RenstraModel extends mongoose.Model<IRenstra, IRenstraMethods> {}
+
+const RenstraSchema = new Schema<IRenstra, RenstraModel, IRenstraMethods>(
     {
         periode_start: {
             type: String,
@@ -38,6 +40,6 @@ RenstraSchema.virtual('Tujuans', {
     justOne: false
 });
 
-const Renstra = mongoose.models.Renstra || mongoose.model<IRenstra>('Renstra', RenstraSchema);
+const Renstra = mongoose.models.Renstra || mongoose.model<IRenstra, RenstraModel>('Renstra', RenstraSchema);
 
 export default Renstra;

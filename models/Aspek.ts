@@ -7,16 +7,20 @@ enum Jenis {
   DESKRIPSI = 'deskripsi'
 }
 
-export interface IAspek extends Document {
+interface IAspek extends Document {
   rhk: mongoose.Schema.Types.ObjectId; 
   jenis: Jenis; 
   indikator: string; 
-  target_tahunan: string; 
+  target_tahunan: Object; 
   desc? : string;
   feedback: Object;
 }
 
-const AspekSchema: Schema = new Schema({
+interface IAspekMethods {}
+
+interface AspekModel extends mongoose.Model<IAspek, IAspekMethods> {}
+
+const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
   rhk: {
     type: Schema.Types.ObjectId,
     ref: 'RHK',
@@ -47,6 +51,6 @@ const AspekSchema: Schema = new Schema({
   }
 });
 
-const Aspek = mongoose.models.Aspek || mongoose.model<IAspek>('Aspek', AspekSchema);
+const Aspek = mongoose.models.Aspek || mongoose.model<IAspek, AspekModel>('Aspek', AspekSchema);
 
 export default Aspek;

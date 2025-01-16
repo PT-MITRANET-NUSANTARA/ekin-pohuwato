@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ITPP extends Document {
+interface ITPP extends Document {
   user_id: string;
   jabatan: Object;
   status: boolean; 
@@ -8,7 +8,11 @@ export interface ITPP extends Document {
   periodeRKT: mongoose.Schema.Types.ObjectId; 
 }
 
-const TPPSchema: Schema = new Schema({
+interface ITPPMethods {}
+
+interface TPPModel extends mongoose.Model<ITPP, ITPPMethods> {}
+
+const TPPSchema = new Schema<ITPP, TPPModel, ITPPMethods>({
   user_id: {
     type: String,
     required: true
@@ -33,6 +37,6 @@ const TPPSchema: Schema = new Schema({
 });
 
 
-const TPP = mongoose.models.TPP || mongoose.model<ITPP>('TPP', TPPSchema);
+const TPP = mongoose.models.TPP || mongoose.model<ITPP, TPPModel>('TPP', TPPSchema);
 
 export default TPP;

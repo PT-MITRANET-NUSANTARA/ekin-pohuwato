@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document, Model, HydratedDocument } from 'mongoose';
 
 enum Pendekatan {
     KUALITATIF = 'kualitatif',
@@ -12,28 +12,48 @@ enum Status {
     REJECTED = 'rejected'
 }
 
-interface ISKP extends Document {
-    user_id: String;
+interface ISKP {
+    user_id: string;
     periode_awal: Date;
     periode_akhir: Date;
-    skp?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
+    skp?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     periodeRKT: mongoose.Schema.Types.ObjectId; // Reference to Renstra
-    rhks?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
-    perilakus?: mongoose.Schema.Types.ObjectId[]; // Menjadi array of ObjectId
+    rhks?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
+    perilakus?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     pendekatan: Pendekatan;
     renstra: mongoose.Schema.Types.ObjectId; // Reference to Renstra
-    status?: Status; // Opsional
-    keterangan?: String; // Opsional
-    jabatan: Object[]; // Menjadi array of Object
-    createdAt?: Date; // Otomatis oleh Mongoose
-    updatedAt?: Date; // Otomatis oleh Mongoose
+    status?: Status; // Optional
+    keterangan?: string; // Optional
+    jabatan: object[]; // Array of Object
+    createdAt?: Date; // Automatically handled by Mongoose
+    updatedAt?: Date; // Automatically handled by Mongoose
 }
 
-const SKPSchema: Schema = new Schema(
+interface ISKPMethods {
+}
+
+interface SKPModel extends Model<ISKP, {}, ISKPMethods> {
+    findByUserId(userId: string): Promise<HydratedDocument<ISKP, ISKPMethods>>;
+    findBySKIPId(skpId: string): Promise<HydratedDocument<ISKP, ISKPMethods>>;
+    getAll(
+        page: number,
+        limit: number
+    ): Promise<{
+        data: HydratedDocument<ISKP, ISKPMethods>[];
+        pagination: {
+            currentPage: number;
+            totalPages: number;
+            totalItems: number;
+            pageSize: number;
+        };
+    }>;
+}
+
+const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
     {
+        user_id: { type: String, required: true },
         periode_awal: { type: Date, required: true },
         periode_akhir: { type: Date, required: true },
-        user_id: { type: String, required: true },
         skp: {
             type: [Schema.Types.ObjectId], // Array of ObjectId
             ref: 'SKP',
@@ -46,7 +66,7 @@ const SKPSchema: Schema = new Schema(
         },
         renstra: {
             type: Schema.Types.ObjectId,
-            ref: 'PeriodeRKT',
+            ref: 'Renstra',
             required: true
         },
         jabatan: {
@@ -57,7 +77,7 @@ const SKPSchema: Schema = new Schema(
             type: String,
             enum: Object.values(Status),
             required: false,
-            default: Status.APPROVED
+            default: Status.DRAFT
         },
         pendekatan: {
             type: String,
@@ -70,12 +90,14 @@ const SKPSchema: Schema = new Schema(
             default: ''
         }
     },
-    { timestamps: true,
-      toObject: { virtuals: true },   // This ensures virtuals are included when you convert to Object
-      toJSON: { virtuals: true }      // This ensures virtuals are included when you convert to JSON
-     }
+    {
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true }
+    }
 );
 
+// Virtual fields
 SKPSchema.virtual('rhks', {
     ref: 'RHK',
     localField: '_id',
@@ -104,6 +126,32 @@ SKPSchema.virtual('periodePenilaian', {
     justOne: true
 });
 
-const SKP = mongoose.models.SKP || mongoose.model<ISKP>('SKP', SKPSchema);
+
+// Static methods
+SKPSchema.static('findByUserId', function (userId: string) {
+    return this.findOne({ user_id: userId });
+});
+
+SKPSchema.static('findBySKPId', function (skpId: string) {
+    return this.findOne({skp: {$in: [skpId]}});
+});
+
+SKPSchema.static('getAll', async function (page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [results, total] = await Promise.all([this.find({}).skip(skip).limit(limit), this.countDocuments()]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
+const SKP = mongoose.models.SKP || mongoose.model<ISKP, SKPModel>('SKP', SKPSchema);
 
 export default SKP;
