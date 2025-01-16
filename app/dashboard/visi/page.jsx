@@ -2,11 +2,9 @@
 
 import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dateFormatter } from '@/utils';
-import { dummyVisi } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/VisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
@@ -17,22 +15,28 @@ const page = () => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
 
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+
     const [submitLoading, setSubmitLoading] = useState(false);
     const [periode, setPeriode] = useState(null);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (data) {
             fetchData();
-        }
-    }, [data]);
+    }, []);
 
     const fetchData = async () => {
         try {
-            const data = await getAllPeriode();
-            setPeriode(data.data);
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            console.log(data);
+            setData(data.data.data)
+            const periode = await getAllPeriode();
+            setPeriode(periode.data);
         } catch (error) {
             console.log(error);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -59,8 +63,8 @@ const page = () => {
             }
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+                setData(data.data.data);
                 setAlert({
                     show: true,
                     message: response.msg,

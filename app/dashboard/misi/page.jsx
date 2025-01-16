@@ -10,35 +10,36 @@ import { getAll, store, update, destroy } from '@/controller/MisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllVisi } from '@/controller/VisiController';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
-import useFetchData from '@/hooks/useFetchData';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
-
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [submitLoading, setSubmitLoading] = useState(false);
-
     const [visi, setVisi] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             const periode = await getAllPeriode();
             const visi = await getAllVisi();
+            setData(data.data.data)
             setPeriode(periode.data);
             setVisi(visi.data);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -66,8 +67,8 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+                setData(data.data.data);
                 setAlert({
                     show: true,
                     message: response.msg,

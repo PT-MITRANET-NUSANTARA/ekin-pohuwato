@@ -4,22 +4,7 @@ import Visi from '../../../models/Visi';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
-import Misi from '@/models/Misi';
-import Renstra from '@/models/Renstra';
-import Tujuan from '@/models/Tujuan';
-import Program from '@/models/Program';
-import Kegiatan from '@/models/Kegiatan';
-import PeriodeRKT from '@/models/PeriodeRKT';
-import SubKegiatan from '@/models/SubKegiatan';
-import RKT from '@/models/RKT';
-import SKP from '@/models/SKP';
-import RHK from '@/models/RHK';
-import Aspek from '@/models/Aspek';
-import Harian from '@/models/Harian';
-import Perilaku from '@/models/Perilaku';
-import Penilaian from '@/models/Penilaian';
-import PeriodePenilaian from '@/models/PeriodePenilaian';
-import TPP from '@/models/TPP';
+
 
 const visiSchema = Joi.object({
     name: Joi.string().required().label('Nama Visi'),
@@ -51,11 +36,19 @@ export async function GET(req: NextRequest) {
 
     try {
         const id = req.nextUrl.searchParams.get('id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let visis;
+        
         if (id) {
             visis = await Visi.findOne({ _id: id }).populate('periode'); // Populate the periode reference
         } else {
-            visis = await Visi.find({}).populate('periode'); // Populate the periode reference
+            if (page === 'undefined' || limit === 'undefined') {
+                visis = await Visi.find({}).populate('periode'); // Populate the periode reference
+            } else {
+                visis = await Visi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', visis, true));
@@ -125,35 +118,12 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedVisi = await Visi.findByIdAndDelete(id);
+        const deletedVisi = await Visi.findById(id);
         if (!deletedVisi) {
             return NextResponse.json(createResponse(404, 'Visi not found', null));
         }
-        const misi_id = await Misi.find({ visi: id }).select('_id');
-        const misis = await Misi.deleteMany({ visi: id });
 
-        const resntras = await Renstra.deleteMany({ misi: { $in: misi_id.map((misi) => misi._id) } });
-
-        const Tujuans = await Tujuan.deleteMany({ renstra: { $in: resntras } });
-        const Programs = await Program.deleteMany({ tujuan: { $in: Tujuans } });
-        const Kegiatans = await Kegiatan.deleteMany({ program: { $in: Programs } });
-        const SubKegiatans = await SubKegiatan.deleteMany({ kegiatan: { $in: Kegiatans } });
-        const PeriodeRKTS = await PeriodeRKT.deleteMany({ subKegiatan: { $in: SubKegiatans } });
-
-        const TPPS = await TPP.deleteMany({ periodeRKT: { $in: PeriodeRKTS } });
-        const RKTS = await RKT.deleteMany({ periodeRKT: { $in: PeriodeRKTS } });
-        const RHKS_RKT = await RHK.deleteMany({ rkt: { $in: RKTS } });
-        await Aspek.deleteMany({ rhk: { $in: RHKS_RKT } });
-        await Harian.deleteMany({ rhk: { $in: RHKS_RKT } });
-
-        const SKPS = await SKP.deleteMany({ periodeRKT: { $in: PeriodeRKTS } });
-        const RHKS_SKP = await RHK.deleteMany({ skp: { $in: SKPS } });
-        await Aspek.deleteMany({ rhk: { $in: RHKS_SKP } });
-        await Harian.deleteMany({ rhk: { $in: RHKS_SKP } });
-
-        await Perilaku.deleteMany({ skp: { $in: SKPS } });
-        const PeriodePenilaians = await PeriodePenilaian.deleteMany({ skp: { $in: SKPS } });
-        await Penilaian.deleteMany({ periodePenilaian: { $in: PeriodePenilaians } });
+        await deletedVisi.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedVisi, true));
     } catch (error) {

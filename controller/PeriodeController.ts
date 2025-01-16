@@ -9,12 +9,16 @@ export const getById = async (id: string) => {
 }
 
 // Fetch all Periode records
-export const getAll = async () => {
-    const response = await apiRequest('/api/periode', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/periode?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
+
 
 // Create a new Periode record
 export const store = async (data: any) => {
