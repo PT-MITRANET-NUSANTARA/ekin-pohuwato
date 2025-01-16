@@ -119,62 +119,12 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedPeriode = await Periode.findByIdAndDelete(id);
+        const deletedPeriode = await Periode.findById(id);
         if (!deletedPeriode) {
             return NextResponse.json(createResponse(404, 'Periode not found', null));
         }
 
-        const visis_id = await Visi.find({ periode: id });
-        await Visi.deleteMany({ periode: id });
-
-        const misi_id = await Misi.find({ visi: { $in: visis_id } });
-        await Misi.deleteMany({ visi: { $in: visis_id } });
-
-        const renstra_id = await Renstra.find({ misi: { $in: misi_id } });
-        await Renstra.deleteMany({ misi: { $in: misi_id } });
-
-        const tujuans_id = await Tujuan.find({ renstra: { $in: renstra_id } });
-        await Tujuan.deleteMany({ renstra: { $in: renstra_id } });
-
-        const programs_id = await Program.find({ tujuan: { $in: tujuans_id } });
-        await Program.deleteMany({ tujuan: { $in: tujuans_id } });
-
-        const kegiatans_id = await Kegiatan.find({ program: { $in: programs_id } });
-        await Kegiatan.deleteMany({ program: { $in: programs_id } });
-
-        const subKegiatans_id = await SubKegiatan.find({ kegiatan: { $in: kegiatans_id } });
-        await SubKegiatan.deleteMany({ kegiatan: { $in: kegiatans_id } });
-
-        const periodeRKTs_id = await PeriodeRKT.find({ subKegiatan: { $in: subKegiatans_id } });
-        await PeriodeRKT.deleteMany({ subKegiatan: { $in: subKegiatans_id } });
-
-        const tpps_id = await TPP.find({ periodeRKT: { $in: periodeRKTs_id } });
-        await TPP.deleteMany({ periodeRKT: { $in: periodeRKTs_id } });
-
-        const rkts_id = await RKT.find({ periodeRKT: { $in: periodeRKTs_id } });
-        await RKT.deleteMany({ periodeRKT: { $in: periodeRKTs_id } });
-
-        const rhks_rkt = await RHK.find({ rkt: { $in: rkts_id } });
-        await RHK.deleteMany({ rkt: { $in: rkts_id } });
-
-        await Aspek.deleteMany({ rhk: { $in: rhks_rkt } });
-        await Harian.deleteMany({ rhk: { $in: rhks_rkt } });
-
-        const skps_id = await SKP.find({ periodeRKT: { $in: periodeRKTs_id } });
-        await SKP.deleteMany({ periodeRKT: { $in: periodeRKTs_id } });
-
-        const rhks_skp = await RHK.find({ skp: { $in: skps_id } });
-        await RHK.deleteMany({ skp: { $in: skps_id } });
-
-        await Aspek.deleteMany({ rhk: { $in: rhks_skp } });
-        await Harian.deleteMany({ rhk: { $in: rhks_skp } });
-
-        await Perilaku.deleteMany({ skp: { $in: skps_id } });
-
-        const periodePenilaians_id = await PeriodePenilaian.find({ skp: { $in: skps_id } });
-        await PeriodePenilaian.deleteMany({ skp: { $in: skps_id } });
-
-        await Penilaian.deleteMany({ periodePenilaian: { $in: periodePenilaians_id } });
+        await deletedPeriode.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedPeriode, true));
     } catch (error) {

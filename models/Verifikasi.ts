@@ -53,5 +53,5 @@ VerifikasiSchema.static('findByUnitId', function findByUnit(unitId: number) {
     return this.findOne({ 'unit.id': unitId });
 })
 
-const Verifikasi = mongoose.models.Verifikasi || model<IVerifikasi, VerifikasiModel>('Verifikasi', VerifikasiSchema);
+const Verifikasi: VerifikasiModel = mongoose.models.Verifikasi as VerifikasiModel || model<IVerifikasi, VerifikasiModel>('Verifikasi', VerifikasiSchema);
 export default Verifikasi;

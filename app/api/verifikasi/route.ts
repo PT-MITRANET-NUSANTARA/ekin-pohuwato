@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     const page = req.nextUrl.searchParams.get("page");
     const limit = req.nextUrl.searchParams.get("limit");
 
-    let verifikasi = [];
+    let verifikasi:any = [];
 
     if (id) {
       verifikasi = await Verifikasi.findOne({ _id: id });
