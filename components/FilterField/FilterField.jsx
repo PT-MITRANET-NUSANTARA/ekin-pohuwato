@@ -1,19 +1,62 @@
-import { Button, Form, Select } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Rate, Select, TimePicker } from 'antd';
 import { RedoOutlined } from '@ant-design/icons';
 import React from 'react';
+import TextArea from 'antd/es/input/TextArea';
 
-const FilterField = ({ fields }) => {
+const FilterField = ({ fields, onSubmit =() => {}}) => {
     const { Option } = Select;
     const [form] = Form.useForm(); // Create form instance
 
-    console.log(fields)
+    const renderFormInput = (field) => {
+        switch (field.type) {
+            case 'text':
+                return <Input placeholder={`Enter ${field.label}`} size="large" {...field.extra} />;
+            case 'number':
+                return <InputNumber placeholder={`Enter ${field.label}`} min={field.min} max={field.max} className="w-full" size="large" {...field.extra} />;
+            case 'longtext':
+                return <TextArea placeholder={field.label} rows={4} />;
+            case 'date':
+                return <DatePicker className="w-full" size="large" {...field.extra} />;
+            case 'time':
+                return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" {...field.extra} />;
+            case 'rating':
+                return <Rate className="w-full" size="large" {...field.extra} />;
+
+            case 'select':
+                const parentValue = field.parentField ? selectValues[field.parentField] : null;
+                const options = field.options?.filter((option) => !field.parentField || option.id_option_parent === parentValue);
+
+                return (
+                    <Select
+                        mode={field.mode}
+                        size="large"
+                        placeholder={`Select ${field.label}`}
+                        allowClear
+                        onChange={(value) => handleSelectChange(value, field.name)}
+                        optionLabelProp="label"
+                        {...field.extra}
+                    >
+                        {options?.map((option) => (
+                            <Option key={option.id} value={option.value} label={option.label}>
+                                <div className="flex flex-col">
+                                    <span>{option.label}</span>
+                                    <small>{option.value}</small>
+                                </div>
+                            </Option>
+                        ))}
+                    </Select>
+                );
+            default:
+                return null;
+        }
+    };
 
     return (
         <>
             <hr className="mb-4" />
-            <Form form={form} className="w-full mb-2 inline-flex gap-2">
+            <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-2">
                 <div className="grid grid-cols-12 w-full gap-4">
-                    {fields.map((fieldItem) => {
+                    {/* {fields.map((fieldItem) => {
                         return (
                             <Form.Item
                                 key={fieldItem.id}
@@ -29,15 +72,30 @@ const FilterField = ({ fields }) => {
                                 </Select>
                             </Form.Item>
                         );
-                    })}
+                    })} */}
+                    {fields?.map((field, index) => (
+                        <Form.Item key={index} name={field.name} className='col-span-4 m-0'>
+                            {renderFormInput(field)}
+                        </Form.Item>
+                    ))}
                 </div>
+                <Form.Item>
+                    <Button
+                        size="large"
+                        variant='solid'
+                        color='primary'
+                        htmlType='submit'
+                    >
+                        Submit
+                    </Button>
+                </Form.Item>
                 <Form.Item>
                     <Button
                         size="large"
                         icon={<RedoOutlined />}
                         onClick={() => form.resetFields()} // Reset all fields
                     >
-                        Reset
+                        Submit
                     </Button>
                 </Form.Item>
             </Form>

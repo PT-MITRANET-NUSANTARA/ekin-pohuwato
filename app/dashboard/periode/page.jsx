@@ -8,25 +8,25 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/PeriodeController';
+import { dummyVisi } from '@/data/dummyData';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-            fetchData();
+        fetchData();
     }, []);
 
     const fetchData = async () => {
         try {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-            
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize });
         } catch (error) {
@@ -193,24 +193,34 @@ const page = () => {
 
     const filterFileds = [
         {
-            id: 1,
-            name: 'Periode Mulai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            label: 'Periode Mulai',
+            name: 'periode_start',
+            type: 'date',
         },
         {
-            id: 2,
-            name: 'Periode Selesai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periode_end',
+            type: 'date',
         }
     ];
 
@@ -247,7 +257,7 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={(values) => console.log(values)}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} />
