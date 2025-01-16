@@ -2,11 +2,10 @@
 
 import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dateFormatter } from '@/utils';
-import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/PeriodeController';
 
@@ -16,8 +15,29 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+            fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize });
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const [submitLoading, setSubmitLoading] = useState(false);
+
     const onSubmit = async (values, type, id) => {
         try {
             setSubmitLoading(true);
@@ -41,8 +61,8 @@ const page = () => {
             }
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+                setData(data.data.data);
                 setAlert({
                     show: true,
                     message: response.msg,

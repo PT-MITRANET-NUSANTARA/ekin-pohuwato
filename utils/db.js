@@ -51,5 +51,8 @@ require('../models/Penilaian');
 require('../models/Harian');
 require('../models/UMPEG');
 require('../models/Verifikasi');
+require('../models/TPP');
+require('../models/Perilaku');
+require('../models/Absence');
 
 export default dbConnect;

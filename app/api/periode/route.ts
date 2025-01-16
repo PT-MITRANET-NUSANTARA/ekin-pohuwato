@@ -1,26 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Periode from '../../../models/Periode';
-
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
-import Visi from '@/models/Visi';
-import Misi from '@/models/Misi';
-import Renstra from '@/models/Renstra';
-import Tujuan from '@/models/Tujuan';
-import Program from '@/models/Program';
-import Kegiatan from '@/models/Kegiatan';
-import PeriodeRKT from '@/models/PeriodeRKT';
-import SubKegiatan from '@/models/SubKegiatan';
-import RKT from '@/models/RKT';
-import SKP from '@/models/SKP';
-import RHK from '@/models/RHK';
-import Aspek from '@/models/Aspek';
-import Harian from '@/models/Harian';
-import Perilaku from '@/models/Perilaku';
-import Penilaian from '@/models/Penilaian';
-import PeriodePenilaian from '@/models/PeriodePenilaian';
-import TPP from '@/models/TPP';
+
 
 const periodeSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
@@ -44,14 +27,20 @@ function validatePeriodeData(data: any) {
 
 export async function GET(req: NextRequest) {
     await dbConnect();
-
+    const id = req.nextUrl.searchParams.get('id');
+    const page = req.nextUrl.searchParams.get("page");
+    const limit = req.nextUrl.searchParams.get("limit");
+    const filters = req.nextUrl.searchParams.get("filters");
     try {
-        const id = req.nextUrl.searchParams.get('id');
         let periodes;
         if (id) {
             periodes = await Periode.findOne({ _id: id });
         } else {
-            periodes = await Periode.find({});
+            if ( page === 'undefined' ||  limit === 'undefined') {
+                periodes = await Periode.find({});
+            } else {
+                periodes = await Periode.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', periodes, true));
