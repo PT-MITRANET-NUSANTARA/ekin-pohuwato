@@ -95,7 +95,7 @@ const FilterField = ({ fields, onSubmit =() => {}}) => {
                         icon={<RedoOutlined />}
                         onClick={() => form.resetFields()} // Reset all fields
                     >
-                        Submit
+                        Reset
                     </Button>
                 </Form.Item>
             </Form>

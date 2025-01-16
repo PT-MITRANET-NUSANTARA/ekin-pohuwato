@@ -14,25 +14,37 @@ const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [data, setData] = useState([]);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
     const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-            setData(data.data.data);
-            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize });
+            await getData();
         } catch (error) {
             console.log(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const getData = async () => {
+        try {   
+            console.log('Pagi', pagination);
+            
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            console.log(data.data);
+            
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+        } catch (error) {
+            console.log(error);
         }
     };
 
@@ -61,8 +73,7 @@ const page = () => {
             }
 
             if (response.ok) {
-                const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-                setData(data.data.data);
+                getData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -90,6 +101,7 @@ const page = () => {
         console.log('Operation completed');
         handleClose();
     };
+
 
     const Column = [
         {
@@ -195,39 +207,39 @@ const page = () => {
         {
             label: 'Periode Mulai',
             name: 'periode_start',
-            type: 'date',
+            type: 'date'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date',
+            type: 'date'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date',
+            type: 'date'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date',
+            type: 'date'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date',
+            type: 'date'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date',
+            type: 'date'
         }
     ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-
+    
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -260,7 +272,13 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={(values) => console.log(values)}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} />
+                            <DataTable
+                                columns={Column}
+                                data={data}
+                                setPagination={setPagination}
+                                pagination={pagination}
+                                onChange={getData}
+                            />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
