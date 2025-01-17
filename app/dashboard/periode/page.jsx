@@ -25,7 +25,7 @@ const page = () => {
     }, [pagination.page, pagination.limit]);
 
     const fetchData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
@@ -299,7 +299,7 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} onChange={fetchData} />
+                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

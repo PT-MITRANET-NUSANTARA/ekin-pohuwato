@@ -17,19 +17,22 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdRenstra } = useParams();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [renstra, setRenstra] = useState(null);
     const [tujuan, setTujuan] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, [pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const tujuan = await getAllTujuan();
             const renstra = await getAllRenstra();
             setTujuan(tujuan.data);
@@ -40,7 +43,7 @@ const page = () => {
     };
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
 
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -69,8 +72,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const data = await getAll();
-                setData(data.data);
+                fetchData()
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -384,40 +386,87 @@ const page = () => {
         }
     ];
 
-    const tujuanFields = [
-        {
-            label: 'Tujuan',
-            name: 'name',
-            type: 'text'
-        },
-        {
-            label: 'Sasaran Strategis',
-            name: 'sasaran_strategis',
-            type: 'text'
-        }
-    ];
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
 
     const filterFileds = [
         {
-            id: 1,
+            label: 'Renstra',
             name: 'renstra',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            type: 'select',
+            filter: 'eq',
+            options: renstra?.map((item) => ({
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                value: item._id,
+                id: item._id
+            }))
         },
         {
-            id: 1,
+            label: 'Tujuan',
             name: 'tujuan',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        }
+            type: 'select',
+            filter: 'eq',
+            options: tujuan?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id_option_parent: item.renstra._id,
+                id: item._id
+            })),
+        },
     ];
 
     const handleClose = () => {
@@ -456,10 +505,10 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter} ></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} />
+                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination}/>
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                         <InfoModal width={600} close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
