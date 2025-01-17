@@ -5,7 +5,7 @@ import { Button, Input, Skeleton, Space, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 
-const DataTable = ({ columns, data, pagination, setPagination, onChange }) => {
+const DataTable = ({ columns, data, pagination, setPagination}) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);

@@ -25,26 +25,15 @@ const page = () => {
     }, [pagination.page, pagination.limit]);
 
     const fetchData = async () => {
+        setLoading(true);
         try {
-            await getData();
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getData = async () => {
-        try {   
-            console.log('Pagi', pagination);
-            
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-            console.log(data.data);
-            
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -73,7 +62,7 @@ const page = () => {
             }
 
             if (response.ok) {
-                getData();
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -102,6 +91,62 @@ const page = () => {
         handleClose();
     };
 
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
 
     const Column = [
         {
@@ -207,39 +252,21 @@ const page = () => {
         {
             label: 'Periode Mulai',
             name: 'periode_start',
-            type: 'date'
+            type: 'date',
+            filter: 'gte'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_end',
-            type: 'date'
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'date'
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'date'
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'date'
-        },
-        {
-            label: 'Periode Selesai',
-            name: 'periode_end',
-            type: 'date'
+            type: 'date',
+            filter: 'lte'
         }
     ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-    
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -269,16 +296,10 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds} onSubmit={(values) => console.log(values)}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable
-                                columns={Column}
-                                data={data}
-                                setPagination={setPagination}
-                                pagination={pagination}
-                                onChange={getData}
-                            />
+                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} onChange={fetchData} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

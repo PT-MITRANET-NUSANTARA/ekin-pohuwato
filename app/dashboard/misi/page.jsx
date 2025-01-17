@@ -22,18 +22,19 @@ const page = () => {
     const [periode, setPeriode] = useState(null);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {} });
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const periode = await getAllPeriode();
             const visi = await getAllVisi();
-            setData(data.data.data)
             setPeriode(periode.data);
             setVisi(visi.data);
         } catch (error) {
@@ -41,6 +42,66 @@ const page = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        const pattern = `.*${value}.*`;
+                        pagination.filters[field.name] = { $regex: pattern };
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        console.log(pagination);
+
+        fetchData();
     };
 
     const onSubmit = async (values, type, id) => {
@@ -67,8 +128,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-                setData(data.data.data);
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -251,24 +311,10 @@ const page = () => {
 
     const filterFileds = [
         {
-            id: 1,
-            name: 'periode',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'visi',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            label: 'Misi',
+            name: 'name',
+            type: 'text',
+            filter: 'regex'
         }
     ];
 
@@ -306,10 +352,10 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} />
+                            <DataTable columns={Column} data={data} pagination={pagination} setPagination={setPagination}/>
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
