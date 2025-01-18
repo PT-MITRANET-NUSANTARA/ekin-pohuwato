@@ -9,12 +9,15 @@ export const getById = async (id: string) => {
 };
 
 // Fetch all PeriodeRKT records
-export const getAll = async () => {
-    const response = await apiRequest('/api/periodeRKT', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/periodeRKT?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
-};
+}
 
 // Create a new PeriodeRKT record
 export const store = async (data: any) => {

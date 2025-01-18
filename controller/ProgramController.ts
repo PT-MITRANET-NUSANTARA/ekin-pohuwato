@@ -19,12 +19,16 @@ export const getByRenstraId = async (id: string) => {
 }
 
 // Fetch all Program records
-export const getAll = async () => {
-    const response = await apiRequest('/api/program', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/program?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
+
 
 // Create a new Program record
 export const store = async (data: any) => {

@@ -70,21 +70,7 @@ PeriodeRKTSchema.static('getAll', async function getAll(page: number = 1, limit:
         query
             .skip(skip)
             .limit(limit)
-            .populate({
-                path: 'RKTS',
-                populate: {
-                    path: 'subKegiatan',
-                    populate: {
-                        path: 'kegiatan',
-                        populate: {
-                            path: 'program',
-                            populate: {
-                                path: 'tujuan'
-                            }
-                        }
-                    }
-                }
-            }),
+            ,
         this.countDocuments(buildFilterQuery(filters))
     ]);
 

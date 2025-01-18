@@ -9,10 +9,13 @@ export const getById = async (id: string) => {
 }
 
 // Fetch all Tujuan records
-export const getAll = async () => {
-    const response = await apiRequest('/api/tujuan', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/tujuan?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
 

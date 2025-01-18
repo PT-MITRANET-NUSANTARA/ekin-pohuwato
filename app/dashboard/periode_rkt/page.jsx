@@ -16,34 +16,38 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 const page = () => {
     const router = useRouter();
-    const [unor, setUnor] = useState(null);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
-    const [loadingData, setLoadingData] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
-
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
-
+    const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
 
-
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            const updatedFilters = {
+                ...pagination.filters,
+                unit: user.jabatan?.unor?.induk, 
+            };
+            setPagination({...pagination, filters: updatedFilters})
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
+    
     const fetchData = async () => {
         try {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
-            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            setUnor(selectedJabatan.unor.induk);
+          
+            setPagination({ ...pagination, filters: updatedFilters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -51,9 +55,9 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, unit: unor };
+            dt = { ...dt, unit: user.jabatan.unor.induk };
             setSubmitLoading(true);
-            switch (type) {
+            switch (type) { 
                 case 'create':
                     response = await store(dt);
                     break;
@@ -72,7 +76,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                fetchData()
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -127,14 +131,15 @@ const page = () => {
 
         console.log(updatedListImage);
 
-        const periode = dt.find((item) => item._id === id);
+        const periode = data.find((item) => item._id === id);
         periode.perjanjianKinerja = updatedListImage;
+        console.log("HERE", periode);
+        
         const response = await update(id, periode);
         console.log(response);
 
         if (response.ok) {
-            const newData = await getByUnitId(unor.id);
-            setDT(newData.data);
+            fetchData();
             setAlert({
                 show: true,
                 message: response.msg,
@@ -376,7 +381,6 @@ const page = () => {
         }
     ];
 
-
     const onFilter = async (values) => {
         filterFileds.forEach((field) => {
             let value = values[field.name];
@@ -434,20 +438,19 @@ const page = () => {
         fetchData();
     };
 
-
     const filterFileds = [
         {
             label: 'Periode Mulai',
             name: 'periode_mulai',
             type: 'date',
-            filter: 'gte',
+            filter: 'gte'
         },
         {
             label: 'Periode Selesai',
             name: 'periode_selesai',
             type: 'date',
-            filter: 'lte',
-        },
+            filter: 'lte'
+        }
     ];
 
     const handleClose = () => {
@@ -467,8 +470,8 @@ const page = () => {
                     }
                 ]}
             />
-            {loadingData ? (
-                <DataLoading loadingData={loadingData} />
+            {loading ? (
+                <DataLoading loadingData={loading} />
             ) : (
                 <Card className="">
                     <div className="flex flex-col">

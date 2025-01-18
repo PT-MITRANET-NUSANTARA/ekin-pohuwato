@@ -19,10 +19,13 @@ export const getByProgramId = async (id: string) => {
 }
 
 // Fetch all Kegiatan records
-export const getAll = async () => {
-    const response = await apiRequest('/api/kegiatan', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/kegiatan?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
 

@@ -9,10 +9,13 @@ export const getById = async (id: string) => {
 }
 
 // Fetch all Renstra records
-export const getAll = async () => {
-    const response = await apiRequest('/api/renstra', {
+export const getAll =  async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/renstra?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
 

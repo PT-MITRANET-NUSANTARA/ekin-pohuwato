@@ -45,6 +45,8 @@ const page = () => {
             setMisi(misi.data);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 

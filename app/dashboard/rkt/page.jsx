@@ -19,24 +19,29 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [subKegiatan, setSubkegiatans] = useState(null);
-    const [unor, setUnor] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const [data, setData] = useState([]);
+    const { data: user } = useFetchData(getData);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
-
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            const updatedFilters = {
+                ...pagination.filters,
+                unit: user.jabatan?.unor?.induk, 
+            };
+            setPagination({...pagination, filters: updatedFilters})
+            fetchData();
+        }
+    }, [user,pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
@@ -45,9 +50,6 @@ const page = () => {
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const sub = await getAllSub();
             const periode = await getAllPeriode();
-            const jabatan = await getByNIP(data?.token, data?.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            setUnor(selectedJabatan.unor.induk);
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
             setLoadingData(false);
@@ -60,7 +62,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, unit: unor };
+            dt = { ...dt, unit: user.jabatan.unor.induk };
             console.log(dt);
             setSubmitLoading(true);
 
@@ -84,7 +86,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                fetchData()
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -440,14 +442,12 @@ const page = () => {
             type: 'select',
             filter: 'eq',
             options: subKegiatan?.map((item) => ({ value: item._id, label: item.name }))
-        },
+        }
     ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-
-    console.log(dt);
 
     return (
         <div className="w-full flex flex-col gap-y-4">

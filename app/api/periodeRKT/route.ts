@@ -10,6 +10,7 @@ const periodeRKTSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
     periode_end: Joi.date().required().label('Periode Selesai'),
     perjanjianKinerja: Joi.array().label('Perjanjian Kinerja'),
+    RKTS : Joi.optional(),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
@@ -66,21 +67,7 @@ export async function GET(req: NextRequest) {
             periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id });
         } else {
             if (page === 'undefined' || limit === 'undefined') {
-                periodeRKTs = await PeriodeRKT.find({}).populate({
-                    path: 'RKTS',
-                    populate: {
-                        path: 'subKegiatan',
-                        populate: {
-                            path: 'kegiatan',
-                            populate: {
-                                path: 'program',
-                                populate: {
-                                    path: 'tujuan'
-                                }
-                            }
-                        }
-                    }
-                });
+                periodeRKTs = await PeriodeRKT.find({});
             } else {
                 periodeRKTs = await PeriodeRKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
             }
