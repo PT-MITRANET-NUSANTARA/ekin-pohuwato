@@ -1,3 +1,4 @@
+import buildFilterQuery from '@/utils/buildFilterQuery';
 import mongoose, { Schema, Document, Model, HydratedDocument } from 'mongoose';
 
 enum Pendekatan {
@@ -30,23 +31,13 @@ interface ISKP {
 }
 
 interface ISKPMethods {
+    cascadeDelete(): Promise<void>;
 }
 
 interface SKPModel extends Model<ISKP, {}, ISKPMethods> {
     findByUserId(userId: string): Promise<HydratedDocument<ISKP, ISKPMethods>>;
     findBySKIPId(skpId: string): Promise<HydratedDocument<ISKP, ISKPMethods>>;
-    getAll(
-        page: number,
-        limit: number
-    ): Promise<{
-        data: HydratedDocument<ISKP, ISKPMethods>[];
-        pagination: {
-            currentPage: number;
-            totalPages: number;
-            totalItems: number;
-            pageSize: number;
-        };
-    }>;
+    getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<ISKP, ISKPMethods>>;
 }
 
 const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
@@ -126,20 +117,46 @@ SKPSchema.virtual('periodePenilaian', {
     justOne: true
 });
 
-
 // Static methods
 SKPSchema.static('findByUserId', function (userId: string) {
     return this.findOne({ user_id: userId });
 });
 
 SKPSchema.static('findBySKPId', function (skpId: string) {
-    return this.findOne({skp: {$in: [skpId]}});
+    return this.findOne({ skp: { $in: [skpId] } });
 });
 
-SKPSchema.static('getAll', async function (page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
+SKPSchema.method('cascadeDelete', async function cascadeDelete() {
+    const rhks = await mongoose.model('RHK').find({ skp: this._id });
+    const perilakus = await mongoose.model('Perilaku').find({ skp: this._id });
+    const penilaian = await mongoose.model('Penilaian').find({ skp: this._id });
+    const periodePenilaian = await mongoose.model('PeriodePenilaian').find({ skp: this._id });
 
-    const [results, total] = await Promise.all([this.find({}).skip(skip).limit(limit), this.countDocuments()]);
+    rhks.forEach(async (r) => {
+        await r.cascadeDelete();
+    });
+
+    perilakus.forEach(async (p) => {
+        await p.cascadeDelete();
+    });
+
+    periodePenilaian.forEach(async (p) => {
+        await p.cascadeDelete();
+    });
+
+    penilaian.forEach(async (p) => {
+        await p.cascadeDelete();
+    });
+
+   
+
+    await this.deleteOne();
+});
+
+SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit), this.countDocuments(buildFilterQuery(filters))]);
 
     return {
         data: results,
@@ -152,6 +169,6 @@ SKPSchema.static('getAll', async function (page: number = 1, limit: number = 10)
     };
 });
 
-const SKP = mongoose.models.SKP || mongoose.model<ISKP, SKPModel>('SKP', SKPSchema);
+const SKP: SKPModel = (mongoose.models.SKP as SKPModel) || mongoose.model<ISKP, SKPModel>('SKP', SKPSchema);
 
 export default SKP;

@@ -4,7 +4,6 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
-
 const periodeSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
     periode_end: Joi.date().required().label('Periode Selesai'),
@@ -31,13 +30,13 @@ export async function GET(req: NextRequest) {
     try {
         let periodes;
         const id = req.nextUrl.searchParams.get('id');
-        const page = req.nextUrl.searchParams.get("page");
-        const limit = req.nextUrl.searchParams.get("limit");
-        const filters = req.nextUrl.searchParams.get("filters");
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         if (id) {
             periodes = await Periode.findOne({ _id: id });
         } else {
-            if ( page === 'undefined' ||  limit === 'undefined') {
+            if (page === 'undefined' || limit === 'undefined') {
                 periodes = await Periode.find({});
             } else {
                 periodes = await Periode.getAll(Number(page), Number(limit), JSON.parse(filters as string));

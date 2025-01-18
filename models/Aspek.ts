@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 enum Jenis {
   KUALITAS = 'kualitas',
@@ -16,9 +17,13 @@ interface IAspek extends Document {
   feedback: Object;
 }
 
-interface IAspekMethods {}
+interface IAspekMethods {
+  cascadeDelete(): Promise<void>;
+}
 
-interface AspekModel extends mongoose.Model<IAspek, IAspekMethods> {}
+interface AspekModel extends mongoose.Model<IAspek, {},IAspekMethods> {
+  getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IAspek, IAspekMethods>>;
+}
 
 const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
   rhk: {
@@ -51,6 +56,32 @@ const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
   }
 });
 
-const Aspek = mongoose.models.Aspek || mongoose.model<IAspek, AspekModel>('Aspek', AspekSchema);
+AspekSchema.method('cascadeDelete', async function cascadeDelete() {
+    await this.deleteOne();
+});
+
+AspekSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([
+        query
+            .skip(skip)
+            .limit(limit)
+            .populate('rhk'),
+        this.countDocuments(buildFilterQuery(filters))
+    ]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
+const Aspek: AspekModel = mongoose.models.Aspek as AspekModel || mongoose.model<IAspek, AspekModel>('Aspek', AspekSchema);
 
 export default Aspek;

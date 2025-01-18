@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 enum Jenis {
     UTAMA = 'utama',
@@ -23,9 +24,13 @@ interface IRHK extends Document {
     desc: string;
 }
 
-interface IRHKMethods {}
+interface IRHKMethods {
+    cascadeDelete(): Promise<void>;
+}
 
-interface RHKModel extends mongoose.Model<IRHK, IRHKMethods> {}
+interface RHKModel extends mongoose.Model<IRHK,{}, IRHKMethods> {
+    getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IRHK, IRHKMethods>>;
+}
 
 const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
     {
@@ -71,6 +76,37 @@ const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
     }
 );
 
+RHKSchema.method('cascadeDelete', async function cascadeDelete() {
+    const aspek = await mongoose.model('Aspek').find({ rhk: this._id });
+    aspek.forEach(async (a) => {
+        await a.cascadeDelete();
+    });
+    await this.deleteOne();
+});
+
+RHKSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([
+        query
+            .skip(skip)
+            .limit(limit)
+            .populate('aspek'),
+        this.countDocuments(buildFilterQuery(filters))
+    ]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
+
 RHKSchema.virtual('aspek', {
     ref: 'Aspek',
     localField: '_id',
@@ -85,6 +121,6 @@ RHKSchema.virtual('harians', {
     justOne: false
 });
 
-const RHK = mongoose.models.RHK || mongoose.model<IRHK, RHKModel>('RHK', RHKSchema);
+const RHK: RHKModel = mongoose.models.RHK as RHKModel || mongoose.model<IRHK, RHKModel>('RHK', RHKSchema);
 
 export default RHK;

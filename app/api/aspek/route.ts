@@ -35,11 +35,20 @@ export async function GET(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get('id');
     let aspek;
+    const page = req.nextUrl.searchParams.get("page");
+    const limit = req.nextUrl.searchParams.get("limit");
+    const filters = req.nextUrl.searchParams.get("filters");
 
     if (id) {
       aspek = await Aspek.findById(id).populate('rhk');
     } else {
+      if (page === 'undefined' || limit === 'undefined') {
       aspek = await Aspek.find().populate('rhk');
+      }
+      else
+      {
+        aspek = await Aspek.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+      }
     }
 
     return NextResponse.json(createResponse(200, 'Success', aspek));
@@ -115,10 +124,11 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
 
-    const deletedAspek = await Aspek.findByIdAndDelete(id);
+    const deletedAspek = await Aspek.findById(id);
     if (!deletedAspek) {
       return NextResponse.json(createResponse(404, 'Aspek not found', null));
     }
+    deletedAspek.cascadeDelete();
 
     return NextResponse.json(createResponse(200, 'Success', deletedAspek));
   } catch (error) {

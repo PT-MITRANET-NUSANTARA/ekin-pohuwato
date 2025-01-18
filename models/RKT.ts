@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface base {
     name: string;
@@ -17,11 +18,15 @@ interface IRKT extends Document {
     total_anggaran: number; 
 }
 
-interface IRKTMethods {}
+interface IRKTMethods {
+    cascadeDelete(): Promise<void>;
+}
 
-interface RKTModel extends mongoose.Model<IRKT, IRKTMethods> {}
+interface RKTModel extends mongoose.Model<IRKT,{}, IRKTMethods> {
+    getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IRKT, IRKTMethods>>;
+}
 
-const RKTSchema: Schema = new Schema<IRKT, RKTModel, IRKTMethods>(
+const RKTSchema = new Schema<IRKT, RKTModel, IRKTMethods>(
     {
         periodeRKT: {
             type: mongoose.Schema.Types.ObjectId,
@@ -97,6 +102,38 @@ const RKTSchema: Schema = new Schema<IRKT, RKTModel, IRKTMethods>(
     { timestamps: true }
 );
 
+RKTSchema.method('cascadeDelete', async function cascadeDelete() {
+    
+    const rhk = await mongoose.model('RHK').find({ rkt:  this._id });
+    rhk.forEach(async (r) => {
+        await r.cascadeDelete();
+    });
+   
+    await this.deleteOne();
+});
+
+RKTSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([
+        query
+            .skip(skip)
+            .limit(limit)
+            .populate('periodeRKT').populate('subKegiatan'),
+        this.countDocuments(buildFilterQuery(filters))
+    ]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
 RKTSchema.virtual('rhks', {
     ref: 'RHK',
     localField: '_id',
@@ -104,6 +141,6 @@ RKTSchema.virtual('rhks', {
     justOne: false
 })
 
-const RKT = mongoose.models.RKT || mongoose.model<IRKT, RKTModel>('RKT', RKTSchema);
+const RKT: RKTModel = mongoose.models.RKT as RKTModel || mongoose.model<IRKT, RKTModel>('RKT', RKTSchema);
 
 export default RKT;

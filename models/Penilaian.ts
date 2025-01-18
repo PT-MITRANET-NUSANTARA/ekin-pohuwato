@@ -1,25 +1,30 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IPenilaian extends Document {
     ratingKinerja?: number;
     ratingPerilaku?: number;
     periodePenilaian: mongoose.Schema.Types.ObjectId;
     skp: mongoose.Schema.Types.ObjectId;
-    createdAt?: Date; 
-    updatedAt?: Date; 
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-interface IPenilaianMethods {}
+interface IPenilaianMethods {
+    cascadeDelete(): Promise<void>;
+}
 
-interface PenilaianModel extends mongoose.Model<IPenilaian, IPenilaianMethods> {}
+interface PenilaianModel extends mongoose.Model<IPenilaian, {}, IPenilaianMethods> {
+    getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IPenilaian, IPenilaianMethods>>;
+}
 
 const PenilaianSchema = new Schema<IPenilaian, PenilaianModel, IPenilaianMethods>(
     {
         ratingKinerja: {
             type: Number,
             required: false,
-            min: 1, 
-            max: 5 
+            min: 1,
+            max: 5
         },
         ratingPerilaku: {
             type: Number,
@@ -39,12 +44,32 @@ const PenilaianSchema = new Schema<IPenilaian, PenilaianModel, IPenilaianMethods
         }
     },
     {
-        timestamps: true, 
+        timestamps: true,
         toObject: { virtuals: true },
-        toJSON: { virtuals: true } 
+        toJSON: { virtuals: true }
     }
 );
 
-const Penilaian = mongoose.models.Penilaian || mongoose.model<IPenilaian, PenilaianModel>('Penilaian', PenilaianSchema);
+PenilaianSchema.method('cascadeDelete', async function cascadeDelete() {
+    await this.deleteOne();
+});
+
+PenilaianSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('periodePenilaian'), this.countDocuments(buildFilterQuery(filters))]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
+const Penilaian : PenilaianModel = mongoose.models.Penilaian as PenilaianModel || mongoose.model<IPenilaian, PenilaianModel>('Penilaian', PenilaianSchema);
 
 export default Penilaian;
