@@ -49,11 +49,19 @@ export async function GET(req: NextRequest) {
 
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const page = req.nextUrl.searchParams.get("page");
+    const limit = req.nextUrl.searchParams.get("limit");
+    const filters = req.nextUrl.searchParams.get("filters");
     let tujuans;
     if (id) {
       tujuans = await Tujuan.findOne({ _id: id }).populate('renstra'); // Populate the renstra reference
     } else {
-      tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
+      if (page === 'undefined' || limit === 'undefined') {
+        tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
+      }else
+      {
+        tujuans = await Tujuan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+      }
     }
 
     return NextResponse.json(createResponse(200, 'Success', tujuans, true));
@@ -127,10 +135,12 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
     }
 
-    const deletedTujuan = await Tujuan.findByIdAndDelete(id);
+    const deletedTujuan = await Tujuan.findById(id);
     if (!deletedTujuan) {
       return NextResponse.json(createResponse(404, 'Tujuan not found', null));
     }
+
+    await deletedTujuan.cascadeDelete();
 
     return NextResponse.json(createResponse(200, 'Success', deletedTujuan, true));
   } catch (error) {

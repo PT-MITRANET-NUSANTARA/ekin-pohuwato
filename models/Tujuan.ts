@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IIndikatorKinerja {
     name: string; 
@@ -15,9 +16,14 @@ interface ITujuan extends Document {
     renstra: mongoose.Types.ObjectId 
 }
 
-interface ITujuanMethods {}
+interface ITujuanMethods {
+    cascadeDelete(): Promise<void>;
+}
 
-interface TujuanModel extends mongoose.Model<ITujuan, ITujuanMethods> {}
+interface TujuanModel extends mongoose.Model<ITujuan,{} ,ITujuanMethods> {
+        getAll(page: number, limit: number, filters:Object): Promise<HydratedDocument<ITujuan, ITujuanMethods>>;
+    
+}
 
 const TujuanSchema = new Schema<ITujuan, TujuanModel, ITujuanMethods>(
     {
@@ -54,6 +60,33 @@ const TujuanSchema = new Schema<ITujuan, TujuanModel, ITujuanMethods>(
     { timestamps: true }
 );
 
+TujuanSchema.method('cascadeDelete', async function cascadeDelete() {
+    const program = await mongoose.model('Program').find({ tujuan:  this.id });
+    program.forEach(async (p) => {
+        await p.cascadeDelete();
+    });
+    await this.deleteOne();
+});
+
+TujuanSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters))
+    const [results, total] = await Promise.all([
+        query.skip(skip).limit(limit).populate('renstra'),  
+        this.countDocuments(buildFilterQuery(filters)), 
+    ]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit,
+        },
+    };
+});
+
 TujuanSchema.virtual('Programs', {
     ref: 'Program',
     localField: '_id',
@@ -61,6 +94,6 @@ TujuanSchema.virtual('Programs', {
     justOne: false,
 });
 
-const Tujuan = mongoose.models.Tujuan || mongoose.model<ITujuan, TujuanModel>('Tujuan', TujuanSchema);
+const Tujuan: TujuanModel = mongoose.models.Tujuan as TujuanModel || mongoose.model<ITujuan, TujuanModel>('Tujuan', TujuanSchema);
 
 export default Tujuan;

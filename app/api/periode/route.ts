@@ -27,12 +27,13 @@ function validatePeriodeData(data: any) {
 
 export async function GET(req: NextRequest) {
     await dbConnect();
-    const id = req.nextUrl.searchParams.get('id');
-    const page = req.nextUrl.searchParams.get("page");
-    const limit = req.nextUrl.searchParams.get("limit");
-    const filters = req.nextUrl.searchParams.get("filters");
+
     try {
         let periodes;
+        const id = req.nextUrl.searchParams.get('id');
+        const page = req.nextUrl.searchParams.get("page");
+        const limit = req.nextUrl.searchParams.get("limit");
+        const filters = req.nextUrl.searchParams.get("filters");
         if (id) {
             periodes = await Periode.findOne({ _id: id });
         } else {
