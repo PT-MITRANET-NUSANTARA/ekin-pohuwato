@@ -118,6 +118,7 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
+            
             width: '5%'
         },
         {

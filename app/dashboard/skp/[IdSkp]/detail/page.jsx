@@ -20,7 +20,7 @@ const page = () => {
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
 
     useEffect(() => {
         if (data) {
@@ -49,7 +49,7 @@ const page = () => {
     };
 
     console.log(jabatan);
-    
+
 
     const cetakSkpFields = [
         {
@@ -74,13 +74,29 @@ const page = () => {
                 }
             ]
         },
-       
+
+    ];
+
+
+    const lampiranFields = [
+        {
+            label: 'Isi Lampiran',
+            name: 'isi_lampiran',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Isi Lampiran wajib diisi'
+                }
+            ]
+        },
+
     ];
 
     console.log(skp);
-    
-    
- 
+
+
+
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -307,19 +323,41 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary">
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
                                                 Edit
                                             </Button>
+                                        </div>
+                                        {/* looping through here */}
+                                        <ul>
+                                            <li></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ border: '1px solid black', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2">
+                                            <p>Skema Pertanggung Jawaban</p>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                                Edit
+                                            </Button>
+                                            {/* looping through here */}
+                                            <ul>
+                                                <li></li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
-                                            <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary">
+                                            <p>Konsekuensi</p>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
                                                 Edit
                                             </Button>
+                                            {/* looping through here */}
+                                            <ul>
+                                                <li></li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
