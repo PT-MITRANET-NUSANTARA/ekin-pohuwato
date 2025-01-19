@@ -131,6 +131,16 @@ const page = () => {
             )
         },
         {
+            title: 'Input',
+            dataIndex: 'input',
+            key: 'input',
+            render: (_, record) => (
+                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
+                    Info
+                </Button>
+            )
+        },
+        {
             title: 'Outcome',
             dataIndex: 'outcome',
             key: 'outcome',
