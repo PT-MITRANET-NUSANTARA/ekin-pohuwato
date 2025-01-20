@@ -43,7 +43,7 @@ const page = () => {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
 
-            setPagination({ ...pagination, filters: updatedFilters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
             console.log(error);
         } finally {
