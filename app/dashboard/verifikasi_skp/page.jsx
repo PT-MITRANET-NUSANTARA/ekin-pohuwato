@@ -8,7 +8,7 @@ import { dummySKPVerification } from '@/data/dummyData';
 import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
-import { getAll } from '@/controller/SKPController';
+import { getAll, update } from '@/controller/SKPController';
 import { useRouter } from 'next/navigation';
 import { dateFormatter } from '@/utils';
 
@@ -28,7 +28,8 @@ const page = () => {
         if (user) {
             const updatedFilters = {
                 ...pagination.filters,
-                'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk
+                'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
+                status: { $ne: 'draft' } 
             };
             setPagination({ ...pagination, filters: updatedFilters });
             fetchData();
@@ -105,32 +106,33 @@ const page = () => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: (_, { status }) => (
+            render: (_, record ) => (
                 <>
                     {(() => {
-                        switch (status) {
+                        switch (record.status) {
                             case 'approved':
                                 return (
                                     <Tag color="blue" className="capitalize">
-                                        {status}
+                                        {record.status}
                                     </Tag>
                                 );
                             case 'rejected':
                                 return (
                                     <Tag color="red" className="capitalize">
-                                        {status}
+                                        {record.status}
+                                        {record.keterangan}
                                     </Tag>
                                 );
                             case 'submitted':
                                 return (
                                     <Tag color="yellow" className="capitalize">
-                                        {status}
+                                        {record.status}
                                     </Tag>
                                 );
                             case 'draft':
                                 return (
                                     <Tag color="blue" className="capitalize">
-                                        {status}
+                                        {record.status}
                                     </Tag>
                                 );
                         }
@@ -160,7 +162,13 @@ const page = () => {
                                 icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
                                 content: <span>Klik ok untuk verifikasi SKP ini</span>,
                                 async onOk() {
-                                    // logic on ok
+                                    const data = {...record, status: 'approved'} 
+                                    console.log(data);
+                                    
+                                    const res = await update(data._id, data);
+                                    if (res.ok) {
+                                        fetchData();
+                                    } 
                                 },
                                 onCancel() {
                                     console.log('Cancel');
@@ -177,7 +185,21 @@ const page = () => {
                                 trigger: true,
                                 title: `Tolak Verifikasi SKP`,
                                 type: 'create',
-                                formFields: feedbackFields
+                                formFields: feedbackFields,
+                                onSubmit:async (value)=> {
+                                    // console.log(value);
+                                    const data = {...record, status: 'rejected', keterangan: value.feedback} 
+                                    console.log(data);
+                                    
+                                    const res = await update(data._id, data);
+                                    console.log(res);
+                                    
+                                    if (res.ok) {
+                                        setModal({trigger: false,modalData:null})
+                                        fetchData();
+                                    } 
+                                    
+                                }
                             })
                         }
                         size="middle"
