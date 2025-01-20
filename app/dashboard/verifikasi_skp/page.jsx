@@ -29,7 +29,7 @@ const page = () => {
             const updatedFilters = {
                 ...pagination.filters,
                 'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
-                status: { $ne: 'draft' } 
+                status: { $ne: 'draft' }
             };
             setPagination({ ...pagination, filters: updatedFilters });
             fetchData();
@@ -83,7 +83,7 @@ const page = () => {
             title: 'Unor',
             dataIndex: 'jabatan',
             key: 'nama_skp',
-            render : (record) => record[record.length - 1].unor.nama,
+            render: (record) => record[record.length - 1].unor.nama,
         },
         {
             title: 'Periode SKP',
@@ -106,7 +106,7 @@ const page = () => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record ) => (
+            render: (_, record) => (
                 <>
                     {(() => {
                         switch (record.status) {
@@ -118,10 +118,13 @@ const page = () => {
                                 );
                             case 'rejected':
                                 return (
-                                    <Tag color="red" className="capitalize">
-                                        {record.status}
-                                        {record.keterangan}
-                                    </Tag>
+                                    <div className='flex flex-col gap-y-2'>
+                                        <Tag color="red" className="capitalize w-fit">
+                                            {record.status}
+                                        </Tag>
+                                        "{record.keterangan}"
+                                    </div>
+
                                 );
                             case 'submitted':
                                 return (
@@ -154,58 +157,89 @@ const page = () => {
                     >
                         Detail
                     </Button>
-                    <Button
-                        icon={<CheckOutlined />}
-                        onClick={() => {
-                            confirm({
-                                title: `Setujui laporan aktivitas ini?`,
-                                icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
-                                content: <span>Klik ok untuk verifikasi SKP ini</span>,
-                                async onOk() {
-                                    const data = {...record, status: 'approved'} 
-                                    console.log(data);
-                                    
-                                    const res = await update(data._id, data);
-                                    if (res.ok) {
-                                        fetchData();
-                                    } 
-                                },
-                                onCancel() {
-                                    console.log('Cancel');
+
+                    {record.status === 'submitted' && (
+                        <>
+                            <Button
+                                icon={<CheckOutlined />}
+                                onClick={() => {
+                                    confirm({
+                                        title: `Setujui laporan aktivitas ini?`,
+                                        icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                        content: <span>Klik ok untuk verifikasi SKP ini</span>,
+                                        async onOk() {
+                                            const data = { ...record, status: 'approved' };
+                                            console.log(data);
+
+                                            const res = await update(data._id, data);
+                                            if (res.ok) {
+                                                fetchData();
+                                            }
+                                        },
+                                        onCancel() {
+                                            console.log('Cancel');
+                                        }
+                                    });
+                                }}
+                                size="middle"
+                                variant="outlined"
+                                color="primary"
+                            />
+                            <Button
+                                onClick={() =>
+                                    setModal({
+                                        trigger: true,
+                                        title: `Tolak Verifikasi SKP`,
+                                        type: 'create',
+                                        formFields: feedbackFields,
+                                        onSubmit: async (value) => {
+                                            const data = { ...record, status: 'rejected', keterangan: value.feedback };
+                                            console.log(data);
+
+                                            const res = await update(data._id, data);
+                                            console.log(res);
+
+                                            if (res.ok) {
+                                                setModal({ trigger: false, modalData: null });
+                                                fetchData();
+                                            }
+                                        }
+                                    })
                                 }
-                            });
-                        }}
-                        size="middle"
-                        variant="outlined"
-                        color="primary"
-                    />
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
-                                title: `Tolak Verifikasi SKP`,
-                                type: 'create',
-                                formFields: feedbackFields,
-                                onSubmit:async (value)=> {
-                                    // console.log(value);
-                                    const data = {...record, status: 'rejected', keterangan: value.feedback} 
-                                    console.log(data);
-                                    
-                                    const res = await update(data._id, data);
-                                    console.log(res);
-                                    
-                                    if (res.ok) {
-                                        setModal({trigger: false,modalData:null})
-                                        fetchData();
-                                    } 
-                                    
-                                }
-                            })
-                        }
-                        size="middle"
-                        danger
-                        icon={<CloseOutlined />}
-                    />
+                                size="middle"
+                                danger
+                                icon={<CloseOutlined />}
+                            />
+                        </>
+                    )}
+
+                    {record.status === 'rejected' && (
+                        <Button
+                            icon={<CheckOutlined />}
+                            onClick={() => {
+                                confirm({
+                                    title: `Setujui laporan aktivitas ini?`,
+                                    icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                    content: <span>Klik ok untuk verifikasi SKP ini</span>,
+                                    async onOk() {
+                                        const data = { ...record, status: 'approved' };
+                                        console.log(data);
+
+                                        const res = await update(data._id, data);
+                                        if (res.ok) {
+                                            fetchData();
+                                        }
+                                    },
+                                    onCancel() {
+                                        console.log('Cancel');
+                                    }
+                                });
+                            }}
+                            size="middle"
+                            variant="outlined"
+                            color="primary"
+                        />
+                    )}
                 </Space>
             )
         }
