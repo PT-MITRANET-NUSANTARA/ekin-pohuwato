@@ -743,7 +743,63 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={4}>{data?.predikat ? data.predikat[IdPeriode] : ''}</td>
+                            <td colSpan={3}>{data?.predikat ? (() => {
+                                const predikat = data.predikat[IdPeriode];
+                                switch (predikat) {
+                                    case 5:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p>Istimewah</p>
+                                            </div>
+                                        );
+                                    case 4:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p>Baik</p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p>Butuh Perbaikan</p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 2:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p>Kurang</p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p>Sangat Kurang</p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    default:
+                                        return predikat || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                     </tbody>
                 </table>
