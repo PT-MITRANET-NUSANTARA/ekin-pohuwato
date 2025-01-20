@@ -10,7 +10,9 @@ import { dummyBawahan } from '@/data';
 import { getData } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
 import { getById, getBySKP } from '@/controller/SKPController';
+import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
+import { getHasilSkp } from '@/controller/ReportController';
 
 const { Title } = Typography;
 
@@ -38,6 +40,38 @@ const page = () => {
             setLoading(false);
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    const getRealisasi = (aspek, harian) => {
+        if (aspek.jenis === 'kualitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+            if (percentase) {
+                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
+                return percent + '%';
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'kuantitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+
+            if (percentase) {
+                const target = aspek.target_tahunan.target;
+                const realisasi = percentase.progress;
+                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
+
+                return percent + ' ' + aspek.target_tahunan.satuan;
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'waktu') {
+            return harian.length + ' ' + aspek.target_tahunan.satuan;
+        } else {
+            return '';
         }
     };
 
@@ -100,7 +134,92 @@ const page = () => {
                         Perilaku
                     </Button>
                     <Button onClick={() => router.push(window.location.pathname + `/${record.id}/predikat_kinerja`)}>Predikat Kinerja</Button>
-                    <Button icon={<FileOutlined />} size="middle" onClick={() => router.push(`/document/${record._id}/hasil_skp`)}>
+                    <Button
+                        icon={<FileOutlined />}
+                        size="middle"
+                        onClick={async () => {
+                            const res = await getById(record._id);
+                            const periode = await getByIdPenilaian(IdPeriode);
+                            console.log(periode);
+                            const realisasi = [];
+                            // console.log(res);
+                            if (res.ok) {
+                                const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
+                                const index = res.data.skp.findIndex((item) => item._id === IdSkp);
+                                const bawahan = res.data.jabatan[index];
+                                const jabatan = skpAtasan.jabatan;
+
+                                // console.log(data);
+
+                                const atasan = jabatan.find((item) => {
+                                    return item.unor.induk.id === bawahan.unor.induk.id;
+                                });
+
+                                // const realisasi = {};
+                                console.log(res.data.rhks);
+
+                                // res.data.rhks.forEach(item, (index) => {
+                                //     item.aspek.forEach((aspek) => {
+                                //         {
+                                //             getRealisasi(
+                                //                 aspek,
+                                //                 item.harians?.filter((h) => {
+                                //                     const hDate = dayjs(h.date); // Convert h.date to Day.js object
+                                //                     const endDateTime = dayjs(periode.data.periodeEnd); // Convert endDateTime to Day.js object
+                                //                     return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
+                                //                 })
+                                //             );
+                                //         }
+                                //     });
+                                // });
+
+                                res.data.rhks.forEach((rhk) => {
+                                    if (!realisasi[rhk._id]) {
+                                        realisasi[rhk._id] = {}; // Inisialisasi objek jika belum ada
+                                    }
+
+                                    rhk.aspek.forEach((aspek) => {
+                                        realisasi[rhk._id.toString()][aspek._id.toString()] = getRealisasi(
+                                            aspek,
+                                            rhk.harians?.filter((h) => {
+                                                const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
+                                                const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
+
+                                                return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
+                                            })
+                                        );
+                                    });
+                                });
+
+                                console.log(realisasi);
+                                
+
+                                const query = {
+                                    atasan: atasan,
+                                    bawahan: bawahan,
+                                    skp: res.data,
+                                    realisasi: realisasi,
+                                    perode: periode.data,
+                                    periodeStart: dateFormatter(periode.data.periodeStart),
+                                    periodeEnd: dateFormatter(periode.data.periodeEnd),
+                                };
+
+                                const pdfBlob = await getHasilSkp(query);
+                                console.log(pdfBlob);
+
+                                const url = window.URL.createObjectURL(pdfBlob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'hasil-skp.pdf'; // Filename
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                window.URL.revokeObjectURL(url);
+
+                                console.log(realisasi);
+                            }
+                        }}
+                    >
                         Cetak
                     </Button>
                 </Space>
@@ -160,7 +279,13 @@ const page = () => {
                         <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
                         </Button>
-                        <Button type="default" icon={<PrinterOutlined />} onClick={() => router.push('/document/1/evaluasi_kinerja')}>
+                        <Button
+                            type="default"
+                            icon={<PrinterOutlined />}
+                            onClick={() => {
+                                router.push('/document/1/evaluasi_kinerja');
+                            }}
+                        >
                             Cetak Dokumen Evaluasi Kinerja
                         </Button>
                         <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
