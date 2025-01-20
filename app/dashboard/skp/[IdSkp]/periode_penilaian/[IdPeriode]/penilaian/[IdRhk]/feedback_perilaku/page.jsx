@@ -364,30 +364,30 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
                                 <p color="blue" className="capitalize">
-                                    {atasan?.nama_asn}
+                                    {bawahan?.unor?.atasan?.asn?.nama_atasan}
                                 </p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    {atasan?.id_asn}
+                                    {bawahan?.unor?.atasan?.asn?.nip_atasan}
                                 </p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
+                                                    <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
+                                                    <p color="green" className="capitalize">
+                                                        Penata Tingkat I / III/d
+                                                    </p>
+                                                </div> */}
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> {atasan?.nama_jabatan}</p>
+                                <p className="text-right capitalize"> {bawahan?.unor?.atasan?.unor_jabatan}</p>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>{atasan?.unor.nama}</p>
-                                    <small>ID : {atasan?.unor.id}</small>
+                                    <p>{bawahan?.unor?.atasan?.unor_nama}</p>
+                                    <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
                                 </div>
                             </div>
                         </div>
