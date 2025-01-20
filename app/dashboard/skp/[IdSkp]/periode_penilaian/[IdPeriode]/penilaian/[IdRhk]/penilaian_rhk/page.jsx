@@ -226,7 +226,7 @@ const page = () => {
                                             const dt = {
                                                 ...data,
                                                 hasil: {
-                                                    ...data.rating,
+                                                    ...data.hasil,
                                                     [IdPeriode]: value.rating
                                                 }
                                             };
@@ -663,11 +663,41 @@ const page = () => {
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={3}>{penilaian?.ratingPerilaku}</td>
+                            <td colSpan={4}>{data?.perilaku ? (() => {
+                                const perilaku = data.perilaku[IdPeriode];
+                                switch (perilaku) {
+                                    case 2:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p>Sesuai ekspektasi</p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p>Diatas ekspektasi</p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p>Dibawah ekspektasi</p>
+                                            </div>
+                                        );
+                                    default:
+                                        return perilaku || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={3}></td>
+                            <td colSpan={3}>{data?.predikat ? data.predikat[IdPeriode] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
