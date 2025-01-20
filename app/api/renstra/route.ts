@@ -39,20 +39,27 @@ export async function GET(req: NextRequest) {
 
     try {
         const id = req.nextUrl.searchParams.get('id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let renstras;
         await Program.find({});
         if (id) {
             renstras = await Renstra.findOne({ _id: id }).populate('programs');
         } else {
-            renstras = await Renstra.find({}).populate({
-                path: 'misi',
-                populate: {
-                    path: 'visi',
+            if (page === 'undefined' || limit === 'undefined') {
+                renstras = await Renstra.find({}).populate({
+                    path: 'misi',
                     populate: {
-                        path: 'periode'
+                        path: 'visi',
+                        populate: {
+                            path: 'periode'
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                renstras = await Renstra.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', renstras, true));
@@ -119,10 +126,12 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedRenstra = await Renstra.findByIdAndDelete(id);
+        const deletedRenstra = await Renstra.findById(id);
         if (!deletedRenstra) {
             return NextResponse.json(createResponse(404, 'Renstra not found', null));
         }
+
+        deletedRenstra.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedRenstra, true));
     } catch (error) {

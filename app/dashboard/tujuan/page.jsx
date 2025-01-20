@@ -37,6 +37,9 @@ const page = () => {
             setLoading(false);
         } catch (error) {
             console.log(error);
+        } finally
+        {
+            setLoading(false);
         }
     };
     const onSubmit = async (values, type, id) => {

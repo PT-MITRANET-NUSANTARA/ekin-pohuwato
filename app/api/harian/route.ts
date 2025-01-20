@@ -52,7 +52,10 @@ export async function GET(req: NextRequest) {
         const user_id = req.headers.get('user-id');
         const id = req.nextUrl.searchParams.get('id');
         const absence = req.nextUrl.searchParams.get('absence');
-        let harian = [];
+        const page = req.nextUrl.searchParams.get("page");
+        const limit = req.nextUrl.searchParams.get("limit");
+        const filters = req.nextUrl.searchParams.get("filters");
+        let harian ;
 
         if (id) {
             harian = await Harian.findOne({ _id: id, user_id });
@@ -84,7 +87,13 @@ export async function GET(req: NextRequest) {
             });
             
         } else {
+            if  (page === 'undefined' || limit === 'undefined') {
             harian = await Harian.find({});
+            }
+            else
+            {
+                harian = await Harian.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', harian, true));
@@ -154,17 +163,17 @@ export async function DELETE(req: NextRequest) {
     await dbConnect();
 
     try {
-        const user_id = req.headers.get('user-id');
         const id = req.nextUrl.searchParams.get('id');
 
         if (!id || typeof id !== 'string') {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedHarian = await Harian.findOneAndDelete({ _id: id, user_id });
+        const deletedHarian = await Harian.findById(id);
         if (!deletedHarian) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));
         }
+        deletedHarian.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedHarian, true));
     } catch (error) {

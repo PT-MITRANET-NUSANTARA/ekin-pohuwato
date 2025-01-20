@@ -21,30 +21,30 @@ const rktSchema = Joi.object({
         )
         .required()
         .label('Input'),
-    output:  Joi.array()
-    .items(
-      Joi.object({
-        name: Joi.string().required().label('Name Output'),
-        _id: Joi.string().optional(),
+    output: Joi.array()
+        .items(
+            Joi.object({
+                name: Joi.string().required().label('Name Output'),
+                _id: Joi.string().optional(),
 
-        target: Joi.number().required().label('Target Output'),
-        satuan: Joi.string().required().label('Satuan Output'),
-      })
-    )
-    .required()
-    .label('Output'),
-    outcome:  Joi.array()
-    .items(
-      Joi.object({
-        name: Joi.string().required().label('Name Outcome'),
-        _id: Joi.string().optional(),
+                target: Joi.number().required().label('Target Output'),
+                satuan: Joi.string().required().label('Satuan Output')
+            })
+        )
+        .required()
+        .label('Output'),
+    outcome: Joi.array()
+        .items(
+            Joi.object({
+                name: Joi.string().required().label('Name Outcome'),
+                _id: Joi.string().optional(),
 
-        target: Joi.number().required().label('Target Outcome'),
-        satuan: Joi.string().required().label('Satuan Outcome'),
-      })
-    )
-    .required()
-    .label('Outcome'),
+                target: Joi.number().required().label('Target Outcome'),
+                satuan: Joi.string().required().label('Satuan Outcome')
+            })
+        )
+        .required()
+        .label('Outcome'),
     total_anggaran: Joi.number().required().label('Total Anggaran'),
     __v: Joi.optional(),
     _id: Joi.optional(),
@@ -79,14 +79,21 @@ export async function GET(req: NextRequest) {
         const id = req.nextUrl.searchParams.get('id');
         const unit_id = req.nextUrl.searchParams.get('unitId');
         const periodeRKT_id = req.nextUrl.searchParams.get('periodeRKTId');
-        let rkts = [];
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
+        let rkts;
 
         if (id) {
             rkts = await RKT.findOne({ _id: id });
         } else if (unit_id) {
             rkts = await RKT.find({ 'unit.id': unit_id });
         } else {
-            rkts = await RKT.find({}).populate('periodeRKT').populate('subKegiatan');
+            if (page === 'undefined' || limit === 'undefined') {
+                rkts = await RKT.find({}).populate('periodeRKT').populate('subKegiatan');
+            } else {
+                rkts = await RKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', rkts, true));
@@ -155,10 +162,11 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedRKT = await RKT.findByIdAndDelete(id);
+        const deletedRKT = await RKT.findById(id);
         if (!deletedRKT) {
             return NextResponse.json(createResponse(404, 'RKT not found', null));
         }
+        deletedRKT.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedRKT, true));
     } catch (error) {

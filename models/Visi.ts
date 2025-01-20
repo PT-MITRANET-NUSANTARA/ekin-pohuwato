@@ -36,37 +36,6 @@ VisiSchema.method('cascadeDelete', async function cascadeDelete() {
     misi.forEach(async (m) => {
         await m.cascadeDelete();
     });
-    // await mongoose.model('Misi').deleteMany({ visi: this.id });
-    // const renstra_id = await mongoose.model('Renstra').find({ misi: { $in: misi_id } });
-    // await mongoose.model('Renstra').deleteMany({ misi: { $in: misi_id } });
-    // const tujuan_id = await mongoose.model('Tujuan').find({ renstra: { $in: renstra_id } });
-    // await mongoose.model('Tujuan').deleteMany({ renstra: { $in: renstra_id } });
-    // const program_id = await mongoose.model('Program').find({ tujuan: { $in: tujuan_id } });
-    // await mongoose.model('Program').deleteMany({ tujuan: { $in: tujuan_id } });
-    // const kegiatan_id = await mongoose.model('Kegiatan').find({ program: { $in: program_id } });
-    // await mongoose.model('Kegiatan').deleteMany({ program: { $in: program_id } });
-    // const subKegiatan_id = await mongoose.model('SubKegiatan').find({ kegiatan: { $in: kegiatan_id } });
-    // await mongoose.model('SubKegiatan').deleteMany({ kegiatan: { $in: kegiatan_id } });
-    // const periodeRKT_id = await mongoose.model('PeriodeRKT').find({ subKegiatan: { $in: subKegiatan_id } });
-    // await mongoose.model('PeriodeRKT').deleteMany({ subKegiatan: { $in: subKegiatan_id } });
-    // const tpp_id = await mongoose.model('TPP').find({ periodeRKT: { $in: periodeRKT_id } });
-    // await mongoose.model('TPP').deleteMany({ periodeRKT: { $in: periodeRKT_id } });
-    // const rkt_id = await mongoose.model('RKT').find({ periodeRKT: { $in: periodeRKT_id } });
-    // await mongoose.model('RKT').deleteMany({ periodeRKT: { $in: periodeRKT_id } });
-    // const rhk_id = await mongoose.model('RHK').find({ rkt: { $in: rkt_id } });
-    // await mongoose.model('RHK').deleteMany({ rkt: { $in: rkt_id } });
-    // await mongoose.model('Aspek').deleteMany({ rhk: { $in: rhk_id } });
-    // await mongoose.model('Harian').deleteMany({ rhk: { $in: rhk_id } });
-    // const skp_id = await mongoose.model('SKP').find({ periodeRKT: { $in: periodeRKT_id } });
-    // await mongoose.model('SKP').deleteMany({ periodeRKT: { $in: periodeRKT_id } });
-    // const rhk_skp = await mongoose.model('RHK').find({ skp: { $in: skp_id } });
-    // await mongoose.model('RHK').deleteMany({ skp: { $in: skp_id } });
-    // await mongoose.model('Aspek').deleteMany({ rhk: { $in: rhk_skp } });
-    // await mongoose.model('Harian').deleteMany({ rhk: { $in: rhk_skp } });
-    // await mongoose.model('Perilaku').deleteMany({ skp: { $in: skp_id } });
-    // const periodePenilaian_id = await mongoose.model('PeriodePenilaian').find({ skp: { $in: skp_id } });
-    // await mongoose.model('PeriodePenilaian').deleteMany({ skp: { $in: skp_id } });
-    // await mongoose.model('Penilaian').deleteMany({ periodePenilaian: { $in: periodePenilaian_id } });
     await this.deleteOne();
 });
 

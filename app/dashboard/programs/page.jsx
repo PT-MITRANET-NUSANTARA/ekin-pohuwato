@@ -39,6 +39,9 @@ const page = () => {
             setRenstra(renstra.data);
         } catch (error) {
             console.log(error);
+        }finally
+        {
+            setLoading(false);
         }
     };
 

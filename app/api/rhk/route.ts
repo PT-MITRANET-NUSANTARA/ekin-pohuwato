@@ -37,8 +37,10 @@ export async function GET(req: NextRequest) {
     try {
         const skpId = req.nextUrl.searchParams.get('skpId');
         const id = req.nextUrl.searchParams.get('id');
-
-        let rhks = [];
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
+        let rhks;
 
         if (skpId) {
             rhks = id ? await RHK.findOne({ _id: id, skp: skpId }).populate('aspek') : await RHK.find({ skp: skpId }).populate('aspek').populate('rhk').populate('harians');
@@ -53,7 +55,11 @@ export async function GET(req: NextRequest) {
                     }
                 });
         } else {
-            rhks = await RHK.find({}).populate('aspek');
+            if (page === 'undefined' || limit === 'undefined') {
+                rhks = await RHK.find({}).populate('aspek');
+            } else {
+                rhks = await RHK.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', rhks, true));
@@ -123,14 +129,13 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedRHK = await RHK.findByIdAndDelete(id);
+        const deletedRHK = await RHK.findById(id);
 
         if (!deletedRHK) {
             return NextResponse.json(createResponse(404, 'RHK not found', null));
         }
 
-        Aspek.deleteMany({ rhk: id });
-        Harian.deleteMany({ rhk: id });
+        deletedRHK.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedRHK, true));
     } catch (error) {

@@ -47,20 +47,29 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     try {
         const id = req.nextUrl.searchParams.get('id');
-        const renstra_id = req.headers.get('renstra-id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let programs;
 
         if (id) {
-            programs = await Program.findOne({ _id: id }).populate('kegiatans').populate('renstra');
-        } else if (renstra_id) {
-            programs = await Program.find({ renstra: renstra_id }).populate('kegiatans').populate('renstra');
-        } else {
-            programs = await Program.find({}).populate({
+            programs = await Program.findOne({ _id: id }).populate({
                 path: 'tujuan',
                 populate: {
                     path: 'renstra'
                 }
             });
+        } else {
+            if (page === 'undefined' || limit === 'undefined') {
+                programs = await Program.find({}).populate({
+                    path: 'tujuan',
+                    populate: {
+                        path: 'renstra'
+                    }
+                });
+            } else {
+                programs = await Program.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', programs, true));
@@ -132,11 +141,11 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedProgram = await Program.findByIdAndDelete(id);
+        const deletedProgram = await Program.findById(id);
         if (!deletedProgram) {
             return NextResponse.json(createResponse(404, 'Program not found', null));
         }
-
+        deletedProgram.cascadeDelete();
         return NextResponse.json(createResponse(200, 'Success', deletedProgram, true));
     } catch (error) {
         console.error('DELETE error:', error); // Added error logging

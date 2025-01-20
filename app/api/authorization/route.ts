@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 
 import jwksClient from 'jwks-rsa';
 import { createResponse } from '@/utils/api';
+import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const client = jwksClient({
     jwksUri: process.env.NEXT_PUBLIC_API_JWT_URL || 'default_jwks_uri'
@@ -30,10 +31,11 @@ export async function GET(req: NextRequest) {
     try {
         const token = cookies().get('token')?.value;
         const dt: any = cookies().get('user')?.value;
-
+        const cookie:any = JSON.parse(dt);
         const data = {
             token: token,
-            user: JSON.parse(dt)
+            user: cookie.user,
+            jabatan: cookie.jabatan
         };
         console.log(data);
         
@@ -97,8 +99,18 @@ export async function POST(req: NextRequest) {
             });
         });
 
+        const respon:any = await getByNIP(token,decoded.mapData.nipBaru);
+        const jabatan = respon.mapData.data[0];
+  
+        
+        
+
         // Jika perlu, serialisasi data yang relevan ke cookie
-        const userCookie = serialize('user', JSON.stringify(decoded.mapData), {
+        const data = {
+            user: decoded.mapData,
+            jabatan: jabatan
+        }
+        const userCookie = serialize('user', JSON.stringify(data), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 24 * 7, // 1 minggu

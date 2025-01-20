@@ -37,6 +37,9 @@ export async function GET(req: NextRequest) {
         const unit_id = req.headers.get('unit-id');
         const periodeRKT = req.headers.get('periodeRKT');
         const id = req.nextUrl.searchParams.get('id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let tpps;
 
         if (id) {
@@ -50,7 +53,11 @@ export async function GET(req: NextRequest) {
             tpps = await TPP.find({ 'unit.induk.id': unit_id }).populate('periodeRKT');
         }
         else {
-            tpps = await TPP.find({}).populate('periodeRKT');
+            if (page === 'undefined' || limit === 'undefined') {
+                tpps = await TPP.find({}).populate('periodeRKT');
+            } else {
+                tpps = await TPP.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', tpps, true));
@@ -123,11 +130,13 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedTPP = await TPP.findByIdAndDelete(id);
+        const deletedTPP = await TPP.findById(id);
 
         if (!deletedTPP) {
             return NextResponse.json(createResponse(404, 'TPP not found', null));
         }
+
+        deletedTPP.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedTPP, true));
     } catch (error) {

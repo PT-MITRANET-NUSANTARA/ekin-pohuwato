@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface ITPP extends Document {
   user_id: string;
@@ -8,9 +9,13 @@ interface ITPP extends Document {
   periodeRKT: mongoose.Schema.Types.ObjectId; 
 }
 
-interface ITPPMethods {}
+interface ITPPMethods {
+  cascadeDelete(): Promise<void>;
+}
 
-interface TPPModel extends mongoose.Model<ITPP, ITPPMethods> {}
+interface TPPModel extends mongoose.Model<ITPP,{}, ITPPMethods> {
+  getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<ITPP, ITPPMethods>>;
+}
 
 const TPPSchema = new Schema<ITPP, TPPModel, ITPPMethods>({
   user_id: {
@@ -36,7 +41,33 @@ const TPPSchema = new Schema<ITPP, TPPModel, ITPPMethods>({
   }
 });
 
+TPPSchema.method('cascadeDelete', async function cascadeDelete() {
+    await this.deleteOne();
+});
 
-const TPP = mongoose.models.TPP || mongoose.model<ITPP, TPPModel>('TPP', TPPSchema);
+TPPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([
+        query
+            .skip(skip)
+            .limit(limit).populate('periodeRKT')
+            ,
+        this.countDocuments(buildFilterQuery(filters))
+    ]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
+
+const TPP: TPPModel = mongoose.models.TPP as TPPModel || mongoose.model<ITPP, TPPModel>('TPP', TPPSchema);
 
 export default TPP;

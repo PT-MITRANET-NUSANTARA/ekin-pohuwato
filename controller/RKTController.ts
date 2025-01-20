@@ -16,10 +16,13 @@ export const getPeriode = async (periodeId: string) => {
 }
 
 // Fetch all RKT records
-export const getAll = async () => {
-    const response = await apiRequest('/api/rkt', {
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/rkt?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
         method: 'GET',
     });
+
     return response;
 }
 

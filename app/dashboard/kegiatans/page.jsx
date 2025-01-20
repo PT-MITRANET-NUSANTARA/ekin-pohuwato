@@ -44,6 +44,9 @@ const page = () => {
             setProgram(program.data);
         } catch (error) {
             console.log(error);
+        } finally
+        {
+            setLoading(false);
         }
     };
 
@@ -509,7 +512,6 @@ const page = () => {
                 id_option_parent: item.tujuan._id,
                 id: item._id
             })),
-            parentField: 'tujuan'
         },
     ];
 

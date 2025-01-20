@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IPeriodePenilaian extends Document {
     name: string;
@@ -9,9 +10,13 @@ interface IPeriodePenilaian extends Document {
     updatedAt?: Date;
 }
 
-interface IPeriodePenilaianMethods {}
+interface IPeriodePenilaianMethods {
+    cascadeDelete(): Promise<void>;
+}
 
-interface PeriodePenilaianModel extends mongoose.Model<IPeriodePenilaian, IPeriodePenilaianMethods> {}
+interface PeriodePenilaianModel extends mongoose.Model<IPeriodePenilaian, {} ,IPeriodePenilaianMethods> {
+    getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IPeriodePenilaian, IPeriodePenilaianMethods>>;
+}
 
 const PeriodePenilaianSchema = new Schema<IPeriodePenilaian, PeriodePenilaianModel, IPeriodePenilaianMethods>(
     {
@@ -40,6 +45,32 @@ const PeriodePenilaianSchema = new Schema<IPeriodePenilaian, PeriodePenilaianMod
     }
 );
 
+PeriodePenilaianSchema.method('cascadeDelete', async function cascadeDelete() {
+    const penilaian = await mongoose.model('Penilaian').find({ periodePenilaian: this._id });
+
+    penilaian.forEach(async (p) => {
+        await p.cascadeDelete();
+    });
+
+    await this.deleteOne();
+});
+
+PeriodePenilaianSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
+    const skip = (page - 1) * limit;
+    const query = this.find(buildFilterQuery(filters));
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp'), this.countDocuments(buildFilterQuery(filters))]);
+
+    return {
+        data: results,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            pageSize: limit
+        }
+    };
+});
+
 PeriodePenilaianSchema.virtual('penilaians', {
     ref: 'Penilaian',
     localField: '_id',
@@ -47,6 +78,6 @@ PeriodePenilaianSchema.virtual('penilaians', {
     justOne: false
 });
 
-const PeriodePenilaian = mongoose.models.PeriodePenilaian || mongoose.model<IPeriodePenilaian, PeriodePenilaianModel>('PeriodePenilaian', PeriodePenilaianSchema);
+const PeriodePenilaian: PeriodePenilaianModel = mongoose.models.PeriodePenilaian as PeriodePenilaianModel || mongoose.model<IPeriodePenilaian, PeriodePenilaianModel>('PeriodePenilaian', PeriodePenilaianSchema);
 
 export default PeriodePenilaian;

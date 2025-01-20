@@ -7,8 +7,6 @@ import { createResponse } from '@/utils/api';
 import { perilaku } from '@/utils/blueprint';
 import Perilaku from '@/models/Perilaku';
 import RKT from '@/models/RKT';
-import Aspek from '@/models/Aspek';
-import { IAspek } from '@/models/Aspek';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -64,25 +62,27 @@ export async function GET(req: NextRequest) {
         const skp_id = req.headers.get('skp-id');
         const periode_id = req.headers.get('periode-id');
         const id = req.nextUrl.searchParams.get('id');
-        let skps = [];
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
+        let skps;
 
         if (user_id) {
             if (skp_id) {
-                
                 skps = await SKP.findOne({
                     user_id: user_id, // Pastikan user_id sesuai
                     periodeRKT: periode_id, // Pastikan periode_id sesuai
                     skp: { $in: [skp_id] } // Cek apakah skp_id ada di dalam array skp
-                  })  .populate({
-                    path: 'rhks',
-                    populate: [
-                        { path: 'rhk', populate: { path: 'rkt' } },
-                        { path: 'aspek', populate: { path: 'rhk' } }
-                    ]
                 })
-                .populate('perilakus');;
-            }
-            else if (periode_id) {
+                    .populate({
+                        path: 'rhks',
+                        populate: [
+                            { path: 'rhk', populate: { path: 'rkt' } },
+                            { path: 'aspek', populate: { path: 'rhk' } }
+                        ]
+                    })
+                    .populate('perilakus');
+            } else if (periode_id) {
                 skps = await SKP.findOne({ user_id, periodeRKT: periode_id })
                     .populate({
                         path: 'rhks',
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
                 .populate({
                     path: 'rhks',
                     populate: [
-                        { path: 'rhk', populate: [{ path: 'rkt' }, {path: 'harians'}] }, // Populate 'rhk' dan 'rkt' di dalamnya
+                        { path: 'rhk', populate: [{ path: 'rkt' }, { path: 'harians' }] }, // Populate 'rhk' dan 'rkt' di dalamnya
                         { path: 'aspek' }, // Populate 'aspek'
                         { path: 'harians' }, // Populate 'harians'
                         { path: 'rkt' } // Populate 'rkt' secara langsung dari 'rhks'
@@ -112,7 +112,11 @@ export async function GET(req: NextRequest) {
                 .populate('skp') // Populate 'skp'
                 .populate('penilaians'); // Populate 'penilaians'
         } else {
-            skps = await SKP.find({});
+            if (page === 'undefined' || limit === 'undefined') {
+                skps = await SKP.find({});
+            } else {
+                skps = await SKP.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', skps, true));
@@ -164,7 +168,7 @@ export async function POST(req: NextRequest) {
                         rkt: rkt._id,
                         jenis: 'utama',
                         klasifikasi: 'organisasi',
-                        desc: rkt.name,
+                        desc: rkt.name
                     });
                     await rhk.save();
                 }
@@ -215,12 +219,11 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
         }
 
-        const deletedSKP = await SKP.findByIdAndDelete(id);
+        const deletedSKP = await SKP.findById(id);
         if (!deletedSKP) {
             return NextResponse.json(createResponse(404, 'SKP not found', null));
         }
-
-        await RHK.deleteMany({ skp: id });
+        deletedSKP.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedSKP, true));
     } catch (error) {
