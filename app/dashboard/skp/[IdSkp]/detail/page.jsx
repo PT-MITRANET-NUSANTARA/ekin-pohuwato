@@ -87,21 +87,6 @@ const page = () => {
     ];
 
 
-    const lampiranFields = [
-        {
-            label: 'Isi Lampiran',
-            name: 'isi_lampiran',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field Isi Lampiran wajib diisi'
-                }
-            ]
-        },
-
-    ];
-
     console.log(skp);
 
 
