@@ -164,7 +164,7 @@ SKPSchema.method('cascadeDelete', async function cascadeDelete() {
 SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters));
-    const [results, total] = await Promise.all([query.skip(skip).limit(limit), this.countDocuments(buildFilterQuery(filters))]);
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp'), this.countDocuments(buildFilterQuery(filters))]);
 
     return {
         data: results,

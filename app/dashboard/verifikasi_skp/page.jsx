@@ -76,6 +76,12 @@ const page = () => {
             render : (record) => record[record.length - 1].nama_jabatan,
         },
         {
+            title: 'Unor',
+            dataIndex: 'jabatan',
+            key: 'nama_skp',
+            render : (record) => record[record.length - 1].unor.nama,
+        },
+        {
             title: 'Periode SKP',
             dataIndex: 'periode_skp',
             key: 'periode_skp',

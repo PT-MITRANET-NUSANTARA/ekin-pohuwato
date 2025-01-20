@@ -169,7 +169,8 @@ export async function POST(req: NextRequest) {
                         rkt: rkt._id,
                         jenis: 'utama',
                         klasifikasi: 'organisasi',
-                        desc: rkt.name
+                        desc: rkt.name,
+                        status: 'approved'
                     });
                     await rhk.save();
                 }
