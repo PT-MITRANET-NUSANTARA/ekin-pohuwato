@@ -140,11 +140,13 @@ const page = () => {
                         onClick={async () => {
                             const res = await getById(record._id);
                             const periode = await getByIdPenilaian(IdPeriode);
-                            console.log(periode);
-                            const realisasi = [];
+                            // console.log(periode);
                             // console.log(res);
                             if (res.ok) {
+                                console.log(res.data);
+                                
                                 const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
+                                
                                 const index = res.data.skp.findIndex((item) => item._id === IdSkp);
                                 const bawahan = res.data.jabatan[index];
                                 const jabatan = skpAtasan.jabatan;
@@ -172,36 +174,37 @@ const page = () => {
                                 //         }
                                 //     });
                                 // });
+                                const realisasi = {};
 
                                 res.data.rhks.forEach((rhk) => {
                                     if (!realisasi[rhk._id]) {
-                                        realisasi[rhk._id] = {}; // Inisialisasi objek jika belum ada
+                                        realisasi[rhk._id] = {}; // Inisialisasi objek untuk rhk._id jika belum ada
                                     }
 
                                     rhk.aspek.forEach((aspek) => {
-                                        realisasi[rhk._id.toString()][aspek._id.toString()] = getRealisasi(
-                                            aspek,
-                                            rhk.harians?.filter((h) => {
-                                                const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
-                                                const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
+                                        // Filter data harian sesuai kondisi
+                                        const filteredHarians = rhk.harians?.filter((h) => {
+                                            const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
+                                            const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
 
-                                                return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
-                                            })
-                                        );
+                                            return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
+                                        });
+
+                                        // Hitung realisasi untuk aspek
+                                        realisasi[rhk._id][aspek._id] = getRealisasi(aspek, filteredHarians);
                                     });
                                 });
 
-                                console.log(realisasi);
+                                console.log(atasan);
                                 
-
                                 const query = {
                                     atasan: atasan,
                                     bawahan: bawahan,
                                     skp: res.data,
                                     realisasi: realisasi,
-                                    perode: periode.data,
+                                    periode: periode.data,
                                     periodeStart: dateFormatter(periode.data.periodeStart),
-                                    periodeEnd: dateFormatter(periode.data.periodeEnd),
+                                    periodeEnd: dateFormatter(periode.data.periodeEnd)
                                 };
 
                                 const pdfBlob = await getHasilSkp(query);
