@@ -3,10 +3,12 @@
 import { Alert, Breadcrumb, Button, Card, Space, Tag, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField } from '@/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
 import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getAll } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -14,6 +16,34 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+            if (user) {
+                const updatedFilters = {
+                    ...pagination.filters,
+                    "jabatan.unor.induk.id": user.jabatan?.unor?.induk
+                };
+                setPagination({ ...pagination, filters: updatedFilters });
+                fetchData();
+            }
+        }, [user, pagination.page, pagination.limit]);
+
+            const fetchData = async () => {
+                try {
+                    const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+                    console.log(data);
+                    
+                    setData(data.data.data);
+                    setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+                } catch (error) {
+                    console.log(error);
+                } finally {
+                    setLoading(false);
+                }
+            };
 
     const Column = [
         {
@@ -190,7 +220,7 @@ const page = () => {
                             <FilterField fields={filterFileds}></FilterField>
                         </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={dummySKPVerification} />
+                        <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={modal.onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                 </div>
