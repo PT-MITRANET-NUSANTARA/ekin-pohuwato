@@ -10,7 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
-import { getBySKP } from '@/controller/SKPController';
+import { getBySKP, update } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -70,23 +70,36 @@ const page = () => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: (_, { status }) => (
+            render: (_, record) => (
                 <>
                     {(() => {
-                        switch (status) {
+                        switch (record.status) {
                             case 'approved':
                                 return (
                                     <Tag color="blue" className="capitalize">
-                                        Diterima
+                                        {record.status}
                                     </Tag>
                                 );
-                            default:
+                            case 'rejected':
+                                return (
+                                    <Tag color="red" className="capitalize">
+                                        {record.status}
+                                        {record.keterangan}
+                                    </Tag>
+                                );
+                            case 'submitted':
+                                return (
+                                    <Tag color="yellow" className="capitalize">
+                                        {record.status}
+                                    </Tag>
+                                );
+                            case 'draft':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {record.status}
+                                    </Tag>
+                                );
                         }
-                        return (
-                            <Tag color="blue" className="capitalize">
-                                {status}
-                            </Tag>
-                        );
                     })()}
                 </>
             )
@@ -103,14 +116,22 @@ const page = () => {
                     >
                         Detail
                     </Button>
-                    <Button
-                        onClick={() => {
-                            // logic of ajukan skp goes here
-                        }}
-                        size="middle"
-                    >
-                        Ajukan SKP
-                    </Button>
+                    {record.status !== 'approved' && record.status !== 'submitted' ? (
+                        <Button
+                            onClick={async () => {
+                                const data = { ...record, status: 'submitted' };
+                                console.log(data);
+
+                                const res = await update(data._id, data);
+                                if (res.ok) {
+                                    fetchData();
+                                }
+                            }}
+                            size="middle"
+                        >
+                            Ajukan SKP
+                        </Button>
+                    ) : null}
                 </Space>
             )
         }

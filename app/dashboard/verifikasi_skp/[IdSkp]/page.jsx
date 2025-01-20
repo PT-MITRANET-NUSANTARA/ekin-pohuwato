@@ -16,27 +16,20 @@ const { Title } = Typography;
 const page = () => {
     const { IdSkp } = useParams();
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdSkp);
-            const selectedJabatan = jabatan.mapData.data[0];
-            console.log(skp.data.rhks);
-
             setSkp(skp.data);
-            setJabatan(selectedJabatan);
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -70,10 +63,8 @@ const page = () => {
                     message: 'Field lokasi wajib diisi'
                 }
             ]
-        },
-
+        }
     ];
-
 
     const lampiranFields = [
         {
@@ -86,14 +77,10 @@ const page = () => {
                     message: 'Field Isi Lampiran wajib diisi'
                 }
             ]
-        },
-
+        }
     ];
 
     console.log(skp);
-
-
-
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -198,13 +185,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nama}
+                                            {jabatan?.userId}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nipBaru}
+                                            {jabatan?.userId}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -320,7 +307,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
                                                 Edit
                                             </Button>
                                         </div>
@@ -334,7 +321,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Skema Pertanggung Jawaban</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}
@@ -348,7 +335,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Konsekuensi</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}

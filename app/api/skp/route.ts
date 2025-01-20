@@ -14,7 +14,7 @@ const skpSchema = Joi.object({
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
     keterangan: Joi.string().allow('').label('Keterangan'),
     user_id: Joi.string().required().label('User ID'),
-    skp: Joi.array().items(Joi.string().optional()).optional().label('SKP'),
+    skp: Joi.array().items(Joi.optional()).optional().label('SKP'),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
@@ -169,7 +169,8 @@ export async function POST(req: NextRequest) {
                         rkt: rkt._id,
                         jenis: 'utama',
                         klasifikasi: 'organisasi',
-                        desc: rkt.name
+                        desc: rkt.name,
+                        status: 'approved'
                     });
                     await rhk.save();
                 }

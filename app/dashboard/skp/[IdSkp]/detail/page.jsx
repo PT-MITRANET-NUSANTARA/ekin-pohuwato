@@ -16,27 +16,20 @@ const { Title } = Typography;
 const page = () => {
     const { IdSkp } = useParams();
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdSkp);
-            const selectedJabatan = jabatan.mapData.data[0];
-            console.log(skp.data.rhks);
-
             setSkp(skp.data);
-            setJabatan(selectedJabatan);
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -74,7 +67,7 @@ const page = () => {
                 }
             ]
         },
-
+       
     ];
 
 
@@ -92,6 +85,7 @@ const page = () => {
         },
 
     ];
+
 
     console.log(skp);
 
@@ -201,13 +195,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nama}
+                                            {jabatan?.userId}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nipBaru}
+                                            {jabatan?.userId}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
