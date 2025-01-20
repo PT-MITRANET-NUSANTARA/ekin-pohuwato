@@ -210,36 +210,7 @@ const page = () => {
                 }
             ]
         },
-        {
-            id: 1,
-            name: 'periode rkt',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode mulai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode akhir',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        }
+        
     ];
 
     const handleClose = () => {

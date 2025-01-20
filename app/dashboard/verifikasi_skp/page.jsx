@@ -9,10 +9,12 @@ import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAll } from '@/controller/SKPController';
+import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 
 const page = () => {
+    const router = useRouter()
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
@@ -111,27 +113,14 @@ const page = () => {
                 <Space size="small">
                     <Button
                         onClick={() => {
-                            // verifiy logic goes here
+                            router.push(window.location.pathname + `/${record.id}`);
                         }}
                         size="middle"
                         variant="outlined"
                         color="primary"
-                        icon={<CheckOutlined />}
-                    />
-
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
-                                title: `Tolak Verifikasi SKP`,
-                                type: 'create',
-                                formFields: feedbackFields
-                            })
-                        }
-                        size="middle"
-                        danger
-                        icon={<CloseOutlined />}
-                    />
+                    >
+                        Detail
+                    </Button>
                 </Space>
             )
         }
