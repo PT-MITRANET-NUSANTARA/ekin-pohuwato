@@ -7,13 +7,14 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { destroy, getAll, store, update, getByUnitId } from '@/controller/PeriodeRKTController';
+import { destroy, getAll, store, update, getByUnitId, getById } from '@/controller/PeriodeRKTController';
 import useFetchData from '@/hooks/useFetchData';
 const { Title } = Typography;
 import { store as upload } from '@/controller/DokumentController';
 import { getData } from '@/controller/AuthorizationController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
+import { getPerjanjianKinerja } from '@/controller/ReportController';
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
@@ -30,19 +31,18 @@ const page = () => {
         if (user) {
             const updatedFilters = {
                 ...pagination.filters,
-                unit: user.jabatan?.unor?.induk, 
+                unit: user.jabatan?.unor?.induk
             };
-            setPagination({...pagination, filters: updatedFilters})
+            setPagination({ ...pagination, filters: updatedFilters });
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
 
-    
     const fetchData = async () => {
         try {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
-          
+
             setPagination({ ...pagination, filters: updatedFilters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
             console.log(error);
@@ -57,7 +57,7 @@ const page = () => {
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
             setSubmitLoading(true);
-            switch (type) { 
+            switch (type) {
                 case 'create':
                     response = await store(dt);
                     break;
@@ -105,10 +105,59 @@ const page = () => {
         handleClose();
     };
 
-    const customSubmit = (values, type, id, formData) => {
+    const customSubmit = async (values, type, id, formData) => {
         console.log(values);
-        const query = new URLSearchParams(values).toString();
-        router.push(`/document/${id}/perjanjian_kinerja?${query}`);
+        console.log(id);
+        const res = await getById(id);
+
+        const periode = res.data;
+        const uniqueRkts = periode.RKTS.filter((item, index, self) => index === self.findIndex((rkt) => rkt._id === item._id));
+
+        let allSubKegiatan = uniqueRkts.map((rkt) => rkt.subKegiatan);
+
+        const uniqueSubKegiatan = allSubKegiatan.filter((item, index, self) => index === self.findIndex((sub) => sub._id === item._id));
+
+        let allKegiatan = uniqueSubKegiatan.map((sub) => sub.kegiatan);
+
+        const uniqueKegiatan = allKegiatan.filter((item, index, self) => index === self.findIndex((kegiatan) => kegiatan._id === item._id));
+
+        let allProgram = uniqueKegiatan.map((kegiatan) => kegiatan.program);
+
+        const uniqueProgram = allProgram.filter((item, index, self) => index === self.findIndex((program) => program._id === item._id));
+
+        let allTujuan = uniqueProgram.map((program) => program.tujuan);
+
+        const uniqueTujuan = allTujuan.filter((item, index, self) => index === self.findIndex((tujuan) => tujuan._id === item._id));
+
+        console.log(uniqueProgram);
+        console.log(uniqueTujuan);
+
+        const query = {
+            nama_pihak_pertama: values.nama_pihak_pertama,
+            jabatan_pihak_pertama: values.jabatan_pihak_pertama,
+            nama_pihak_kedua: values.nama_pihak_kedua,
+            jabatan_pihak_kedua: values.jabatan_pihak_kedua,
+            tanggal: dateFormatter(values.tanggal),
+            program: uniqueProgram,
+            tujuan: uniqueTujuan,
+        };
+        console.log('data', query);
+
+        const pdfBlob = await getPerjanjianKinerja(query);
+
+        console.log(pdfBlob);
+
+        // const url = window.URL.createObjectURL(pdfBlob);
+        // const a = document.createElement('a');
+        // a.href = url;
+        // a.download = 'perjanjian_kinerja.pdf'; // Filename
+        // document.body.appendChild(a);
+        // a.click();
+        // a.remove();
+        // window.URL.revokeObjectURL(url);
+
+        // const query = new URLSearchParams(values).toString();
+        // router.push(`/document/${id}/perjanjian_kinerja?${query}`);
     };
 
     const perjanjianSubmit = async (values, type, id, listImage, fileList) => {
@@ -133,8 +182,8 @@ const page = () => {
 
         const periode = data.find((item) => item._id === id);
         periode.perjanjianKinerja = updatedListImage;
-        console.log("HERE", periode);
-        
+        console.log('HERE', periode);
+
         const response = await update(id, periode);
         console.log(response);
 

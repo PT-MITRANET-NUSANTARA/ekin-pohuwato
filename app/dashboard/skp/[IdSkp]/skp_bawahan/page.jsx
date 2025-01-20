@@ -80,10 +80,16 @@ const page = () => {
                                         Diterima
                                     </Tag>
                                 );
+                            default:
                         }
+                        return (
+                            <Tag color="blue" className="capitalize">
+                                {status}
+                            </Tag>
+                        );
                     })()}
                 </>
-            ),
+            )
         },
         {
             title: 'Action',

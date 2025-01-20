@@ -6,12 +6,14 @@ import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
 import Link from 'next/link';
+import useFetchData from '@/hooks/useFetchData';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { data: user, setData: setUser } = useFetchData(getData);
 
     const Column = [
         {

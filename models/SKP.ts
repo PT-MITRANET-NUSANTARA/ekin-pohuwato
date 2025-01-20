@@ -26,6 +26,7 @@ interface ISKP {
     status?: Status; // Optional
     keterangan?: string; // Optional
     jabatan: object[]; // Array of Object
+    lampiran: Object;
     createdAt?: Date; // Automatically handled by Mongoose
     updatedAt?: Date; // Automatically handled by Mongoose
 }
@@ -69,6 +70,13 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             enum: Object.values(Status),
             required: false,
             default: Status.DRAFT
+        },
+        lampiran: {
+            type: Object,
+            required: false,
+            default: {
+                
+            }
         },
         pendekatan: {
             type: String,

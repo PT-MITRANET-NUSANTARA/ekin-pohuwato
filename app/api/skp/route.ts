@@ -20,6 +20,7 @@ const skpSchema = Joi.object({
     id: Joi.optional(),
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
+    lampiran: Joi.object().optional(),
     updatedAt: Joi.date().optional(),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'),
     renstra: Joi.string().hex().length(24).required().label('Renstra'),

@@ -550,7 +550,7 @@ const page = () => {
                                                 )}
                                             </td>
 
-                                            <td>{aspek.feedback.feedback}</td>
+                                            <td>{aspek.feedback?.feedback}</td>
                                             {/* <td></td> */}
                                         </tr>
                                     </>
@@ -596,10 +596,10 @@ const page = () => {
                                 </td>
                                 <td>
                                     <div className="flex flex-col items-center justify-center gap-y-2">
-                                        {item.feedback}
-                                        {item.like !== null ? (
-                                            <Tag className="m-0" color={item.like ? 'green' : 'red'}>
-                                                {item.like ? 'baik' : 'buruk'}
+                                        {item.feedback[IdPeriode]?.isi}
+                                        {item.feedback[IdPeriode]?.like !== undefined ? (
+                                            <Tag className="m-0" color={item.feedback[IdPeriode].like ? 'green' : 'red'}>
+                                                {item.feedback[IdPeriode].like ? 'baik' : 'buruk'}
                                             </Tag>
                                         ) : (
                                             ''
@@ -611,13 +611,21 @@ const page = () => {
                                                 onClick={() =>
                                                     setModal({
                                                         trigger: true,
-                                                        modalData: { content: item.feedback, category: item.like },
+                                                        modalData: { content: item.feedback.isi, category: item.feedback.like },
                                                         title: 'Edit Feedback',
                                                         formFields: formFields,
                                                         onSubmit: async (values) => {
                                                             console.log('HERE');
 
-                                                            const dt = { ...item, feedback: values.content, like: values.category };
+                                                            const dt = {
+                                                                ...item,
+                                                                feedback: {
+                                                                    [IdPeriode]: {
+                                                                        isi: values.content,
+                                                                        like: values.category
+                                                                    }
+                                                                }
+                                                            };
                                                             console.log('PERILAKU', dt);
                                                             const res = await updatePerilaku(item._id, dt);
                                                             console.log(res);

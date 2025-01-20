@@ -8,8 +8,8 @@ const perilakuSchema = Joi.object({
   skp: Joi.string().hex().length(24).required().label('SKP'), // Expecting ObjectId
   name: Joi.string().required().label('Nama Perilaku'),
   isi: Joi.array().items(Joi.string().required()).required().label('Isi Perilaku'),
-  espektasi: Joi.string().optional().label('Espektasi'),
-  feedback: Joi.object().optional().label('Feedback').allow(null),
+  espektasi: Joi.string().optional().label('Espektasi').allow(''),
+  feedback: Joi.object().optional().label('Feedback').allow(''),
   __v: Joi.optional(),
   _id: Joi.optional(),
   id: Joi.optional(),
