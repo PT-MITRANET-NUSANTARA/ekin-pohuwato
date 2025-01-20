@@ -23,9 +23,12 @@ interface ISKP {
     perilakus?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     pendekatan: Pendekatan;
     renstra: mongoose.Schema.Types.ObjectId; // Reference to Renstra
-    status?: Status; // Optional
+    status?: Status; // Optionalp
     keterangan?: string; // Optional
     jabatan: object[]; // Array of Object
+    hasil: Object,
+    predikat: Object,
+    perilaku: Object,
     lampiran: Object;
     createdAt?: Date; // Automatically handled by Mongoose
     updatedAt?: Date; // Automatically handled by Mongoose
@@ -76,6 +79,27 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             required: false,
             default: {
                 
+            }
+        },
+        predikat: {
+            type: Object,
+            required:false,
+            default:{
+
+            }
+        },
+        perilaku: {
+            type: Object,
+            required:false,
+            default:{
+
+            }
+        },
+        hasil: {
+            type:Object,
+            required:false,
+            default:{
+
             }
         },
         pendekatan: {

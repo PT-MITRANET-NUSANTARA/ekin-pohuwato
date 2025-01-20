@@ -620,6 +620,7 @@ const page = () => {
                                                             const dt = {
                                                                 ...item,
                                                                 feedback: {
+                                                                    ...item.feedback,
                                                                     [IdPeriode]: {
                                                                         isi: values.content,
                                                                         like: values.category
