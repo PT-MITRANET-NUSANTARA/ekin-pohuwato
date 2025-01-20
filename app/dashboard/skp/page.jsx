@@ -246,7 +246,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full mb-4">
-                        <FilterField fields={filterFileds}></FilterField>
+                        {/* <FilterField fields={filterFileds}></FilterField> */}
                     </div>
                     {loadingData ? (
                         <Skeleton active />
