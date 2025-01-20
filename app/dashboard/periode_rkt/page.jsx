@@ -147,14 +147,14 @@ const page = () => {
 
         console.log(pdfBlob);
 
-        // const url = window.URL.createObjectURL(pdfBlob);
-        // const a = document.createElement('a');
-        // a.href = url;
-        // a.download = 'perjanjian_kinerja.pdf'; // Filename
-        // document.body.appendChild(a);
-        // a.click();
-        // a.remove();
-        // window.URL.revokeObjectURL(url);
+        const url = window.URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'perjanjian_kinerja.pdf'; // Filename
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
         // const query = new URLSearchParams(values).toString();
         // router.push(`/document/${id}/perjanjian_kinerja?${query}`);
