@@ -29,7 +29,9 @@ export const apiRequest = async <T>(url: string, options: RequestOptions = {}): 
         const responseData = await response.json();
         return responseData as T;
     } catch (error) {
-        throw new Error( 'API request failed');
+        console.log(error);
+        
+        throw  Error( 'API request failed');
         
     }
   
