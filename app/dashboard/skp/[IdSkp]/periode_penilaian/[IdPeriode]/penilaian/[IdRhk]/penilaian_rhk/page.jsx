@@ -226,7 +226,7 @@ const page = () => {
                                             const dt = {
                                                 ...data,
                                                 hasil: {
-                                                    ...data.rating,
+                                                    ...data.hasil,
                                                     [IdPeriode]: value.rating
                                                 }
                                             };
@@ -633,11 +633,11 @@ const page = () => {
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={3}>{penilaian?.ratingPerilaku}</td>
+                            <td colSpan={3}>{data?.perilaku ? data.perilaku[IdPeriode] : ''}</td>
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={3}></td>
+                            <td colSpan={3}>{data?.predikat ? data.predikat[IdPeriode] : ''}</td>
                         </tr>
                     </tbody>
                 </table>

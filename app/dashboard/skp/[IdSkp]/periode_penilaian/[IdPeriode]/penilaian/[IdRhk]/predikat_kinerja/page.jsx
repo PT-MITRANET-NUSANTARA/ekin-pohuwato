@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, InfoModal } from '@/components';
 import { getById } from '@/controller/SKPController';
-import { store, destroy, update } from '@/controller/penilaianController';
+import { store, destroy } from '@/controller/penilaianController';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import { update as updateAspek } from '@/controller/AspekController';
 import { dummyFeedback } from '@/data';
@@ -36,11 +36,7 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
-            console.log(penilaian);
-            setPenilaian(penilaian);
-            const periodePenilaian = await getPenilaian(IdPeriode);
-            setPeriode(periodePenilaian.data);
+          
             const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
@@ -60,39 +56,39 @@ const page = () => {
 
     console.log(data);
 
-    const onSubmit = async (value) => {
-        try {
-            let data;
+    // const onSubmit = async (value) => {
+    //     try {
+    //         let data;
 
-            if (penilaian) {
-                data = {
-                    ...penilaian,
-                    ratingKinerja: value.rating
-                };
+    //         if (penilaian) {
+    //             data = {
+    //                 ...penilaian,
+    //                 ratingKinerja: value.rating
+    //             };
 
-                console.log(data);
+    //             console.log(data);
 
-                // Call the update function and handle response
-                const res = await update(penilaian._id, data);
-                console.log(res);
-            } else {
-                data = {
-                    ratingKinerja: value.rating,
-                    periodePenilaian: IdPeriode,
-                    skp: IdRhk
-                };
+    //             // Call the update function and handle response
+    //             const res = await update(penilaian._id, data);
+    //             console.log(res);
+    //         } else {
+    //             data = {
+    //                 ratingKinerja: value.rating,
+    //                 periodePenilaian: IdPeriode,
+    //                 skp: IdRhk
+    //             };
 
-                const res = await store(data);
-                console.log(res);
-            }
-            fetchData();
+    //             const res = await store(data);
+    //             console.log(res);
+    //         }
+    //         fetchData();
 
-            // Close modal on success
-            setModal((prev) => ({ ...prev, trigger: false }));
-        } catch (err) {
-            console.error(err); // Log the error
-        }
-    };
+    //         // Close modal on success
+    //         setModal((prev) => ({ ...prev, trigger: false }));
+    //     } catch (err) {
+    //         console.error(err); // Log the error
+    //     }
+    // };
 
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
@@ -442,7 +438,7 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{penilaian?.ratingKinerja}</td>
+                            <td colSpan={4}>{data?.hasil? data.hasil[IdPeriode] : ''}</td>
                         </tr>
                     </tbody>
                 </table>

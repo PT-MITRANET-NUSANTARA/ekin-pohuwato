@@ -8,7 +8,7 @@ import { CrudModal, InfoModal } from '@/components';
 import { dummyFeedback } from '@/data';
 import { title } from 'process';
 import { useParams } from 'next/navigation';
-import { getById } from '@/controller/SKPController';
+import { getById, update } from '@/controller/SKPController';
 import { update as updatePerilaku } from '@/controller/PerilakuController';
 import { useRouter } from 'next/navigation';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
@@ -16,7 +16,7 @@ import { getById as getPenilaian } from '@/controller/periodePenilaianController
 const { Title } = Typography;
 const { Option } = Select;
 
-import { store, destroy, update } from '@/controller/penilaianController';
+import { store, destroy } from '@/controller/penilaianController';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
 
@@ -43,11 +43,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdPeriode);
-            setPenilaian(penilaian);
-            const periodePenilaian = await getPenilaian(IdPeriode);
-
-            setPeriode(periodePenilaian.data);
 
             const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
@@ -112,15 +107,15 @@ const page = () => {
             options: [
                 {
                     label: 'Diatas Ekspektasi',
-                    value: 'Diatas Ekspektasi'
+                    value: 3
                 },
                 {
                     label: 'Sesuai Ekspektasi',
-                    value: 'Sesuai Ekspektasi'
+                    value: 2
                 },
                 {
                     label: 'Dibawah Ekspektasi',
-                    value: 'Dibawah Ekspektasi'
+                    value: 1
                 }
             ],
             rules: [
@@ -169,38 +164,39 @@ const page = () => {
     //     }
     // ];
 
-    const onSubmit = async (value) => {
-        try {
-            let data;
+    // const onSubmit = async (value) => {
+    //     try {
+    //         let data;
 
-            if (penilaian) {
-                data = {
-                    ...penilaian,
-                    ratingPerilaku: value.rating
-                };
+    //         if (penilaian) {
+    //             data = {
+    //                 ...penilaian,
+    //                 ratingPerilaku: value.rating
+    //             };
 
-                console.log(data);
+    //             console.log(data);
 
-                // Call the update function and handle response
-                const res = await update(penilaian._id, data);
-                console.log(res);
-            } else {
-                data = {
-                    ratingPerilaku: value.rating,
-                    periodePenilaian: IdPeriode,
-                    skp: IdRhk
-                };
+    //             // Call the update function and handle response
+    //             const res = await update(penilaian._id, data);
+    //             console.log(res);
+    //         } else {
+    //             data = {
+    //                 ratingPerilaku: value.rating,
+    //                 periodePenilaian: IdPeriode,
+    //                 skp: IdRhk
+    //             };
 
-                const res = await store(data);
-                console.log(res);
-            }
+    //             const res = await store(data);
+    //             console.log(res);
+    //         }
 
-            // Close modal on success
-            setModal((prev) => ({ ...prev, trigger: false }));
-        } catch (err) {
-            console.error(err); // Log the error
-        }
-    };
+    //         // Close modal on success
+    //         setModal((prev) => ({ ...prev, trigger: false }));
+    //     } catch (err) {
+    //         console.error(err); // Log the error
+    //     }
+    // };
+
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
@@ -256,7 +252,42 @@ const page = () => {
                             Pengisian Feedback Atasan
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Rating Perilaku Kerja', formFields: ratingFileds })}>
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={() =>
+                                    setModal({
+                                        trigger: true,
+                                        modalData: {
+                                            rating: data.perilaku ? data.perilaku[IdPeriode] : 1
+                                        },
+                                        title: 'Tambah Rating Perilaku Kerja',
+                                        formFields: ratingFileds,
+                                        onSubmit: async (value) => {
+                                            console.log(data);
+
+                                            const dt = {
+                                                ...data,
+                                                perilaku: {
+                                                    ...data.perilaku,
+                                                    [IdPeriode]: value.rating
+                                                }
+                                            };
+
+                                            const res = await update(data._id, dt);
+                                            console.log(res);
+
+                                            if (res.ok) {
+                                                setModal({
+                                                    trigger: false,
+                                                    modalData: { rating: data.perilaku ? data.perilaku[IdPeriode] : 1 }
+                                                });
+                                                fetchData();
+                                            }
+                                        }
+                                    })
+                                }
+                            >
                                 Buat Rating Perilaku Kerja
                             </Button>
                             {/* <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
@@ -564,7 +595,7 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{penilaian?.ratingKinerja}</td>
+                            <td colSpan={4}>{data?.hasil ? data.hasil[IdPeriode] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -648,11 +679,11 @@ const page = () => {
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={4}>{penilaian?.ratingPerilaku}</td>
+                            <td colSpan={4}>{data?.perilaku ? data.perilaku[IdPeriode] : ''}</td>
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={4}></td>
+                            <td colSpan={4}>{data?.predikat ? data.predikat[IdPeriode] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
