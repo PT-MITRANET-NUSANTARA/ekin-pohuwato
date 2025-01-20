@@ -1,7 +1,7 @@
 'use client';
 
 import { DataTable } from '@/components';
-import { Breadcrumb, Button, Card, Skeleton, Space, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Modal, Skeleton, Space, Tag, Typography } from 'antd';
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ import { getBySKP, update } from '@/controller/SKPController';
 const { Title } = Typography;
 
 const page = () => {
+    const { confirm } = Modal;
     const router = useRouter();
     const { IdSkp } = useParams();
     const { data, setData, loading } = useFetchData(getData);
@@ -82,10 +83,12 @@ const page = () => {
                                 );
                             case 'rejected':
                                 return (
-                                    <Tag color="red" className="capitalize">
-                                        {record.status}
-                                        {record.keterangan}
-                                    </Tag>
+                                    <div className='flex flex-col gap-y-2'>
+                                        <Tag color="red" className="capitalize w-fit">
+                                            {record.status}
+                                        </Tag>
+                                        "{record.keterangan}"
+                                    </div>
                                 );
                             case 'submitted':
                                 return (
@@ -118,21 +121,31 @@ const page = () => {
                     </Button>
                     {record.status !== 'approved' && record.status !== 'submitted' ? (
                         <Button
-                            onClick={async () => {
-                                const data = { ...record, status: 'submitted' };
-                                console.log(data);
+                            onClick={() => {
+                                confirm({
+                                    title: `Setujui laporan aktivitas ini?`,
+                                    icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                    content: <span>Klik ok untuk verifikasi SKP ini</span>,
+                                    async onOk() {
+                                        const data = { ...record, status: 'submitted' };
+                                        console.log(data);
 
-                                const res = await update(data._id, data);
-                                if (res.ok) {
-                                    fetchData();
-                                }
+                                        const res = await update(data._id, data);
+                                        if (res.ok) {
+                                            fetchData();
+                                        }
+                                    },
+                                    onCancel() {
+                                        console.log('Cancel');
+                                    }
+                                })
                             }}
                             size="middle"
                         >
                             Ajukan SKP
                         </Button>
                     ) : null}
-                </Space>
+                </Space >
             )
         }
     ];

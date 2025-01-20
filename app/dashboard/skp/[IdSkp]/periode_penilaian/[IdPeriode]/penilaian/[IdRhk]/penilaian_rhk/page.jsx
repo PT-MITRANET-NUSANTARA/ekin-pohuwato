@@ -18,8 +18,8 @@ const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
 
@@ -192,6 +192,7 @@ const page = () => {
         }
     };
 
+    console.log('atasan', bawahan)
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -226,7 +227,7 @@ const page = () => {
                                         formFields: ratingFileds,
                                         onSubmit: async (value) => {
                                             console.log(data);
-                                            
+
                                             const dt = {
                                                 ...data,
                                                 hasil: {
@@ -237,7 +238,7 @@ const page = () => {
 
                                             const res = await update(data._id, dt);
                                             console.log(res);
-                                            
+
                                             if (res.ok) {
                                                 setModal({
                                                     trigger: false,
@@ -323,13 +324,13 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nama</span>
                                 <p color="blue" className="capitalize">
-                                    {atasan?.nama_asn}
+                                    {bawahan?.unor?.atasan?.asn?.nama_atasan}
                                 </p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    {atasan?.id_asn}
+                                    {bawahan?.unor?.atasan?.asn?.nip_atasan}
                                 </p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
@@ -340,13 +341,13 @@ const page = () => {
                             </div> */}
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jabatan</span>
-                                <p className="text-right capitalize"> {atasan?.nama_jabatan}</p>
+                                <p className="text-right capitalize"> {bawahan?.unor?.atasan?.unor_jabatan}</p>
                             </div>
                             <div className="flex justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
                                 <div className="flex flex-col gap-y-2 text-right items-end">
-                                    <p>{atasan?.unor.nama}</p>
-                                    <small>ID : {atasan?.unor.id}</small>
+                                    <p>{bawahan?.unor?.atasan?.unor_nama}</p>
+                                    <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
                                 </div>
                             </div>
                         </div>
@@ -604,7 +605,37 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{data?.hasil ? data.hasil[IdPeriode] : ''}</td>
+                            <td colSpan={4}>{data?.hasil ? (() => {
+                                const hasil = data.hasil[IdPeriode];
+                                switch (hasil) {
+                                    case 2:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p>Sesuai ekspektasi</p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p>Diatas ekspektasi</p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p>Dibawah ekspektasi</p>
+                                            </div>
+                                        );
+                                    default:
+                                        return hasil || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -637,11 +668,97 @@ const page = () => {
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={3}>{data?.perilaku ? data.perilaku[IdPeriode] : ''}</td>
+                            <td colSpan={3}>{data?.perilaku ? (() => {
+                                const perilaku = data.perilaku[IdPeriode];
+                                switch (perilaku) {
+                                    case 2:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p>Sesuai ekspektasi</p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p>Diatas ekspektasi</p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p>Dibawah ekspektasi</p>
+                                            </div>
+                                        );
+                                    default:
+                                        return perilaku || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={3}>{data?.predikat ? data.predikat[IdPeriode] : ''}</td>
+                            <td colSpan={3}>{data?.predikat ? (() => {
+                                const predikat = data.predikat[IdPeriode];
+                                switch (predikat) {
+                                    case 5:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p>Istimewah</p>
+                                            </div>
+                                        );
+                                    case 4:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p>Baik</p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p><s>Kurang</s></p>
+                                                <p>Butuh Perbaikan</p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 2:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p><s>Sangat Kurang</s></p>
+                                                <p>Kurang</p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='flex flex-col gap-2'>
+                                                <p>Sangat Kurang</p>
+                                                <p><s>Kurang</s></p>
+                                                <p><s>Butuh Perbaikan</s></p>
+                                                <p><s>Baik</s></p>
+                                                <p><s>Istimewah</s></p>
+                                            </div>
+                                        );
+                                    default:
+                                        return predikat || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                     </tbody>
                 </table>

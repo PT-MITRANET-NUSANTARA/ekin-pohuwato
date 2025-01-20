@@ -19,7 +19,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
 
     const { data, setData } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
@@ -233,6 +233,42 @@ const page = () => {
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
+
+    const evaluasiKinerjaPrintFields = [
+        {
+            label: 'Tanggal Pegawai',
+            name: 'tanggal_pegawai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tanggal pegawai pertama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Lokasi Pegawai',
+            name: 'lokasi_pegawai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi pertama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Pejabat Penilai Kinerja',
+            name: 'tanggal_penilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal Penilai Kinerja wajib di isi'
+                }
+            ]
+        },
+    ]
     return (
         <div className="flex flex-col gap-y-4">
             <Breadcrumb
@@ -282,19 +318,12 @@ const page = () => {
                         <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
                         </Button>
-                        <Button
-                            type="default"
-                            icon={<PrinterOutlined />}
-                            onClick={() => {
-                                router.push('/document/1/evaluasi_kinerja');
-                            }}
-                        >
+                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({trigger: true, formFields: evaluasiKinerjaPrintFields, title: "Cetak Dokumen Evaluasi Kinerja", onSubmit: () => {}})}>
                             Cetak Dokumen Evaluasi Kinerja
                         </Button>
                         <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
                             Lihat Kurva
                         </Button>
-                        <Button type="primary">Pembinaan Bawahan</Button>
                     </div>
                     <DataTable columns={Column} data={bawahan} loading={loading} />
                     <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
