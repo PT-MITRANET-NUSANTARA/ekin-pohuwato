@@ -16,20 +16,27 @@ const { Title } = Typography;
 const page = () => {
     const { IdSkp } = useParams();
     const router = useRouter();
+    const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (data) {
+            fetchData();
+        }
+    }, [data]);
 
     const fetchData = async () => {
         try {
+            const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdSkp);
+            const selectedJabatan = jabatan.mapData.data[0];
+            console.log(skp.data.rhks);
+
             setSkp(skp.data);
-            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
+            setJabatan(selectedJabatan);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -40,9 +47,6 @@ const page = () => {
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
-
-    console.log(jabatan);
-
 
     const cetakSkpFields = [
         {
@@ -64,22 +68,6 @@ const page = () => {
                 {
                     required: true,
                     message: 'Field lokasi wajib diisi'
-                }
-            ]
-        },
-       
-    ];
-
-
-    const lampiranFields = [
-        {
-            label: 'Isi Lampiran',
-            name: 'isi_lampiran',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field Isi Lampiran wajib diisi'
                 }
             ]
         },
@@ -125,7 +113,7 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Sasaran Kinerja Pegawai
                         </Title>
-                        <div className="flex items-center gap-x-2">
+                        {/* <div className="flex items-center gap-x-2">
                             <Button type="primary" icon={<UserOutlined />} onClick={() => router.push('/dashboard/profil')}>
                                 Lihat Data Profil
                             </Button>
@@ -135,7 +123,7 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: `Cetak Rencana SKP`, type: 'create', formFields: cetakSkpFields, onSubmit: cetakSkpSubmit })}>
                                 Cetak
                             </Button>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 {loadingData ? (
@@ -210,13 +198,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.userId}
+                                            {data?.user.nama}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.userId}
+                                            {data?.user.nipBaru}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -332,7 +320,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
                                                 Edit
                                             </Button>
                                         </div>
@@ -346,7 +334,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Skema Pertanggung Jawaban</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}
@@ -360,7 +348,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Konsekuensi</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}

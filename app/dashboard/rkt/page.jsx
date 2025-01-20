@@ -120,6 +120,7 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
+            
             width: '5%'
         },
         {
@@ -128,6 +129,16 @@ const page = () => {
             key: 'output',
             render: (_, record) => (
                 <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
+                    Info
+                </Button>
+            )
+        },
+        {
+            title: 'Input',
+            dataIndex: 'input',
+            key: 'input',
+            render: (_, record) => (
+                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
                     Info
                 </Button>
             )

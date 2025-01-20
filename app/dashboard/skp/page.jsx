@@ -210,36 +210,7 @@ const page = () => {
                 }
             ]
         },
-        {
-            id: 1,
-            name: 'periode rkt',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode mulai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode akhir',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        }
+        
     ];
 
     const handleClose = () => {
@@ -275,7 +246,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full mb-4">
-                        <FilterField fields={filterFileds}></FilterField>
+                        {/* <FilterField fields={filterFileds}></FilterField> */}
                     </div>
                     {loadingData ? (
                         <Skeleton active />

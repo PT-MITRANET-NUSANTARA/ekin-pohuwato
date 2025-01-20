@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Tag, Typography } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Modal, Space, Tag, Typography } from 'antd';
+import { CheckCircleFilled, CheckOutlined, CloseOutlined, XOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
@@ -9,12 +9,15 @@ import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAll } from '@/controller/SKPController';
+import { useRouter } from 'next/navigation';
 import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
 const page = () => {
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const { confirm } = Modal;
+    const router = useRouter()
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -41,7 +44,7 @@ const page = () => {
             });
 
             console.log(filteredUsers);
-            
+
             setData(filteredUsers);
             setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
@@ -67,13 +70,13 @@ const page = () => {
             title: 'NIP',
             dataIndex: 'jabatan',
             key: 'nama_skp',
-            render : (record) => record[record.length - 1].userId
+            render: (record) => record[record.length - 1].userId
         },
         {
             title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'nama_skp',
-            render : (record) => record[record.length - 1].nama_jabatan,
+            render: (record) => record[record.length - 1].nama_jabatan,
         },
         {
             title: 'Unor',
@@ -86,7 +89,7 @@ const page = () => {
             dataIndex: 'periode_skp',
             key: 'periode_skp',
             render: (_, record) => dateFormatter(record.periode_awal) + ' - ' + dateFormatter(record.periode_akhir)
-             
+
         },
         {
             title: 'Pendekatan',
@@ -143,14 +146,31 @@ const page = () => {
                 <Space size="small">
                     <Button
                         onClick={() => {
-                            // verifiy logic goes here
+                            router.push(window.location.pathname + `/${record.id}`);
+                        }}
+                        size="middle"
+                    >
+                        Detail
+                    </Button>
+                    <Button
+                        icon={<CheckOutlined />}
+                        onClick={() => {
+                            confirm({
+                                title: `Setujui laporan aktivitas ini?`,
+                                icon: <CheckCircleFilled style={{ color: '#3b82f6' }} />,
+                                content: <span>Klik ok untuk verifikasi SKP ini</span>,
+                                async onOk() {
+                                    // logic on ok
+                                },
+                                onCancel() {
+                                    console.log('Cancel');
+                                }
+                            });
                         }}
                         size="middle"
                         variant="outlined"
                         color="primary"
-                        icon={<CheckOutlined />}
                     />
-
                     <Button
                         onClick={() =>
                             setModal({
@@ -249,7 +269,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full">
-                        <FilterField fields={filterFileds}></FilterField>
+                        {/* <FilterField fields={filterFileds}></FilterField> */}
                     </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
