@@ -109,10 +109,10 @@ export const DashboardLink = [
                 label: 'Verifikasi SKP',
                 path: '/dashboard/verifikasi_skp'
             },
-            {
-                label: 'JPT',
-                path: '/dashboard/jpt'
-            }
+            // {
+            //     label: 'JPT',
+            //     path: '/dashboard/jpt'
+            // }
         ]
     },
     {
@@ -127,10 +127,10 @@ export const DashboardLink = [
                 label: 'UMPEG Settings',
                 path: '/dashboard/umpeg_settings'
             },
-            {
-                label: 'Web Settings',
-                path: '/dashboard/web_settings'
-            }
+            // {
+            //     label: 'Web Settings',
+            //     path: '/dashboard/web_settings'
+            // }
         ]
     },
 ];

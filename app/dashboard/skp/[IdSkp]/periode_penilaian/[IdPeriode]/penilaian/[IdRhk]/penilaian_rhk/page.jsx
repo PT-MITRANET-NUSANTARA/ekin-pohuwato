@@ -18,8 +18,8 @@ const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
 
@@ -222,7 +222,7 @@ const page = () => {
                                         formFields: ratingFileds,
                                         onSubmit: async (value) => {
                                             console.log(data);
-                                            
+
                                             const dt = {
                                                 ...data,
                                                 hasil: {
@@ -233,7 +233,7 @@ const page = () => {
 
                                             const res = await update(data._id, dt);
                                             console.log(res);
-                                            
+
                                             if (res.ok) {
                                                 setModal({
                                                     trigger: false,
@@ -600,7 +600,37 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{data?.hasil ? data.hasil[IdPeriode] : ''}</td>
+                            <td colSpan={4}>{data?.hasil ? (() => {
+                                const hasil = data.hasil[IdPeriode];
+                                switch (hasil) {
+                                    case 2:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p>Sesuai ekspektasi</p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 3:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p>Diatas ekspektasi</p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p><s>Dibawah ekspektasi</s></p>
+                                            </div>
+                                        );
+                                    case 1:
+                                        return (
+                                            <div className='inline-flex gap-2'>
+                                                <p><s>Diatas ekspektasi</s></p>
+                                                <p><s>Sesuai ekspektasi</s></p>
+                                                <p>Dibawah ekspektasi</p>
+                                            </div>
+                                        );
+                                    default:
+                                        return hasil || '';
+                                }
+                            })() : ''}</td>
                         </tr>
                     </tbody>
                 </table>
