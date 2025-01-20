@@ -9,6 +9,7 @@ import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAll } from '@/controller/SKPController';
+import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
 
@@ -21,29 +22,34 @@ const page = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-            if (user) {
-                const updatedFilters = {
-                    ...pagination.filters,
-                    "jabatan.unor.induk.id": user.jabatan?.unor?.induk
-                };
-                setPagination({ ...pagination, filters: updatedFilters });
-                fetchData();
-            }
-        }, [user, pagination.page, pagination.limit]);
-
-            const fetchData = async () => {
-                try {
-                    const data = await getAll(pagination.page, pagination.limit, pagination.filters);
-                    console.log(data);
-                    
-                    setData(data.data.data);
-                    setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-                } catch (error) {
-                    console.log(error);
-                } finally {
-                    setLoading(false);
-                }
+        if (user) {
+            const updatedFilters = {
+                ...pagination.filters,
+                'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk
             };
+            setPagination({ ...pagination, filters: updatedFilters });
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
+
+    const fetchData = async () => {
+        try {
+            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const filteredUsers = data.data.data.filter((user) => {
+                const lastJabatan = data.data.data.jabatan?.at(-1); // Ambil elemen terakhir dengan at(-1)
+                return lastJabatan?.unor?.induk?.id === user.jabatan?.unor?.induk;
+            });
+
+            console.log(filteredUsers);
+            
+            setData(filteredUsers);
+            setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const Column = [
         {
@@ -53,25 +59,39 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Nama SKP',
-            dataIndex: 'nama_skp',
+            title: 'Nama Asn',
+            dataIndex: 'user_id',
             key: 'nama_skp'
+        },
+        {
+            title: 'NIP',
+            dataIndex: 'jabatan',
+            key: 'nama_skp',
+            render : (record) => record[record.length - 1].userId
+        },
+        {
+            title: 'Jabatan',
+            dataIndex: 'jabatan',
+            key: 'nama_skp',
+            render : (record) => record[record.length - 1].nama_jabatan,
         },
         {
             title: 'Periode SKP',
             dataIndex: 'periode_skp',
-            key: 'periode_skp'
+            key: 'periode_skp',
+            render: (_, record) => dateFormatter(record.periode_awal) + ' - ' + dateFormatter(record.periode_akhir)
+             
         },
         {
-            title: 'Data Diri',
-            dataIndex: 'datadiri',
+            title: 'Pendekatan',
+            dataIndex: 'pendekatan',
             key: 'datadiri'
         },
-        {
-            title: 'Atasan',
-            dataIndex: 'atasan',
-            key: 'atasan'
-        },
+        // {
+        //     title: 'Atasan',
+        //     dataIndex: 'atasan',
+        //     key: 'atasan'
+        // },
         {
             title: 'Status',
             dataIndex: 'status',
@@ -80,21 +100,27 @@ const page = () => {
                 <>
                     {(() => {
                         switch (status) {
-                            case 'terima':
+                            case 'approved':
                                 return (
                                     <Tag color="blue" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'tolak':
+                            case 'rejected':
                                 return (
                                     <Tag color="red" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'periksa':
+                            case 'submitted':
                                 return (
                                     <Tag color="yellow" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'draft':
+                                return (
+                                    <Tag color="blue" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
@@ -181,7 +207,7 @@ const page = () => {
                     value: 'sample'
                 }
             ]
-        },
+        }
     ];
 
     const handleClose = () => {
@@ -217,8 +243,8 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full">
-                            <FilterField fields={filterFileds}></FilterField>
-                        </div>
+                        <FilterField fields={filterFileds}></FilterField>
+                    </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
                     </div>
