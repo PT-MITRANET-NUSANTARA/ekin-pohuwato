@@ -47,6 +47,10 @@ const page = () => {
 
             setData(skp.data);
             setBawahan(bawahan);
+            const periode = await getPenilaian(IdPeriode);
+
+            setPeriode(periode.data)
+
             setAtasan(atasan);
         } catch (error) {
             console.log(error);
@@ -532,7 +536,7 @@ const page = () => {
                                                     item.harians?.filter((h) => {
                                                         // Convert item.date and periode.endDateTime to Day.js objects
                                                         const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                                        const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
+                                                        const endDateTime = dayjs(periode.periodeEnd); // Convert endDateTime to Day.js object
 
                                                         // Check if h.date is less than or equal to endDateTime
                                                         return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
