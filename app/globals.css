@@ -55,6 +55,12 @@
         
     }
 
-    
+    b.turncate,
+    p.turncate {
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+    }
 
 }

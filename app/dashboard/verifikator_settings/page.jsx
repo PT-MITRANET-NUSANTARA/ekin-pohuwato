@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Typography,Tag } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, FilterField } from '@/components';
+import { Alert, Breadcrumb, Button, Card, Space, Typography, Tag } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
 import { store, update, getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
@@ -44,7 +44,7 @@ const page = () => {
 
 
     console.log(unit);
-    
+
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -110,14 +110,12 @@ const page = () => {
             title: 'Unit',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
-            sorter: (a, b) => a.nama_unor.length - b.nama_unor.length,
             searchable: true
         },
         {
             title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'jabatan',
-            sorter: (a, b) => a.jabatan.length - b.jabatan.length,
             render: (_, record) => {
                 const matchingItem = Verifikasi?.find((item) => item.unit.id_sapk === record.id_sapk);
 
@@ -168,6 +166,17 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Nama Unor',
+            name: 'name',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field name wajib di isi'
+                }
+            ],
+        },
+        {
             label: 'Jabatan',
             name: 'role',
             type: 'select',
@@ -177,14 +186,84 @@ const page = () => {
                     message: 'Field role wajib di isi'
                 }
             ],
-            options: selectedUnit
-        }
+            options: [
+                {
+                    label: "texas",
+                    value: 'texas'
+                },
+                {
+                    label: "manhattan",
+                    value: 'manhattan'
+                }
+            ],
+            mode: 'multiple',
+        },
+
     ];
+
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
 
     const filterFileds = [
         {
-            id: 1,
-            name: 'unit',
+            label: 'Status',
+            name: 'status',
+            type: 'select',
+            filter: 'eq',
             options: [
                 {
                     label: 'sample',
@@ -210,31 +289,31 @@ const page = () => {
                     }
                 ]}
             />
-            {/* {loading ? (
+            {loading ? (
                 <DataLoading loadingData={loading} />
-            ) : ( */}
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Admin Verifikator
-                        </Title>
-                        <div>
-                            {/* <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Admin Verifikator
+                            </Title>
+                            <div>
+                                <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                     Tambah
-                                </Button> */}
+                                </Button>
+                            </div>
                         </div>
+                        <div className="w-full mb-4">
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={unit} loading={loading} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                     </div>
-                    <div className="w-full mb-4">
-                        <FilterField fields={filterFileds}></FilterField>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={unit} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
-                </div>
-            </Card>
-            {/* )} */}
+                </Card>
+            )}
         </div>
     );
 };

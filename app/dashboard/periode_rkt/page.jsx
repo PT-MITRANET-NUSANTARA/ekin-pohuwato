@@ -17,7 +17,7 @@ import { dateFormatter } from '@/utils';
 import { getPerjanjianKinerja } from '@/controller/ReportController';
 const page = () => {
     const router = useRouter();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -106,6 +106,7 @@ const page = () => {
     };
 
     const customSubmit = async (values, type, id, formData) => {
+        setSubmitLoading(true)
         console.log(values);
         console.log(id);
         const res = await getById(id);
@@ -146,6 +147,7 @@ const page = () => {
         const pdfBlob = await getPerjanjianKinerja(query);
 
         console.log(pdfBlob);
+        setSubmitLoading(false)
 
         const url = window.URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
@@ -235,13 +237,12 @@ const page = () => {
             key: 'perjanjianKinerja',
             render: (_, record) => (
                 <>
-                    {console.log(record)}
                     <Space size="small">
                         <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
                         <Button
                             size="middle"
                             color="default"
-                            onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
+                            onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit, })}
                             icon={<DownloadOutlined />}
                         />
                         <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.perjanjianKinerja })} icon={<OrderedListOutlined />} />
