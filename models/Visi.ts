@@ -3,7 +3,7 @@ import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IVisi extends Document {
     name: string; // Name of the vision
-    periode: mongoose.Types.ObjectId;
+    // periode: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -22,11 +22,11 @@ const VisiSchema = new Schema<IVisi, VisiModel, IVisiMethods>(
             type: String,
             required: true
         },
-        periode: {
-            type: Schema.Types.ObjectId,
-            ref: 'Periode',
-            required: true
-        }
+        // periode: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: 'Periode',
+        //     required: true
+        // }
     },
     { timestamps: true }
 );

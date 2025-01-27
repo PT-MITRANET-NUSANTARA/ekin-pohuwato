@@ -6,7 +6,7 @@ import { createResponse } from '@/utils/api';
 
 const visiSchema = Joi.object({
     name: Joi.string().required().label('Nama Visi'),
-    periode: Joi.string().hex().length(24).required().label('Periode'),
+    // periode: Joi.string().hex().length(24).required().label('Periode'),
     __v: Joi.optional(),
     _id: Joi.optional(),
     createdAt: Joi.date().optional(),

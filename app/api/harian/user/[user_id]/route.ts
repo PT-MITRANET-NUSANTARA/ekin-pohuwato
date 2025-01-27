@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Harian from '../../../models/Harian';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import Harian from '@/models/Harian';
 
 const harianSchema = Joi.object({
     date: Joi.date().required().label('Tanggal'),
@@ -15,11 +15,11 @@ const harianSchema = Joi.object({
     files: Joi.array().items(Joi.object()).label('Berkas'),
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
+    unit: Joi.object().required().label('Unit'),
     isSKP: Joi.boolean().optional(),
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
-    unit: Joi.object().required().label('Unit'),
     msg: Joi.object({
         status: Joi.string().optional().label('status msg'),
         message: Joi.string().optional().allow('').label('message msg')
@@ -46,43 +46,33 @@ function validateHarianData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { user_id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-        let harian;
+        const { user_id } = params;
+        const unit_id = req.nextUrl.searchParams.get('unit_id');
+        const date = req.nextUrl.searchParams.get('date');
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            harian = await Harian.find({});
-        } else {
-            harian = await Harian.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        const populateOptions = {
+            path: 'rhk',
+            populate: {
+                path: 'skp',
+                populate: {
+                    path: 'skp'
+                }
+            }
+        };
+
+        const filter:any = { user_id };
+        if (unit_id) filter['unit.id'] = unit_id;
+        if (date) filter.date = date;
+
+        const harian = await Harian.find(filter).populate(populateOptions);
 
         return NextResponse.json(createResponse(200, 'Success', harian, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch Harian data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-    try {
-        const body = await req.json();
-
-        const errors = validateHarianData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newHarian = new Harian(body);
-        await newHarian.save();
-        return NextResponse.json(createResponse(201, 'Success', newHarian, true));
-    } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create Harian' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Absence from '../../../models/Absence';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import Absence from '@/models/Absence';
 
 // Schema validasi untuk Absence
 const absenceSchema = Joi.object({
@@ -27,20 +27,15 @@ function validateAbsenceData(data: any) {
 }
 
 // API Handler GET untuk Absence
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
-        let absences;
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { id } = params;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            absences = await Absence.find({});
-        } else {
-            absences = await Absence.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        let absences;
+
+        absences = await Absence.findById(id);
 
         return NextResponse.json(createResponse(200, 'Success', absences, true));
     } catch (error) {
@@ -67,5 +62,53 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Absence' }, { status: 500 });
+    }
+}
+
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+    await dbConnect();
+
+    try {
+        const { id } = params;
+        const body = await req.json();
+
+        const errors = validateAbsenceData(body);
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+
+        const updateAbsence = await Absence.findOneAndUpdate({ _id: id }, body, { new: true });
+
+        if (!updateAbsence) {
+            return NextResponse.json(createResponse(404, 'Periode RKT not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', updateAbsence, true));
+    } catch (error) {
+        console.error('PUT error:', error);
+        return NextResponse.json({ error: 'Failed to update Periode RKT' }, { status: 500 });
+    }
+}
+
+// DELETE method to delete PeriodeRKT
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+
+    await dbConnect();
+
+    try {
+        const { id } = params;
+
+
+        const deletedAbsence = await Absence.findById(id);
+        if (!deletedAbsence) {
+            return NextResponse.json(createResponse(404, 'Periode RKT not found', null));
+        }
+
+        await deletedAbsence.cascadeDelete();
+
+        return NextResponse.json(createResponse(200, 'Success', deletedAbsence, true));
+    } catch (error) {
+        console.error('DELETE error:', error);
+        return NextResponse.json({ error: 'Failed to delete Periode RKT' }, { status: 500 });
     }
 }
