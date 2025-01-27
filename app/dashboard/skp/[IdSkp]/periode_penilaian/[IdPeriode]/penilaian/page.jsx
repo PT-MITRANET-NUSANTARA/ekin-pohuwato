@@ -207,6 +207,9 @@ const page = () => {
                                     periodeEnd: dateFormatter(periode.data.periodeEnd)
                                 };
 
+                                console.log(query);
+                                
+
                                 const pdfBlob = await getHasilSkp(query);
                                 console.log(pdfBlob);
 
