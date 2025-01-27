@@ -1,8 +1,8 @@
 import { apiRequest } from "@/utils/apiRequest";
-
+const path:string = 'visi'
 // Fetch a single Visi record by ID
 export const getById = async (id: string) => {
-    const response = await apiRequest(`/api/visi?id=${id}`, {
+    const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'GET',
     });
     return response;
@@ -11,7 +11,7 @@ export const getById = async (id: string) => {
 // Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
-    const url = `/api/visi?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
     const response = await apiRequest(url, {
         method: 'GET',
     });
@@ -20,7 +20,7 @@ export const getAll = async (page: number, limit: number, filters: Object) => {
 
 // Create a new Visi record
 export const store = async (data: any) => {
-    const response = await apiRequest('/api/visi', {
+    const response = await apiRequest(`/api/${path}`, {
         method: 'POST',
         body: data,
     });
@@ -29,7 +29,7 @@ export const store = async (data: any) => {
 
 // Update an existing Visi record by ID
 export const update = async (id: string, data: any) => {
-    const response = await apiRequest(`/api/visi?id=${id}`, {
+    const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'PUT',
         body: data,
     });
@@ -38,7 +38,7 @@ export const update = async (id: string, data: any) => {
 
 // Delete a Visi record by ID
 export const destroy = async (id: string) => {
-    const response = await apiRequest(`/api/visi?id=${id}`, {
+    const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'DELETE',
     });
     return response;

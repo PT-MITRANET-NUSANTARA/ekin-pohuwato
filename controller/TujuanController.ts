@@ -1,46 +1,54 @@
-import { apiRequest } from "@/utils/apiRequest";
-
-// Fetch a single Tujuan record by ID
+import { apiRequest } from '@/utils/apiRequest';
+const path: string = 'tujuan';
+// Fetch a single Visi record by ID
 export const getById = async (id: string) => {
-    const response = await apiRequest(`/api/tujuan?id=${id}`, {
-        method: 'GET',
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'GET'
     });
     return response;
-}
+};
 
-// Fetch all Tujuan records
+export const getByUnitId = async (unit_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/unit/${unit_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+// Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
-    const url = `/api/tujuan?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
     const response = await apiRequest(url, {
-        method: 'GET',
+        method: 'GET'
     });
-
     return response;
-}
+};
 
-// Create a new Tujuan record
+// Create a new Visi record
 export const store = async (data: any) => {
-    const response = await apiRequest('/api/tujuan', {
+    const response = await apiRequest(`/api/${path}`, {
         method: 'POST',
-        body: data,
+        body: data
     });
     return response;
-}
+};
 
-// Update an existing Tujuan record by ID
+// Update an existing Visi record by ID
 export const update = async (id: string, data: any) => {
-    const response = await apiRequest(`/api/tujuan?id=${id}`, {
+    const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'PUT',
-        body: data,
+        body: data
     });
     return response;
-}
+};
 
-// Delete a Tujuan record by ID
+// Delete a Visi record by ID
 export const destroy = async (id: string) => {
-    const response = await apiRequest(`/api/tujuan?id=${id}`, {
-        method: 'DELETE',
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'DELETE'
     });
     return response;
-}
+};

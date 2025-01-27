@@ -29,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     await dbConnect();
     try {
         const { id } = params;
-        const visi = await Visi.findOne({ _id: id }).populate('periode');
+        const visi = await Visi.findOne({ _id: id });
 
         if (!visi) {
             return NextResponse.json(createResponse(404, 'Visi not found', null));

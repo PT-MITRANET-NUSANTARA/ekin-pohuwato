@@ -13,6 +13,7 @@ const periodeRKTSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+    renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     try {
         const { id } = params;
-        const periiodeRkt = await PeriodeRKT.findOne({ _id: id }).populate({
+        const periiodeRkt = await PeriodeRKT.findById(id).populate({
             path: 'RKTS',
             populate: {
                 path: 'subKegiatan',
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                     }
                 }
             }
-        });
+        }).populate('renstra');
 
         return NextResponse.json(createResponse(200, 'Success', periiodeRkt, true));
     } catch (error) {
@@ -62,7 +63,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }
-
 
 // PUT method to update PeriodeRKT
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
@@ -92,12 +92,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
 // DELETE method to delete PeriodeRKT
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-
     await dbConnect();
 
     try {
         const { id } = params;
-
 
         const deletedPeriodeRKT = await PeriodeRKT.findById(id);
         if (!deletedPeriodeRKT) {

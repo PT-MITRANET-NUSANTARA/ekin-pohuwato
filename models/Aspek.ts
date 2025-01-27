@@ -38,7 +38,7 @@ const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
   },
   indikator: {
     type: String,
-    required: true
+    required: false
   },
   feedback: {
     type: Object,
@@ -47,7 +47,8 @@ const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
   },
   target_tahunan: {
     type: Object,
-    required: true
+    required: false,
+    default: {}
   },
   desc: {
     type: String,

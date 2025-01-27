@@ -49,9 +49,27 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
 
     try {
         const { unit_id } = params;
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let kegiatans;
 
         kegiatans = await Kegiatan.find({ 'unit.id': unit_id });
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            kegiatans = await Kegiatan.find({ 'unit.id': unit_id }).populate({
+                path: 'program',
+                populate: {
+                    path: 'tujuan',
+                    populate: {
+                        path: 'renstra'
+                    }
+                }
+            });
+        } else {
+            const f = JSON.parse(filters as string);
+            f['unit.id'] = unit_id;
+            kegiatans = await Kegiatan.getAll(Number(page), Number(limit), f);
+        }
 
         return NextResponse.json(createResponse(200, 'Success', kegiatans, true));
     } catch (error) {

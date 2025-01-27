@@ -3,6 +3,7 @@ import Visi from '@/models/Visi';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const visiSchema = Joi.object({
     name: Joi.string().required().label('Nama Visi'),
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
 
         let visis;
         if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
-            visis = await Visi.find({}).populate('periode');
+            visis = await Visi.find(getFilterQuery(filters));
         } else {
             visis = await Visi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }

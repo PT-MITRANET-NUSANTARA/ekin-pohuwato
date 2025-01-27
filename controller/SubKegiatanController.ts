@@ -1,55 +1,54 @@
-import { apiRequest } from "@/utils/apiRequest";
-
-// Fetch a single SubKegiatan record by ID
+import { apiRequest } from '@/utils/apiRequest';
+const path: string = 'subkegiatan';
+// Fetch a single Visi record by ID
 export const getById = async (id: string) => {
-    const response = await apiRequest(`/api/subkegiatan?id=${id}`, {
-        method: 'GET',
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'GET'
     });
     return response;
-}
+};
 
-export const getByKegiatanId = async (id: string) => {
-    const response = await apiRequest(`/api/kegiatan`, {
-        method: 'GET',
-        headers: {
-            'kegiatan-id': id,
-        }
+export const getByUnitId = async (unit_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/unit/${unit_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
     });
     return response;
-}
+};
 
-// Fetch all SubKegiatan records
+// Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
-    const url = `/api/subkegiatan?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
     const response = await apiRequest(url, {
-        method: 'GET',
+        method: 'GET'
     });
-
     return response;
-}
-// Create a new SubKegiatan record
+};
+
+// Create a new Visi record
 export const store = async (data: any) => {
-    const response = await apiRequest('/api/subkegiatan', {
+    const response = await apiRequest(`/api/${path}`, {
         method: 'POST',
-        body: data,
+        body: data
     });
     return response;
-}
+};
 
-// Update an existing SubKegiatan record by ID
+// Update an existing Visi record by ID
 export const update = async (id: string, data: any) => {
-    const response = await apiRequest(`/api/subkegiatan?id=${id}`, {
+    const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'PUT',
-        body: data,
+        body: data
     });
     return response;
-}
+};
 
-// Delete a SubKegiatan record by ID
+// Delete a Visi record by ID
 export const destroy = async (id: string) => {
-    const response = await apiRequest(`/api/subkegiatan?id=${id}`, {
-        method: 'DELETE',
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'DELETE'
     });
     return response;
-}
+};

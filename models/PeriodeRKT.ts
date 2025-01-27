@@ -7,6 +7,8 @@ interface IPeriodeRKT extends Document {
     createdAt?: Date;
     perjanjianKinerja: [string];
     unit: Object;
+        renstra: mongoose.Types.ObjectId 
+    
     updatedAt?: Date;
 }
 
@@ -35,7 +37,12 @@ const PeriodeRKTSchema = new Schema<IPeriodeRKT, PeriodeRKTModel, IPeriodeRKTMet
 
         perjanjianKinerja: {
             type: [Object]
-        }
+        },
+        renstra: {
+            type: Schema.Types.ObjectId,
+            ref: 'Renstra',
+            required: true,
+        },
     },
     {
         timestamps: true, // Automatically manage createdAt and updatedAt fields
@@ -70,6 +77,7 @@ PeriodeRKTSchema.static('getAll', async function getAll(page: number = 1, limit:
         query
             .skip(skip)
             .limit(limit)
+            .populate('renstra')
             ,
         this.countDocuments(buildFilterQuery(filters))
     ]);
@@ -106,6 +114,6 @@ PeriodeRKTSchema.virtual('TPPS', {
     justOne: false
 });
 
-const PeriodeRKT: PeriodeRKTModel = (mongoose.models.PeriodeRKT as PeriodeRKTModel) || mongoose.model<IPeriodeRKT, PeriodeRKTModel>('PeriodeRKT', PeriodeRKTSchema);
+const PeriodeRKT: PeriodeRKTModel = mongoose.models.PeriodeRKT as PeriodeRKTModel || mongoose.model<IPeriodeRKT, PeriodeRKTModel>('PeriodeRKT', PeriodeRKTSchema);
 
 export default PeriodeRKT;

@@ -11,6 +11,8 @@ const periodeRKTSchema = Joi.object({
     perjanjianKinerja: Joi.array().label('Perjanjian Kinerja'),
     RKTS: Joi.optional(),
     __v: Joi.optional(),
+    renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
+
     _id: Joi.optional(),
     id: Joi.optional(),
     unit: Joi.object().required().label('Unit'),
@@ -40,9 +42,17 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
 
     try {
         const { unit_id } = params;
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let periodeRKTs;
-
-        periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id });
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id }).populate('renstra');
+        } else {
+            const f = JSON.parse(filters as string);
+            f['unit.id'] = unit_id;
+            periodeRKTs = await PeriodeRKT.getAll(Number(page), Number(limit), f);
+        }
 
         return NextResponse.json(createResponse(200, 'Success', periodeRKTs, true));
     } catch (error) {

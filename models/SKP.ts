@@ -18,7 +18,7 @@ interface ISKP {
     periode_awal: Date;
     periode_akhir: Date;
     skp?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
-    periodeRKT: mongoose.Schema.Types.ObjectId; // Reference to Renstra
+    periodeRKT: mongoose.Schema.Types.ObjectId[]; // Reference to Renstra
     rhks?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     perilakus?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     pendekatan: Pendekatan;
@@ -26,9 +26,9 @@ interface ISKP {
     status?: Status; // Optionalp
     keterangan?: string; // Optional
     jabatan: object[]; // Array of Object
-    hasil: Object,
-    predikat: Object,
-    perilaku: Object,
+    hasil: Object;
+    predikat: Object;
+    perilaku: Object;
     lampiran: Object;
     createdAt?: Date; // Automatically handled by Mongoose
     updatedAt?: Date; // Automatically handled by Mongoose
@@ -55,13 +55,8 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             required: false
         },
         periodeRKT: {
-            type: Schema.Types.ObjectId,
+            type: [Schema.Types.ObjectId],
             ref: 'PeriodeRKT',
-            required: true
-        },
-        renstra: {
-            type: Schema.Types.ObjectId,
-            ref: 'Renstra',
             required: true
         },
         jabatan: {
@@ -77,30 +72,22 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
         lampiran: {
             type: Object,
             required: false,
-            default: {
-                
-            }
+            default: {}
         },
         predikat: {
             type: Object,
-            required:false,
-            default:{
-
-            }
+            required: false,
+            default: {}
         },
         perilaku: {
             type: Object,
-            required:false,
-            default:{
-
-            }
+            required: false,
+            default: {}
         },
         hasil: {
-            type:Object,
-            required:false,
-            default:{
-
-            }
+            type: Object,
+            required: false,
+            default: {}
         },
         pendekatan: {
             type: String,
@@ -180,15 +167,13 @@ SKPSchema.method('cascadeDelete', async function cascadeDelete() {
         await p.cascadeDelete();
     });
 
-   
-
     await this.deleteOne();
 });
 
 SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters));
-    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp'), this.countDocuments(buildFilterQuery(filters))]);
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp').populate('periodeRKT'), this.countDocuments(buildFilterQuery(filters))]);
 
     return {
         data: results,

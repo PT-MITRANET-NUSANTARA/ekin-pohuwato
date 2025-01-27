@@ -22,6 +22,8 @@ const tujuanSchema = Joi.object({
     _id: Joi.optional(),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
+    unit: Joi.object().required().label('Unit'),
+
     name: Joi.string().required().label('Tujuan')
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
@@ -83,7 +85,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
 // DELETE method to remove an existing Tujuan record
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-
     await dbConnect();
 
     try {

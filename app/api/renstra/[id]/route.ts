@@ -14,6 +14,7 @@ const renstraSchema = Joi.object({
     _id: Joi.optional(),
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
+    visi: Joi.optional(),
     updatedAt: Joi.date().optional(),
     periode: Joi.optional()
 }).messages({

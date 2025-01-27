@@ -49,6 +49,8 @@ const rktSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+         renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
+    
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()

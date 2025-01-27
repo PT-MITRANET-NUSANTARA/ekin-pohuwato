@@ -3,6 +3,7 @@ import SubKegiatan from '../../../models/SubKegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const subKegiatanSchema = Joi.object({
     kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'),
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
         let subKegiatans;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            subKegiatans = await SubKegiatan.find({}).populate({
+            subKegiatans = await SubKegiatan.find(getFilterQuery(filters)).populate({
                 path: 'kegiatan',
                 populate: {
                     path: 'program',

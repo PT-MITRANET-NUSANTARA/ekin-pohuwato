@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SKP from '../../../models/SKP';
-import RHK from '../../../models/RHK';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
-import { perilaku, aspek } from '@/utils/blueprint';
+import { perilaku } from '@/utils/blueprint';
 import Perilaku from '@/models/Perilaku';
 import RKT from '@/models/RKT';
-import getFilterQuery from '@/utils/getFilterQuery';
-import Aspek from '@/models/Aspek';
+import SKP from '@/models/SKP';
+import RHK from '@/models/RHK';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -23,16 +21,17 @@ const skpSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
-    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     renstra: Joi.optional(),
+
+    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
     predikat: Joi.object().optional().label('Predikat'),
     hasil: Joi.object().optional().label('Hasil'),
     perilaku: Joi.object().optional().label('Perilaku'),
-    unit: Joi.object().required().label('Unit'),
     updatedAt: Joi.date().optional(),
     periodeRKT: Joi.array().items(Joi.optional()).optional().label('PeriodeRKT'),
+
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
@@ -64,91 +63,72 @@ function validateSKPData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
-        const skp_id = req.headers.get('skp-id');
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-        let skps;
+        const { id } = params;
 
-        if (skp_id) {
-            skps = await SKP.find({ skp: { $in: [skp_id] } });
-        } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                skps = await SKP.find(getFilterQuery(filters)).populate('skp').populate('periodeRKT');
-            } else {
-                skps = await SKP.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
-        }
+        const skp = await SKP.findById(id)
+            .populate('perilakus')
+            .populate({
+                path: 'rhks',
+                populate: [
+                    { path: 'rhk', populate: [{ path: 'rkt' }, { path: 'harians' }] }, // Populate 'rhk' dan 'rkt' di dalamnya
+                    { path: 'aspek' }, // Populate 'aspek'
+                    { path: 'harians' }, // Populate 'harians'
+                    { path: 'rkt' } // Populate 'rkt' secara langsung dari 'rhks'
+                ]
+            })
+            .populate('skp') // Populate 'skp'
+            .populate('penilaians'); // Populate 'penilaians'
 
-        return NextResponse.json(createResponse(200, 'Success', skps, true));
+        return NextResponse.json(createResponse(200, 'Success', skp, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch SKP data' }, { status: 500 });
     }
 }
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
-    try {
-        const skp = req.nextUrl.searchParams.get('skp');
 
+    try {
+        const { id } = params;
         const body = await req.json();
 
         const errors = validateSKPData(body);
-
         if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Validation Failed', errors));
+            return NextResponse.json(createResponse(400, 'Failed', errors));
+        }
+        const updatedSKP = await SKP.findOneAndUpdate({ _id: id }, body, { new: true });
+
+        if (!updatedSKP) {
+            return NextResponse.json(createResponse(404, 'SKP not found', null));
         }
 
-        const newSKP = new SKP(body);
-        await newSKP.save();
-        if (newSKP) {
-            for (const item of perilaku) {
-                const perilakuData = new Perilaku({
-                    skp: newSKP._id,
-                    name: item.name,
-                    isi: item.isi,
-                    espektasi: item.espektasi,
-                    feedback: item.feedback
-                });
-
-                await perilakuData.save();
-            }
-            if (skp || skp !== 'undefined') {
-                const rkts = await RKT.find({ periodeRKT: newSKP.periodeRKT });
-                for (const rkt of rkts) {
-                    const rhk = new RHK({
-                        skp: newSKP._id,
-                        rkt: rkt._id,
-                        jenis: 'utama',
-                        klasifikasi: 'organisasi',
-                        desc: rkt.name,
-                        status: 'approved',
-                        unit: body.unit
-                    });
-                    await rhk.save();
-
-                    for (const a of aspek[newSKP['pendekatan']]) {
-                        const newAspek = new Aspek({
-                            rhk: rhk._id,
-                            jenis: a.jenis,
-                            indikator: a.indikator,
-                            target_tahunan: a.target_tahunan
-                        });
-
-                        await newAspek.save();
-                    }
-                }
-            }
-        }
-
-        return NextResponse.json(createResponse(201, 'Success', newSKP, true));
+        return NextResponse.json(createResponse(200, 'Success', updatedSKP, true));
     } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
+        console.error('PUT error:', error); // Added error logging
+        return NextResponse.json({ error: 'Failed to update SKP' }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    await dbConnect();
+
+    try {
+        const { id } = params;
+
+        const deletedSKP = await SKP.findById(id);
+        if (!deletedSKP) {
+            return NextResponse.json(createResponse(404, 'SKP not found', null));
+        }
+        deletedSKP.cascadeDelete();
+
+        return NextResponse.json(createResponse(200, 'Success', deletedSKP, true));
+    } catch (error) {
+        console.error('DELETE error:', error); // Added error logging
+        return NextResponse.json({ error: 'Failed to delete SKP' }, { status: 500 });
     }
 }

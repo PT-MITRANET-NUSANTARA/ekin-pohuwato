@@ -161,42 +161,42 @@ const page = () => {
 
             width: '5%'
         },
-        {
-            title: 'Periode',
-            dataIndex: 'periode',
-            key: 'periode',
-            render: (_, record) => (
-                <>
-                    <Button
-                        onClick={() => {
-                            setInfoModal({
-                                title: 'Informasi Periode',
-                                trigger: true,
-                                type: 'desc',
-                                data: [
-                                    {
-                                        key: 'periode_start',
-                                        label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode.periode_start)
-                                    },
-                                    {
-                                        key: 'periode_end',
-                                        label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode.periode_end)
-                                    }
-                                ],
-                                isLoading: false,
-                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                            });
-                        }}
-                        icon={<SearchOutlined />}
-                    >
-                        Info
-                    </Button>
-                </>
-                // console.log(record)
-            )
-        },
+        // {
+        //     title: 'Periode',
+        //     dataIndex: 'periode',
+        //     key: 'periode',
+        //     render: (_, record) => (
+        //         <>
+        //             <Button
+        //                 onClick={() => {
+        //                     setInfoModal({
+        //                         title: 'Informasi Periode',
+        //                         trigger: true,
+        //                         type: 'desc',
+        //                         data: [
+        //                             {
+        //                                 key: 'periode_start',
+        //                                 label: 'Periode Mulai',
+        //                                 children: dateFormatter(record.periode.periode_start)
+        //                             },
+        //                             {
+        //                                 key: 'periode_end',
+        //                                 label: 'Periode Akhir',
+        //                                 children: dateFormatter(record.periode.periode_end)
+        //                             }
+        //                         ],
+        //                         isLoading: false,
+        //                         onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+        //                     });
+        //                 }}
+        //                 icon={<SearchOutlined />}
+        //             >
+        //                 Info
+        //             </Button>
+        //         </>
+        //         // console.log(record)
+        //     )
+        // },
         {
             title: 'Visi',
             dataIndex: 'name',
@@ -221,16 +221,16 @@ const page = () => {
                                         label: 'Visi',
                                         children: record.name
                                     },
-                                    {
-                                        key: 'periode_start',
-                                        label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode.periode_start)
-                                    },
-                                    {
-                                        key: 'periode_end',
-                                        label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode.periode_end)
-                                    }
+                                    // {
+                                    //     key: 'periode_start',
+                                    //     label: 'Periode Mulai',
+                                    //     children: dateFormatter(record.periode.periode_start)
+                                    // },
+                                    // {
+                                    //     key: 'periode_end',
+                                    //     label: 'Periode Akhir',
+                                    //     children: dateFormatter(record.periode.periode_end)
+                                    // }
                                 ],
                                 isLoading: false,
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
@@ -242,7 +242,7 @@ const page = () => {
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record, periode: record.periode._id }, title: `Edit Visi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record }, title: `Edit Visi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -251,7 +251,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record, periode: record.periode._id }, title: `Delete Visi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: visiFields, trigger: true, modalData: { ...record }, title: `Delete Visi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger
@@ -263,18 +263,18 @@ const page = () => {
     ];
 
     const visiFields = [
-        {
-            label: 'Periode',
-            name: 'periode',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode wajib di isi'
-                }
-            ],
-            options: periode?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
-        },
+        // {
+        //     label: 'Periode',
+        //     name: 'periode',
+        //     type: 'select',
+        //     rules: [
+        //         {
+        //             required: true,
+        //             message: 'Field periode wajib di isi'
+        //         }
+        //     ],
+        //     options: periode?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+        // },
         {
             label: 'Visi',
             name: 'name',

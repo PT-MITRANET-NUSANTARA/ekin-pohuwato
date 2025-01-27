@@ -4,6 +4,7 @@ import SubKegiatan from '@/models/SubKegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const kegiatanSchema = Joi.object({
     program: Joi.string().hex().length(24).required().label('Program'), // Mengasumsikan ini adalah referensi ObjectId
@@ -55,7 +56,7 @@ export async function GET(req: NextRequest) {
         let kegiatans;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            kegiatans = await Kegiatan.find({}).populate({
+            kegiatans = await Kegiatan.find(getFilterQuery(filters)).populate({
                 path: 'program',
                 populate: {
                     path: 'tujuan',

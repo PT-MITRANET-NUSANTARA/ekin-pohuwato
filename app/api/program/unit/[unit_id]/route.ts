@@ -50,10 +50,22 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
 
     try {
         const { unit_id } = params;
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let programs;
-
-        programs = await Program.find({ 'unit.id': unit_id });
-
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            programs = await Program.find({ 'unit.id': unit_id }).populate({
+                path: 'tujuan',
+                populate: {
+                    path: 'renstra'
+                }
+            });
+        } else {
+            const f = JSON.parse(filters as string);
+            f['unit.id'] = unit_id;
+            programs = await Program.getAll(Number(page), Number(limit), f);
+        }
         return NextResponse.json(createResponse(200, 'Success', programs, true));
     } catch (error) {
         console.error('GET error:', error);

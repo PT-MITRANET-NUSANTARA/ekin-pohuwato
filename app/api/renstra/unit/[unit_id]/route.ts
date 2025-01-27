@@ -39,9 +39,18 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
 
     try {
         const { unit_id } = params;
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let renstras;
 
-        renstras = await Renstra.find({ 'unit.id': unit_id });
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            renstras = await Renstra.find({ 'unit.id': unit_id });
+        } else {
+            const f = JSON.parse(filters as string);
+            f['unit.id'] = unit_id;
+            renstras = await Renstra.getAll(Number(page), Number(limit), f);
+        }
 
         return NextResponse.json(createResponse(200, 'Success', renstras, true));
     } catch (error) {

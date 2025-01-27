@@ -4,6 +4,7 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Misi from '@/models/Misi';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const misiSchema = Joi.object({
     name: Joi.string().required().label('Nama Misi'),
@@ -38,10 +39,11 @@ export async function GET(req: NextRequest) {
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
+        
         let misis;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            misis = await Misi.find({}).populate('visi'); // Populate the visi reference
+            misis = await Misi.find(getFilterQuery(filters)).populate('visi'); // Populate the visi reference
         } else {
             misis = await Misi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }

@@ -43,7 +43,7 @@ VisiSchema.static('getAll', async function getAll(page: number = 1, limit: numbe
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters))
     const [results, total] = await Promise.all([
-        query.skip(skip).limit(limit).populate('periode'),  
+        query.skip(skip).limit(limit),  
         this.countDocuments(buildFilterQuery(filters)), 
     ]);
 

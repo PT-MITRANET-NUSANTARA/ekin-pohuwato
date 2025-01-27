@@ -4,6 +4,7 @@ import Kegiatan from '@/models/Kegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const programSchema = Joi.object({
     name: Joi.string().required().label('Nama Program'),
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
         let programs;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            programs = await Program.find({}).populate({
+            programs = await Program.find(getFilterQuery(filters)).populate({
                 path: 'tujuan',
                 populate: {
                     path: 'renstra'

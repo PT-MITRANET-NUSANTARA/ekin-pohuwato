@@ -4,6 +4,7 @@ import SubKegiatan from '../../../models/SubKegiatan'; // Assuming SubKegiatan m
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 // Joi schema for PeriodeRKT validation
 const periodeRKTSchema = Joi.object({
@@ -16,7 +17,8 @@ const periodeRKTSchema = Joi.object({
     id: Joi.optional(),
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
-    updatedAt: Joi.date().optional()
+    updatedAt: Joi.date().optional(),
+    renstra: Joi.string().hex().length(24).required().label('Renstra') // Expecting a string ObjectId
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',
@@ -46,7 +48,7 @@ export async function GET(req: NextRequest) {
         let periodeRKTs;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            periodeRKTs = await PeriodeRKT.find({});
+            periodeRKTs = await PeriodeRKT.find(getFilterQuery(filters)).populate('renstra');
         } else {
             periodeRKTs = await PeriodeRKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }

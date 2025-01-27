@@ -5,6 +5,7 @@ import Program from '../../../models/Program';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const renstraSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
@@ -16,7 +17,8 @@ const renstraSchema = Joi.object({
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
-    periode: Joi.optional()
+    periode: Joi.optional(),
+    visi: Joi.optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',
@@ -45,13 +47,10 @@ export async function GET(req: NextRequest) {
         let renstras;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            renstras = await Renstra.find({}).populate({
+            renstras = await Renstra.find(getFilterQuery(filters)).populate({
                 path: 'misi',
                 populate: {
                     path: 'visi',
-                    populate: {
-                        path: 'periode'
-                    }
                 }
             });
         } else {
