@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SubKegiatan from '../../../models/SubKegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import SubKegiatan from '@/models/SubKegiatan';
 
 const subKegiatanSchema = Joi.object({
     kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'),
@@ -47,55 +47,18 @@ function validateSubKegiatanData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { kegiatan_id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { kegiatan_id } = params;
         let subKegiatans;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            subKegiatans = await SubKegiatan.find({}).populate({
-                path: 'kegiatan',
-                populate: {
-                    path: 'program',
-                    populate: {
-                        path: 'tujuan',
-                        populate: {
-                            path: 'renstra'
-                        }
-                    }
-                }
-            });
-        } else {
-            subKegiatans = await SubKegiatan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
 
         return NextResponse.json(createResponse(200, 'Success', subKegiatans, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch SubKegiatan data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const errors = validateSubKegiatanData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newSubKegiatan = new SubKegiatan(body);
-        await newSubKegiatan.save();
-        return NextResponse.json(createResponse(201, 'Success', newSubKegiatan, true));
-    } catch (error) {
-        console.error('POST error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to create SubKegiatan' }, { status: 500 });
     }
 }

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Kegiatan from '../../../models/Kegiatan';
-import SubKegiatan from '@/models/SubKegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import Kegiatan from '@/models/Kegiatan';
 
 const kegiatanSchema = Joi.object({
     program: Joi.string().hex().length(24).required().label('Program'), // Mengasumsikan ini adalah referensi ObjectId
@@ -45,53 +44,18 @@ function validateKegiatanData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { unit_id: string } }) {
     await dbConnect();
-    await SubKegiatan.find({});
+
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { unit_id } = params;
         let kegiatans;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            kegiatans = await Kegiatan.find({}).populate({
-                path: 'program',
-                populate: {
-                    path: 'tujuan',
-                    populate: {
-                        path: 'renstra'
-                    }
-                }
-            });
-        } else {
-            kegiatans = await Kegiatan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        kegiatans = await Kegiatan.find({ 'unit.id': unit_id });
 
         return NextResponse.json(createResponse(200, 'Success', kegiatans, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch Kegiatan data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-
-        const errors = validateKegiatanData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newKegiatan = new Kegiatan(body);
-        await newKegiatan.save();
-        return NextResponse.json(createResponse(201, 'Success', newKegiatan, true));
-    } catch (error) {
-        console.error('POST error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to create Kegiatan' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }

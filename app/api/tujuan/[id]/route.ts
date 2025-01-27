@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Tujuan from '../../../models/Tujuan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import Tujuan from '@/models/Tujuan';
 
 const tujuanSchema = Joi.object({
     sasaran_strategis: Joi.string().required().label('Sasaran Strategis'),
@@ -20,7 +20,6 @@ const tujuanSchema = Joi.object({
     renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
     __v: Joi.optional(),
     _id: Joi.optional(),
-    unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
     name: Joi.string().required().label('Tujuan')
@@ -42,33 +41,26 @@ function validateTujuanData(data: any) {
 }
 
 // GET method to fetch Tujuan data
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-        let tujuans;
+        const { id } = params;
+        const tujuan = await Tujuan.findOne({ _id: id }).populate('renstra'); // Populate the renstra reference
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
-        } else {
-            tujuans = await Tujuan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', tujuans, true));
+        return NextResponse.json(createResponse(200, 'Success', tujuan, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch Tujuan data' }, { status: 500 });
     }
 }
 
-// POST method to create a new Tujuan record
-export async function POST(req: NextRequest) {
+// PUT method to update an existing Tujuan record
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
+        const { id } = params;
         const body = await req.json();
 
         const errors = validateTujuanData(body);
@@ -76,11 +68,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const newTujuan = new Tujuan(body);
-        await newTujuan.save();
-        return NextResponse.json(createResponse(201, 'Success', newTujuan, true));
+        const updatedTujuan = await Tujuan.findOneAndUpdate({ _id: id }, body, { new: true });
+
+        if (!updatedTujuan) {
+            return NextResponse.json(createResponse(404, 'Tujuan not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', updatedTujuan, true));
     } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create Tujuan' }, { status: 500 });
+        console.error('PUT error:', error);
+        return NextResponse.json({ error: 'Failed to update Tujuan' }, { status: 500 });
+    }
+}
+
+// DELETE method to remove an existing Tujuan record
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+
+    await dbConnect();
+
+    try {
+        const { id } = params;
+        const deletedTujuan = await Tujuan.findById(id);
+        if (!deletedTujuan) {
+            return NextResponse.json(createResponse(404, 'Tujuan not found', null));
+        }
+
+        await deletedTujuan.cascadeDelete();
+
+        return NextResponse.json(createResponse(200, 'Success', deletedTujuan, true));
+    } catch (error) {
+        console.error('DELETE error:', error);
+        return NextResponse.json({ error: 'Failed to delete Tujuan' }, { status: 500 });
     }
 }

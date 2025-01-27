@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import RKT from '../../../models/RKT';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Program from '@/models/Program';
+import RKT from '@/models/RKT';
 
 const rktSchema = Joi.object({
     subKegiatan: Joi.string().hex().length(24).required().label('SubKegiatan'),
@@ -72,44 +72,23 @@ function validateRKTData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { unit_id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { unit_id } = params;
+        const periodeRkt_id = req.nextUrl.searchParams.get('periodeRkt_id');
         let rkts;
-
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            rkts = await RKT.find({}).populate('periodeRKT').populate('subKegiatan');
+        if (periodeRkt_id) {
+            rkts = await RKT.find({ periodeRKT: periodeRkt_id, 'unit.id': unit_id });
         } else {
-            rkts = await RKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            rkts = await RKT.find({ 'unit.id': unit_id });
         }
+        rkts = await RKT.find({ 'unit.id': unit_id });
 
         return NextResponse.json(createResponse(200, 'Success', rkts, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch RKT data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const errors = validateRKTData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newRKT = new RKT(body);
-        await newRKT.save();
-        return NextResponse.json(createResponse(201, 'Success', newRKT, true));
-    } catch (error) {
-        console.error('POST error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to create RKT' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import PeriodeRKT from '../../../models/PeriodeRKT';
-import SubKegiatan from '../../../models/SubKegiatan'; // Assuming SubKegiatan model exists
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import PeriodeRKT from '@/models/PeriodeRKT';
 
 // Joi schema for PeriodeRKT validation
 const periodeRKTSchema = Joi.object({
@@ -36,45 +35,18 @@ function validatePeriodeRKTData(data: any) {
 }
 
 // GET method to fetch PeriodeRKT
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { unit_id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { unit_id } = params;
         let periodeRKTs;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            periodeRKTs = await PeriodeRKT.find({});
-        } else {
-            periodeRKTs = await PeriodeRKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id });
 
         return NextResponse.json(createResponse(200, 'Success', periodeRKTs, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
-    }
-}
-
-// POST method to create PeriodeRKT
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-
-        const errors = validatePeriodeRKTData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newPeriodeRKT = new PeriodeRKT(body);
-        await newPeriodeRKT.save();
-        return NextResponse.json(createResponse(201, 'Success', newPeriodeRKT, true));
-    } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create Periode RKT' }, { status: 500 });
     }
 }

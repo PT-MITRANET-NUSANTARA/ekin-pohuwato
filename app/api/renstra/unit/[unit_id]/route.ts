@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Renstra from '../../../models/Renstra';
-import Program from '../../../models/Program';
 
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import Renstra from '@/models/Renstra';
 
 const renstraSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
@@ -35,52 +34,18 @@ function validateRenstraData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { unit_id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
+        const { unit_id } = params;
         let renstras;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            renstras = await Renstra.find({}).populate({
-                path: 'misi',
-                populate: {
-                    path: 'visi',
-                    populate: {
-                        path: 'periode'
-                    }
-                }
-            });
-        } else {
-            renstras = await Renstra.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        renstras = await Renstra.find({ 'unit.id': unit_id });
 
         return NextResponse.json(createResponse(200, 'Success', renstras, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch Renstra data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-
-        const errors = validateRenstraData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newRenstra = new Renstra(body);
-        await newRenstra.save();
-        return NextResponse.json(createResponse(201, 'Success', newRenstra, true));
-    } catch (error) {
-        console.error('POST error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to create Renstra' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }
