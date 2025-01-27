@@ -3,7 +3,7 @@ import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IVisi extends Document {
     name: string; // Name of the vision
-    periode: mongoose.Types.ObjectId;
+    // periode: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -22,11 +22,11 @@ const VisiSchema = new Schema<IVisi, VisiModel, IVisiMethods>(
             type: String,
             required: true
         },
-        periode: {
-            type: Schema.Types.ObjectId,
-            ref: 'Periode',
-            required: true
-        }
+        // periode: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: 'Periode',
+        //     required: true
+        // }
     },
     { timestamps: true }
 );
@@ -43,7 +43,7 @@ VisiSchema.static('getAll', async function getAll(page: number = 1, limit: numbe
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters))
     const [results, total] = await Promise.all([
-        query.skip(skip).limit(limit).populate('periode'),  
+        query.skip(skip).limit(limit),  
         this.countDocuments(buildFilterQuery(filters)), 
     ]);
 

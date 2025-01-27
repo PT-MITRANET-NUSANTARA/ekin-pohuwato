@@ -3,7 +3,7 @@ import RKT from '../../../models/RKT';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
-import Program from '@/models/Program';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const rktSchema = Joi.object({
     subKegiatan: Joi.string().hex().length(24).required().label('SubKegiatan'),
@@ -49,6 +49,8 @@ const rktSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+    renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
+
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
@@ -76,24 +78,15 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const id = req.nextUrl.searchParams.get('id');
-        const unit_id = req.nextUrl.searchParams.get('unitId');
-        const periodeRKT_id = req.nextUrl.searchParams.get('periodeRKTId');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let rkts;
 
-        if (id) {
-            rkts = await RKT.findOne({ _id: id });
-        } else if (unit_id) {
-            rkts = await RKT.find({ 'unit.id': unit_id });
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            rkts = await RKT.find(getFilterQuery(filters)).populate('periodeRKT').populate('subKegiatan');
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
-                rkts = await RKT.find({}).populate('periodeRKT').populate('subKegiatan');
-            } else {
-                rkts = await RKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            rkts = await RKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', rkts, true));
@@ -120,57 +113,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to create RKT' }, { status: 500 });
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateRKTData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedRKT = await RKT.findOneAndUpdate({ _id: id }, body, {
-            new: true
-        });
-
-        if (!updatedRKT) {
-            return NextResponse.json(createResponse(404, 'RKT not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedRKT, true));
-    } catch (error) {
-        console.error('PUT error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to update RKT' }, { status: 500 });
-    }
-}
-
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedRKT = await RKT.findById(id);
-        if (!deletedRKT) {
-            return NextResponse.json(createResponse(404, 'RKT not found', null));
-        }
-        deletedRKT.cascadeDelete();
-
-        return NextResponse.json(createResponse(200, 'Success', deletedRKT, true));
-    } catch (error) {
-        console.error('DELETE error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to delete RKT' }, { status: 500 });
     }
 }

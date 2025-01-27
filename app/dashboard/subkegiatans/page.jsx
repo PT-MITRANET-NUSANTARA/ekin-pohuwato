@@ -4,15 +4,16 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Table, Typography 
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/SubKegiatanController';
-import { getAll as getAllKegiatan } from '@/controller/KegiatanController';
-import { getAll as getAllProgram } from '@/controller/ProgramController';
-import { getAll as getAllTujuan } from '@/controller/TujuanController';
-import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { destroy, getAll, getByUnitId, store, update } from '@/controller/SubKegiatanController';
+import { getAll as getAllKegiatan, getByUnitId as getKegiatanByUnit } from '@/controller/KegiatanController';
+import { getAll as getAllProgram, getByUnitId as getProgramByUnit } from '@/controller/ProgramController';
+import { getAll as getAllTujuan, getByUnitId as getTujuanByUnit } from '@/controller/TujuanController';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
@@ -33,21 +34,24 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const { data: user, setData: setUser } = useFetchData(getData);
 
 
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            fetchData();
+        }
+    }, [user,pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id,pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const kegiatan = await getAllKegiatan();
-            const renstra = await getAllRenstra();
-            const tujuan = await getAllTujuan();
-            const program = await getAllProgram();
+            const kegiatan = await getKegiatanByUnit(user.jabatan?.unor?.induk.id);
+            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
+            const tujuan = await getTujuanByUnit(user.jabatan?.unor?.induk.id);
+            const program = await getProgramByUnit(user.jabatan?.unor?.induk.id);
             setRenstra(renstra.data);
             setTujuan(tujuan.data);
             setProgram(program.data);
@@ -63,14 +67,16 @@ const page = () => {
     const onSubmit = async (values, type, id) => {
         try {
             let response;
+            let dt = values;
+            dt = { ...dt, unit: user.jabatan.unor.induk };
             setSubmitLoading(true);
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':

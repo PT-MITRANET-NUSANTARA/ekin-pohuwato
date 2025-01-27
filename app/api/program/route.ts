@@ -4,6 +4,7 @@ import Kegiatan from '@/models/Kegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const programSchema = Joi.object({
     name: Joi.string().required().label('Nama Program'),
@@ -48,30 +49,20 @@ function validateProgramData(data: any) {
 export async function GET(req: NextRequest) {
     await dbConnect();
     try {
-        const id = req.nextUrl.searchParams.get('id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let programs;
 
-        if (id) {
-            programs = await Program.findOne({ _id: id }).populate({
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            programs = await Program.find(getFilterQuery(filters)).populate({
                 path: 'tujuan',
                 populate: {
                     path: 'renstra'
                 }
             });
         } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                programs = await Program.find({}).populate({
-                    path: 'tujuan',
-                    populate: {
-                        path: 'renstra'
-                    }
-                });
-            } else {
-                programs = await Program.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            programs = await Program.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', programs, true));
@@ -99,58 +90,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Program' }, { status: 500 });
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateProgramData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedProgram = await Program.findOneAndUpdate({ _id: id }, body, { new: true }).populate('kegiatans').populate('renstra');
-
-        if (!updatedProgram) {
-            return NextResponse.json(createResponse(404, 'Program not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedProgram, true));
-    } catch (error) {
-        console.log(error);
-
-        console.error('PUT error:', error);
-        return NextResponse.json({ error: 'Failed to update Program' }, { status: 500 });
-    }
-}
-
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedProgram = await Program.findById(id);
-        if (!deletedProgram) {
-            return NextResponse.json(createResponse(404, 'Program not found', null));
-        }
-        deletedProgram.cascadeDelete();
-        return NextResponse.json(createResponse(200, 'Success', deletedProgram, true));
-    } catch (error) {
-        console.error('DELETE error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to delete Program' }, { status: 500 });
     }
 }

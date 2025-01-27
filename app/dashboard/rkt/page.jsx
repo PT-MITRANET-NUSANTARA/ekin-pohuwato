@@ -6,12 +6,14 @@ import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/com
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUnitId } from '@/controller/RKTController';
 import useFetchData from '@/hooks/useFetchData';
-import { getAll as getAllSub } from '@/controller/SubKegiatanController';
-import { getAll as getAllPeriode } from '@/controller/PeriodeRKTController';
+import { getAll as getAllSub, getByUnitId as getSubByUnit } from '@/controller/SubKegiatanController';
+import { getAll as getAllPeriode, getByUnitId as getPeriodeByUnit } from '@/controller/PeriodeRKTController';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+
+
 import { getData } from '@/controller/AuthorizationController';
-import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 
 const { Title } = Typography;
@@ -26,6 +28,7 @@ const page = () => {
     const [subKegiatan, setSubkegiatans] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [renstra, setRenstra] = useState(null);
 
     const [data, setData] = useState([]);
     const { data: user } = useFetchData(getData);
@@ -34,24 +37,23 @@ const page = () => {
 
     useEffect(() => {
         if (user) {
-            const updatedFilters = {
-                ...pagination.filters,
-                unit: user.jabatan?.unor?.induk, 
-            };
-            setPagination({...pagination, filters: updatedFilters})
             fetchData();
         }
-    }, [user,pagination.page, pagination.limit]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const sub = await getAllSub();
-            const periode = await getAllPeriode();
+            const sub = await getSubByUnit(user.jabatan?.unor?.induk.id);
+            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
+            const periode = await getPeriodeByUnit(user.jabatan?.unor?.induk.id);
+            console.log(periode);
+            
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
+            setRenstra(renstra.data);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -120,7 +122,7 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
-            
+
             width: '5%'
         },
         {
@@ -352,6 +354,22 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                value: item._id,
+                id: item._id
+            }))
+        },
+        {
             label: 'Periode RKT',
             name: 'periodeRKT',
             type: 'select',
@@ -361,7 +379,13 @@ const page = () => {
                     message: 'Field periode rkt wajib di isi'
                 }
             ],
-            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            parentField: 'renstra',
+            options: periodeRKT?.map((item) => ({
+                label: `${dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end)}`,
+                value: item._id,
+                id_option_parent: item.renstra?._id,
+                id: item._id
+            }))
         },
         {
             label: 'Sub  Kegiatan',

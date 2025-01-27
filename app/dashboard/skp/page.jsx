@@ -10,11 +10,11 @@ import { CrudModal, FilterField } from '@/components';
 import { useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
-import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPController';
+import { destroy, getAll, store, update, getByUserId, storeAtasan } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
-import { getAll as getAllRenstra } from '@/controller/RenstraController';
-import { getByUnitId } from '@/controller/PeriodeRKTController';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+import { getByUnitId as getPeriodeByUnit } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 import { dateFormatter } from '@/utils';
@@ -27,9 +27,6 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading } = useFetchData(getData);
-    const [skp, setSKP] = useState(null);
-    const [jabatan, setJabatan] = useState(null);
     const [resntra, setRenstra] = useState(null);
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [isJT, setIsJT] = useState(false);
@@ -37,29 +34,34 @@ const page = () => {
     const [loadingData, setLoadingData] = useState(true);
     const [errorData, setErrorData] = useState({ show: false, message: '' });
     const [submitLoading, setSubmitLoading] = useState(false);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const skp = await getByUserId(data.user.idASN);
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
+            const data = await getByUserId(user.user.idASN, pagination.page, pagination.limit, pagination.filters);
+            setData(data.data.data);
+            console.log('here', data);
+
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            const selectedJabatan = user.jabatan;
+            const struktur = await getById(user.token, selectedJabatan.unor.induk.id);
+
             const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
             const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
             setIsJT(isJT);
             setIsAtasan(isAtasan);
-            const resntra = await getAllRenstra();
-            const periodeRKT = await getByUnitId(selectedJabatan.unor.induk.id);
+            const resntra = await getRenstraByUnit(selectedJabatan.unor.induk.id);
+            const periodeRKT = await getPeriodeByUnit(selectedJabatan.unor.induk.id);
             setRenstra(resntra.data);
             setPeriodeRKT(periodeRKT.data);
-            setJabatan(jabatan.mapData.data[0]);
-            setSKP(skp.data);
             setLoadingData(false);
         } catch (error) {
             setLoadingData(false);
@@ -72,10 +74,12 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [jabatan], user_id: data.user.idASN };
+            dt = { ...dt, jabatan: [user.jabatan], user_id: user.user.idASN , unit: user.jabatan.unor.induk};
+            dt.periodeRKT = [values.periodeRKT]
+            
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN, dt, '1');
+                    response = await storeAtasan('1', dt);
                     break;
 
                 case 'edit':
@@ -92,8 +96,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const newData = await getByUserId(data.user.idASN);
-                setSKP(newData.data);
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -209,8 +212,7 @@ const page = () => {
                     value: 'sample'
                 }
             ]
-        },
-        
+        }
     ];
 
     const handleClose = () => {
@@ -245,17 +247,15 @@ const page = () => {
                             )}
                         </div>
                     </div>
-                    <div className="w-full mb-4">
-                        {/* <FilterField fields={filterFileds}></FilterField> */}
-                    </div>
+                    <div className="w-full mb-4">{/* <FilterField fields={filterFileds}></FilterField> */}</div>
                     {loadingData ? (
                         <Skeleton active />
                     ) : errorData.show ? (
                         <Result status="500" title="Oops! Something went wrong" subTitle={errorData.message} />
                     ) : (
                         <div className="flex flex-col gap-y-4">
-                            {skp?.length > 0 ? (
-                                skp.map((item) => (
+                            {data?.length > 0 ? (
+                                data.map((item) => (
                                     <Card key={item._id} type="inner" title={<Tag color="blue">{item._id}</Tag>}>
                                         <div className="w-full flex flex-col gap-y-4">
                                             <div className="flex w-full items-center gap-x-2 ">
@@ -296,10 +296,24 @@ const page = () => {
                                             </div>
 
                                             <div className="flex w-full items-center justify-end gap-x-2 ">
-                                                <Button type="primary" icon={<EditOutlined />} onClick={() => setModal({ modalData: {...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir)}, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })}>
+                                                <Button
+                                                    type="primary"
+                                                    icon={<EditOutlined />}
+                                                    onClick={() =>
+                                                        setModal({ modalData: { ...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir) }, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })
+                                                    }
+                                                >
                                                     Edit
                                                 </Button>
-                                                <Button onClick={() => setModal({ modalData: {...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir)}, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })} danger variant="filled" type="primary" icon={<DeleteOutlined />}>
+                                                <Button
+                                                    onClick={() =>
+                                                        setModal({ modalData: { ...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir) }, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })
+                                                    }
+                                                    danger
+                                                    variant="filled"
+                                                    type="primary"
+                                                    icon={<DeleteOutlined />}
+                                                >
                                                     Hapus
                                                 </Button>
                                             </div>
@@ -325,7 +339,7 @@ const page = () => {
                             <div className="grid grid-flow-row divide-y text-xs px-4 mb-6">
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">unit kerja</span>
-                                    <p className="text-right">{jabatan?.unor.nama}</p>
+                                    <p className="text-right">{user.jabatan?.unor.nama}</p>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">jenis pegawai</span>

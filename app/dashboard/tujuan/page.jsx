@@ -6,15 +6,16 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
-import { getAll, store, update, destroy } from '@/controller/TujuanController';
-import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { getAll, store, update, destroy, getByUnitId } from '@/controller/TujuanController';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
 import { dateFormatter } from '@/utils';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
@@ -22,23 +23,28 @@ const page = () => {
     const [renstra, setRenstra] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const { data: user, setData: setUser } = useFetchData(getData);
 
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
+            console.log(data);
+            
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const renstra = await getAllRenstra()
+            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
+            console.log(renstra);
+
             setRenstra(renstra.data);
-            setLoading(false);
         } catch (error) {
             console.log(error);
-        } finally
-        {
+        } finally {
             setLoading(false);
         }
     };
@@ -46,7 +52,8 @@ const page = () => {
         try {
             setSubmitLoading(true);
             let response;
-            const dt = values;
+            let dt = values;
+            dt = { ...dt, unit: user.jabatan.unor.induk };
 
             console.log(dt);
 
@@ -69,7 +76,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                fetchData()
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -420,7 +427,6 @@ const page = () => {
         fetchData();
     };
 
-
     const filterFileds = [
         {
             label: 'Renstra',
@@ -428,7 +434,7 @@ const page = () => {
             type: 'select',
             filter: 'eq',
             options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
-        },
+        }
     ];
 
     const handleClose = () => {
@@ -464,7 +470,7 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds}  onSubmit={onFilter}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />

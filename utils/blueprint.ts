@@ -54,7 +54,64 @@ export const perilaku: Iperilaku[] = [
     }
 ];
 
-export const IAspek = {
-    kualitatif: [],
-    kuantitatif: []
+interface TargetTahunan {
+    satuan: string;
+    target: string;
+}
+
+interface AspekKualitatif {
+    jenis: 'deskripsi';
+    indikator: string;
+    target_tahunan: TargetTahunan;
+}
+
+interface AspekKuantitatif {
+    jenis: 'kualitas' | 'kuantitas' | 'waktu';
+    indikator: string;
+    target_tahunan: TargetTahunan;
+}
+
+interface Aspek {
+    kualitatif: AspekKualitatif[];
+    kuantitatif: AspekKuantitatif[];
+}
+
+
+export const aspek: Aspek = {
+    kualitatif: [
+        {
+            jenis: 'deskripsi',
+            indikator: '',
+            target_tahunan: {
+                satuan: '',
+                target: ''
+            },
+        }
+    ],
+    kuantitatif: [
+        {
+            jenis: 'kualitas',
+            indikator: '',
+            target_tahunan: {
+                satuan: '',
+                target: ''
+            },
+        },
+        {
+            jenis: 'kuantitas',
+            indikator: '',
+            target_tahunan: {
+                satuan: '',
+                target: ''
+            },
+        },
+        {
+            jenis: 'waktu',
+            indikator: '',
+            target_tahunan: {
+                satuan: '',
+                target: ''
+            },
+        }
+    ]
 };

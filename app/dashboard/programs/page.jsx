@@ -4,13 +4,15 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Table, Typography 
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/ProgramController';
-import { getAll as getAllTujuan } from '@/controller/TujuanController';
-import { getAll as getAllRenstra } from '@/controller/RenstraController';
+import { destroy, getAll, getByUnitId, store, update } from '@/controller/ProgramController';
+import { getAll as getAllTujuan, getByUnitId as getTujuanByUnit } from '@/controller/TujuanController';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
@@ -23,30 +25,31 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
-
+    const { data: user, setData: setUser } = useFetchData(getData);
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const tujuan = await getAllTujuan();
-            const renstra = await getAllRenstra();
+            const tujuan = await getTujuanByUnit(user.jabatan?.unor?.induk.id);
+            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
             setTujuan(tujuan.data);
             setRenstra(renstra.data);
         } catch (error) {
             console.log(error);
-        }finally
-        {
+        } finally {
             setLoading(false);
         }
     };
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
 
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -54,15 +57,16 @@ const page = () => {
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-            console.log(values);
+            let dt = values;
+            dt = { ...dt, unit: user.jabatan.unor.induk };
             setSubmitLoading(true);
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -75,7 +79,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                fetchData()
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -468,8 +472,8 @@ const page = () => {
                 value: item._id,
                 id_option_parent: item.renstra._id,
                 id: item._id
-            })),
-        },
+            }))
+        }
     ];
 
     const handleClose = () => {
@@ -508,10 +512,10 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds} onSubmit={onFilter} ></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination}/>
+                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                         <InfoModal width={600} close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

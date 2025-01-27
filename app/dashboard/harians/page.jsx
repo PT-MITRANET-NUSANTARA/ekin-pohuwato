@@ -34,7 +34,7 @@ const page = () => {
             const absence = await getByUserId(data.user.idASN);
             setAbsence(absence.data);
             setLoading(false);
-        } catch (error) {}
+        } catch (error) { }
     };
 
     const onSubmit = async (values, type, id) => {
@@ -207,17 +207,88 @@ const page = () => {
         }
     ];
 
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
+
     const filterFileds = [
         {
-            id: 1,
-            name: 'status kehadiran',
+            label: 'Status',
+            name: 'status',
+            type: 'select',
+            filter: 'eq',
             options: [
                 {
-                    label: 'sample',
-                    value: 'sample'
+                    label: 'Hadir',
+                    value: 'Hadir'
+                },
+                {
+                    label: 'Izin',
+                    value: 'Sakit'
+                },
+                {
+                    label: 'Sakit',
+                    value: 'Izin'
+                },
+                {
+                    label: 'Alpha',
+                    value: 'Alpha'
                 }
-            ]
-        }
+            ],
+        },
     ];
 
     const handleClose = () => {
@@ -250,7 +321,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full">
-                        <FilterField fields={filterFileds}></FilterField>
+                        <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                     </div>
                     <div className="overflow-x-auto">
                         <DataTable columns={Column} data={absence} loading={loading} />

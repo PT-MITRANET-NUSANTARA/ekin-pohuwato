@@ -25,6 +25,7 @@ const page = () => {
     const [skp, setSKP] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [loading, setLoading] = useState(true);
+    
     useEffect(() => {
         if (data) {
             fetchData();
@@ -117,13 +118,27 @@ const page = () => {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Space size="small">
+                <Space size="small" direction='vertical'>
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        onClick={() => router.push(window.location.pathname + `/${record._id}/lihat_hasil`)}
+                    >
+                        Lihat Hasil
+                    </Button>
                     <Button
                         // type='primary'
                         size="middle"
                         onClick={() => router.push(window.location.pathname + `/${record._id}/penilaian_rhk`)}
                     >
                         Hasil Kerja
+                    </Button>
+                    <Button
+                        // type='primary'
+                        size="middle"
+                        onClick={() => router.push(window.location.pathname + `/${record._id}/rencana_aksi`)}
+                    >
+                        Rencana Aksi
                     </Button>
 
                     <Button
@@ -135,6 +150,7 @@ const page = () => {
                     </Button>
                     <Button onClick={() => router.push(window.location.pathname + `/${record.id}/predikat_kinerja`)}>Predikat Kinerja</Button>
                     <Button
+                        loading={loading}
                         icon={<FileOutlined />}
                         size="middle"
                         onClick={async () => {
@@ -144,7 +160,7 @@ const page = () => {
                             // console.log(res);
                             if (res.ok) {
                                 console.log(res.data);
-                                
+                                asd
                                 const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
                                 
                                 const index = res.data.skp.findIndex((item) => item._id === IdSkp);
@@ -212,7 +228,7 @@ const page = () => {
 
                                 const pdfBlob = await getHasilSkp(query);
                                 console.log(pdfBlob);
-
+                                
                                 const url = window.URL.createObjectURL(pdfBlob);
                                 const a = document.createElement('a');
                                 a.href = url;

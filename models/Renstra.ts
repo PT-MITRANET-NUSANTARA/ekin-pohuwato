@@ -59,9 +59,6 @@ RenstraSchema.static('getAll', async function getAll(page: number = 1, limit: nu
             path: 'misi',
             populate: {
                 path: 'visi',
-                populate: {
-                    path: 'periode'
-                }
             }
         }),  
         this.countDocuments(buildFilterQuery(filters)), 

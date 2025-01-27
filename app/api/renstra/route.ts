@@ -5,6 +5,7 @@ import Program from '../../../models/Program';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const renstraSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
@@ -16,7 +17,8 @@ const renstraSchema = Joi.object({
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
-    periode: Joi.optional()
+    periode: Joi.optional(),
+    visi: Joi.optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',
@@ -39,28 +41,20 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const id = req.nextUrl.searchParams.get('id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let renstras;
-        await Program.find({});
-        if (id) {
-            renstras = await Renstra.findOne({ _id: id }).populate('programs');
+
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            renstras = await Renstra.find(getFilterQuery(filters)).populate({
+                path: 'misi',
+                populate: {
+                    path: 'visi',
+                }
+            });
         } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                renstras = await Renstra.find({}).populate({
-                    path: 'misi',
-                    populate: {
-                        path: 'visi',
-                        populate: {
-                            path: 'periode'
-                        }
-                    }
-                });
-            } else {
-                renstras = await Renstra.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            renstras = await Renstra.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', renstras, true));
@@ -87,56 +81,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to create Renstra' }, { status: 500 });
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateRenstraData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedRenstra = await Renstra.findOneAndUpdate({ _id: id }, body, { new: true });
-
-        if (!updatedRenstra) {
-            return NextResponse.json(createResponse(404, 'Renstra not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedRenstra, true));
-    } catch (error) {
-        console.error('PUT error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to update Renstra' }, { status: 500 });
-    }
-}
-
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedRenstra = await Renstra.findById(id);
-        if (!deletedRenstra) {
-            return NextResponse.json(createResponse(404, 'Renstra not found', null));
-        }
-
-        deletedRenstra.cascadeDelete();
-
-        return NextResponse.json(createResponse(200, 'Success', deletedRenstra, true));
-    } catch (error) {
-        console.error('DELETE error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to delete Renstra' }, { status: 500 });
     }
 }

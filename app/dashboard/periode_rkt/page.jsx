@@ -3,7 +3,7 @@
 import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
 import { dummyfileList, dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Typography, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined, OrderedListOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined, OrderedListOutlined, SearchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,6 +15,8 @@ import { getData } from '@/controller/AuthorizationController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 import { getPerjanjianKinerja } from '@/controller/ReportController';
+import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
@@ -26,24 +28,24 @@ const page = () => {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const [renstra, setRenstra] = useState(null);
 
     useEffect(() => {
         if (user) {
-            const updatedFilters = {
-                ...pagination.filters,
-                unit: user.jabatan?.unor?.induk
-            };
-            setPagination({ ...pagination, filters: updatedFilters });
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
-
+    
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
 
             setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
+            console.log(renstra);
+
+            setRenstra(renstra.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -106,6 +108,7 @@ const page = () => {
     };
 
     const customSubmit = async (values, type, id, formData) => {
+        setSubmitLoading(true);
         console.log(values);
         console.log(id);
         const res = await getById(id);
@@ -139,13 +142,14 @@ const page = () => {
             jabatan_pihak_kedua: values.jabatan_pihak_kedua,
             tanggal: dateFormatter(values.tanggal),
             program: uniqueProgram,
-            tujuan: uniqueTujuan,
+            tujuan: uniqueTujuan
         };
         console.log('data', query);
 
         const pdfBlob = await getPerjanjianKinerja(query);
 
         console.log(pdfBlob);
+        setSubmitLoading(false);
 
         const url = window.URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
@@ -214,6 +218,41 @@ const page = () => {
             width: '5%'
         },
         {
+            title: 'Renstra',
+            dataIndex: 'renstra',
+            key: 'renstra',
+            render: (_, record) => (
+                <>
+                    <Button
+                        icon={<SearchOutlined />}
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Renstra',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'periode_start',
+                                        label: 'Periode Mulai',
+                                        children: dateFormatter(record.renstra.periode_start)
+                                    },
+                                    {
+                                        key: 'periode_end',
+                                        label: 'Periode Akhir',
+                                        children: dateFormatter(record.renstra.periode_end)
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
+                    >
+                        Info
+                    </Button>
+                </>
+            )
+        },
+        {
             title: 'Periode Mulai',
             dataIndex: 'periode_start',
             key: 'periode_start',
@@ -235,7 +274,6 @@ const page = () => {
             key: 'perjanjianKinerja',
             render: (_, record) => (
                 <>
-                    {console.log(record)}
                     <Space size="small">
                         <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
                         <Button
@@ -323,6 +361,18 @@ const page = () => {
     ];
 
     const rktFields = [
+        {
+            label: 'Renstra',
+            name: 'renstra',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+        },
         {
             label: 'Periode Mulai',
             name: 'periode_start',

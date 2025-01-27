@@ -225,9 +225,9 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td>
-                                                Rencana Aksi: {item.rencana.rencana_aksi}
+                                                {/* Rencana Aksi: {item.rencana.rencana_aksi} */}
                                                 <br />
-                                                Target: {item.rencana.target}
+                                                {/* Target: {item.rencana.target} */}
                                                 <div className="flex flex-col items-center gap-y-2">
                                                     <Button
                                                         onClick={() =>
