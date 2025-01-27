@@ -66,7 +66,8 @@ export async function GET(req: NextRequest) {
         } else if (unit_id) {
             periodeRKTs = await PeriodeRKT.find({ 'unit.id': unit_id });
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
+
                 periodeRKTs = await PeriodeRKT.find({});
             } else {
                 periodeRKTs = await PeriodeRKT.getAll(Number(page), Number(limit), JSON.parse(filters as string));

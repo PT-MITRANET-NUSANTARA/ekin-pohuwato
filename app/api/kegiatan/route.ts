@@ -23,6 +23,7 @@ const kegiatanSchema = Joi.object({
     total_anggaran: Joi.number().required().label('Total Anggaran'),
     __v: Joi.optional(),
     _id: Joi.optional(),
+    unit: Joi.object().required().label('Unit'),
     renstra: Joi.optional(),
     tujuan: Joi.optional(),
     id: Joi.optional()
@@ -60,7 +61,7 @@ export async function GET(req: NextRequest) {
         } else if (program_id) {
             kegiatans = await Kegiatan.find({ program: program_id }).populate('program').populate('subKegiatans');
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
                 kegiatans = await Kegiatan.find({}).populate({
                     path: 'program',
                     populate: {
@@ -144,7 +145,7 @@ export async function DELETE(req: NextRequest) {
         if (!deletedKegiatan) {
             return NextResponse.json(createResponse(404, 'Kegiatan not found', null));
         }
-        deletedKegiatan.cascadeDelete()
+        deletedKegiatan.cascadeDelete();
 
         return NextResponse.json(createResponse(200, 'Success', deletedKegiatan, true));
     } catch (error) {

@@ -13,6 +13,7 @@ const renstraSchema = Joi.object({
     programs: Joi.array().items(Joi.string().hex().length(24)).label('Program'), // Mengharapkan array string ObjectId
     __v: Joi.optional(),
     _id: Joi.optional(),
+    unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional(),
     periode: Joi.optional()
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
         if (id) {
             renstras = await Renstra.findOne({ _id: id }).populate('programs');
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
                 renstras = await Renstra.find({}).populate({
                     path: 'misi',
                     populate: {

@@ -13,6 +13,7 @@ interface ITujuan extends Document {
     createdAt?: Date;
     updatedAt?: Date;
     name: string;
+    unit: Object;
     renstra: mongoose.Types.ObjectId 
 }
 
@@ -34,6 +35,10 @@ const TujuanSchema = new Schema<ITujuan, TujuanModel, ITujuanMethods>(
         sasaran_strategis: {
             type: String,
             required: true,
+        },
+        unit: {
+            type: Object,
+            required: true
         },
         indikator_kinerja: [
             {

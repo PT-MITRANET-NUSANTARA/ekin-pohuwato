@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         if (id) {
             misis = await Misi.findOne({ _id: id }).populate('visi'); // Populate the visi reference
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
                 misis = await Misi.find({}).populate('visi'); // Populate the visi reference
             } else {
                 misis = await Misi.getAll(Number(page), Number(limit), JSON.parse(filters as string));

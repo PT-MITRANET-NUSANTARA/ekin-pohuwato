@@ -13,6 +13,8 @@ interface IKegiatan extends Document {
     indikator_kinerja: IIndikatorKinerja[];
     total_anggaran: number;
     subKegiatans?: mongoose.Types.ObjectId[];
+    unit: Object;
+
 }
 
 interface IKegiatanMethods {
@@ -32,6 +34,10 @@ const KegiatanSchema = new Schema<IKegiatan, KegiatanModel, IKegiatanMethods>(
         },
         name: {
             type: String,
+            required: true
+        },
+        unit: {
+            type: Object,
             required: true
         },
         indikator_kinerja: [

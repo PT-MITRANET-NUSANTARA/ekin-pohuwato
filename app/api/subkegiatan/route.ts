@@ -5,7 +5,7 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 
 const subKegiatanSchema = Joi.object({
-    kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), // Mengasumsikan ini adalah referensi ObjectId
+    kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), 
     name: Joi.string().required().label('Nama'),
     indikator_kinerja: Joi.array()
         .items(
@@ -22,6 +22,7 @@ const subKegiatanSchema = Joi.object({
     total_anggaran: Joi.number().required().label('Total Anggaran'),
     __v: Joi.optional(),
     _id: Joi.optional(),
+    unit: Joi.object().required().label('Unit'),
     id: Joi.optional(),
     renstra: Joi.optional(),
     tujuan: Joi.optional(),
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
         } else if (kegiatan_id) {
             subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
                 subKegiatans = await SubKegiatan.find({}).populate({
                     path: 'kegiatan',
                     populate: {
