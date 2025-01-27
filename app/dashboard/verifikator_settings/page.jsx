@@ -5,7 +5,7 @@ import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
-import { store, update, getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
+import { store, update,destroy,  getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
 import { getAll } from '@/controller/IDSN/UnitController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
@@ -16,66 +16,71 @@ import { getData } from '@/controller/AuthorizationController';
 const { Title } = Typography;
 
 const page = () => {
-    const { data, setData, loading, msg, status } = useFetchData(getData);
-
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedUnor, setSelectedUnor] = useState(null);
-    const [Verifikasi, setVerifikasi] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const unit = await getAll(data.token);
-            const verifikasi = await getAllVerifikasi(0, 0);
-            setVerifikasi(verifikasi.data);
+            const data = await getAllVerifikasi(pagination.page, pagination.limit, pagination.filters);
+            console.log(data);
+            
+            setData(data.data.data);
+            const unit = await getAll(user.token);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setUnit(unit.mapData);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
-
     console.log(unit);
-
 
     const onSubmit = async (values, type, id) => {
         try {
+            setSubmitLoading(true);
             let response;
-            console.log(values);
-            console.log(id);
-            const dt = {
-                unit: selectedUnor,
-                jabatan: values
-            };
 
             switch (type) {
-                case 'edit':
-                    response = await update(selectedUnor.id_sapk, dt);
-                    if ((response.status = 404)) {
-                        response = await store(dt);
-                    }
+                case 'create':
+                    response = await store(values);
                     break;
+
+                case 'edit':
+                    response = await update(id, values);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
+            console.log(response);
 
             if (response.ok) {
-                const unit = await getAll(data.token);
-                const verifikasi = await getAllVerifikasi(0, 0);
-                setVerifikasi(verifikasi.data);
-                setUnit(unit.mapData);
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
+                    description: type === 'delete' ? 'Berhasil Menghapus Misi' : type === 'edit' ? 'Berhasil Mengedit Misi' : 'Berhasil Menambahkan Misi',
                     type: 'success'
                 });
             } else {
@@ -94,6 +99,7 @@ const page = () => {
                 type: 'error'
             });
         }
+        setSubmitLoading(false);
 
         console.log('Operation completed');
         handleClose();
@@ -112,33 +118,33 @@ const page = () => {
             key: 'nama_unor',
             searchable: true
         },
-        {
-            title: 'Jabatan',
-            dataIndex: 'jabatan',
-            key: 'jabatan',
-            render: (_, record) => {
-                const matchingItem = Verifikasi?.find((item) => item.unit.id_sapk === record.id_sapk);
+        // {
+        //     title: 'Jabatan',
+        //     dataIndex: 'jabatan',
+        //     key: 'jabatan',
+        //     render: (_, record) => {
+        //         const matchingItem = Verifikasi?.find((item) => item.unit.id_sapk === record.id_sapk);
 
-                if (matchingItem) {
-                    return (
-                        <Tag color="blue" className="capitalize">
-                            {matchingItem.jabatan.role}
-                        </Tag>
-                    );
-                } else {
-                    return <Tag color="red">Belum Memilih Jabatan</Tag>;
-                }
-            },
-            searchable: true
-        },
+        //         if (matchingItem) {
+        //             return (
+        //                 <Tag color="blue" className="capitalize">
+        //                     {matchingItem.jabatan.role}
+        //                 </Tag>
+        //             );
+        //         } else {
+        //             return <Tag color="red">Belum Memilih Jabatan</Tag>;
+        //         }
+        //     },
+        //     searchable: true
+        // },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        color='primary'
-                        variant='outlined'
+                        color="primary"
+                        variant="outlined"
                         onClick={async () => {
                             const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
                             const jabatan_nama = jabatan.mapData.data
@@ -166,19 +172,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Nama Unor',
-            name: 'name',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field name wajib di isi'
-                }
-            ],
-        },
-        {
-            label: 'Jabatan',
-            name: 'role',
+            label: 'Unit Organisasi',
+            name: 'unit',
             type: 'select',
             rules: [
                 {
@@ -186,19 +181,11 @@ const page = () => {
                     message: 'Field role wajib di isi'
                 }
             ],
-            options: [
-                {
-                    label: "texas",
-                    value: 'texas'
-                },
-                {
-                    label: "manhattan",
-                    value: 'manhattan'
-                }
-            ],
-            mode: 'multiple',
-        },
-
+            options: unit?.map((item) => ({
+                label: item.nama_unor,
+                value: item.id_sapk
+            }))
+        }
     ];
 
     const onFilter = async (values) => {
@@ -308,7 +295,7 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={unit} loading={loading} />
+                            <DataTable columns={Column} data={data} loading={loading} />
                         </div>
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
                     </div>

@@ -10,7 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
-import { getBySKP, update } from '@/controller/SKPController';
+import { getBySKPId, update } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -18,23 +18,22 @@ const page = () => {
     const { confirm } = Modal;
     const router = useRouter();
     const { IdSkp } = useParams();
-    const { data, setData, loading } = useFetchData(getData);
-    const [jabatan, setJabatan] = useState(null);
-    const [unor, setUnor] = useState(null);
+    const [data, setData] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const response = await getBySKP(IdSkp);
-            console.log(response.data);
-
-            setUnor(response.data);
+            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -83,7 +82,7 @@ const page = () => {
                                 );
                             case 'rejected':
                                 return (
-                                    <div className='flex flex-col gap-y-2'>
+                                    <div className="flex flex-col gap-y-2">
                                         <Tag color="red" className="capitalize w-fit">
                                             {record.status}
                                         </Tag>
@@ -138,14 +137,14 @@ const page = () => {
                                     onCancel() {
                                         console.log('Cancel');
                                     }
-                                })
+                                });
                             }}
                             size="middle"
                         >
                             Ajukan SKP
                         </Button>
                     ) : null}
-                </Space >
+                </Space>
             )
         }
     ];
@@ -175,14 +174,14 @@ const page = () => {
                         <div className="grid grid-flow-row divide-y text-xs mb-12">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
-                                <p className="text-right uppercase">{jabatan?.unor.nama}</p>
+                                <p className="text-right uppercase">{user?.jabatan.unor.nama}</p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">status pegawai</span>
                         <p className="text-right uppercase"> </p>
                     </div> */}
                         </div>
-                        <DataTable columns={Column} data={unor} loading={false}></DataTable>
+                        <DataTable columns={Column} data={data} loading={false}></DataTable>
                     </>
                 )}
             </Card>

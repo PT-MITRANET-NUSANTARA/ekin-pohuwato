@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import UMPEG from '../../../models/UMPEG'; // Update the model reference to UMPEG
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
@@ -27,45 +26,27 @@ function validateVerifikasiData(data: any) {
     return [];
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { unit_id: string } }) {
     await dbConnect();
 
     try {
+        const { unit_id } = params;
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
-
         let verifikasi;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            verifikasi = await Verifikasi.find(getFilterQuery(filters));
+            verifikasi = await Verifikasi.find({ 'unit.id': unit_id });
         } else {
-            verifikasi = await Verifikasi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
+            const f = JSON.parse(filters as string);
+            f['unit.id'] = unit_id;
+            verifikasi = await Verifikasi.getAll(Number(page), Number(limit), f);
         }
 
         return NextResponse.json(createResponse(200, 'Success', verifikasi, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch UMPEG data' }, { status: 500 });
-    }
-}
-
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const errors = validateVerifikasiData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newVerifikasi = new Verifikasi(body);
-        await newVerifikasi.save();
-        return NextResponse.json(createResponse(201, 'Success', newVerifikasi, true));
-    } catch (error) {
-        console.error('POST error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to create Verifikasi' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
     }
 }

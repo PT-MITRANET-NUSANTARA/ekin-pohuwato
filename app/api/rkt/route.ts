@@ -3,7 +3,6 @@ import RKT from '../../../models/RKT';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
-import Program from '@/models/Program';
 import getFilterQuery from '@/utils/getFilterQuery';
 
 const rktSchema = Joi.object({
@@ -50,8 +49,8 @@ const rktSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
-     renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
- 
+    renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
+
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
