@@ -98,6 +98,10 @@ export const DashboardLink = [
             {
                 label: 'Monitoring Kinerja',
                 path: '/dashboard/monitoring_kinerja'
+            },
+            {
+                label: 'Absen',
+                path: '/dashboard/absen'
             }
         ]
     },

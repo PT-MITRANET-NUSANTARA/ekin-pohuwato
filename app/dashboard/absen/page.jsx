@@ -165,25 +165,50 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Pilih Pegawai',
+            name: 'pegawai',
+            type: 'select',
+            options: [
+                {
+                    label: 'Pegawai1',
+                    value: 'pegawai1'
+                },
+                {
+                    label: 'Pegawai2',
+                    value: 'pegawai2'
+                },
+            ],
+            rules: [
+                {
+                    required: true,
+                    message: 'Field pegawai wajib di isi'
+                }
+            ]
+        },
+        {
             label: 'Status',
             name: 'status',
             type: 'select',
             options: [
                 {
                     label: 'Hadir',
-                    value: 'Hadir'
+                    value: 'hadir'
                 },
                 {
-                    label: 'Izin',
-                    value: 'Sakit'
+                    label: 'Tanpa Keterangan',
+                    value: 'tanpa_keterangan'
+                },
+                {
+                    label: 'Dinas Luar',
+                    value: 'dinas_luar'
                 },
                 {
                     label: 'Sakit',
-                    value: 'Izin'
+                    value: 'sakit'
                 },
                 {
-                    label: 'Alpha',
-                    value: 'Alpha'
+                    label: 'Izin',
+                    value: 'izin'
                 }
             ],
             rules: [
@@ -201,7 +226,7 @@ const page = () => {
             rules: [
                 {
                     required: true,
-                    message: 'Field periode mulai wajib di isi'
+                    message: 'Field tanggal mulai wajib di isi'
                 }
             ]
         }
@@ -316,7 +341,7 @@ const page = () => {
                         </Title>
                         <div className="flex items-center gap-x-2">
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
-                                Tambah Absence
+                                Tambah Absen
                             </Button>
                         </div>
                     </div>
