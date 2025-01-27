@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
         if (id) {
             periodes = await Periode.findOne({ _id: id });
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
                 periodes = await Periode.find({});
             } else {
                 periodes = await Periode.getAll(Number(page), Number(limit), JSON.parse(filters as string));

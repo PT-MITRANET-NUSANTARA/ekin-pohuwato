@@ -15,6 +15,7 @@ interface IProgram extends Document {
     tujuan: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
+    unit: Object;
 }
 
 interface IProgramMethods {
@@ -47,6 +48,10 @@ const ProgramSchema = new Schema<IProgram, ProgramModel, IProgramMethods>(
                 }
             }
         ],
+        unit: {
+            type: Object,
+            required: true
+        },
         total_anggaran: {
             type: Number,
             required: true

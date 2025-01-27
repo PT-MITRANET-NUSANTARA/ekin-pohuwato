@@ -12,6 +12,8 @@ interface ISubKegiatan extends Document {
     name: string;
     indikator_kinerja: IIndikatorKinerja[];
     total_anggaran: number;
+    unit: Object;
+
 }
 
 interface ISubKegiatanMethods {
@@ -49,6 +51,10 @@ const SubKegiatanSchema = new Schema<ISubKegiatan, SubKegiatanModel, ISubKegiata
                 }
             }
         ],
+        unit: {
+            type: Object,
+            required: true
+        },
         total_anggaran: {
             type: Number,
             required: true
@@ -98,8 +104,8 @@ SubKegiatanSchema.static('getAll', async function getAll(page: number = 1, limit
     };
 });
 
-SubKegiatanSchema.virtual('PeriodeRKTS', {
-    ref: 'PeriodeRKT',
+SubKegiatanSchema.virtual('rkts', {
+    ref: 'RKT',
     localField: '_id',
     foreignField: 'subKegiatan',
     justOne: false

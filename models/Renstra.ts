@@ -8,6 +8,7 @@ interface IRenstra extends Document {
     misi: mongoose.Types.ObjectId[];
     programs: mongoose.Types.ObjectId[];
     createdAt?: Date;
+    unit: Object;
     updatedAt?: Date;
 }
 
@@ -27,6 +28,10 @@ const RenstraSchema = new Schema<IRenstra, RenstraModel, IRenstraMethods>(
         },
         periode_end: {
             type: String,
+            required: true
+        },
+        unit: {
+            type: Object,
             required: true
         },
         misi: {

@@ -22,6 +22,8 @@ const programSchema = Joi.object({
     total_anggaran: Joi.number().required().label('Total Anggaran'),
     tujuan: Joi.string().hex().length(24).required().label('Tujuan'), // Mengharapkan ObjectId (24 karakter heksadesimal)
     __v: Joi.optional(),
+    unit: Joi.object().required().label('Unit'),
+
     _id: Joi.optional(),
     id: Joi.optional(),
     renstra: Joi.optional()
@@ -60,7 +62,7 @@ export async function GET(req: NextRequest) {
                 }
             });
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
                 programs = await Program.find({}).populate({
                     path: 'tujuan',
                     populate: {

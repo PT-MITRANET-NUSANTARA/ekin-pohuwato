@@ -2,7 +2,7 @@
 
 import { DataTable } from '@/components';
 import { Breadcrumb, Button, Card, Modal, Skeleton, Space, Tag, Typography } from 'antd';
-import { EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummySkpBawahan } from '@/data/dummyData';

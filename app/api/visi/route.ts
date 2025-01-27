@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         if (id) {
             visis = await Visi.findOne({ _id: id }).populate('periode'); // Populate the periode reference
         } else {
-            if (page === 'undefined' || limit === 'undefined') {
+            if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
                 visis = await Visi.find({}).populate('periode'); // Populate the periode reference
             } else {
                 visis = await Visi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
