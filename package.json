@@ -13,6 +13,7 @@
     "chart.js": "^4.4.4",
     "cookie": "^0.6.0",
     "formidable": "^3.5.1",
+    "ioredis": "^5.4.2",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
@@ -24,7 +25,8 @@
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
-    "react-highlight-words": "^0.20.0"
+    "react-highlight-words": "^0.20.0",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
     "@types/cookie": "^0.6.0",

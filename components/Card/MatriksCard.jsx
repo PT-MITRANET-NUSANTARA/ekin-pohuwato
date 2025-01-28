@@ -5,7 +5,7 @@ import DataTable from '../DataTable/DataTable';
 import { getByUserIdAndPeriode } from '@/controller/SKPController';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { store as storeRHK } from '@/controller/RHKController';
+import { store as storeRHK , destroy as destroyRHK, update as updateRHK} from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
 import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
 import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
@@ -17,20 +17,18 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const [data, setData] = useState(null);
-    const [aspek, setAspek] = useState(null);
+    const [rhk, setRhk] = useState([]);
     useEffect(() => {
         fetchData();
     }, []);
     const fetchData = async () => {
         try {
-            const response = await getBySKPAndPeriode(dataItem.id_asn, SKP.periodeRKT, SKP._id);
-            console.log('MATRIK', response);
-
+            const response = await getById(dataItem._id);
+            const jabatan = response.data.jabatan[response.data.jabatan.length - 1];
+            console.log('matrix', jabatan);
+            const rhks = response.data.rhks.filter(rhk => rhk.unit.id === jabatan.unor.induk.id);
+            setRhk(rhks)
             setData(response.data);
-            const aspek = response.data.rhks
-                .flatMap((item) => item.aspek) // Menggabungkan semua aspek ke satu array
-                .filter((aspek) => aspek); // Filter jika ada nilai null/undefined
-            setAspek(aspek);
         } catch (error) {
             console.log(error);
         }
@@ -45,8 +43,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
 
     const handleModalSubmit = async (key, value) => {
         setSubmitLoading(true);
-        if (key === '1') {
-
             const dt = {
                 rhk: value.rhk,
                 jenis: value.jenis,
@@ -58,10 +54,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
             };
             await storeAspek(dt);
             message.success('Berhasil Menambahkan Aspek');
-        } else if (key === '2') {
-            // Assuming deletion logic
-            message.success('Berhasil Menghapus Aspek');
-        }
+       
         fetchData();
         setSubmitLoading(false);
         setModal({ trigger: false });
@@ -217,14 +210,14 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                             </Button>
                                         )
                                     },
-                                    {
-                                        key: '2',
-                                        label: (
-                                            <Button size="small" type="link" danger icon={<DeleteOutlined />}>
-                                                Delete
-                                            </Button>
-                                        )
-                                    }
+                                    // {
+                                    //     key: '2',
+                                    //     label: (
+                                    //         <Button size="small" type="link" danger icon={<DeleteOutlined />}>
+                                    //             Delete
+                                    //         </Button>
+                                    //     )
+                                    // }
                                 ],
                                 onClick: ({ key }) => actionMethod({ key, item }) // Wrap the function call
                             }}
@@ -232,7 +225,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                             <Button className="w-fit">{item.jenis}</Button>
                         </Dropdown>
                     ))}
-                    <Button
+                    {/* <Button
                         className="w-fit"
                         variant="outlined"
                         color="primary"
@@ -266,7 +259,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         }
                     >
                         Tambah
-                    </Button>
+                    </Button> */}
                 </div>
             )
         },
@@ -291,7 +284,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     let dt = values;
                                     console.log(dt);
 
-                                    dt = { ...dt, skp: record.skp };
+                                    dt = { ...dt, skp: record.skp, unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor.induk };
                                     const response = await updateRHK(record._id, dt);
                                     console.log(response);
 
@@ -342,16 +335,16 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
     ];
 
     return (
-        <Card type="inner" title={dataItem.id_asn} extra={<Tag color={statusColors[SKP.status]}>{SKP.status}</Tag>}>
+        <Card type="inner" title={dataItem.user_id} extra={<Tag color={statusColors[dataItem.status]}>{dataItem.status}</Tag>}>
             <div className="grid grid-flow-row divide-y text-xs">
                 <div className="flex items-center justify-between py-2">
                     <span className="uppercase font-semibold">nama</span>
-                    <p className="text-right uppercase">{dataItem.nama_asn}</p>
+                    <p className="text-right uppercase">{dataItem.jabatan[dataItem.jabatan.length - 1].nama_asn}</p>
                 </div>
                 <div className="flex items-center justify-between py-2">
                     <span className="uppercase font-semibold">jabatan</span>
                     <div className="flex flex-col gap-y-2 text-right items-end">
-                        <p>{dataItem.nama_jabatan}</p>
+                        <p>{dataItem.jabatan[dataItem.jabatan.length - 1].nama_jabatan}</p>
                         {/* <small>ID : {item.id || '197801012007011026'}</small> */}
                     </div>
                 </div>
@@ -371,39 +364,18 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         const skp = data;
                                         console.log(skp);
                                         setSubmitLoading(true);
-                                        if (skp) {
-                                            const dt = {
-                                                ...value,
-                                                skp: skp._id
-                                            };
-                                            const rhk = await storeRHK(dataItem.id_asn, dt);
+                                        const dt = {
+                                            ...value,
+                                            unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor.induk,
+                                            skp: dataItem._id
+                                        };
+                                        const rhk = await storeRHK(dt);
 
-                                            console.log(rhk);
+                                        console.log(rhk);
 
-                                            message.success('Berhasil Menambahkan RHK');
-                                            fetchData();
-                                        } else {
-                                            const data = {
-                                                periode_awal: SKP.periode_awal,
-                                                periode_akhir: SKP.periode_akhir,
-                                                skp: [SKP._id],
-                                                periodeRKT: SKP.periodeRKT,
-                                                pendekatan: SKP.pendekatan,
-                                                renstra: SKP.renstra,
-                                                jabatan: [dataItem]
-                                            };
-                                            const newSKP = await storeSKP(dataItem.id_asn, data, '0');
-                                            const dt = {
-                                                ...value,
-                                                skp: newSKP?.data._id
-                                            };
-
-                                            const rhk = await storeRHK(dataItem.id_asn, dt);
-                                            fetchData();
-                                            message.success('Berhasil Menambahkan RHK');
-                                        }
+                                        message.success('Berhasil Menambahkan RHK');
+                                        fetchData();
                                         setSubmitLoading(false);
-
                                         setModal({ trigger: false });
                                     }
                                 })
@@ -412,7 +384,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                             Tambah RHK
                         </Button>
                     </div>
-                    <DataTable columns={rhkColumns} data={data?.rhks} loading={rhkData.loading} />
+                    <DataTable columns={rhkColumns} data={rhk} loading={rhkData.loading} />
 
                     {/* <Collapse bordered> */}
 

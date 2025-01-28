@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const uri = process.env.NEXT_PUBLIC_MONGODB_URI;
+const uri = process.env.MONGODB_URI;
 console.log(uri);
 
 const clientOptions = {
