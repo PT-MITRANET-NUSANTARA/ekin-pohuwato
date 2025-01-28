@@ -5,15 +5,15 @@ import DataTable from '../DataTable/DataTable';
 import { getByUserIdAndPeriode } from '@/controller/SKPController';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { store as storeRHK , destroy as destroyRHK, update as updateRHK} from '@/controller/RHKController';
+import { store as storeRHK, destroy as destroyRHK, update as updateRHK } from '@/controller/RHKController';
 import { store as storeAspek } from '@/controller/AspekController';
 import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
 import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
 import CrudModal from '../Modal/CrudModal';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => {
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const [data, setData] = useState(null);
@@ -43,30 +43,49 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
 
     const handleModalSubmit = async (key, value) => {
         setSubmitLoading(true);
-            const dt = {
-                rhk: value.rhk,
-                jenis: value.jenis,
-                indikator: value.indikator,
-                target_tahunan: {
-                    target: value.target_tahunan,
-                    satuan: String(value.satuan)
-                }
-            };
-            await storeAspek(dt);
-            message.success('Berhasil Menambahkan Aspek');
-       
-        fetchData();
-        setSubmitLoading(false);
-        setModal({ trigger: false });
-    };
+        try {
+            if (key === '1') {
+                const updatedData = {
+                    rhk: value.rhk,
+                    jenis: value.jenis,
+                    indikator: value.indikator,
+                    target_tahunan: {
+                        target: value.target_tahunan,
+                        satuan: String(value.satuan)
+                    }
+                };
+                await updateAspek(value._id, updatedData);
+                message.success('Berhasil Mengedit Aspek');
+            } else {
+                const newData = {
+                    rhk: value.rhk,
+                    jenis: value.jenis,
+                    indikator: value.indikator,
+                    target_tahunan: {
+                        target: value.target_tahunan,
+                        satuan: String(value.satuan)
+                    }
+                };
+                await storeAspek(newData);
+                message.success('Berhasil Menambahkan Aspek');
+            }
 
+            fetchData(); // Refresh data after operation
+        } catch (error) {
+            message.error('Operasi gagal: ' + error.message);
+        } finally {
+            setSubmitLoading(false);
+            setModal({ trigger: false });
+        }
+    };
     const actionMethod = ({ key, item }) => {
+        console.log(item)
         const modalConfig = {
             1: {
                 title: 'Edit Aspek',
                 type: 'edit',
                 formFields: AspekFields,
-                modalData: { ...item, rhk: item.rhk._id, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
+                modalData: { ...item, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
                 onSubmit: async (value) => await handleModalSubmit(key, value)
             },
             2: {
