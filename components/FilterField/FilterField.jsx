@@ -1,5 +1,5 @@
 import { Button, DatePicker, Form, Input, InputNumber, Rate, Select, TimePicker } from 'antd';
-import { RedoOutlined } from '@ant-design/icons';
+import { FilterOutlined, RedoOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 
@@ -75,9 +75,8 @@ const FilterField = ({ fields, onSubmit = () => {} }) => {
                         variant='solid'
                         color='primary'
                         htmlType='submit'
-                    >
-                        Submit
-                    </Button>
+                        icon={<FilterOutlined />}
+                    />
                 </Form.Item>
                 <Form.Item>
                     <Button
@@ -88,9 +87,7 @@ const FilterField = ({ fields, onSubmit = () => {} }) => {
                             setSelectValues({});
                             onSubmit({});
                         }} // Reset all fields
-                    >
-                        Reset
-                    </Button>
+                    />
                 </Form.Item>
             </Form>
         </>

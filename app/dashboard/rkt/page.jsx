@@ -15,6 +15,7 @@ import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/cont
 
 import { getData } from '@/controller/AuthorizationController';
 import { dateFormatter } from '@/utils';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -365,7 +366,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))
@@ -382,7 +383,7 @@ const page = () => {
             ],
             parentField: 'renstra',
             options: periodeRKT?.map((item) => ({
-                label: `${dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id_option_parent: item.renstra?._id,
                 id: item._id
@@ -470,7 +471,7 @@ const page = () => {
             name: 'periodeRKT',
             type: 'select',
             filter: 'eq',
-            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: periodeRKT?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Sub  Kegiatan',

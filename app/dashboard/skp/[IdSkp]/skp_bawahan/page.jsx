@@ -232,9 +232,9 @@ const page = () => {
                 ) : (
                     <>
                         <div className="grid grid-flow-row divide-y text-xs mb-12">
-                            <div className="flex items-center justify-between py-2">
+                            <div className="flex flex-col py-2">
                                 <span className="uppercase font-semibold">unit kerja</span>
-                                <p className="text-right uppercase">{user?.jabatan.unor.nama}</p>
+                                <p className=" uppercase">{user?.jabatan.unor.nama}</p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
                         <span className="uppercase font-semibold">status pegawai</span>

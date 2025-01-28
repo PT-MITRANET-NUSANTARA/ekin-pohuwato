@@ -16,6 +16,7 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 import { getPerjanjianKinerja } from '@/controller/ReportController';
 import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const page = () => {
     const router = useRouter();
@@ -236,12 +237,12 @@ const page = () => {
                                     {
                                         key: 'periode_start',
                                         label: 'Periode Mulai',
-                                        children: dateFormatter(record.renstra.periode_start)
+                                        children: formatDateToDayMonthYear(record.renstra.periode_start)
                                     },
                                     {
                                         key: 'periode_end',
                                         label: 'Periode Akhir',
-                                        children: dateFormatter(record.renstra.periode_end)
+                                        children: formatDateToDayMonthYear(record.renstra.periode_end)
                                     }
                                 ],
                                 isLoading: false,
@@ -260,7 +261,7 @@ const page = () => {
             key: 'periode_start',
             sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Periode Selesai',
@@ -268,7 +269,7 @@ const page = () => {
             key: 'periode_end',
             sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Perjanjian Kinerja',
@@ -373,7 +374,7 @@ const page = () => {
                     message: 'Field renstra wajib di isi'
                 }
             ],
-            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: renstra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Periode Mulai',
