@@ -51,14 +51,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const updatedVerifikasi = await Verifikasi.findOne({ 'unit.id_sapk': id });
+        const updatedVerifikasi = await Verifikasi.findOneAndUpdate({ _id: id }, body, { new: true });
+
 
         if (!updatedVerifikasi) {
             return NextResponse.json(createResponse(404, 'Verifikasi not found', null));
         }
 
-        updatedVerifikasi.unit = body.unit;
-        updatedVerifikasi.jabatan = body.jabatan;
         await updatedVerifikasi.save();
         return NextResponse.json(createResponse(200, 'Success', updatedVerifikasi, true));
     } catch (error) {

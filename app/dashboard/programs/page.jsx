@@ -59,6 +59,8 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
+            console.log("here",dt);
+            
             setSubmitLoading(true);
             switch (type) {
                 case 'create':

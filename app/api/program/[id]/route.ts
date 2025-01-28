@@ -76,7 +76,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const updatedProgram = await Program.findOneAndUpdate({ _id: id }, body, { new: true }).populate('kegiatans').populate('renstra');
+        const updatedProgram = await Program.findOneAndUpdate({ _id: id }, body, { new: true }).populate({
+            path: 'tujuan',
+            populate: {
+                path: 'renstra'
+            }
+        });
 
         if (!updatedProgram) {
             return NextResponse.json(createResponse(404, 'Program not found', null));
