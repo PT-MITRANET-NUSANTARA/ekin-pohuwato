@@ -4,22 +4,21 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, T
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, getByUnitId, store, update } from '@/controller/RenstraController';
+import { destroy, getByUnitId, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
-import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import { getAll as getAllMisi } from '@/controller/MisiController';
 import { getAll as getAllVisi } from '@/controller/VisiController';
-
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
 
@@ -123,29 +122,35 @@ const page = () => {
             width: '30%',
             render: (_, record) => (
                 <>
-                    <Button icon={<SearchOutlined />} onClick={() => setMisiModal({ modalData: record.misi, trigger: true })}>
+                    <Button icon={<SearchOutlined />} onClick={() => {
+                        setInfoModal({
+                            title: 'Informasi Misi',
+                            trigger: true,
+                            type: 'desc',
+                            data: [
+                                {
+                                    key: 'misi',
+                                    label: 'Misi',
+                                    children: (
+                                        <List
+                                            dataSource={record.misi}
+                                            renderItem={(item) => (
+                                                <List.Item>
+                                                    <div className="flex flex-col">
+                                                        <Typography.Text>{item.name}</Typography.Text>
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )
+                                }
+                            ],
+                            isLoading: false,
+                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                        });
+                    }}>
                         Info
                     </Button>
-                    <Modal open={misiModal.trigger} onCancel={() => setMisiModal({ modalData: null, trigger: false })} footer={null}>
-                        <Table
-                            className="mt-8"
-                            dataSource={misiModal.modalData?.map((item, index) => ({ ...item, key: index }))}
-                            pagination={false}
-                            bordered
-                            columns={[
-                                {
-                                    title: 'Misi',
-                                    dataIndex: 'name',
-                                    key: 'name'
-                                },
-                                {
-                                    title: 'Visi',
-                                    dataIndex: ['visi', 'name'],
-                                    key: 'visi'
-                                }
-                            ]}
-                        />
-                    </Modal>
                 </>
             )
         },
@@ -156,14 +161,14 @@ const page = () => {
             key: 'periode_start',
             sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
             sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Action',
@@ -180,28 +185,23 @@ const page = () => {
                                     {
                                         key: 'periode_start',
                                         label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode_start)
+                                        children: formatDateToDayMonthYear(record.periode_start)
                                     },
                                     {
                                         key: 'periode_end',
                                         label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode_end)
+                                        children: formatDateToDayMonthYear(record.periode_end)
                                     },
                                     {
                                         key: 'misi',
                                         label: 'Misi',
                                         children: (
                                             <List
-                                                dataSource={record.indikator_kinerja}
+                                                dataSource={record.misi}
                                                 renderItem={(item) => (
                                                     <List.Item>
                                                         <div className="flex flex-col">
-                                                            <Typography.Title level={5} className="m-0">
-                                                                Misi : {item.name}
-                                                            </Typography.Title>
-                                                            <Typography.Text>Visi : {item.visi.name}</Typography.Text>
-                                                            {/* <Typography.Text>Periode Mulai : {dateFormatter(item.visi.periode.periode_start)}</Typography.Text>
-                                                            <Typography.Text>Periode Akhir : {dateFormatter(item.visi.periode.periode_end)}</Typography.Text> */}
+                                                            <Typography.Text>{item.name}</Typography.Text>
                                                         </div>
                                                     </List.Item>
                                                 )}
@@ -225,6 +225,7 @@ const page = () => {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
                                     // periode: record.misi[0].visi.periode._id,
+                                    visi: record.misi[0].visi._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },
@@ -247,6 +248,7 @@ const page = () => {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
                                     // periode: record.misi[0].visi.periode._id,
+                                    visi: record.misi[0].visi._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },

@@ -21,7 +21,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [periodeRKT, setPeriodeRKT] = useState(null);
@@ -50,7 +50,7 @@ const page = () => {
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
             const periode = await getPeriodeByUnit(user.jabatan?.unor?.induk.id);
             console.log(periode);
-            
+
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
             setRenstra(renstra.data);
@@ -171,6 +171,7 @@ const page = () => {
                     <Space size="small">
                         <Button
                             onClick={() => {
+                                console.log(record)
                                 setInfoModal({
                                     title: 'Informasi Kegiatan',
                                     trigger: true,
@@ -264,7 +265,7 @@ const page = () => {
                             onClick={() =>
                                 setModal({
                                     trigger: true,
-                                    modalData: record, // Data yang sudah di-reverse transform
+                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id, subKegiatan: record.subKegiatan._id }, // Data yang sudah di-reverse transform
                                     title: `Edit Renstra ${record._id}`,
                                     type: 'edit'
                                 })
@@ -279,7 +280,7 @@ const page = () => {
                             onClick={() =>
                                 setModal({
                                     trigger: true,
-                                    modalData: record, // Data yang sudah di-reverse transform
+                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id, subKegiatan: record.subKegiatan._id }, // Data yang sudah di-reverse transform
                                     title: `Delete Renstra ${record._id}`,
                                     type: 'delete'
                                 })
