@@ -5,16 +5,17 @@ interface IPeriodePenilaian extends Document {
     name: string;
     periodeStart: Date;
     periodeEnd: Date;
-    skp: mongoose.Schema.Types.ObjectId; 
-    createdAt?: Date; 
+    createdAt?: Date;
     updatedAt?: Date;
+    unit: Object;
+    periodeRKT: mongoose.Types.ObjectId;
 }
 
 interface IPeriodePenilaianMethods {
     cascadeDelete(): Promise<void>;
 }
 
-interface PeriodePenilaianModel extends mongoose.Model<IPeriodePenilaian, {} ,IPeriodePenilaianMethods> {
+interface PeriodePenilaianModel extends mongoose.Model<IPeriodePenilaian, {}, IPeriodePenilaianMethods> {
     getAll(page: number, limit: number, filters: Object): Promise<HydratedDocument<IPeriodePenilaian, IPeriodePenilaianMethods>>;
 }
 
@@ -32,16 +33,20 @@ const PeriodePenilaianSchema = new Schema<IPeriodePenilaian, PeriodePenilaianMod
             type: Date,
             required: true
         },
-        skp: {
-            type: Schema.Types.ObjectId,
-            ref: 'SKP',
+        periodeRKT: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'PeriodeRKT',
+            required: true
+        },
+        unit: {
+            type: Object,
             required: true
         }
     },
     {
-        timestamps: true, 
-        toObject: { virtuals: true }, 
-        toJSON: { virtuals: true } 
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true }
     }
 );
 
@@ -78,6 +83,6 @@ PeriodePenilaianSchema.virtual('penilaians', {
     justOne: false
 });
 
-const PeriodePenilaian: PeriodePenilaianModel = mongoose.models.PeriodePenilaian as PeriodePenilaianModel || mongoose.model<IPeriodePenilaian, PeriodePenilaianModel>('PeriodePenilaian', PeriodePenilaianSchema);
+const PeriodePenilaian: PeriodePenilaianModel = (mongoose.models.PeriodePenilaian as PeriodePenilaianModel) || mongoose.model<IPeriodePenilaian, PeriodePenilaianModel>('PeriodePenilaian', PeriodePenilaianSchema);
 
 export default PeriodePenilaian;

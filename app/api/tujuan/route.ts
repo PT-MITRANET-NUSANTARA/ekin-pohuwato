@@ -46,19 +46,15 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const id = req.nextUrl.searchParams.get('id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let tujuans;
-        if (id) {
-            tujuans = await Tujuan.findOne({ _id: id }).populate('renstra'); // Populate the renstra reference
+
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
         } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                tujuans = await Tujuan.find({}).populate('renstra'); // Populate the renstra reference
-            } else {
-                tujuans = await Tujuan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            tujuans = await Tujuan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', tujuans, true));
@@ -86,58 +82,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Tujuan' }, { status: 500 });
-    }
-}
-
-// PUT method to update an existing Tujuan record
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateTujuanData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedTujuan = await Tujuan.findOneAndUpdate({ _id: id }, body, { new: true });
-
-        if (!updatedTujuan) {
-            return NextResponse.json(createResponse(404, 'Tujuan not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedTujuan, true));
-    } catch (error) {
-        console.error('PUT error:', error);
-        return NextResponse.json({ error: 'Failed to update Tujuan' }, { status: 500 });
-    }
-}
-
-// DELETE method to remove an existing Tujuan record
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedTujuan = await Tujuan.findById(id);
-        if (!deletedTujuan) {
-            return NextResponse.json(createResponse(404, 'Tujuan not found', null));
-        }
-
-        await deletedTujuan.cascadeDelete();
-
-        return NextResponse.json(createResponse(200, 'Success', deletedTujuan, true));
-    } catch (error) {
-        console.error('DELETE error:', error);
-        return NextResponse.json({ error: 'Failed to delete Tujuan' }, { status: 500 });
     }
 }

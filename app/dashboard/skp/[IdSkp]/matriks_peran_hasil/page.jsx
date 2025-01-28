@@ -16,38 +16,35 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdSkp } = useParams();
-    const { data, setData, loading } = useFetchData(getData);
+    const { data: user, setData: setUser } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [unor, setUnor] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user]);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-
-            const selectedJabatan = jabatan.mapData.data[0];
-            console.log(selectedJabatan.unor.id);
+            const selectedJabatan = user.jabatan;
+            console.log(selectedJabatan);
             
-            
-            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-            console.log(unit);
-
+            const unit = await getAllPosjabByUnit(user.token, selectedJabatan.unor.induk.id);
             const bawahan = unit.mapData.data.filter((item) => (item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
-            
-            setJabatan(selectedJabatan);
 
+            setJabatan(selectedJabatan);
             setUnor(bawahan);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
     console.log(unor);
-    
+
     const Column = [
         {
             title: 'No',
@@ -59,24 +56,22 @@ const page = () => {
             title: 'Name',
             dataIndex: 'nama_asn',
             key: 'nama_asn',
-            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length,
+            sorter: (a, b) => a.nama_asn.length - b.nama_asn.length
         },
         {
             title: 'Unit Kerja',
             dataIndex: 'unit',
             key: 'unit',
-            render: (_, record) => (
-                record.unor && record.unor.nama ? record.unor.nama : 'No Unit'
-            ),
+            render: (_, record) => (record.unor && record.unor.nama ? record.unor.nama : 'No Unit')
         },
-        
+
         {
             title: 'Jabatan',
             dataIndex: 'nama_jabatan',
             key: 'nama_jabatan',
             sorter: (a, b) => a.nama_jabatan.length - b.nama_jabatan.length,
             width: '30%'
-        },
+        }
         // {
         //     title: 'Action',
         //     key: 'action',
@@ -136,7 +131,6 @@ const page = () => {
                                     Matriks Unit Kerja
                                 </Button>
                             </Tooltip>
-                    
                         </div>
                     </div>
                     <DataTable columns={Column} data={unor} loading={loading} />

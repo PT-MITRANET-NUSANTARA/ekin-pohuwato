@@ -3,9 +3,10 @@ import SubKegiatan from '../../../models/SubKegiatan';
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const subKegiatanSchema = Joi.object({
-    kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'), 
+    kegiatan: Joi.string().hex().length(24).required().label('Kegiatan'),
     name: Joi.string().required().label('Nama'),
     indikator_kinerja: Joi.array()
         .items(
@@ -51,34 +52,26 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const id = req.nextUrl.searchParams.get('id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
-        const kegiatan_id = req.headers.get('kegiatan-id');
         let subKegiatans;
 
-        if (id) {
-            subKegiatans = await SubKegiatan.findOne({ _id: id });
-        } else if (kegiatan_id) {
-            subKegiatans = await SubKegiatan.find({ kegiatan: kegiatan_id }).populate('kegiatan');
-        } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                subKegiatans = await SubKegiatan.find({}).populate({
-                    path: 'kegiatan',
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            subKegiatans = await SubKegiatan.find(getFilterQuery(filters)).populate({
+                path: 'kegiatan',
+                populate: {
+                    path: 'program',
                     populate: {
-                        path: 'program',
+                        path: 'tujuan',
                         populate: {
-                            path: 'tujuan',
-                            populate: {
-                                path: 'renstra'
-                            }
+                            path: 'renstra'
                         }
                     }
-                });
-            } else {
-                subKegiatans = await SubKegiatan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+                }
+            });
+        } else {
+            subKegiatans = await SubKegiatan.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', subKegiatans, true));
@@ -105,55 +98,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error); // Added error logging
         return NextResponse.json({ error: 'Failed to create SubKegiatan' }, { status: 500 });
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateSubKegiatanData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedSubKegiatan = await SubKegiatan.findOneAndUpdate({ _id: id }, body, { new: true });
-
-        if (!updatedSubKegiatan) {
-            return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedSubKegiatan, true));
-    } catch (error) {
-        console.error('PUT error:', error);
-        return NextResponse.json({ error: 'Failed to update SubKegiatan' }, { status: 500 });
-    }
-}
-
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedSubKegiatan = await SubKegiatan.findById(id);
-        if (!deletedSubKegiatan) {
-            return NextResponse.json(createResponse(404, 'SubKegiatan not found', null));
-        }
-        deletedSubKegiatan.cascadeDelete();
-
-        return NextResponse.json(createResponse(200, 'Success', deletedSubKegiatan, true));
-    } catch (error) {
-        console.error('DELETE error:', error); // Added error logging
-        return NextResponse.json({ error: 'Failed to delete SubKegiatan' }, { status: 500 });
     }
 }

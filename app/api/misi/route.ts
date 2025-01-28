@@ -4,6 +4,7 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Misi from '@/models/Misi';
+import getFilterQuery from '@/utils/getFilterQuery';
 
 const misiSchema = Joi.object({
     name: Joi.string().required().label('Nama Misi'),
@@ -35,19 +36,16 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const id = req.nextUrl.searchParams.get('id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
+        
         let misis;
-        if (id) {
-            misis = await Misi.findOne({ _id: id }).populate('visi'); // Populate the visi reference
+
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            misis = await Misi.find(getFilterQuery(filters)).populate('visi'); // Populate the visi reference
         } else {
-            if (!(page && limit) || (page === 'undefined' || limit === 'undefined')) {
-                misis = await Misi.find({}).populate('visi'); // Populate the visi reference
-            } else {
-                misis = await Misi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            misis = await Misi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', misis, true));
@@ -75,58 +73,5 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Misi' }, { status: 500 });
-    }
-}
-
-// PUT method to update an existing Misi record
-export async function PUT(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const errors = validateMisiData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const updatedMisi = await Misi.findOneAndUpdate({ _id: id }, body, { new: true });
-
-        if (!updatedMisi) {
-            return NextResponse.json(createResponse(404, 'Misi not found', null));
-        }
-
-        return NextResponse.json(createResponse(200, 'Success', updatedMisi, true));
-    } catch (error) {
-        console.error('PUT error:', error);
-        return NextResponse.json({ error: 'Failed to update Misi' }, { status: 500 });
-    }
-}
-
-// DELETE method to remove an existing Misi record
-export async function DELETE(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const id = req.nextUrl.searchParams.get('id');
-        if (!id || typeof id !== 'string') {
-            return NextResponse.json(createResponse(400, 'Invalid or missing ID', null));
-        }
-
-        const deletedMisi = await Misi.findById(id);
-        if (!deletedMisi) {
-            return NextResponse.json(createResponse(404, 'Misi not found', null));
-        }
-
-        deletedMisi.cascadeDelete();
-
-        return NextResponse.json(createResponse(200, 'Success', deletedMisi, true));
-    } catch (error) {
-        console.error('DELETE error:', error);
-        return NextResponse.json({ error: 'Failed to delete Misi' }, { status: 500 });
     }
 }

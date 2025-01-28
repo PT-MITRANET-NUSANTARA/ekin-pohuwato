@@ -13,7 +13,9 @@ const periodePenilaianSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     createdAt: Joi.date().optional(),
-    updatedAt: Joi.date().optional()
+    updatedAt: Joi.date().optional(),
+    unit: Joi.object().required().label('Unit'),
+    periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT') // Referensi ObjectId ke SubKegiatan
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',

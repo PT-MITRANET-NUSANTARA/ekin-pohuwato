@@ -19,7 +19,6 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [submitLoading, setSubmitLoading] = useState(false);
     const [visi, setVisi] = useState(null);
-    const [periode, setPeriode] = useState(null);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -33,9 +32,7 @@ const page = () => {
             const data = await getAll(pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const periode = await getAllPeriode();
             const visi = await getAllVisi();
-            setPeriode(periode.data);
             setVisi(visi.data);
         } catch (error) {
             console.log(error);
@@ -233,7 +230,7 @@ const page = () => {
                         icon={<EyeOutlined />}
                     />
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'edit' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id }, title: `Edit Misi ${record._id}`, type: 'edit' })}
                         // type='primary'
                         size="middle"
                         variant="outlined"
@@ -242,7 +239,7 @@ const page = () => {
                     />
 
                     <Button
-                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id, periode: record.visi.periode }, title: `Edit Misi ${record._id}`, type: 'delete' })}
+                        onClick={() => setModal({ formFields: misiFields, trigger: true, modalData: { ...record, visi: record.visi._id }, title: `Edit Misi ${record._id}`, type: 'delete' })}
                         // type='primary'
                         size="middle"
                         danger
@@ -254,6 +251,22 @@ const page = () => {
     ];
 
     const misiFields = [
+        // {
+        //     label: 'Periode',
+        //     name: 'periode',
+        //     type: 'select',
+        //     rules: [
+        //         {
+        //             required: true,
+        //             message: 'Field Periode wajib di isi'
+        //         }
+        //     ],
+        //     options: periode?.map((item) => ({
+        //         label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+        //         value: item._id,
+        //         id: item._id
+        //     }))
+        // },
         {
             label: 'Visi',
             name: 'visi',
@@ -266,9 +279,11 @@ const page = () => {
             ],
             options: visi?.map((item) => ({
                 label: item.name,
-                value: item._id,
-                id: item._id
-            })),
+                value: item._id
+                // id_option_parent: item.periode._id,
+                // id: item._id
+            }))
+            // parentField: 'periode'
         },
         {
             label: 'Misi',
@@ -329,7 +344,7 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} pagination={pagination} setPagination={setPagination}/>
+                            <DataTable columns={Column} data={data} pagination={pagination} setPagination={setPagination} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

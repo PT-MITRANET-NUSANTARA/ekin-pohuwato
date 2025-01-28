@@ -4,45 +4,48 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, T
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update } from '@/controller/RenstraController';
+import { destroy, getAll, getByUnitId, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import { getAll as getAllMisi } from '@/controller/MisiController';
-import { getAll as getAllPeriode } from '@/controller/PeriodeController';
+import { getAll as getAllVisi } from '@/controller/VisiController';
 
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
 
     const [misiModal, setMisiModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
-
+    const { data: user, setData: setUser } = useFetchData(getData);
     const [misi, setMisi] = useState(null);
-    const [periode, setPeriode] = useState(null);
+    const [visi, setVisi] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
-        fetchData();
-    }, [pagination.page, pagination.limit]);
+        if (user) {
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const periode = await getAllPeriode();
             const misi = await getAllMisi();
-            setPeriode(periode.data);
+            const visi = await getAllVisi();
             setMisi(misi.data);
+            setVisi(visi.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -54,14 +57,16 @@ const page = () => {
         try {
             setSubmitLoading(true);
             let response;
+            let dt = values;
+            dt = { ...dt, unit: user.jabatan.unor.induk };
 
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -75,7 +80,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                fetchData()
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -195,8 +200,8 @@ const page = () => {
                                                                 Misi : {item.name}
                                                             </Typography.Title>
                                                             <Typography.Text>Visi : {item.visi.name}</Typography.Text>
-                                                            <Typography.Text>Periode Mulai : {dateFormatter(item.visi.periode.periode_start)}</Typography.Text>
-                                                            <Typography.Text>Periode Akhir : {dateFormatter(item.visi.periode.periode_end)}</Typography.Text>
+                                                            {/* <Typography.Text>Periode Mulai : {dateFormatter(item.visi.periode.periode_start)}</Typography.Text>
+                                                            <Typography.Text>Periode Akhir : {dateFormatter(item.visi.periode.periode_end)}</Typography.Text> */}
                                                         </div>
                                                     </List.Item>
                                                 )}
@@ -219,7 +224,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
-                                    periode: record.misi[0].visi.periode._id,
+                                    // periode: record.misi[0].visi.periode._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },
@@ -241,7 +246,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
-                                    periode: record.misi[0].visi.periode._id,
+                                    // periode: record.misi[0].visi.periode._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },
@@ -261,6 +266,22 @@ const page = () => {
 
     const formFields = [
         {
+            label: 'Visi',
+            name: 'visi',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Visi wajib di isi'
+                }
+            ],
+            options: visi?.map((item) => ({
+                label: item.name,
+                value: item._id,
+                id: item._id
+            }))
+        },
+        {
             label: 'Misi',
             name: 'misi',
             type: 'select',
@@ -273,9 +294,11 @@ const page = () => {
             options: misi?.map((item) => ({
                 label: item.name,
                 value: item._id,
+                id_option_parent: item.visi._id,
                 id: item._id
             })),
             mode: 'multiple',
+            parentField: 'visi'
         },
         {
             label: 'Periode Mulai',
@@ -362,15 +385,14 @@ const page = () => {
         fetchData();
     };
 
-
     const filterFileds = [
         {
-            label: 'Periode',
-            name: 'periode',
+            label: 'Visi',
+            name: 'visi',
             type: 'select',
             filter: 'eq',
-            options: periode?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+            options: visi?.map((item) => ({
+                label: item.name,
                 value: item._id,
                 id: item._id
             }))
@@ -383,27 +405,27 @@ const page = () => {
             options: misi?.map((item) => ({
                 label: item.name,
                 value: item._id,
-                id_option_parent: item.visi.periode,
+                id_option_parent: item.visi._id,
                 id: item._id
-            })),
+            }))
         },
-        {
-            label: 'Misi',
-            name: 'misi',
-            type: 'select',
-            filter: 'eq',
-            options: misi?.map((item) => ({
-                label: item.name,
-                value: item._id,
-                id_option_parent: item.visi.periode,
-                id: item._id
-            })),
-        },
+        // {
+        //     label: 'Misi',
+        //     name: 'misi',
+        //     type: 'select',
+        //     filter: 'eq',
+        //     options: misi?.map((item) => ({
+        //         label: item.name,
+        //         value: item._id,
+        //         id_option_parent: item.visi.periode,
+        //         id: item._id
+        //     }))
+        // },
         {
             label: 'Periode Mulai',
             name: 'periode_start',
             type: 'date',
-            filter: 'gte',
+            filter: 'gte'
         },
         {
             label: 'Periode Selesai',

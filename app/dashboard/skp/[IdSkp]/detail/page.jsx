@@ -195,13 +195,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.userId}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.userId}
+                                            {jabatan?.nip_asn}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">

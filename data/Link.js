@@ -12,10 +12,10 @@ export const DashboardLink = [
         icon: RocketOutlined,
         label: 'Visi Misi Periode',
         children: [
-            {
-                label: 'Periode',
-                path: '/dashboard/periode'
-            },
+            // {
+            //     label: 'Periode',
+            //     path: '/dashboard/periode'
+            // },
             {
                 label: 'Visi',
                 path: '/dashboard/visi'
