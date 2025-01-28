@@ -112,7 +112,7 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
         //         await perilakuData.save();
         //     }
         // }
-        return NextResponse.json(createResponse(201, 'Success', newSKP, true));
+        return NextResponse.json(createResponse(201, 'Success', skp, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
