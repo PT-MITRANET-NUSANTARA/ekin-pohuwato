@@ -7,36 +7,38 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dummyBawahan } from '@/data';
-import { getData } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
-import { getById, getBySKP } from '@/controller/SKPController';
+import { getById, getBySKPId } from '@/controller/SKPController';
 import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
 import { getHasilSkp } from '@/controller/ReportController';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
-
-    const { data, setData } = useFetchData(getData);
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [skp, setSKP] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [data, setData] = useState([]);
+
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
+            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
             const skp = await getById(IdSkp);
-            const bawahan = await getBySKP(skp.data._id);
-            setBawahan(bawahan.data);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setSKP(skp.data);
             setLoading(false);
         } catch (error) {
@@ -118,7 +120,7 @@ const page = () => {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Space size="small" direction='vertical'>
+                <Space size="small" direction="vertical">
                     <Button
                         // type='primary'
                         size="middle"
@@ -161,7 +163,7 @@ const page = () => {
                             if (res.ok) {
                                 console.log(res.data);
                                 const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
-                                
+
                                 const index = res.data.skp.findIndex((item) => item._id === IdSkp);
                                 const bawahan = res.data.jabatan[index];
                                 const jabatan = skpAtasan.jabatan;
@@ -211,7 +213,7 @@ const page = () => {
                                 });
 
                                 console.log(atasan);
-                                
+
                                 const query = {
                                     atasan: atasan,
                                     bawahan: bawahan,
@@ -223,11 +225,10 @@ const page = () => {
                                 };
 
                                 console.log(query);
-                                
 
                                 const pdfBlob = await getHasilSkp(query);
                                 console.log(pdfBlob);
-                                
+
                                 const url = window.URL.createObjectURL(pdfBlob);
                                 const a = document.createElement('a');
                                 a.href = url;
@@ -285,8 +286,8 @@ const page = () => {
                     message: 'Field Tanggal Penilai Kinerja wajib di isi'
                 }
             ]
-        },
-    ]
+        }
+    ];
     return (
         <div className="flex flex-col gap-y-4">
             <Breadcrumb
@@ -336,14 +337,14 @@ const page = () => {
                         <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
                         </Button>
-                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({trigger: true, formFields: evaluasiKinerjaPrintFields, title: "Cetak Dokumen Evaluasi Kinerja", onSubmit: () => {}})}>
+                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, formFields: evaluasiKinerjaPrintFields, title: 'Cetak Dokumen Evaluasi Kinerja', onSubmit: () => {} })}>
                             Cetak Dokumen Evaluasi Kinerja
                         </Button>
                         <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
                             Lihat Kurva
                         </Button>
                     </div>
-                    <DataTable columns={Column} data={bawahan} loading={loading} />
+                    <DataTable columns={Column} data={data} loading={loading} />
                     <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
                 </Card>
             )}
