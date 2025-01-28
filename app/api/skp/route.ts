@@ -68,20 +68,15 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        const skp_id = req.headers.get('skp-id');
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
 
-        if (skp_id) {
-            skps = await SKP.find({ skp: { $in: [skp_id] } });
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            skps = await SKP.find(getFilterQuery(filters)).populate('skp').populate('periodeRKT');
         } else {
-            if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-                skps = await SKP.find(getFilterQuery(filters)).populate('skp').populate('periodeRKT');
-            } else {
-                skps = await SKP.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+            skps = await SKP.getAll(Number(page), Number(limit), JSON.parse(filters as string));
         }
 
         return NextResponse.json(createResponse(200, 'Success', skps, true));
@@ -105,7 +100,7 @@ export async function POST(req: NextRequest) {
         }
 
         const newSKP = new SKP(body);
-        
+
         await newSKP.save();
         if (newSKP) {
             for (const item of perilaku) {

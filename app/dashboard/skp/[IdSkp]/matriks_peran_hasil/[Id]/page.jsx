@@ -9,9 +9,9 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
-import { getById, getByUserIdAndPeriode, store as storeSKP } from '@/controller/SKPController';
-import {update as updateRHK, destroy as destroyRHK}  from '@/controller/RHKController'
-import {update as updateAspek, destroy as destroyAspek}  from '@/controller/AspekController'
+import { getById, getBySKPId, store as storeSKP } from '@/controller/SKPController';
+import { update as updateRHK, destroy as destroyRHK, getBySKPId as getRHKBySkp } from '@/controller/RHKController';
+import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
 import { dummyIntervensiRhk } from '@/data';
 import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
 import { useRouter } from 'next/navigation';
@@ -23,32 +23,27 @@ const page = () => {
     const { Id, IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const router = useRouter();
-
-    const { data, setData, loading } = useFetchData(getData);
-    const [jabatan, setJabatan] = useState(null);
-    const [unor, setUnor] = useState(null);
-    const [SKP, setSKP] = useState(null);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [loadingData, setLoadingData] = useState(true);
+    const [rhk, setRhk] = useState([]);
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const skp = await getById(Id);
-            console.log(skp);
-
-            setSKP(skp.data);
-            const selectedJabatan = jabatan.mapData.data[0];
-            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-            const bawahan = unit.mapData.data.filter((item) => (item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
-            setJabatan(selectedJabatan);
-
-            setUnor(bawahan);
+            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            console.log("SKP", data);
+            
+            const rhks = await getRHKBySkp(IdSkp);
+            setRhk(rhks.data);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -119,20 +114,29 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Aspek', type: 'edit', formFields: AspekFields, onSubmit: async(values) => {
-                            const dt = values;
-                            console.log(dt);
-                            console.log(record);
-                            
-                            // const response = await updateAspek(record._id, dt);
-                            // if (response.ok) {
-                            //     message.success('Berhasil Mengubah Aspek');
-                            //     setModal({ trigger: false });
-                            // }else
-                            // {
-                            //     message.error('Gagal Mengubah Aspek');
-                            // }
-                        } })}
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: record,
+                                title: 'Edit Aspek',
+                                type: 'edit',
+                                formFields: AspekFields,
+                                onSubmit: async (values) => {
+                                    const dt = values;
+                                    console.log(dt);
+                                    console.log(record);
+
+                                    // const response = await updateAspek(record._id, dt);
+                                    // if (response.ok) {
+                                    //     message.success('Berhasil Mengubah Aspek');
+                                    //     setModal({ trigger: false });
+                                    // }else
+                                    // {
+                                    //     message.error('Gagal Mengubah Aspek');
+                                    // }
+                                }
+                            })
+                        }
                         size="middle"
                         icon={<EditOutlined />}
                     />
@@ -148,8 +152,6 @@ const page = () => {
             )
         }
     ];
-
-    
 
     const rencanaAksiColumn = [
         {
@@ -188,7 +190,6 @@ const page = () => {
         }
     ];
 
-
     const RhkFields = [
         {
             label: 'RHK',
@@ -200,7 +201,7 @@ const page = () => {
                     message: 'Field rhk wajib di isi'
                 }
             ],
-            options: SKP?.rhks.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name }))
+            options: rhk?.map((item) => ({ value: item._id, label: item.desc ? item.desc : item.rkt.name }))
         },
         {
             label: 'Klasifikasi',
@@ -300,22 +301,6 @@ const page = () => {
         }
     ];
 
-    const RencanaAksiField = [
-        {
-            label: 'Content',
-            name: 'content',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field content wajib di isi'
-                }
-            ]
-        }
-    ];
-
-    
-
     const rhkData = {
         loading: false,
         data: dummyIntervensiRhk,
@@ -366,18 +351,18 @@ const page = () => {
                     <>
                         <div className="grid grid-flow-row divide-y text-xs mb-12">
                             <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">{jabatan?.nama_jabatan}</span>
+                                <span className="uppercase font-semibold">{user.jabatan?.nama_jabatan}</span>
                                 {/* <p className="text-right uppercase">Tahun 2024</p> */}
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">Unit Organisasi</span>
-                                <p className="text-right uppercase">{jabatan?.unor.nama}</p>
+                                <p className="text-right uppercase">{user?.jabatan?.unor.nama}</p>
                             </div>
                         </div>
 
                         <div className="w-full flex flex-col gap-y-4">
-                            {unor?.map((item, index) => {
-                                return <MatriksCard dataItem={item} aspekData={aspekData} rencanaAksiData={rencanaAksiData} rhkData={rhkData} key={index} modal={modal} SKP={SKP} />;
+                            {data?.map((item, index) => {
+                                return <MatriksCard dataItem={item} aspekData={aspekData} rencanaAksiData={rencanaAksiData} rhkData={rhkData} key={index} modal={modal} SKP={IdSkp} />;
                             })}
                         </div>
                     </>
