@@ -10,13 +10,15 @@ import { getAll, store, update, destroy } from '@/controller/MisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllVisi } from '@/controller/VisiController';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
     const [submitLoading, setSubmitLoading] = useState(false);
     const [visi, setVisi] = useState(null);
     const [data, setData] = useState([]);
@@ -126,27 +128,19 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Misi' : type === 'edit' ? 'Berhasil Mengedit Misi' : 'Berhasil Menambahkan Misi',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Misi' : type === 'edit' ? 'Berhasil Mengedit Misi' : 'Berhasil Menambahkan Misi')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -251,7 +245,7 @@ const page = () => {
     ];
 
     const misiFields = [
-      
+
         {
             label: 'Visi',
             name: 'visi',

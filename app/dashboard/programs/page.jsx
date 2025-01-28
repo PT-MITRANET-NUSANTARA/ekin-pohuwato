@@ -14,6 +14,8 @@ import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -25,6 +27,7 @@ const page = () => {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const { success, error } = useNotification()
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const { data: user, setData: setUser } = useFetchData(getData);
     useEffect(() => {
@@ -50,7 +53,7 @@ const page = () => {
     };
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
 
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -60,8 +63,8 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
-            console.log("here",dt);
-            
+            console.log("here", dt);
+
             setSubmitLoading(true);
             switch (type) {
                 case 'create':
@@ -69,9 +72,9 @@ const page = () => {
                     break;
 
                 case 'edit':
-                    
-                    response = await update(id, {...dt, tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, renstra: dt.renstra.value ? dt.renstra.value : dt.renstra});
-                    
+
+                    response = await update(id, { ...dt, tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, renstra: dt.renstra.value ? dt.renstra.value : dt.renstra });
+
                     break;
 
                 case 'delete':
@@ -85,27 +88,20 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Program' : type === 'edit' ? 'Berhasil Mengedit Program' : 'Berhasil Menambahkan Program',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Program' : type === 'edit' ? 'Berhasil Mengedit Program' : 'Berhasil Menambahkan Program')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
+
         }
         setSubmitLoading(false);
 

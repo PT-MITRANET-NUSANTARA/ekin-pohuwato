@@ -41,7 +41,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         rejected: 'red'
     };
 
-    const handleModalSubmit = async (key, value) => {
+    const handleModalSubmit = async (key, value, id) => {
         setSubmitLoading(true);
         try {
             if (key === '1') {
@@ -54,7 +54,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         satuan: String(value.satuan)
                     }
                 };
-                await updateAspek(value._id, updatedData);
+                await updateAspek(id, updatedData);
                 message.success('Berhasil Mengedit Aspek');
             } else {
                 const newData = {
@@ -70,7 +70,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                 message.success('Berhasil Menambahkan Aspek');
             }
 
-            fetchData(); // Refresh data after operation
+            fetchData(); 
         } catch (error) {
             message.error('Operasi gagal: ' + error.message);
         } finally {
@@ -79,14 +79,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         }
     };
     const actionMethod = ({ key, item }) => {
-        console.log(item)
         const modalConfig = {
             1: {
                 title: 'Edit Aspek',
                 type: 'edit',
                 formFields: AspekFields,
                 modalData: { ...item, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
-                onSubmit: async (value) => await handleModalSubmit(key, value)
+                onSubmit: async (value) => await handleModalSubmit(key, value, item._id)
             },
             2: {
                 title: 'Delete Aspek',

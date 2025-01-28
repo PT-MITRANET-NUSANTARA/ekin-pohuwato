@@ -123,6 +123,28 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })}
+                        // type='primary'
+                        size="middle"
+                        icon={<EditOutlined />}
+                    />
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })}
+                        // type='primary'
+                        size="middle"
+                        color="default"
+                        icon={<EyeOutlined />}
+                    />
+
+                    <Button
+                        onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })}
+                        // type='primary'
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
+
+                    <Button
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${record._id}/penilaian`)}
                         // type='primary'
                         size="middle"
@@ -138,6 +160,42 @@ const page = () => {
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
+
+    const formFields = [
+        {
+            label: 'Nama Periode',
+            name: 'name',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama periode wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Periode Mulai',
+            name: 'periodeStart',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Periode Selesai',
+            name: 'periodeEnd',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode selesai wajib di isi'
+                }
+            ]
+        }
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -161,8 +219,14 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Data Periode Penilaian
                             </Title>
+                            <div>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    Tambah
+                                </Button>
+                            </div>
                         </div>
                         <DataTable columns={Column} data={data} loading={loading} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onSubmit={onSubmit} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
                     </div>
                 </Card>
             )}

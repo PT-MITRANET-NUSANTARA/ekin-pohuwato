@@ -102,10 +102,6 @@ export const DashboardLink = [
             {
                 label: 'Absen',
                 path: '/dashboard/absen'
-            },
-            {
-                label: 'Periode Penilaian',
-                path: '/dashboard/periode_penilaian'
             }
         ]
     },

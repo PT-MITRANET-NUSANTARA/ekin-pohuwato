@@ -15,6 +15,8 @@ import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -25,6 +27,7 @@ const page = () => {
 
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
 
     const [kegiatan, setKegiatan] = useState(null);
     const [renstra, setRenstra] = useState(null);
@@ -42,11 +45,11 @@ const page = () => {
         if (user) {
             fetchData();
         }
-    }, [user,pagination.page, pagination.limit]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getByUnitId(user.jabatan?.unor?.induk.id,pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const kegiatan = await getKegiatanByUnit(user.jabatan?.unor?.induk.id);
@@ -59,8 +62,7 @@ const page = () => {
             setKegiatan(kegiatan.data);
         } catch (error) {
             console.log(error);
-        } finally
-        {
+        } finally {
             setLoading(false);
         }
     };
@@ -78,8 +80,8 @@ const page = () => {
 
                 case 'edit':
                     response = await update(id, {
-                        ...dt, 
-                        tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, 
+                        ...dt,
+                        tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan,
                         renstra: dt.renstra.value ? dt.renstra.value : dt.renstra,
                         program: dt.program.value ? dt.program.value : dt.program,
                         kegiatan: dt.kegiatan.value ? dt.kegiatan.value : dt.kegiatan,
@@ -97,27 +99,19 @@ const page = () => {
             console.log(response);
             if (response.ok) {
                 fetchData()
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Sub Kegiatan' : type === 'edit' ? 'Berhasil Mengedit Sub Kegiatan' : 'Berhasil Menambahkan Sub Kegiatan',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Sub Kegiatan' : type === 'edit' ? 'Berhasil Mengedit Sub Kegiatan' : 'Berhasil Menambahkan Sub Kegiatan')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 

@@ -19,6 +19,7 @@ import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 import { dateFormatter } from '@/utils';
 import dayjs from 'dayjs';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
@@ -27,6 +28,8 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
+
     const [resntra, setRenstra] = useState(null);
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [isJT, setIsJT] = useState(false);
@@ -100,27 +103,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
 
         console.log('Operation completed');
