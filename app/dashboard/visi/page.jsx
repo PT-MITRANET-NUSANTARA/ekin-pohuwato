@@ -161,42 +161,7 @@ const page = () => {
 
             width: '5%'
         },
-        // {
-        //     title: 'Periode',
-        //     dataIndex: 'periode',
-        //     key: 'periode',
-        //     render: (_, record) => (
-        //         <>
-        //             <Button
-        //                 onClick={() => {
-        //                     setInfoModal({
-        //                         title: 'Informasi Periode',
-        //                         trigger: true,
-        //                         type: 'desc',
-        //                         data: [
-        //                             {
-        //                                 key: 'periode_start',
-        //                                 label: 'Periode Mulai',
-        //                                 children: dateFormatter(record.periode.periode_start)
-        //                             },
-        //                             {
-        //                                 key: 'periode_end',
-        //                                 label: 'Periode Akhir',
-        //                                 children: dateFormatter(record.periode.periode_end)
-        //                             }
-        //                         ],
-        //                         isLoading: false,
-        //                         onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-        //                     });
-        //                 }}
-        //                 icon={<SearchOutlined />}
-        //             >
-        //                 Info
-        //             </Button>
-        //         </>
-        //         // console.log(record)
-        //     )
-        // },
+       
         {
             title: 'Visi',
             dataIndex: 'name',
@@ -221,16 +186,6 @@ const page = () => {
                                         label: 'Visi',
                                         children: record.name
                                     },
-                                    // {
-                                    //     key: 'periode_start',
-                                    //     label: 'Periode Mulai',
-                                    //     children: dateFormatter(record.periode.periode_start)
-                                    // },
-                                    // {
-                                    //     key: 'periode_end',
-                                    //     label: 'Periode Akhir',
-                                    //     children: dateFormatter(record.periode.periode_end)
-                                    // }
                                 ],
                                 isLoading: false,
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
@@ -263,18 +218,6 @@ const page = () => {
     ];
 
     const visiFields = [
-        // {
-        //     label: 'Periode',
-        //     name: 'periode',
-        //     type: 'select',
-        //     rules: [
-        //         {
-        //             required: true,
-        //             message: 'Field periode wajib di isi'
-        //         }
-        //     ],
-        //     options: periode?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
-        // },
         {
             label: 'Visi',
             name: 'name',

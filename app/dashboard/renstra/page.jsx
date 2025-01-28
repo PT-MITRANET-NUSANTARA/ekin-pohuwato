@@ -19,7 +19,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
 
@@ -123,29 +123,35 @@ const page = () => {
             width: '30%',
             render: (_, record) => (
                 <>
-                    <Button icon={<SearchOutlined />} onClick={() => setMisiModal({ modalData: record.misi, trigger: true })}>
+                    <Button icon={<SearchOutlined />} onClick={() => {
+                        setInfoModal({
+                            title: 'Informasi Misi',
+                            trigger: true,
+                            type: 'desc',
+                            data: [
+                                {
+                                    key: 'misi',
+                                    label: 'Misi',
+                                    children: (
+                                        <List
+                                            dataSource={record.misi}
+                                            renderItem={(item) => (
+                                                <List.Item>
+                                                    <div className="flex flex-col">
+                                                        <Typography.Text>{item.name}</Typography.Text>
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )
+                                }
+                            ],
+                            isLoading: false,
+                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                        });
+                    }}>
                         Info
                     </Button>
-                    <Modal open={misiModal.trigger} onCancel={() => setMisiModal({ modalData: null, trigger: false })} footer={null}>
-                        <Table
-                            className="mt-8"
-                            dataSource={misiModal.modalData?.map((item, index) => ({ ...item, key: index }))}
-                            pagination={false}
-                            bordered
-                            columns={[
-                                {
-                                    title: 'Misi',
-                                    dataIndex: 'name',
-                                    key: 'name'
-                                },
-                                {
-                                    title: 'Visi',
-                                    dataIndex: ['visi', 'name'],
-                                    key: 'visi'
-                                }
-                            ]}
-                        />
-                    </Modal>
                 </>
             )
         },
@@ -192,16 +198,11 @@ const page = () => {
                                         label: 'Misi',
                                         children: (
                                             <List
-                                                dataSource={record.indikator_kinerja}
+                                                dataSource={record.misi}
                                                 renderItem={(item) => (
                                                     <List.Item>
                                                         <div className="flex flex-col">
-                                                            <Typography.Title level={5} className="m-0">
-                                                                Misi : {item.name}
-                                                            </Typography.Title>
-                                                            <Typography.Text>Visi : {item.visi.name}</Typography.Text>
-                                                            {/* <Typography.Text>Periode Mulai : {dateFormatter(item.visi.periode.periode_start)}</Typography.Text>
-                                                            <Typography.Text>Periode Akhir : {dateFormatter(item.visi.periode.periode_end)}</Typography.Text> */}
+                                                            <Typography.Text>{item.name}</Typography.Text>
                                                         </div>
                                                     </List.Item>
                                                 )}
@@ -225,6 +226,7 @@ const page = () => {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
                                     // periode: record.misi[0].visi.periode._id,
+                                    visi: record.misi[0].visi._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },
@@ -247,6 +249,7 @@ const page = () => {
                                     ...record,
                                     misi: record.misi?.map((item) => ({ value: item._id, label: item.name })),
                                     // periode: record.misi[0].visi.periode._id,
+                                    visi: record.misi[0].visi._id,
                                     periode_start: dateFormatter(record.periode_start),
                                     periode_end: dateFormatter(record.periode_end)
                                 },

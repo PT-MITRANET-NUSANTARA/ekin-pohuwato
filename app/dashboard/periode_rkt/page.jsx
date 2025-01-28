@@ -1,6 +1,6 @@
 'use client';
 
-import { CrudModal, DataLoading, DataTable, FilterField } from '@/components';
+import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dummyfileList, dummyPeriodePenilaian } from '@/data/dummyData';
 import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Typography, Upload } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, UploadOutlined, DownloadOutlined, OrderedListOutlined, SearchOutlined } from '@ant-design/icons';
@@ -19,7 +19,8 @@ import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/cont
 
 const page = () => {
     const router = useRouter();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -35,7 +36,7 @@ const page = () => {
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
-    
+
     const fetchData = async () => {
         try {
             const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
@@ -226,6 +227,7 @@ const page = () => {
                     <Button
                         icon={<SearchOutlined />}
                         onClick={() => {
+                            console.log(record)
                             setInfoModal({
                                 title: 'Informasi Renstra',
                                 trigger: true,
@@ -325,7 +327,7 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) },
+                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end), renstra: record.renstra._id },
                                 title: `Edit Periode RKT ${record._id}`,
                                 type: 'edit',
                                 formFields: rktFields,
@@ -343,7 +345,7 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end) },
+                                modalData: { ...record, periode_start: dateFormatter(record.periode_start), periode_end: dateFormatter(record.periode_end), renstra: record.renstra._id },
                                 title: `Delete Periode RKT ${record._id}`,
                                 type: 'delete',
                                 formFields: rktFields,
@@ -591,6 +593,7 @@ const page = () => {
                             <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+                        <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                     </div>
                 </Card>
             )}

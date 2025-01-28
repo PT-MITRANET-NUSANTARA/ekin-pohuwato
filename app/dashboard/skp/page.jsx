@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result, Pagination } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
@@ -74,9 +74,9 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [user.jabatan], user_id: user.user.idASN , unit: user.jabatan.unor.induk};
+            dt = { ...dt, jabatan: [user.jabatan], user_id: user.user.idASN, unit: user.jabatan.unor.induk };
             dt.periodeRKT = [values.periodeRKT]
-            
+
             switch (type) {
                 case 'create':
                     response = await storeAtasan('1', dt);
@@ -202,17 +202,78 @@ const page = () => {
         }
     ];
 
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
+
     const filterFileds = [
         {
-            id: 1,
+            label: 'Renstra',
             name: 'renstra',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        }
+            type: 'select',
+            filter: 'eq',
+            options: resntra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+        },
+        {
+            label: 'Periode RKT',
+            name: 'periodeRKT',
+            type: 'select',
+            filter: 'eq',
+            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+        },
     ];
 
     const handleClose = () => {
@@ -246,6 +307,9 @@ const page = () => {
                                 </Button>
                             )}
                         </div>
+                    </div>
+                    <div className="w-full">
+                        <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                     </div>
                     <div className="w-full mb-4">{/* <FilterField fields={filterFileds}></FilterField> */}</div>
                     {loadingData ? (
@@ -323,6 +387,7 @@ const page = () => {
                             ) : (
                                 <Empty className="mb-6" />
                             )}
+                            <Pagination />
                         </div>
                     )}
                 </div>
