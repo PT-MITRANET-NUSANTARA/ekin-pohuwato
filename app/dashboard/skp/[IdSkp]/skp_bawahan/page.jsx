@@ -10,7 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
-import { getBySKPId, update } from '@/controller/SKPController';
+import { getBySKPId, storeBawahan, update } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -33,7 +33,6 @@ const page = () => {
         }
     }, [user, pagination.page, pagination.limit]);
 
-    console.log(unor)
 
     const fetchData = async () => {
         try {
@@ -52,8 +51,7 @@ const page = () => {
         }
     };
 
-    console.log(unor);
-    
+    console.log(user)
 
     console.log(data);
     const Column = [
@@ -62,6 +60,12 @@ const page = () => {
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
+        },
+        {
+            title: 'NIP',
+            dataIndex: 'user_id',
+            key: 'name',
+           
         },
         {
             title: 'Nama',
@@ -73,7 +77,7 @@ const page = () => {
             }
         },
         {
-            title: 'Nama Organisasi',
+            title: 'Nama Unit Kerja',
             dataIndex: 'unor',
             key: 'unor',
             render: (_, record) => {
@@ -164,10 +168,67 @@ const page = () => {
         }
     ];
 
+        const onSubmit = async (values, type, id) => {
+            setSubmitLoading(true);
+            try {
+                let response;
+                let dt = values;
+                dt = { ...dt, jabatan: [unor.find((item) => item.nip_asn == values.user_id)] };
+                console.log(IdSkp);
+                
+                switch (type) {
+                    case 'create':
+                        response = await storeBawahan(IdSkp, dt);
+                        break;
+    
+                    case 'edit':
+                        response = await update(id, dt);
+                        break;
+    
+                    case 'delete':
+                        response = await destroy(id);
+                        break;
+    
+                    default:
+                        throw new Error('Tipe operasi tidak valid');
+                }
+                console.log(response);
+    
+                if (response.ok) {
+                    fetchData();
+                    setAlert({
+                        show: true,
+                        message: response.msg,
+                        description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
+                        type: 'success'
+                    });
+                } else {
+                    setAlert({
+                        show: true,
+                        message: 'Gagal',
+                        description: response.msg,
+                        type: 'error'
+                    });
+                }
+            } catch (error) {
+                setAlert({
+                    show: true,
+                    message: 'Error',
+                    description: error.message,
+                    type: 'error'
+                });
+            }
+    
+            console.log('Operation completed');
+            setSubmitLoading(false);
+    
+            handleClose();
+        };
+
     const formFields = [
         {
             label: 'Bawahan',
-            name: 'bawahan',
+            name: 'user_id',
             type: 'select',
             rules: [
                 {
@@ -245,7 +306,7 @@ const page = () => {
                     </>
                 )}
             </Card>
-            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={() => { }} formFields={formFields} onClose={() => setModal({ trigger: false, modalData: null })} type={modal.type}>
+            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={() => setModal({ trigger: false, modalData: null })} type={modal.type}>
             </CrudModal>
         </div>
     );

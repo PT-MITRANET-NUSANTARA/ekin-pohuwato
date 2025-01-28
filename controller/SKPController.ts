@@ -72,6 +72,14 @@ export const storeBawahan = async (skp: string, data: any) => {
 };
 
 // Update an existing Visi record by ID
+export const updateBawahan = async (id: string, data: any) => {
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'PUT',
+        body: data
+    });
+    return response;
+};
+
 export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/${path}/${id}`, {
         method: 'PUT',
