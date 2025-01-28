@@ -10,8 +10,6 @@ import Aspek from '@/models/Aspek';
 import SKP from '@/models/SKP';
 
 const skpSchema = Joi.object({
-    periode_awal: Joi.date().required().label('Periode Awal'),
-    periode_akhir: Joi.date().required().label('Periode Akhir'),
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
     keterangan: Joi.string().allow('').label('Keterangan'),
     penilaians: Joi.optional(),
@@ -29,8 +27,6 @@ const skpSchema = Joi.object({
     hasil: Joi.object().optional().label('Hasil'),
     perilaku: Joi.object().optional().label('Perilaku'),
     updatedAt: Joi.date().optional(),
-    periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'),
-    renstra: Joi.string().hex().length(24).required().label('Renstra'),
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
@@ -73,10 +69,12 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         let skps;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            skps = await SKP.find({ skp: { $in: [skp_id] }}).populate('skp').populate('periodeRKT');
+            skps = await SKP.find({ skp: { $in: [skp_id] } })
+                .populate('skp')
+                .populate('periodeRKT');
         } else {
             const f = JSON.parse(filters as string);
-            f['skp'] = {$in: [skp_id]};
+            f['skp'] = { $in: [skp_id] };
             skps = await SKP.getAll(Number(page), Number(limit), f);
         }
 
@@ -84,5 +82,39 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
+    }
+}
+
+export async function POST(req: NextRequest, { params }: { params: { skp_id: string } }) {
+    await dbConnect();
+    try {
+        const { skp_id } = params;
+        const body = await req.json();
+        const skp = await SKP.findById(skp_id);
+        const errors = validateSKPData(body);
+        console.log("BODY", body)
+        if (errors.length > 0) {
+            return NextResponse.json(createResponse(400, 'Validation Failed', errors));
+        }
+
+        // const newSKP = new SKP(body);
+        // await newSKP.save();
+        // if (newSKP) {
+        //     for (const item of perilaku) {
+        //         const perilakuData = new Perilaku({
+        //             skp: newSKP._id,
+        //             name: item.name,
+        //             isi: item.isi,
+        //             espektasi: item.espektasi,
+        //             feedback: item.feedback
+        //         });
+
+        //         await perilakuData.save();
+        //     }
+        // }
+        return NextResponse.json(createResponse(201, 'Success', newSKP, true));
+    } catch (error) {
+        console.error('POST error:', error);
+        return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
     }
 }

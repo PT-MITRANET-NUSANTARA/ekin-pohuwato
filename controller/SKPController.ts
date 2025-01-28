@@ -63,6 +63,14 @@ export const storeAtasan = async (skp: string, data: any) => {
     return response;
 };
 
+export const storeBawahan = async (skp: string, data: any) => {
+    const response = await apiRequest(`/api/${path}/skp/${skp}`, {
+        method: 'POST',
+        body: data
+    });
+    return response;
+};
+
 // Update an existing Visi record by ID
 export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/${path}/${id}`, {

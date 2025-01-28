@@ -1,11 +1,19 @@
 import { Button, DatePicker, Form, Input, InputNumber, Rate, Select, TimePicker } from 'antd';
 import { RedoOutlined } from '@ant-design/icons';
-import React from 'react';
+import React, { useState } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 
-const FilterField = ({ fields, onSubmit =() => {}}) => {
+const FilterField = ({ fields, onSubmit = () => {} }) => {
     const { Option } = Select;
     const [form] = Form.useForm(); // Create form instance
+    const [selectValues, setSelectValues] = useState({});
+
+    const handleSelectChange = (value, fieldName) => {
+        setSelectValues((prev) => ({
+            ...prev,
+            [fieldName]: value,
+        }));
+    };
 
     const renderFormInput = (field) => {
         switch (field.type) {
@@ -21,7 +29,6 @@ const FilterField = ({ fields, onSubmit =() => {}}) => {
                 return <TimePicker placeholder={`Select ${field.label}`} className="w-full" size="large" {...field.extra} />;
             case 'rating':
                 return <Rate className="w-full" size="large" {...field.extra} />;
-
             case 'select':
                 const parentValue = field.parentField ? selectValues[field.parentField] : null;
                 const options = field.options?.filter((option) => !field.parentField || option.id_option_parent === parentValue);
@@ -56,23 +63,6 @@ const FilterField = ({ fields, onSubmit =() => {}}) => {
             <hr className="mb-4" />
             <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-2">
                 <div className="grid grid-cols-12 w-full gap-4">
-                    {/* {fields.map((fieldItem) => {
-                        return (
-                            <Form.Item
-                                key={fieldItem.id}
-                                name={fieldItem.id} // Bind field to form with name
-                                className='col-span-4 m-0'
-                            >
-                                <Select size="large" placeholder={`Pilih ${fieldItem.name}`} allowClear>
-                                    {fieldItem.options.map((optionItem) => (
-                                        <Option key={optionItem.value} value={optionItem.value}>
-                                            {optionItem.label}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        );
-                    })} */}
                     {fields?.map((field, index) => (
                         <Form.Item key={index} name={field.name} className='col-span-4 m-0'>
                             {renderFormInput(field)}
@@ -94,8 +84,9 @@ const FilterField = ({ fields, onSubmit =() => {}}) => {
                         size="large"
                         icon={<RedoOutlined />}
                         onClick={() => {
-                            form.resetFields()
-                            onSubmit({})
+                            form.resetFields();
+                            setSelectValues({});
+                            onSubmit({});
                         }} // Reset all fields
                     >
                         Reset
