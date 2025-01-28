@@ -90,29 +90,34 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
     try {
         const { skp_id } = params;
         const body = await req.json();
-        const skp = await SKP.findById(skp_id);
+        const skp: any = await SKP.findById(skp_id);
+        
         const errors = validateSKPData(body);
-        console.log("BODY", body)
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Validation Failed', errors));
         }
 
-        // const newSKP = new SKP(body);
-        // await newSKP.save();
-        // if (newSKP) {
-        //     for (const item of perilaku) {
-        //         const perilakuData = new Perilaku({
-        //             skp: newSKP._id,
-        //             name: item.name,
-        //             isi: item.isi,
-        //             espektasi: item.espektasi,
-        //             feedback: item.feedback
-        //         });
+        if (!skp) {
+            return NextResponse.json(createResponse(400, 'Validation Failed', 'SKP tidak ditemukan'));
+        }
 
-        //         await perilakuData.save();
-        //     }
-        // }
-        return NextResponse.json(createResponse(201, 'Success', skp, true));
+        const updatedBody = { ...body, skp: [skp._id], periodeRKT: [skp.periodeRKT], periode_awal: skp.periode_awal, periode_akhir: skp.periode_akhir };
+        const newSKP = new SKP(updatedBody);
+        await newSKP.save();
+        if (newSKP) {
+            for (const item of perilaku) {
+                const perilakuData = new Perilaku({
+                    skp: newSKP._id,
+                    name: item.name,
+                    isi: item.isi,
+                    espektasi: item.espektasi,
+                    feedback: item.feedback
+                });
+
+                await perilakuData.save();
+            }
+        }
+        return NextResponse.json(createResponse(201, 'Success', newSKP, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create SKP' }, { status: 500 });
