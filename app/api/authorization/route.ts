@@ -8,7 +8,7 @@ import { createResponse } from '@/utils/api';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 
 const client = jwksClient({
-    jwksUri: process.env.NEXT_PUBLIC_API_JWT_URL || 'default_jwks_uri'
+    jwksUri: process.env.JWT_URL || 'default_jwks_uri'
 });
 
 const getKey = (header: any, callback: any) => {
