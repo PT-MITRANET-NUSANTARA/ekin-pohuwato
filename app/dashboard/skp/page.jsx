@@ -46,7 +46,7 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getByUserId(user.user.idASN, pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUserId(user.jabatan.nip_asn, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             console.log('here', data);
 
@@ -69,12 +69,15 @@ const page = () => {
         }
     };
 
+    console.log("USER",user);
+    
+
     const onSubmit = async (values, type, id) => {
         setSubmitLoading(true);
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [user.jabatan], user_id: user.user.idASN, unit: user.jabatan.unor.induk };
+            dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn, unit: user.jabatan.unor.induk };
             dt.periodeRKT = [values.periodeRKT]
 
             switch (type) {

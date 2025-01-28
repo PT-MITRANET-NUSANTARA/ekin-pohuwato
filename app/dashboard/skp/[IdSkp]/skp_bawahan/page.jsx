@@ -52,6 +52,9 @@ const page = () => {
         }
     };
 
+    console.log(unor);
+    
+
     console.log(data);
     const Column = [
         {

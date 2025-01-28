@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
         }
 
         const newSKP = new SKP(body);
+        
         await newSKP.save();
         if (newSKP) {
             for (const item of perilaku) {
