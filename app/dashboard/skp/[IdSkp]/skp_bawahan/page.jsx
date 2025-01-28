@@ -1,8 +1,8 @@
 'use client';
 
-import { DataTable } from '@/components';
+import { CrudModal, DataTable } from '@/components';
 import { Breadcrumb, Button, Card, Modal, Skeleton, Space, Tag, Typography } from 'antd';
-import { EditOutlined, EyeOutline, CheckCircleFilled } from '@ant-design/icons';
+import { EditOutlined, EyeOutline, CheckCircleFilled, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummySkpBawahan } from '@/data/dummyData';
@@ -22,6 +22,10 @@ const page = () => {
     const [loadingData, setLoadingData] = useState(true);
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [unor, setUnor] = useState(null);
+
 
     useEffect(() => {
         if (user) {
@@ -29,9 +33,17 @@ const page = () => {
         }
     }, [user, pagination.page, pagination.limit]);
 
+    console.log(unor)
+
     const fetchData = async () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            const selectedJabatan = user.jabatan;
+
+            const unit = await getAllPosjabByUnit(user.token, selectedJabatan.unor.induk.id);
+            const bawahan = unit.mapData.data.filter((item) => (item.unor.id == selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
+
+            setUnor(bawahan)
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setLoadingData(false);
@@ -149,6 +161,45 @@ const page = () => {
         }
     ];
 
+    const formFields = [
+        {
+            label: 'Bawahan',
+            name: 'bawahan',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field renstra wajib di isi'
+                }
+            ],
+            options: unor?.map((item) => ({
+                label: item.nama_asn,
+                value: item.nip_asn
+            }))
+        },
+        {
+            label: 'Pendekatan',
+            name: 'pendekatan',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field pendekatan wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'Kuantitatif',
+                    value: 'kuantitatif'
+                },
+                {
+                    label: 'Kualitatif',
+                    value: 'kualitatif'
+                }
+            ]
+        }
+    ];
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -166,6 +217,12 @@ const page = () => {
                     <Title className="mt-2" level={5}>
                         Data SKP Bawahan
                     </Title>
+                    <div>
+
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', })}>
+                            Tambah
+                        </Button>
+                    </div>
                 </div>
                 {loadingData ? (
                     <Skeleton active />
@@ -185,6 +242,8 @@ const page = () => {
                     </>
                 )}
             </Card>
+            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={() => { }} formFields={formFields} onClose={() => setModal({ trigger: false, modalData: null })} type={modal.type}>
+            </CrudModal>
         </div>
     );
 };

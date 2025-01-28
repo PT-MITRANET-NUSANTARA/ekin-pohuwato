@@ -231,18 +231,6 @@ const page = () => {
         }
     ];
 
-    const periodeFields = [
-        {
-            label: 'Periode Start',
-            name: 'periode_start',
-            type: 'date'
-        },
-        {
-            label: 'Periode End',
-            name: 'periode_end',
-            type: 'date'
-        }
-    ];
 
     const filterFileds = [
         {

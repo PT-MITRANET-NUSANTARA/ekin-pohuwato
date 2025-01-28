@@ -13,6 +13,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -26,18 +27,18 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
-    
+
     const { data: user, setData: setUser } = useFetchData(getData);
 
     useEffect(() => {
         if (user) {
             fetchData();
         }
-    }, [user,pagination.page, pagination.limit]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getByUnitId(user.jabatan?.unor?.induk.id,pagination.page, pagination.limit, pagination.filters);
+            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
@@ -48,8 +49,7 @@ const page = () => {
             setProgram(program.data);
         } catch (error) {
             console.log(error);
-        } finally
-        {
+        } finally {
             setLoading(false);
         }
     };
@@ -76,7 +76,12 @@ const page = () => {
                     break;
 
                 case 'edit':
-                    response = await update(id, dt);
+                    response = await update(id, { 
+                        ...dt, 
+                        tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, 
+                        renstra: dt.renstra.value ? dt.renstra.value : dt.renstra,
+                        program: dt.program.value ? dt.program.value : dt.program,
+                    });
                     break;
 
                 case 'delete':
@@ -269,7 +274,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     renstra: {
-                                        label: `${dateFormatter(record.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.program.tujuan.renstra.periode_end)}`,
+                                        label: `${formatDateToDayMonthYear(record.program.tujuan.renstra.periode_start)} - ${formatDateToDayMonthYear(record.program.tujuan.renstra.periode_end)}`,
                                         value: record.program.tujuan.renstra._id
                                     },
                                     tujuan: {
@@ -300,7 +305,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     renstra: {
-                                        label: `${dateFormatter(record.program.tujuan.renstra.periode_start)} - ${dateFormatter(record.program.tujuan.renstra.periode_end)}`,
+                                        label: `${formatDateToDayMonthYear(record.program.tujuan.renstra.periode_start)} - ${formatDateToDayMonthYear(record.program.tujuan.renstra.periode_end)}`,
                                         value: record.program.tujuan.renstra._id
                                     },
                                     tujuan: {
@@ -339,7 +344,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))
@@ -432,7 +437,7 @@ const page = () => {
             if (value !== undefined && value !== null) {
                 switch (field.type) {
                     case 'date':
-                        value = dateFormatter(value);
+                        value = formatDateToDayMonthYear(value);
                         break;
 
                     default:
@@ -490,7 +495,7 @@ const page = () => {
             type: 'select',
             filter: 'eq',
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))

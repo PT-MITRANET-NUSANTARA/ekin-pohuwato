@@ -4,16 +4,15 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, T
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, FilterField, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, getByUnitId, store, update } from '@/controller/RenstraController';
+import { destroy, getByUnitId, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
-import { dummyRenstra } from '@/data';
 import { useRouter } from 'next/navigation';
 import { getAll as getAllMisi } from '@/controller/MisiController';
 import { getAll as getAllVisi } from '@/controller/VisiController';
-
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 const page = () => {
@@ -162,14 +161,14 @@ const page = () => {
             key: 'periode_start',
             sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Periode Selesai',
             dataIndex: 'periode_end',
             key: 'periode_end',
             sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Action',
@@ -186,12 +185,12 @@ const page = () => {
                                     {
                                         key: 'periode_start',
                                         label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode_start)
+                                        children: formatDateToDayMonthYear(record.periode_start)
                                     },
                                     {
                                         key: 'periode_end',
                                         label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode_end)
+                                        children: formatDateToDayMonthYear(record.periode_end)
                                     },
                                     {
                                         key: 'misi',

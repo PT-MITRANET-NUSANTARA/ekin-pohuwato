@@ -10,6 +10,7 @@ import { getAll, store, update, destroy, getByUnitId } from '@/controller/Tujuan
 import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -243,7 +244,7 @@ const page = () => {
                                     {
                                         key: 'renstra',
                                         label: 'Periode Renstra',
-                                        children: dateFormatter(record.renstra.periode_start) + ', Sampai ' + dateFormatter(record.renstra.periode_end)
+                                        children: formatDateToDayMonthYear(record.renstra.periode_start) + ', Sampai ' + formatDateToDayMonthYear(record.renstra.periode_end)
                                     },
                                     {
                                         key: 'indikator_kinerja',
@@ -319,7 +320,7 @@ const page = () => {
                     message: 'Field renstra wajib di isi'
                 }
             ],
-            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: renstra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Tujuan',
@@ -433,7 +434,7 @@ const page = () => {
             name: 'renstra',
             type: 'select',
             filter: 'eq',
-            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: renstra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         }
     ];
 

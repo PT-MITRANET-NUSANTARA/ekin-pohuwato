@@ -13,6 +13,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -66,7 +67,9 @@ const page = () => {
                     break;
 
                 case 'edit':
-                    response = await update(id, dt);
+                    
+                    response = await update(id, {...dt, tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, renstra: dt.renstra.value ? dt.renstra.value : dt.renstra});
+                    
                     break;
 
                 case 'delete':
@@ -270,7 +273,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     renstra: {
-                                        label: `${dateFormatter(record.tujuan.renstra.periode_start)} - ${dateFormatter(record.tujuan.renstra.periode_end)}`,
+                                        label: `${formatDateToDayMonthYear(record.tujuan.renstra.periode_start)} - ${formatDateToDayMonthYear(record.tujuan.renstra.periode_end)}`,
                                         value: record.tujuan.renstra._id
                                     },
                                     tujuan: {
@@ -297,7 +300,7 @@ const page = () => {
                                 modalData: {
                                     ...record,
                                     renstra: {
-                                        label: `${dateFormatter(record.tujuan.renstra.periode_start)} - ${dateFormatter(record.tujuan.renstra.periode_end)}`,
+                                        label: `${formatDateToDayMonthYear(record.tujuan.renstra.periode_start)} - ${formatDateToDayMonthYear(record.tujuan.renstra.periode_end)}`,
                                         value: record.tujuan.renstra._id
                                     },
                                     tujuan: {
@@ -332,7 +335,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))
@@ -399,7 +402,7 @@ const page = () => {
             if (value !== undefined && value !== null) {
                 switch (field.type) {
                     case 'date':
-                        value = dateFormatter(value);
+                        value = formatDateToDayMonthYear(value);
                         break;
 
                     default:
@@ -457,7 +460,7 @@ const page = () => {
             type: 'select',
             filter: 'eq',
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))
