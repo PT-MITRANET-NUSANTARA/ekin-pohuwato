@@ -261,22 +261,6 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Periode',
-            name: 'periode',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode wajib di isi'
-                }
-            ],
-            options: periode?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
-                value: item._id,
-                id: item._id
-            }))
-        },
-        {
             label: 'Misi',
             name: 'misi',
             type: 'select',
@@ -289,11 +273,9 @@ const page = () => {
             options: misi?.map((item) => ({
                 label: item.name,
                 value: item._id,
-                id_option_parent: item.visi.periode,
                 id: item._id
             })),
             mode: 'multiple',
-            parentField: 'periode'
         },
         {
             label: 'Periode Mulai',

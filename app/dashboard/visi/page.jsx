@@ -162,42 +162,6 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Periode',
-            dataIndex: 'periode',
-            key: 'periode',
-            render: (_, record) => (
-                <>
-                    <Button
-                        onClick={() => {
-                            setInfoModal({
-                                title: 'Informasi Periode',
-                                trigger: true,
-                                type: 'desc',
-                                data: [
-                                    {
-                                        key: 'periode_start',
-                                        label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode.periode_start)
-                                    },
-                                    {
-                                        key: 'periode_end',
-                                        label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode.periode_end)
-                                    }
-                                ],
-                                isLoading: false,
-                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                            });
-                        }}
-                        icon={<SearchOutlined />}
-                    >
-                        Info
-                    </Button>
-                </>
-                // console.log(record)
-            )
-        },
-        {
             title: 'Visi',
             dataIndex: 'name',
             key: 'name',
@@ -221,16 +185,6 @@ const page = () => {
                                         label: 'Visi',
                                         children: record.name
                                     },
-                                    {
-                                        key: 'periode_start',
-                                        label: 'Periode Mulai',
-                                        children: dateFormatter(record.periode.periode_start)
-                                    },
-                                    {
-                                        key: 'periode_end',
-                                        label: 'Periode Akhir',
-                                        children: dateFormatter(record.periode.periode_end)
-                                    }
                                 ],
                                 isLoading: false,
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })

@@ -160,7 +160,6 @@ const page = () => {
                             // console.log(res);
                             if (res.ok) {
                                 console.log(res.data);
-                                asd
                                 const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
                                 
                                 const index = res.data.skp.findIndex((item) => item._id === IdSkp);

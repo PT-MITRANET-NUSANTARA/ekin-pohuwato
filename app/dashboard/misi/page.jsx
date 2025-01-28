@@ -255,22 +255,6 @@ const page = () => {
 
     const misiFields = [
         {
-            label: 'Periode',
-            name: 'periode',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field Periode wajib di isi'
-                }
-            ],
-            options: periode?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
-                value: item._id,
-                id: item._id
-            }))
-        },
-        {
             label: 'Visi',
             name: 'visi',
             type: 'select',
@@ -283,10 +267,8 @@ const page = () => {
             options: visi?.map((item) => ({
                 label: item.name,
                 value: item._id,
-                id_option_parent: item.periode._id,
                 id: item._id
             })),
-            parentField: 'periode'
         },
         {
             label: 'Misi',
@@ -298,14 +280,6 @@ const page = () => {
                     message: 'Field misi mulai wajib di isi'
                 }
             ]
-        }
-    ];
-
-    const visiFields = [
-        {
-            label: 'Visi',
-            name: 'name',
-            type: 'longtext'
         }
     ];
 
