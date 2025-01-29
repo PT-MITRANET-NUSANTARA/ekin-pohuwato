@@ -8,12 +8,13 @@ import Link from 'next/link';
 import { getAll, store, update, destroy } from '@/controller/VisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
+import useNotification from '@/app/hook/useNotification';
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
-
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const { success, error } = useNotification()
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -65,27 +66,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Visi' : type === 'edit' ? 'Berhasil Mengedit Visi' : 'Berhasil Menambahkan Visi',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Visi' : type === 'edit' ? 'Berhasil Mengedit Visi' : 'Berhasil Menambahkan Visi')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err); 
+                    });
+                } else {
+                    error('Gagal', response.data); 
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -149,7 +141,7 @@ const page = () => {
             }
         });
         console.log(pagination);
-        
+
         fetchData();
     };
 
@@ -161,7 +153,7 @@ const page = () => {
 
             width: '5%'
         },
-       
+
         {
             title: 'Visi',
             dataIndex: 'name',
@@ -276,7 +268,7 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} pagination={pagination} setPagination={setPagination}/>
+                            <DataTable columns={Column} data={data} pagination={pagination} setPagination={setPagination} />
                         </div>
                         <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

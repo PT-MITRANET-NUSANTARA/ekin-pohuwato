@@ -11,11 +11,13 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { getBySKPId, storeBawahan, update } from '@/controller/SKPController';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
 const page = () => {
     const { confirm } = Modal;
+    const { success, error } = useNotification();
     const router = useRouter();
     const { IdSkp } = useParams();
     const [data, setData] = useState([]);
@@ -51,9 +53,6 @@ const page = () => {
         }
     };
 
-    console.log(user)
-
-    console.log(data);
     const Column = [
         {
             title: 'No',
@@ -65,7 +64,6 @@ const page = () => {
             title: 'NIP',
             dataIndex: 'user_id',
             key: 'name',
-           
         },
         {
             title: 'Nama',
@@ -168,62 +166,63 @@ const page = () => {
         }
     ];
 
-        const onSubmit = async (values, type, id) => {
-            setSubmitLoading(true);
-            try {
-                let response;
-                let dt = values;
-                dt = { ...dt, jabatan: [unor.find((item) => item.nip_asn == values.user_id)] };
-                console.log(IdSkp);
-                
-                switch (type) {
-                    case 'create':
-                        response = await storeBawahan(IdSkp, dt);
-                        break;
-    
-                    case 'edit':
-                        response = await update(id, dt);
-                        break;
-    
-                    case 'delete':
-                        response = await destroy(id);
-                        break;
-    
-                    default:
-                        throw new Error('Tipe operasi tidak valid');
-                }
-                console.log(response);
-    
-                if (response.ok) {
-                    fetchData();
-                    setAlert({
-                        show: true,
-                        message: response.msg,
-                        description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
-                        type: 'success'
-                    });
-                } else {
-                    setAlert({
-                        show: true,
-                        message: 'Gagal',
-                        description: response.msg,
-                        type: 'error'
-                    });
-                }
-            } catch (error) {
+    const onSubmit = async (values, type, id) => {
+        setSubmitLoading(true);
+        try {
+            let response;
+            let dt = values;
+            dt = { ...dt, jabatan: [unor.find((item) => item.nip_asn == values.user_id)] };
+            console.log(IdSkp);
+
+            switch (type) {
+                case 'create':
+                    response = await storeBawahan(IdSkp, dt);
+                    break;
+
+                case 'edit':
+                    response = await update(id, dt);
+                    break;
+
+                case 'delete':
+                    response = await destroy(id);
+                    break;
+
+                default:
+                    throw new Error('Tipe operasi tidak valid');
+            }
+            console.log(response);
+
+            if (response.ok) {
+                fetchData();
+                success('Berhasil', response.msg);
+                // setAlert({
+                //     show: true,
+                //     message: response.msg,
+                //     description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
+                //     type: 'success'
+                // });
+            } else {
                 setAlert({
                     show: true,
-                    message: 'Error',
-                    description: error.message,
+                    message: 'Gagal',
+                    description: response.msg,
                     type: 'error'
                 });
             }
-    
-            console.log('Operation completed');
-            setSubmitLoading(false);
-    
-            handleClose();
-        };
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error',
+                description: error.message,
+                type: 'error'
+            });
+        }
+
+        console.log('Operation completed');
+        setSubmitLoading(false);
+
+        handleClose();
+    };
 
     const formFields = [
         {
@@ -278,9 +277,14 @@ const page = () => {
             />
             <Card>
                 <div className="flex items-center justify-between mb-6">
-                    <Title className="mt-2" level={5}>
-                        Data SKP Bawahan
-                    </Title>
+                    <div className='flex flex-col'>
+                        <Title className="mt-2" level={5}>
+                            Data SKP Bawahan
+                        </Title>
+                        <p className="text-sm uppercase">{user?.jabatan.unor.nama}</p>
+
+                    </div>
+
                     <div>
 
                         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', })}>
@@ -292,16 +296,6 @@ const page = () => {
                     <Skeleton active />
                 ) : (
                     <>
-                        <div className="grid grid-flow-row divide-y text-xs mb-12">
-                            <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">unit kerja</span>
-                                <p className="text-right uppercase">{user?.jabatan.unor.nama}</p>
-                            </div>
-                            {/* <div className="flex items-center justify-between py-2">
-                        <span className="uppercase font-semibold">status pegawai</span>
-                        <p className="text-right uppercase"> </p>
-                    </div> */}
-                        </div>
                         <DataTable columns={Column} data={data} loading={false}></DataTable>
                     </>
                 )}

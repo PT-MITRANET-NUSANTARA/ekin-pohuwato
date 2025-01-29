@@ -1,6 +1,7 @@
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { ConfigProvider } from 'antd';
+import { NotificationProvider } from "./provider"
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
@@ -17,16 +18,19 @@ export default function RootLayout({ children }) {
         <meta name="description" content={metadata.description} />
       </head>
       <body className={jakarta.className}>
-        <ConfigProvider
-          theme={{
-            token: {
-              fontFamily: jakarta
-            },
-          }}
-        >
+        <NotificationProvider>
+          <ConfigProvider
+            theme={{
+              token: {
+                fontFamily: jakarta
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
+        </NotificationProvider>
 
-        {children}
-        </ConfigProvider>
+
       </body>
     </html>
   );

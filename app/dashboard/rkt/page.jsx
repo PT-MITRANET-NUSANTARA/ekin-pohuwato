@@ -15,6 +15,9 @@ import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/cont
 
 import { getData } from '@/controller/AuthorizationController';
 import { dateFormatter } from '@/utils';
+import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -24,6 +27,8 @@ const page = () => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
+
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [subKegiatan, setSubkegiatans] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
@@ -89,27 +94,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus RKT' : type === 'edit' ? 'Berhasil Mengedit RKT' : 'Berhasil Menambahkan RKT',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus RKT' : type === 'edit' ? 'Berhasil Mengedit RKT' : 'Berhasil Menambahkan RKT')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -365,7 +361,7 @@ const page = () => {
                 }
             ],
             options: renstra?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start)} - ${formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id: item._id
             }))
@@ -382,7 +378,7 @@ const page = () => {
             ],
             parentField: 'renstra',
             options: periodeRKT?.map((item) => ({
-                label: `${dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end)}`,
+                label: `${formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end)}`,
                 value: item._id,
                 id_option_parent: item.renstra?._id,
                 id: item._id
@@ -470,7 +466,7 @@ const page = () => {
             name: 'periodeRKT',
             type: 'select',
             filter: 'eq',
-            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: periodeRKT?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Sub  Kegiatan',

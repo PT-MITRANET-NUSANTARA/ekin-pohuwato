@@ -14,6 +14,8 @@ import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -27,6 +29,8 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const { success, error } = useNotification()
+
 
     const { data: user, setData: setUser } = useFetchData(getData);
 
@@ -76,9 +80,9 @@ const page = () => {
                     break;
 
                 case 'edit':
-                    response = await update(id, { 
-                        ...dt, 
-                        tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan, 
+                    response = await update(id, {
+                        ...dt,
+                        tujuan: dt.tujuan.value ? dt.tujuan.value : dt.tujuan,
                         renstra: dt.renstra.value ? dt.renstra.value : dt.renstra,
                         program: dt.program.value ? dt.program.value : dt.program,
                     });
@@ -95,27 +99,20 @@ const page = () => {
 
             if (response.ok) {
                 fetchData()
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Indikator' : type === 'edit' ? 'Berhasil Mengedit Indikator' : 'Berhasil Menambahkan Indikator',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Indikator' : type === 'edit' ? 'Berhasil Mengedit Indikator' : 'Berhasil Menambahkan Indikator')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
+
         }
         setSubmitLoading(false);
 

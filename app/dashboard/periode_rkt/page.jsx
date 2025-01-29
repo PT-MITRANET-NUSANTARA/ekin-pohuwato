@@ -16,12 +16,15 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 import { getPerjanjianKinerja } from '@/controller/ReportController';
 import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
+import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
 
     const [submitLoading, setSubmitLoading] = useState(false);
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
@@ -80,27 +83,20 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Periode RKT' : type === 'edit' ? 'Berhasil Mengedit Periode RKT' : 'Berhasil Menambahkan Periode RKT',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Periode RKT' : type === 'edit' ? 'Berhasil Mengedit Periode RKT' : 'Berhasil Menambahkan Periode RKT')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
+
         }
         setSubmitLoading(false);
 
@@ -236,12 +232,12 @@ const page = () => {
                                     {
                                         key: 'periode_start',
                                         label: 'Periode Mulai',
-                                        children: dateFormatter(record.renstra.periode_start)
+                                        children: formatDateToDayMonthYear(record.renstra.periode_start)
                                     },
                                     {
                                         key: 'periode_end',
                                         label: 'Periode Akhir',
-                                        children: dateFormatter(record.renstra.periode_end)
+                                        children: formatDateToDayMonthYear(record.renstra.periode_end)
                                     }
                                 ],
                                 isLoading: false,
@@ -260,7 +256,7 @@ const page = () => {
             key: 'periode_start',
             sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Periode Selesai',
@@ -268,7 +264,7 @@ const page = () => {
             key: 'periode_end',
             sorter: (a, b) => new Date(a.periode_end) - new Date(b.periode_end),
 
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Perjanjian Kinerja',
@@ -373,7 +369,7 @@ const page = () => {
                     message: 'Field renstra wajib di isi'
                 }
             ],
-            options: renstra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: renstra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Periode Mulai',

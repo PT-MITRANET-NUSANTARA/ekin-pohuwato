@@ -11,16 +11,18 @@ import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/cont
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
     const [renstra, setRenstra] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -37,7 +39,7 @@ const page = () => {
             const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             console.log(data);
-            
+
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
             console.log(renstra);
@@ -78,27 +80,19 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Tujuan' : type === 'edit' ? 'Berhasil Mengedit Tujuan' : 'Berhasil Menambahkan Tujuan',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Tujuan' : type === 'edit' ? 'Berhasil Mengedit Tujuan' : 'Berhasil Menambahkan Tujuan')
+
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 

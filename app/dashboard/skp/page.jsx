@@ -19,6 +19,7 @@ import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
 import { dateFormatter } from '@/utils';
 import dayjs from 'dayjs';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
@@ -27,6 +28,8 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
+
     const [resntra, setRenstra] = useState(null);
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [isJT, setIsJT] = useState(false);
@@ -69,15 +72,15 @@ const page = () => {
         }
     };
 
-    console.log("USER",user);
-    
+    console.log("USER", user);
+
 
     const onSubmit = async (values, type, id) => {
         setSubmitLoading(true);
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn, unit: user.jabatan.unor.induk };
+            dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn };
             dt.periodeRKT = [values.periodeRKT]
 
             switch (type) {
@@ -100,27 +103,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
 
         console.log('Operation completed');
@@ -141,7 +135,7 @@ const page = () => {
                 }
             ],
             options: resntra?.map((item) => ({
-                label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end),
+                label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
                 value: item._id
             }))
         },
@@ -156,7 +150,7 @@ const page = () => {
                 }
             ],
             options: periodeRKT?.map((item) => ({
-                label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end),
+                label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
                 value: item._id
             }))
         },
@@ -268,14 +262,14 @@ const page = () => {
             name: 'renstra',
             type: 'select',
             filter: 'eq',
-            options: resntra?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: resntra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
         {
             label: 'Periode RKT',
             name: 'periodeRKT',
             type: 'select',
             filter: 'eq',
-            options: periodeRKT?.map((item) => ({ value: item._id, label: dateFormatter(item.periode_start) + ' - ' + dateFormatter(item.periode_end) }))
+            options: periodeRKT?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
         },
     ];
 
@@ -334,7 +328,7 @@ const page = () => {
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
-
+                                            {console.log(item)}
                                             <div className="grid grid-flow-row divide-y text-xs">
                                                 <div className="flex items-center justify-between py-2">
                                                     <span className="uppercase font-semibold">periode</span>
@@ -367,14 +361,36 @@ const page = () => {
                                                     type="primary"
                                                     icon={<EditOutlined />}
                                                     onClick={() =>
-                                                        setModal({ modalData: { ...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir) }, title: `Edit ${item.skp}`, trigger: true, type: 'edit' })
+                                                        setModal({
+                                                            modalData: {
+                                                                ...item,
+                                                                periode_awal: dateFormatter(item.periode_awal),
+                                                                periode_akhir: dateFormatter(item.periode_akhir),
+                                                                periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
+                                                                renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
+                                                            },
+                                                            title: `Edit ${item.skp}`,
+                                                            trigger: true,
+                                                            type: 'edit'
+                                                        })
                                                     }
                                                 >
                                                     Edit
                                                 </Button>
                                                 <Button
                                                     onClick={() =>
-                                                        setModal({ modalData: { ...item, periode_awal: dateFormatter(item.periode_awal), periode_akhir: dateFormatter(item.periode_akhir) }, title: `Hapus ${item.skp}`, trigger: true, type: 'delete' })
+                                                        setModal({
+                                                            modalData: {
+                                                                ...item,
+                                                                periode_awal: dateFormatter(item.periode_awal),
+                                                                periode_akhir: dateFormatter(item.periode_akhir),
+                                                                periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
+                                                                renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
+                                                            },
+                                                            title: `Hapus ${item.skp}`,
+                                                            trigger: true,
+                                                            type: 'delete'
+                                                        })
                                                     }
                                                     danger
                                                     variant="filled"

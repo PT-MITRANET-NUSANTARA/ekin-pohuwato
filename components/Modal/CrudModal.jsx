@@ -175,6 +175,14 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                         onChange={(value) => handleSelectChange(value, field.name)}
                         optionLabelProp="label"
                         {...field.extra}
+                        showSearch
+                        filterSort={(optionA, optionB) =>
+                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                        }
+                        filterOption={(input, option) =>
+                            option?.label?.toLowerCase().includes(input.toLowerCase()) ||
+                            option?.value?.toString().toLowerCase().includes(input.toLowerCase())
+                        }
                     >
                         {options?.map((option) => (
                             <Option key={option.id} value={option.value} label={option.label}>
