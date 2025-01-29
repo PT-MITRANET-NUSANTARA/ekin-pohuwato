@@ -34,7 +34,7 @@ export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/periode?id=${id}`, {
         method: 'PUT',
         body: data,
-    });
+    }); 
     return response;
 }
 
