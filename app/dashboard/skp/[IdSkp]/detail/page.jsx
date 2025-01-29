@@ -279,6 +279,7 @@ const page = () => {
                                 ))}
                             </tbody>
                         </table>
+                        {console.log('perilaku', skp)}
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr className="uppercase">
@@ -317,7 +318,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
                                                 Edit
                                             </Button>
                                         </div>
@@ -331,7 +332,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Skema Pertanggung Jawaban</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}
@@ -345,7 +346,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2">
                                             <p>Konsekuensi</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
                                                 Edit
                                             </Button>
                                             {/* looping through here */}
