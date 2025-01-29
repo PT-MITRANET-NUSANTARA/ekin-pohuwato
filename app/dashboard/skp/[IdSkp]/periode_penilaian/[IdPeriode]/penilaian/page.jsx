@@ -1,17 +1,14 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Space, Tabs, Tag, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, SearchOutlined, PrinterOutlined, FileOutlined, PlusOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
+import {  PrinterOutlined,  } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, DataLoading, DataTable } from '@/components';
-import { dummyBawahan } from '@/data';
 import useFetchData from '@/hooks/useFetchData';
 import { getById, getBySKPId } from '@/controller/SKPController';
-import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
-import { getHasilSkp } from '@/controller/ReportController';
 import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
@@ -151,99 +148,7 @@ const page = () => {
                         Perilaku
                     </Button>
                     <Button onClick={() => router.push(window.location.pathname + `/${record.id}/predikat_kinerja`)}>Predikat Kinerja</Button>
-                    <Button
-                        loading={loading}
-                        icon={<FileOutlined />}
-                        size="middle"
-                        onClick={async () => {
-                            const res = await getById(record._id);
-                            const periode = await getByIdPenilaian(IdPeriode);
-                            // console.log(periode);
-                            // console.log(res);
-                            if (res.ok) {
-                                console.log(res.data);
-                                const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
-
-                                const index = res.data.skp.findIndex((item) => item._id === IdSkp);
-                                const bawahan = res.data.jabatan[index];
-                                const jabatan = skpAtasan.jabatan;
-
-                                // console.log(data);
-
-                                const atasan = jabatan.find((item) => {
-                                    return item.unor.induk.id === bawahan.unor.induk.id;
-                                });
-
-                                // const realisasi = {};
-                                console.log(res.data.rhks);
-
-                                // res.data.rhks.forEach(item, (index) => {
-                                //     item.aspek.forEach((aspek) => {
-                                //         {
-                                //             getRealisasi(
-                                //                 aspek,
-                                //                 item.harians?.filter((h) => {
-                                //                     const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                //                     const endDateTime = dayjs(periode.data.periodeEnd); // Convert endDateTime to Day.js object
-                                //                     return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
-                                //                 })
-                                //             );
-                                //         }
-                                //     });
-                                // });
-                                const realisasi = {};
-
-                                res.data.rhks.forEach((rhk) => {
-                                    if (!realisasi[rhk._id]) {
-                                        realisasi[rhk._id] = {}; // Inisialisasi objek untuk rhk._id jika belum ada
-                                    }
-
-                                    rhk.aspek.forEach((aspek) => {
-                                        // Filter data harian sesuai kondisi
-                                        const filteredHarians = rhk.harians?.filter((h) => {
-                                            const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
-                                            const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
-
-                                            return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
-                                        });
-
-                                        // Hitung realisasi untuk aspek
-                                        realisasi[rhk._id][aspek._id] = getRealisasi(aspek, filteredHarians);
-                                    });
-                                });
-
-                                console.log(atasan);
-
-                                const query = {
-                                    atasan: atasan,
-                                    bawahan: bawahan,
-                                    skp: res.data,
-                                    realisasi: realisasi,
-                                    periode: periode.data,
-                                    periodeStart: dateFormatter(periode.data.periodeStart),
-                                    periodeEnd: dateFormatter(periode.data.periodeEnd)
-                                };
-
-                                console.log(query);
-
-                                const pdfBlob = await getHasilSkp(query);
-                                console.log(pdfBlob);
-
-                                const url = window.URL.createObjectURL(pdfBlob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = 'hasil-skp.pdf'; // Filename
-                                document.body.appendChild(a);
-                                a.click();
-                                a.remove();
-                                window.URL.revokeObjectURL(url);
-
-                                console.log(realisasi);
-                            }
-                        }}
-                    >
-                        Cetak
-                    </Button>
+                   
                 </Space>
             )
         }

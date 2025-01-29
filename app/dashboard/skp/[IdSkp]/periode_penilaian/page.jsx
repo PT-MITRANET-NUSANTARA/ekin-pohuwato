@@ -9,24 +9,40 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getAll, store, destroy, update } from '@/controller/periodePenilaianController';
+import useFetchData from '@/hooks/useFetchData';
+import { getData } from '@/controller/AuthorizationController';
+import { getById } from '@/controller/IDSN/UnitController';
+import { cekJT } from '@/utils/jabatanUtils';
+
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const { IdSkp } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [data, setData] = useState(null);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [isJT, setIsJT] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [loading, setLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState()
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (user) {
+            fetchData();
+        }
+    }, [user]);
+
+    console.log(user)
 
     const fetchData = async () => {
         try {
+            const selectedJabatan = user.jabatan;
+            const struktur = await getById(user.token, selectedJabatan.unor.induk.id);
+
             const data = await getAll(IdSkp);
+            const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            setIsJT(isJT);
             setData(data.data);
             setLoading(false);
         } catch (error) {
@@ -34,7 +50,7 @@ const page = () => {
         }
     };
 
-    const onSubmit = async (values, type, id, formData) => {
+    const jptSubmitPeriode = async (values, type, id, formData) => {
         setSubmitLoading(true)
         try {
             let response;
@@ -117,7 +133,10 @@ const page = () => {
             render: (record) => dateFormatter(record)
         },
 
-        {
+    ];
+
+    if (isJT) {
+        Column.push({
             title: 'Action',
             key: 'action',
             render: (_, record) => (
@@ -154,8 +173,8 @@ const page = () => {
                     </Button>
                 </Space>
             )
-        }
-    ];
+        })
+    }
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -197,6 +216,27 @@ const page = () => {
         }
     ];
 
+    const isNotJtFormFields = [
+        {
+            label: 'Pilih Periode',
+            name: 'periode',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field nama periode wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'periode 1',
+                    value: 'periode 1'
+                }
+            ]
+        },
+    ]
+
+    console.log('isJt', isJT)
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
@@ -219,14 +259,22 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Data Periode Penilaian
                             </Title>
-                            <div>
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                    Tambah
-                                </Button>
-                            </div>
+                            {isJT ? (
+                                <div>
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', onSubmit: jptSubmitPeriode, formFields: formFields })}>
+                                        Tambah
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: isNotJtFormFields, onSubmit: () => { } })}>
+                                        Tambah
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                         <DataTable columns={Column} data={data} loading={loading} />
-                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onSubmit={onSubmit} onClose={handleClose} data={modal.modalData} formFields={formFields} type={modal.type} />
+                        <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} onSubmit={modal.onSubmit} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                     </div>
                 </Card>
             )}

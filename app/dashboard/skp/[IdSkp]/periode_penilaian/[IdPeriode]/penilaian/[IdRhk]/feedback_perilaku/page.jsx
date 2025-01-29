@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Progress, Select, Table, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined } from '@ant-design/icons';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CrudModal, InfoModal } from '@/components';
@@ -23,7 +23,7 @@ import { dateFormatter } from '@/utils';
 const page = () => {
     const router = useRouter();
     const { IdRhk, IdSkp, IdPeriode, IdPenilaian } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
 
     const [data, setData] = useState(null);
@@ -246,6 +246,14 @@ const page = () => {
                 ]}
             />
             <Card>
+                <div className='flex gap-x-2'>
+                    <ExclamationCircleFilled className='text-blue-500 text-lg' />
+                    <p>
+                        Perilaku kerja ini telah dilakukan penilaian, penilaian perilaku kerja hanya dapat dilakukan sekali, dan tidak dapat diubah.
+                    </p>
+                </div>
+            </Card>
+            <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
                         <Title className="mt-2" level={5}>
@@ -258,6 +266,7 @@ const page = () => {
                                 onClick={() =>
                                     setModal({
                                         trigger: true,
+                                        isRating: true,
                                         modalData: {
                                             rating: data.perilaku ? data.perilaku[IdPeriode] : 1
                                         },
@@ -803,7 +812,20 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
+                    {modal.isRating && (
+                        <CrudModal.Extra>
+                            <Card className="mt-6  mb-4">
+                                <div className='flex gap-x-6'>
+                                    <WarningOutlined className='text-yellow-500 text-lg' width={200} />
+                                    <p className="text-xs">
+                                        Penilaian perilaku kerja hanya bisa dilakukan sekali, setelah diberi nilai, nilai perilaku kerja tidak dapat berubah
+                                    </p>
+                                </div>
+                            </Card>
+                        </CrudModal.Extra>
+                    )}
+                </CrudModal>
                 <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
             </Card>
         </div>

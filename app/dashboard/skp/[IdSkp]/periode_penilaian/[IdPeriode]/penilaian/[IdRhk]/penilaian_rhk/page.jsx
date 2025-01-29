@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Form, Input, InputNumber, List, message, Modal, Progress, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined } from '@ant-design/icons';
+import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined, ExclamationCircleOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -18,11 +18,10 @@ const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
-
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
@@ -97,7 +96,7 @@ const page = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
 
-    const ratingFileds = [
+    const ratingFields = [
         {
             label: 'Beri Rating',
             name: 'rating',
@@ -195,6 +194,7 @@ const page = () => {
     console.log('atasan', bawahan)
     return (
         <div className="w-full flex flex-col gap-y-4">
+
             <Breadcrumb
                 items={[
                     {
@@ -205,6 +205,14 @@ const page = () => {
                     }
                 ]}
             />
+            <Card>
+                <div className='flex gap-x-2'>
+                    <ExclamationCircleFilled className='text-blue-500 text-lg' />
+                    <p>
+                        Rencana hasil kerja ini telah dilakukan penilaian, penilaian RHK hanya dapat dilakukan sekali, dan tidak dapat diubah.
+                    </p>
+                </div>
+            </Card>
             <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
@@ -223,8 +231,9 @@ const page = () => {
                                     setModal({
                                         trigger: true,
                                         modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 },
+                                        isRating: true,
                                         title: 'Tambah Rating Hasil Kerja',
-                                        formFields: ratingFileds,
+                                        formFields: ratingFields,
                                         onSubmit: async (value) => {
                                             console.log(data);
 
@@ -762,7 +771,20 @@ const page = () => {
                         </tr>
                     </tbody>
                 </table>
-                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
+                    {modal.isRating && (
+                        <CrudModal.Extra>
+                            <Card className="mt-6  mb-4">
+                                <div className='flex gap-x-6'>
+                                    <WarningOutlined className='text-yellow-500 text-lg' width={200} />
+                                    <p className="text-xs">
+                                        Penilaian RHK hanya bisa dilakukan sekali, setelah diberi nilai, nilai RHK tidak dapat berubah
+                                    </p>
+                                </div>
+                            </Card>
+                        </CrudModal.Extra>
+                    )}
+                </CrudModal>
                 <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
             </Card>
         </div>

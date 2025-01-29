@@ -284,7 +284,7 @@ const page = () => {
     ];
 
     const handleClose = () => {
-        setModal({ trigger: false, modalData: null });
+        setModal({ trigger: false, modalData: null });s
     };
 
     return (
