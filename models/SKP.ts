@@ -13,6 +13,12 @@ enum Status {
     REJECTED = 'rejected'
 }
 
+interface ILampiran  {
+    sumber_daya: [],
+    skema: [],
+    konsekuensi: [],
+}
+
 interface ISKP {
     user_id: string;
     periode_awal: Date;
@@ -26,10 +32,7 @@ interface ISKP {
     status?: Status; // Optionalp
     keterangan?: string; // Optional
     jabatan: object[]; // Array of Object
-    hasil: Object;
-    predikat: Object;
-    perilaku: Object;
-    lampiran: Object;
+    lampiran: ILampiran;
     createdAt?: Date; // Automatically handled by Mongoose
     updatedAt?: Date; // Automatically handled by Mongoose
 }
@@ -71,23 +74,12 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
         },
         lampiran: {
             type: Object,
-            required: false,
-            default: {}
-        },
-        predikat: {
-            type: Object,
-            required: false,
-            default: {}
-        },
-        perilaku: {
-            type: Object,
-            required: false,
-            default: {}
-        },
-        hasil: {
-            type: Object,
-            required: false,
-            default: {}
+            required: true,
+            default: {
+                sumber_daya: [],
+                skema: [],
+                konsekuensi: [],
+            }
         },
         pendekatan: {
             type: String,

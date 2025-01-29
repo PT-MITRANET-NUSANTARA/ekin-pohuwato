@@ -6,8 +6,9 @@ interface IPeriodePenilaian extends Document {
     periodeStart: Date;
     periodeEnd: Date;
     createdAt?: Date;
+    skp: mongoose.Types.ObjectId;
     updatedAt?: Date;
-    unit: Object;
+    periodePenilaian: mongoose.Schema.Types.ObjectId;
     periodeRKT: mongoose.Types.ObjectId;
 }
 
@@ -25,6 +26,11 @@ const PeriodePenilaianSchema = new Schema<IPeriodePenilaian, PeriodePenilaianMod
             type: String,
             require: true
         },
+        periodePenilaian: {
+            type: Schema.Types.ObjectId,
+            ref: 'PeriodePenilaian',
+            required: false
+        },
         periodeStart: {
             type: Date,
             required: true
@@ -33,13 +39,9 @@ const PeriodePenilaianSchema = new Schema<IPeriodePenilaian, PeriodePenilaianMod
             type: Date,
             required: true
         },
-        periodeRKT: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'PeriodeRKT',
-            required: true
-        },
-        unit: {
-            type: Object,
+        skp: {
+            type: Schema.Types.ObjectId,
+            ref: 'SKP',
             required: true
         }
     },

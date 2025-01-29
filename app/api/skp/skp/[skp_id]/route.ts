@@ -12,7 +12,6 @@ import SKP from '@/models/SKP';
 const skpSchema = Joi.object({
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
     keterangan: Joi.string().allow('').label('Keterangan'),
-    penilaians: Joi.optional(),
     perilakus: Joi.optional(),
     rhks: Joi.optional(),
     user_id: Joi.string().required().label('User ID'),
@@ -23,9 +22,6 @@ const skpSchema = Joi.object({
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
-    predikat: Joi.object().optional().label('Predikat'),
-    hasil: Joi.object().optional().label('Hasil'),
-    perilaku: Joi.object().optional().label('Perilaku'),
     updatedAt: Joi.date().optional(),
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()
 }).messages({
@@ -91,7 +87,7 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
         const { skp_id } = params;
         const body = await req.json();
         const skp: any = await SKP.findById(skp_id);
-        
+
         const errors = validateSKPData(body);
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Validation Failed', errors));
@@ -99,6 +95,17 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
 
         if (!skp) {
             return NextResponse.json(createResponse(400, 'Validation Failed', 'SKP tidak ditemukan'));
+        }
+
+        // const userSkp = await SKP.find{{skp:skp._id, user_id: body.user_id}};
+        const userSkp = await SKP.find({
+            skp: skp._id,
+            user_id: body.user_id,
+            periodeRKT: skp.periodeRKT
+        });
+        
+        if (userSkp) {
+            return NextResponse.json(createResponse(400, 'Validation Failed', 'SKP sudah ada'));
         }
 
         const updatedBody = { ...body, skp: [skp._id], periodeRKT: [skp.periodeRKT], periode_awal: skp.periode_awal, periode_akhir: skp.periode_akhir };
