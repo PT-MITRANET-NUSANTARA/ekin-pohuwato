@@ -14,6 +14,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
+import { getHasilSkp } from '@/controller/ReportController';
 
 const page = () => {
     const router = useRouter();
@@ -111,6 +112,7 @@ const page = () => {
         }
     };
 
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -136,7 +138,96 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />}>
                                 Cetak Dokumen Evaluasi Kinerja
                             </Button>
-                            <Button type="primary" icon={<PrinterOutlined />}>
+                            <Button
+                                type="primary"
+                                icon={<PrinterOutlined />}
+                                onClick={async () => {
+                                    const res = await getById(record._id);
+                                    const periode = await getPenilaian(IdPeriode);
+                                    // console.log(periode);
+                                    // console.log(res);
+                                    if (res.ok) {
+                                        console.log(res.data);
+                                        const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
+
+                                        const index = res.data.skp.findIndex((item) => item._id === IdSkp);
+                                        const bawahan = res.data.jabatan[index];
+                                        const jabatan = skpAtasan.jabatan;
+
+                                        // console.log(data);
+
+                                        const atasan = jabatan.find((item) => {
+                                            return item.unor.induk.id === bawahan.unor.induk.id;
+                                        });
+
+                                        // const realisasi = {};
+                                        console.log(res.data.rhks);
+
+                                        // res.data.rhks.forEach(item, (index) => {
+                                        //     item.aspek.forEach((aspek) => {
+                                        //         {
+                                        //             getRealisasi(
+                                        //                 aspek,
+                                        //                 item.harians?.filter((h) => {
+                                        //                     const hDate = dayjs(h.date); // Convert h.date to Day.js object
+                                        //                     const endDateTime = dayjs(periode.data.periodeEnd); // Convert endDateTime to Day.js object
+                                        //                     return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
+                                        //                 })
+                                        //             );
+                                        //         }
+                                        //     });
+                                        // });
+                                        const realisasi = {};
+
+                                        res.data.rhks.forEach((rhk) => {
+                                            if (!realisasi[rhk._id]) {
+                                                realisasi[rhk._id] = {}; // Inisialisasi objek untuk rhk._id jika belum ada
+                                            }
+
+                                            rhk.aspek.forEach((aspek) => {
+                                                // Filter data harian sesuai kondisi
+                                                const filteredHarians = rhk.harians?.filter((h) => {
+                                                    const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
+                                                    const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
+
+                                                    return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
+                                                });
+
+                                                // Hitung realisasi untuk aspek
+                                                realisasi[rhk._id][aspek._id] = getRealisasi(aspek, filteredHarians);
+                                            });
+                                        });
+
+                                        console.log(atasan);
+
+                                        const query = {
+                                            atasan: atasan,
+                                            bawahan: bawahan,
+                                            skp: res.data,
+                                            realisasi: realisasi,
+                                            periode: periode.data,
+                                            periodeStart: dateFormatter(periode.data.periodeStart),
+                                            periodeEnd: dateFormatter(periode.data.periodeEnd)
+                                        };
+
+                                        console.log(query);
+
+                                        const pdfBlob = await getHasilSkp(query);
+                                        console.log(pdfBlob);
+
+                                        const url = window.URL.createObjectURL(pdfBlob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = 'hasil-skp.pdf'; // Filename
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        a.remove();
+                                        window.URL.revokeObjectURL(url);
+
+                                        console.log(realisasi);
+                                    }
+                                }}
+                            >
                                 Cetak Hasil SKP
                             </Button>
                         </div>

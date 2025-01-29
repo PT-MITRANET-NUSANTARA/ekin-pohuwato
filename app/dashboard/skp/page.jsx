@@ -262,19 +262,29 @@ const page = () => {
             name: 'renstra',
             type: 'select',
             filter: 'eq',
-            options: resntra?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
+            options: resntra?.map((item) => ({ 
+                value: item._id, 
+                label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
+                id: item._id 
+            }))
         },
         {
             label: 'Periode RKT',
             name: 'periodeRKT',
             type: 'select',
             filter: 'eq',
-            options: periodeRKT?.map((item) => ({ value: item._id, label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end) }))
+            options: periodeRKT?.map((item) => ({ 
+                value: item._id, 
+                label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
+                id_option_parent: item.renstra._id
+            })),
+            parentField: 'renstra',
+            
         },
     ];
 
     const handleClose = () => {
-        setModal({ trigger: false, modalData: null });
+        setModal({ trigger: false, modalData: null });s
     };
 
     return (

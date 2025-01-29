@@ -1,7 +1,7 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Skeleton, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, List, Skeleton, Tag, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, EditFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -67,7 +67,7 @@ const page = () => {
                 }
             ]
         },
-       
+
     ];
 
 
@@ -225,6 +225,7 @@ const page = () => {
                                 </div>
                             </Card>
                         </div>
+
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr>
@@ -279,6 +280,7 @@ const page = () => {
                                 ))}
                             </tbody>
                         </table>
+                        {console.log('perilaku', skp)}
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr className="uppercase">
@@ -315,43 +317,50 @@ const page = () => {
                             <tbody>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
-                                            <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
-                                                Edit
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Dukungan Sumber Daya</b>
+                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
+                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
+                                                    {item.name}
+                                                </List.Item>
+                                            )} />
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                                Tambah
                                             </Button>
                                         </div>
                                         {/* looping through here */}
-                                        <ul>
-                                            <li></li>
-                                        </ul>
+
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
-                                            <p>Skema Pertanggung Jawaban</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
-                                                Edit
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Skema Pertanggung Jawaban</b>
+                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
+                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
+                                                    {item.name}
+                                                </List.Item>
+                                            )} />
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                                Tambah
                                             </Button>
-                                            {/* looping through here */}
-                                            <ul>
-                                                <li></li>
-                                            </ul>
+
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
+                                        <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title:"Edit Dukungan Sumber Daya", trigger: true })}>
-                                                Edit
+                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
+                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
+                                                    {item.name}
+                                                </List.Item>
+                                            )} />
+                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                                Tambah
                                             </Button>
-                                            {/* looping through here */}
-                                            <ul>
-                                                <li></li>
-                                            </ul>
+
                                         </div>
                                     </td>
                                 </tr>

@@ -3,7 +3,7 @@ import { FilterOutlined, RedoOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 
-const FilterField = ({ fields, onSubmit = () => {} }) => {
+const FilterField = ({ fields, onSubmit = () => { } }) => {
     const { Option } = Select;
     const [form] = Form.useForm(); // Create form instance
     const [selectValues, setSelectValues] = useState({});
@@ -39,9 +39,18 @@ const FilterField = ({ fields, onSubmit = () => {} }) => {
                         size="large"
                         placeholder={`Select ${field.label}`}
                         allowClear
+                        disabled={(field.parentField && !parentValue)}
                         onChange={(value) => handleSelectChange(value, field.name)}
                         optionLabelProp="label"
                         {...field.extra}
+                        showSearch
+                        filterSort={(optionA, optionB) =>
+                            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                        }
+                        filterOption={(input, option) =>
+                            option?.label?.toLowerCase().includes(input.toLowerCase()) ||
+                            option?.value?.toString().toLowerCase().includes(input.toLowerCase())
+                        }
                     >
                         {options?.map((option) => (
                             <Option key={option.id} value={option.value} label={option.label}>
@@ -61,10 +70,10 @@ const FilterField = ({ fields, onSubmit = () => {} }) => {
     return (
         <>
             <hr className="mb-4" />
-            <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-2">
+            <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-2" layout='vertical'>
                 <div className="grid grid-cols-12 w-full gap-4">
                     {fields?.map((field, index) => (
-                        <Form.Item key={index} name={field.name} className='col-span-4 m-0'>
+                        <Form.Item key={index} name={field.name} className='col-span-4 m-0' label={`Pilih ${field.name}`} >
                             {renderFormInput(field)}
                         </Form.Item>
                     ))}
