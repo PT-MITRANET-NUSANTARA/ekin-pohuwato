@@ -54,5 +54,7 @@ require('../models/Verifikasi');
 require('../models/TPP');
 require('../models/Perilaku');
 require('../models/Absence');
+require('../models/FeedbackPerilaku');
+require('../models/FeedbackRHK');
 
 export default dbConnect;

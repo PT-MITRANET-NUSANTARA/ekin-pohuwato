@@ -80,7 +80,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn };
+            dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn, unit: user.jabatan.unor };
             dt.periodeRKT = [values.periodeRKT]
 
             switch (type) {

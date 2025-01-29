@@ -13,6 +13,7 @@ const penilaianSchema = Joi.object({
     _id: Joi.optional(),
     id: Joi.optional(),
     skp: Joi.string().hex().length(24).required().label('SKP'), // Expecting string ObjectId
+    Penilai: Joi.string().hex().length(24).required().label('Penilai'), // Expecting string ObjectId
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
 }).messages({

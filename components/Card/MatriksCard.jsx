@@ -302,7 +302,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     let dt = values;
                                     console.log(dt);
 
-                                    dt = { ...dt, skp: record.skp, unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor.induk };
+                                    dt = { ...dt, skp: record.skp, unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor };
                                     const response = await updateRHK(record._id, dt);
                                     console.log(response);
 
@@ -384,7 +384,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         setSubmitLoading(true);
                                         const dt = {
                                             ...value,
-                                            unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor.induk,
+                                            unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor,
                                             skp: dataItem._id
                                         };
                                         const rhk = await storeRHK(dt);

@@ -2,10 +2,12 @@ import buildFilterQuery from '@/utils/buildFilterQuery';
 import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IPenilaian extends Document {
-    ratingKinerja?: number;
-    ratingPerilaku?: number;
+    ratingKinerja: number;
+    ratingPerilaku: number;
+    ratingPredikat: number;
     periodePenilaian: mongoose.Schema.Types.ObjectId;
     skp: mongoose.Schema.Types.ObjectId;
+    penilai: mongoose.Schema.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -22,19 +24,34 @@ const PenilaianSchema = new Schema<IPenilaian, PenilaianModel, IPenilaianMethods
     {
         ratingKinerja: {
             type: Number,
-            required: false,
+            required: true,
             min: 1,
-            max: 5
+            max: 5,
+            default: 0,
         },
         ratingPerilaku: {
             type: Number,
-            required: false,
+            required: true,
             min: 1,
-            max: 5
+            max: 5,
+            default: 0,
+
+        },
+        ratingPredikat: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5,
+            default: 0,
         },
         periodePenilaian: {
             type: Schema.Types.ObjectId,
             ref: 'PeriodePenilaian',
+            required: true
+        },
+        penilai: {
+            type: Schema.Types.ObjectId,
+            ref: 'SKP',
             required: true
         },
         skp: {

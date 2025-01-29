@@ -43,14 +43,14 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-
-            const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
+            const skpAtasan = getById(IdSkp);
+            
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
             const jabatan = skpAtasan.jabatan;
 
             const atasan = jabatan.find((item) => {
-                return item.unor.induk.id === bawahan.unor.induk.id;
+                return item.unor.id === bawahan.unor.atasan.unor_id;
             });
 
             setData(skp.data);

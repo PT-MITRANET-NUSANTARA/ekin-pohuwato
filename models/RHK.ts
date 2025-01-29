@@ -126,6 +126,13 @@ RHKSchema.virtual('harians', {
     justOne: false
 });
 
+RHKSchema.virtual('FeedbackRHKs', {
+    ref: 'FeedbackRHK',
+    localField: '_id',
+    foreignField: 'rhk',
+    justOne: false
+});
+
 const RHK: RHKModel = mongoose.models.RHK as RHKModel || mongoose.model<IRHK, RHKModel>('RHK', RHKSchema);
 
 export default RHK;

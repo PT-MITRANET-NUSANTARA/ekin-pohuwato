@@ -63,6 +63,13 @@ PerilakuSchema.static('getAll', async function getAll(page: number = 1, limit: n
     };
 });
 
+PerilakuSchema.virtual('FeedbackPerilakus', {
+  ref: 'FeedbackPerilaku',
+  localField: '_id',
+  foreignField: 'perilaku',
+  justOne: false
+});
+
 const Perilaku: PerilakuModel = mongoose.models.Perilaku as PerilakuModel || mongoose.model<IPerilaku, PerilakuModel>('Perilaku', PerilakuSchema);
 
 export default Perilaku;
