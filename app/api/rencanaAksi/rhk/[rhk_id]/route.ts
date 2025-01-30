@@ -17,7 +17,7 @@ const rencanaAksiSchema = Joi.object({
     updatedAt: Joi.date().optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
-    'string.base': '{{#label}} harus berupa string.',
+    'string.base': '{{#label}} harus berupa string.'
 });
 
 // Validate function for RencanaAksi data
@@ -30,45 +30,22 @@ function validateRencanaAksiData(data: any) {
 }
 
 // GET route
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { rhk_id: string } }) {
     await dbConnect();
 
     try {
         let rencanaAksis;
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-       
-            if (page === 'undefined' || limit === 'undefined') {
-                rencanaAksis = await RencanaAksi.find({}).populate(['skp', 'periodePenilaian']);
-            } else {
-                rencanaAksis = await RencanaAksi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+        const { rhk_id } = params;
+        const periode = req.nextUrl.searchParams.get('periodePenilaian');
+        if (periode) {
+            rencanaAksis = await RencanaAksi.find({ rhk: rhk_id, periodePenilaian: periode });
+        } else {
+            rencanaAksis = await RencanaAksi.find({ rhk: rhk_id });
+        }
 
         return NextResponse.json(createResponse(200, 'Success', rencanaAksis, true));
     } catch (error) {
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch Rencana Aksi data' }, { status: 500 });
-    }
-}
-
-// POST route
-export async function POST(req: NextRequest) {
-    await dbConnect();
-
-    try {
-        const body = await req.json();
-
-        const errors = validateRencanaAksiData(body);
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const newRencanaAksi = new RencanaAksi(body);
-        await newRencanaAksi.save();
-        return NextResponse.json(createResponse(201, 'Success', newRencanaAksi, true));
-    } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create Rencana Aksi' }, { status: 500 });
     }
 }

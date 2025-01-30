@@ -18,8 +18,9 @@ const rhkSchema = Joi.object({
     rencana: Joi.object().label('Rencana'),
     klasifikasi: Joi.string().valid('organisasi', 'individu', 'Organisasi', 'Individu').optional().label('Klasifikasi'),
     __v: Joi.optional(),
-    unit: Joi.object().required().label('Unit'),
-    _id: Joi.optional()
+    _id: Joi.optional(),
+        posjab: Joi.string().label('Posjab'),
+    
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',

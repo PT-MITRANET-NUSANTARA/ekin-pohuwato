@@ -171,8 +171,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [unor.find((item) => item.nip_asn == values.user_id)] };
-            console.log(IdSkp);
+            dt = { ...dt, jabatan: [unor.find((item) => item.nip_asn == values.user_id)], posjab: [user.jabatan.id_posjab] };
 
             switch (type) {
                 case 'create':

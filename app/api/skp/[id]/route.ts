@@ -22,6 +22,7 @@ const skpSchema = Joi.object({
     _id: Joi.optional(),
     id: Joi.optional(),
     renstra: Joi.optional(),
+    posjab: Joi.array().items(Joi.optional()).label('Posjab'),
 
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
@@ -70,14 +71,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         const { id } = params;
 
         const skp = await SKP.findById(id)
-            .populate('perilakus')
+            .populate({
+                path: 'perilakus',
+                populate: {
+                    path: 'FeedbackPerilakus'
+                }
+            })
             .populate({
                 path: 'rhks',
                 populate: [
                     { path: 'rhk', populate: [{ path: 'rkt' }, { path: 'harians' }] }, // Populate 'rhk' dan 'rkt' di dalamnya
                     { path: 'aspek' }, // Populate 'aspek'
                     { path: 'harians' }, // Populate 'harians'
-                    { path: 'rkt' } // Populate 'rkt' secara langsung dari 'rhks'
+                    { path: 'rkt' },
+                    { path: 'FeedbackRHKs' } // Populate 'rkt' secara langsung dari 'rhks'
                 ]
             })
             .populate('skp') // Populate 'skp'

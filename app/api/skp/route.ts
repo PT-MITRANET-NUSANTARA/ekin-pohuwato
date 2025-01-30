@@ -27,7 +27,7 @@ const skpSchema = Joi.object({
     renstra: Joi.optional(),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
-    unit: Joi.object().required().label('Unit'),
+    posjab: Joi.array().items(Joi.optional()).label('Posjab'),
     updatedAt: Joi.date().optional(),
     periodeRKT: Joi.array().items(Joi.optional()).optional().label('PeriodeRKT'),
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
                         klasifikasi: 'organisasi',
                         desc: rkt.name,
                         status: 'approved',
-                        unit: body.unit
+                        posjab: body.jabatan[0].id_posjab
                     });
                     await rhk.save();
 

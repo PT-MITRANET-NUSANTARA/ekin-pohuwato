@@ -1,7 +1,7 @@
 import mongoose, { Document, HydratedDocument, Model, Schema } from 'mongoose';
 interface IRencanaAksi extends Document {
     isi: string;
-    skp: mongoose.Schema.Types.ObjectId;
+    rhk: mongoose.Schema.Types.ObjectId;
     periodePenilaian: mongoose.Schema.Types.ObjectId;
     target: string;
     createdAt?: Date;
@@ -23,9 +23,10 @@ const RencanaAksiSchema = new Schema<IRencanaAksi, RencanaAksiModel, IRencanaAks
             type: String,
             required: true
         },
-        skp: {
+       
+        rhk: {
             type: Schema.Types.ObjectId,
-            ref: 'SKP',
+            ref: 'RHK',
             required: true
         },
         target: {

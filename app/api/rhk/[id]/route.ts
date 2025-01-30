@@ -13,7 +13,7 @@ const rhkSchema = Joi.object({
     rencana: Joi.object().label('Rencana'),
     klasifikasi: Joi.string().valid('organisasi', 'individu', 'Organisasi', 'Individu').optional().label('Klasifikasi'),
     __v: Joi.optional(),
-    unit: Joi.object().required().label('Unit'),
+    posjab: Joi.string().label('Posjab'),
     _id: Joi.optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
@@ -54,7 +54,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-
     await dbConnect();
 
     try {

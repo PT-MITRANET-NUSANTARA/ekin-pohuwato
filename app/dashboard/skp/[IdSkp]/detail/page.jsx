@@ -7,19 +7,22 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
-import { getById } from '@/controller/SKPController';
+import { getById, update } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { CrudModal } from '@/components';
 import dayjs from 'dayjs';
+import useNotification from '@/app/hook/useNotification';
 const { Title } = Typography;
 const page = () => {
+    const { success, error } = useNotification();
+
     const { IdSkp } = useParams();
     const router = useRouter();
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     useEffect(() => {
         fetchData();
@@ -41,8 +44,7 @@ const page = () => {
         router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
 
-    console.log(jabatan);
-
+    console.log(skp);
 
     const cetakSkpFields = [
         {
@@ -66,10 +68,8 @@ const page = () => {
                     message: 'Field lokasi wajib diisi'
                 }
             ]
-        },
-
+        }
     ];
-
 
     const lampiranFields = [
         {
@@ -82,15 +82,32 @@ const page = () => {
                     message: 'Field Isi Lampiran wajib diisi'
                 }
             ]
-        },
-
+        }
     ];
 
+    const addLampiran = async (key, values) => {
+        const lampiran = skp.lampiran[key];
+        lampiran.push(values);
 
-    console.log(skp);
+        const dt = {
+            ...skp,
+            lampiran: {
+                ...skp.lampiran,
+                [key]: lampiran
+            }
+        };
 
+        const res = await update(skp._id, skp);
+        if (res.oke) {
+            fetchData();
+            success('Berhasil Menambahkan Lampiran');
+        } else {
+            error('Gagal', res.data);
+        }
+        console.log(res);
 
-
+        console.log(dt);
+    };
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -319,32 +336,56 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Dukungan Sumber Daya</b>
-                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
-                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
-                                                    {item.name}
-                                                </List.Item>
-                                            )} />
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                            <List
+                                                className="px-4"
+                                                dataSource={skp?.lampiran.sumber_daya}
+                                                renderItem={(item) => <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>{item.isi_lampiran}</List.Item>}
+                                            />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('sumber_daya', values);
+                                                        },
+                                                        title: 'Edit Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'edit',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
                                                 Tambah
                                             </Button>
                                         </div>
                                         {/* looping through here */}
-
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Skema Pertanggung Jawaban</b>
-                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
-                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
-                                                    {item.name}
-                                                </List.Item>
-                                            )} />
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                            <List className="px-4" dataSource={skp?.lampiran.skema} renderItem={(item) => <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>{item.isi_lampiran}</List.Item>} />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('skema', values);
+                                                        },
+                                                        title: 'Edit Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'edit',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
                                                 Tambah
                                             </Button>
-
                                         </div>
                                     </td>
                                 </tr>
@@ -352,15 +393,25 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <List className='px-4' dataSource={skp?.perilakus} renderItem={(item) => (
-                                                <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>
-                                                    {item.name}
-                                                </List.Item>
-                                            )} />
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => { }, title: "Edit Dukungan Sumber Daya", trigger: true, type: 'edit', modalData: {} })}>
+                                            <List className="px-4" dataSource={skp?.lampiran.konsekuensi} renderItem={(item) => <List.Item actions={[<Button icon={<EditOutlined />} />, <Button icon={<DeleteOutlined />} />]}>{item.isi_lampiran}</List.Item>} />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('konsekuensi', values);
+                                                        },
+                                                        title: 'Edit Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'edit',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
                                                 Tambah
                                             </Button>
-
                                         </div>
                                     </td>
                                 </tr>

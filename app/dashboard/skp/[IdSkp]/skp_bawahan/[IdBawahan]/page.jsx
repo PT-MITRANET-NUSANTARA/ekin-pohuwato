@@ -9,33 +9,45 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
-import { update } from '@/controller/PerilakuController'
+import { update } from '@/controller/PerilakuController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { CrudModal } from '@/components';
 import dayjs from 'dayjs';
+import { dateFormatter } from '@/utils';
 const { Title } = Typography;
 const page = () => {
     const { IdSkp, IdBawahan } = useParams();
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getData);
+    const [data, setData] = useState(null);
+    const [atasan, setAtasan] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
     const [jabatan, setJabatan] = useState(null);
-    const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
             const skp = await getById(IdBawahan);
-            console.log(skp.data.rhks);
+            const skpAtasan = await getById(IdSkp);
+            console.log('atasan', skpAtasan);
 
-            setSkp(skp.data);
-            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
+            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
+            const bawahan = skp.data.jabatan[index];
+            const jabatan = skpAtasan.data.jabatan;
+
+            const atasan = jabatan.find((item) => {
+                return item.id_posjab === skp.data.posjab[index];
+            });
+
+            setData(skp.data);
+            setBawahan(bawahan);
+            setAtasan(atasan);
+            setIndex(bawahan.id_posjab);
             setLoadingData(false);
         } catch (error) {
             console.log(error);
@@ -105,20 +117,19 @@ const page = () => {
             options: [
                 {
                     label: 'Pengajuan',
-                    value: 'pengajuan',
+                    value: 'pengajuan'
                 },
                 {
                     label: 'Draft',
-                    value: 'draft',
+                    value: 'draft'
                 },
                 {
                     label: 'persetujuan',
                     value: 'persetujuan'
                 }
             ]
-            
         }
-    ]
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -145,7 +156,7 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: `Cetak Rencana SKP`, type: 'create', formFields: cetakSkpFields, onSubmit: cetakSkpSubmit })}>
                                 Cetak
                             </Button>
-                            <Button type="primary" icon={<UserOutlined />} onClick={() => setModal({trigger: true, modalData: null, title: 'Edit Status SKP', type: 'edit', formFields: statusSkpFields})}>
+                            <Button type="primary" icon={<UserOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: 'Edit Status SKP', type: 'edit', formFields: statusSkpFields })}>
                                 Edit Status
                             </Button>
                         </div>
@@ -159,19 +170,19 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">periode</span>
                                 <Tag color="blue" className="capitalize">
-                                    {formatDateToDayMonthYear(skp?.periode_awal)} - {formatDateToDayMonthYear(skp?.periode_akhir)}
+                                    {data?.periode_awal && data?.periode_akhir ? dateFormatter(data?.periode_awal) + ' - ' + dateFormatter(data?.periode_akhir) : 'tanggal tinggal tersedia'}
                                 </Tag>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">pendekatan</span>
                                 <Tag color="blue" className="capitalize">
-                                    {skp?.pendekatan}
+                                    {data?.pendekatan}
                                 </Tag>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">status</span>
                                 <Tag color="green" className="capitalize">
-                                    {skp?.status}
+                                    {data?.status}
                                 </Tag>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">
@@ -189,13 +200,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nama_atasan}
+                                            {bawahan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nip_atasan}
+                                            {bawahan?.id_asn}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -206,13 +217,13 @@ const page = () => {
                             </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
+                                        <p className="text-right capitalize">{bawahan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
-                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
+                                            <p>{bawahan?.unor.nama} </p>
+                                            <small>ID : {bawahan?.unor.id}</small>
                                             {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </div>
@@ -223,13 +234,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.nama_asn}
+                                            {bawahan?.unor?.atasan?.asn?.nama_atasan}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {jabatan?.nipBaru ? jabatan?.nipBaru : ''}
+                                            {bawahan?.unor?.atasan?.asn?.nip_atasan}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -245,8 +256,8 @@ const page = () => {
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{jabatan?.unor.nama} </p>
-                                            <small>ID : {jabatan?.unor.id}</small>
+                                            <p>{bawahan?.unor?.atasan?.unor_nama}</p>
+                                            <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
                                             {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </div>
@@ -270,7 +281,7 @@ const page = () => {
                                         Utama
                                     </td>
                                 </tr>
-                                {skp?.rhks.map((item, index) => (
+                                {data?.rhks.map((item, index) => (
                                     <>
                                         <tr>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
@@ -316,7 +327,7 @@ const page = () => {
                                 </tr>
                             </thead>
                             <tbody className="capitalize">
-                                {skp?.perilakus?.map((item, index) => (
+                                {data?.perilakus?.map((item, index) => (
                                     <tr key={index}>
                                         <td>{index + 1}</td>
                                         <td style={{ padding: '8px' }}>
@@ -330,21 +341,33 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <div className='flex flex-col gap-y-2 items-center'>
+                                            <div className="flex flex-col gap-y-2 items-center">
                                                 {item.espektasi || ''}
-                                                <Button size="small" onClick={() => setModal({ trigger: true, modalData: null, title: 'Edit ekspektasi khusus pimpinan', type: 'edit', formFields: ekspektasiPimpinanFields, onSubmit: async (values) => {
-                                                    const dt = {...item, espektasi: values.ekspektasi}
-                                                    console.log(dt);
-                                                    
-                                                    const res = await update(item._id, dt);
-                                                    console.log(res);
-                                                    
-                                                    if (res.ok) {
-                                                        fetchData();
-                                                        message.success('Data berhasil diubah');
-                                                        setModal({ trigger: false, modalData: null });
+                                                <Button
+                                                    size="small"
+                                                    onClick={() =>
+                                                        setModal({
+                                                            trigger: true,
+                                                            modalData: null,
+                                                            title: 'Edit ekspektasi khusus pimpinan',
+                                                            type: 'edit',
+                                                            formFields: ekspektasiPimpinanFields,
+                                                            onSubmit: async (values) => {
+                                                                const dt = { ...item, espektasi: values.ekspektasi };
+                                                                console.log(dt);
+
+                                                                const res = await update(item._id, dt);
+                                                                console.log(res);
+
+                                                                if (res.ok) {
+                                                                    fetchData();
+                                                                    message.success('Data berhasil diubah');
+                                                                    setModal({ trigger: false, modalData: null });
+                                                                }
+                                                            }
+                                                        })
                                                     }
-                                                } })}>
+                                                >
                                                     Edit
                                                 </Button>
                                             </div>

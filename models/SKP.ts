@@ -23,6 +23,7 @@ interface ISKP {
     user_id: string;
     periode_awal: Date;
     periode_akhir: Date;
+    posjab: string[]
     skp?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     periodeRKT: mongoose.Schema.Types.ObjectId[]; // Reference to Renstra
     rhks?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
@@ -56,6 +57,11 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             type: [Schema.Types.ObjectId], // Array of ObjectId
             ref: 'SKP',
             required: false
+        },
+        posjab: {
+            type: [String],
+            required: true,
+            default: [],
         },
         periodeRKT: {
             type: [Schema.Types.ObjectId],

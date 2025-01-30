@@ -26,7 +26,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
             const response = await getById(dataItem._id);
             const jabatan = response.data.jabatan[response.data.jabatan.length - 1];
             console.log('matrix', jabatan);
-            const rhks = response.data.rhks.filter(rhk => rhk.unit.id === jabatan.unor.induk.id);
+            const rhks = response.data.rhks.filter(rhk => rhk.posjab === jabatan.id_posjab);
             setRhk(rhks)
             setData(response.data);
         } catch (error) {
@@ -302,7 +302,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     let dt = values;
                                     console.log(dt);
 
-                                    dt = { ...dt, skp: record.skp, unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor };
+                                    dt = { ...dt, skp: record.skp, posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab };
                                     const response = await updateRHK(record._id, dt);
                                     console.log(response);
 
@@ -384,7 +384,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         setSubmitLoading(true);
                                         const dt = {
                                             ...value,
-                                            unit: dataItem.jabatan[dataItem.jabatan.length - 1].unor,
+                                            posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab,
                                             skp: dataItem._id
                                         };
                                         const rhk = await storeRHK(dt);

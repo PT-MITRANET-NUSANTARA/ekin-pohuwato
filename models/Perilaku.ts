@@ -6,7 +6,6 @@ interface IPerilaku extends Document {
   name: string;
   isi: string[];
   espektasi: string;
-  feedback?: object;
 }
 
 interface IPerilakuMethods {
@@ -34,11 +33,6 @@ const PerilakuSchema = new Schema<IPerilaku, PerilakuModel, IPerilakuMethods>({
   espektasi: {
     type: String,
     required: false
-  },
-  feedback: {
-    type: Object,
-    required: false,
-    default: null
   },
 
 });

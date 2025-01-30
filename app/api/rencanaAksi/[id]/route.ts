@@ -17,7 +17,7 @@ const rencanaAksiSchema = Joi.object({
     updatedAt: Joi.date().optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
-    'string.base': '{{#label}} harus berupa string.',
+    'string.base': '{{#label}} harus berupa string.'
 });
 
 // Validate function for RencanaAksi data
@@ -30,20 +30,14 @@ function validateRencanaAksiData(data: any) {
 }
 
 // GET route
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
         let rencanaAksis;
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-       
-            if (page === 'undefined' || limit === 'undefined') {
-                rencanaAksis = await RencanaAksi.find({}).populate(['skp', 'periodePenilaian']);
-            } else {
-                rencanaAksis = await RencanaAksi.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-            }
+        const { id } = params;
+
+        rencanaAksis = await RencanaAksi.findById(id).populate(['skp', 'periodePenilaian']);
 
         return NextResponse.json(createResponse(200, 'Success', rencanaAksis, true));
     } catch (error) {
@@ -52,11 +46,12 @@ export async function GET(req: NextRequest) {
     }
 }
 
-// POST route
-export async function POST(req: NextRequest) {
+// PUT route
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
+        const { id } = params;
         const body = await req.json();
 
         const errors = validateRencanaAksiData(body);
@@ -64,11 +59,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const newRencanaAksi = new RencanaAksi(body);
-        await newRencanaAksi.save();
-        return NextResponse.json(createResponse(201, 'Success', newRencanaAksi, true));
+        const updatedRencanaAksi = await RencanaAksi.findOneAndUpdate({ _id: id }, body, { new: true });
+
+        if (!updatedRencanaAksi) {
+            return NextResponse.json(createResponse(404, 'Rencana Aksi not found', null));
+        }
+
+        return NextResponse.json(createResponse(200, 'Success', updatedRencanaAksi, true));
     } catch (error) {
-        console.error('POST error:', error);
-        return NextResponse.json({ error: 'Failed to create Rencana Aksi' }, { status: 500 });
+        console.error('PUT error:', error);
+        return NextResponse.json({ error: 'Failed to update Rencana Aksi' }, { status: 500 });
+    }
+}
+
+// DELETE route
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    await dbConnect();
+
+    try {
+        const { id } = params;
+
+        const deletedRencanaAksi = await RencanaAksi.findById(id);
+        if (!deletedRencanaAksi) {
+            return NextResponse.json(createResponse(404, 'Rencana Aksi not found', null));
+        }
+
+        await deletedRencanaAksi.cascadeDelete();
+
+        return NextResponse.json(createResponse(200, 'Success', deletedRencanaAksi, true));
+    } catch (error) {
+        console.error('DELETE error:', error);
+        return NextResponse.json(createResponse(500, 'Failed to delete Rencana Aksi', null, false));
     }
 }

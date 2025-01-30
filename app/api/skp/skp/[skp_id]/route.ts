@@ -20,6 +20,7 @@ const skpSchema = Joi.object({
     _id: Joi.optional(),
     id: Joi.optional(),
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
+    posjab: Joi.array().items(Joi.optional()).label('Posjab'),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
     updatedAt: Joi.date().optional(),
@@ -64,20 +65,32 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
 
-        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            skps = await SKP.find({ skp: { $in: [skp_id] } })
-                .populate('skp')
-                .populate('periodeRKT');
+        // Filter dasar untuk memastikan `skp` adalah array dan tidak kosong
+        const baseFilter = {
+            skp: { $exists: true, $type: 'array', $ne: [] }, // Pastikan `skp` adalah array dan tidak kosong
+            $expr: {
+                $eq: [
+                    { $arrayElemAt: ['$skp', -1] }, // Ambil elemen terakhir dari array `skp`
+                    skp_id // Bandingkan dengan `skp_id`
+                ]
+            }
+        };
+
+        if (!page || !limit || page === 'undefined' || limit === 'undefined') {
+            // Jika tidak ada pagination, gunakan filter dasar
+            skps = await SKP.find(baseFilter).populate('skp').populate('periodeRKT');
         } else {
-            const f = JSON.parse(filters as string);
-            f['skp'] = { $in: [skp_id] };
-            skps = await SKP.getAll(Number(page), Number(limit), f);
+            // Jika ada pagination, gabungkan filter dasar dengan filter tambahan
+            const additionalFilters = filters ? JSON.parse(filters) : {};
+            const combinedFilters = { ...baseFilter, ...additionalFilters };
+
+            skps = await SKP.getAll(Number(page), Number(limit), combinedFilters);
         }
 
         return NextResponse.json(createResponse(200, 'Success', skps, true));
     } catch (error) {
         console.error('GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch Periode RKT data' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to Get SKP' }, { status: 500 });
     }
 }
 
@@ -98,12 +111,14 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
         }
 
         // const userSkp = await SKP.find{{skp:skp._id, user_id: body.user_id}};
-        const userSkp = await SKP.find({
+        const userSkp = await SKP.findOne({
             skp: skp._id,
             user_id: body.user_id,
             periodeRKT: skp.periodeRKT
         });
-        
+
+        console.log('SKP', userSkp);
+
         if (userSkp) {
             return NextResponse.json(createResponse(400, 'Validation Failed', 'SKP sudah ada'));
         }

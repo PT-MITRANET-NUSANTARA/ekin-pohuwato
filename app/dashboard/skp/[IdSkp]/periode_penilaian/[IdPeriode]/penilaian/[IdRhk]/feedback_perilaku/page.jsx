@@ -35,6 +35,7 @@ const page = () => {
     const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [index, setIndex] = useState(0);
 
     useEffect(() => {
         fetchData();
@@ -43,19 +44,21 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-            const skpAtasan = getById(IdSkp);
+            const skpAtasan = await getById(IdSkp);
+            console.log('atasan', skpAtasan);
             
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
-            const jabatan = skpAtasan.jabatan;
+            const jabatan = skpAtasan.data.jabatan;
 
             const atasan = jabatan.find((item) => {
-                return item.unor.id === bawahan.unor.atasan.unor_id;
+                return item.id_posjab === skp.data.posjab[index];
             });
 
             setData(skp.data);
             setBawahan(bawahan);
             setAtasan(atasan);
+            setIndex(bawahan.id_posjab)
         } catch (error) {
             console.log(error);
         }
@@ -328,10 +331,10 @@ const page = () => {
                             <span className="uppercase font-semibold">Model SKP</span>
                             <p className="text-right capitalize">JAJF</p>
                         </div>
-                        <div className="flex items-center justify-between py-2">
+                        {/* <div className="flex items-center justify-between py-2">
                             <span className="uppercase font-semibold">jenis pegawai</span>
                             <p className="text-right capitalize">pemimpin</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-12 gap-4 mb-6">
@@ -422,7 +425,7 @@ const page = () => {
                                 Utama
                             </td>
                         </tr>
-                        {data?.rhks.map((item, index) => (
+                        {data?.rhks.filter((item) => item.posjab == index).map((item, index) => (
                             <>
                                 <tr>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
