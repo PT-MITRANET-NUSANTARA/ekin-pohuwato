@@ -17,24 +17,18 @@ const { Title } = Typography;
 const page = () => {
     const { IdSkp } = useParams();
     const router = useRouter();
-    const { data, setData, loading } = useFetchData(getData);
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
 
     useEffect(() => {
-        if (data) {
-            fetchData();
-        }
-    }, [data]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdSkp);
-            console.log(skp.data.rhks);
-
             setSkp(skp.data);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setLoadingData(false);
@@ -161,13 +155,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nama}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {data?.user.nipBaru}
+                                            {jabatan?.nip_asn}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -242,7 +236,7 @@ const page = () => {
                                                                     const dt = {
                                                                         skp: item.skp,
                                                                         rhk: item.rhk._id,
-                                                                        rkt: item.rkt? item.rkt._id : null, 
+                                                                        rkt: item.rkt ? item.rkt._id : null,
                                                                         jenis: item.jenis,
                                                                         desc: item.desc,
                                                                         klasifikasi: item.klasifikasi,

@@ -15,7 +15,6 @@ const rhkSchema = Joi.object({
     rkt: Joi.string().optional().label('RKT').allow(null),
     desc: Joi.string().required().label('Deskripsi'),
     jenis: Joi.string().valid('utama', 'tambahan', 'Utama', 'Tambahan').required().label('Jenis'),
-    rencana: Joi.object().label('Rencana'),
     klasifikasi: Joi.string().valid('organisasi', 'individu', 'Organisasi', 'Individu').optional().label('Klasifikasi'),
     __v: Joi.optional(),
     _id: Joi.optional(),

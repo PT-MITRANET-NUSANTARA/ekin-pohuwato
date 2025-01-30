@@ -279,7 +279,7 @@ const page = () => {
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">nip</span>
                                 <p color="blue" className="capitalize">
-                                    {bawahan?.id_asn}
+                                    {bawahan?.nip_asn}
                                 </p>
                             </div>
                             {/* <div className="flex items-center justify-between py-2">

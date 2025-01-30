@@ -17,7 +17,6 @@ interface IRHK extends Document {
     rkt?: mongoose.Schema.Types.ObjectId; 
     aspek?: mongoose.Schema.Types.ObjectId[];
     jenis: Jenis;
-    rencana: Object;
     posjab: string;
     klasifikasi?: Klasifikasi;
     createdAt?: Date; 
@@ -70,10 +69,7 @@ const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
             enum: Object.values(Klasifikasi),
             required: false
         },
-        rencana: {
-            type: Object,
-            required: false
-        }
+
     },
     {
         timestamps: true,
