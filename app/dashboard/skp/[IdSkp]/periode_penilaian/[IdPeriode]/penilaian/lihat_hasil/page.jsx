@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, InputNumber, Modal, Select, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, InputNumber, List, Modal, Select, Tag, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -35,21 +35,25 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdSkp);
-            const penilaian = skp.data.penilaians.find((item) => item.periodePenilaian === IdNilai);
-            setPenilaian(penilaian);
-            const periodePenilaian = await getPenilaian(IdNilai);
-            setPeriode(periodePenilaian.data);
-            const skpAtasan = skp.data.skp[skp.data.skp.length - 1];
-            const bawahan = skp.data.jabatan[skp.data.skp.length - 1];
-            const jabatan = skpAtasan.jabatan;
+            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
+            const bawahan = skp.data.jabatan[index];
 
-            const atasan = jabatan.find((item) => {
-                return item.unor.induk.id === bawahan.unor.induk.id;
-            });
+
+            const skpAtasan = await getById(IdSkp);
+            if (skpAtasan) {
+                const jabatan = skpAtasan.data.jabatan;
+                const atasan = jabatan.find((item) => {
+                    return item.id_posjab === skp.data.posjab[index];
+                });
+                setAtasan(atasan);
+            }
+            else {
+                setAtasan(bawahan.unor.atasan)
+            }
+
 
             setData(skp.data);
             setBawahan(bawahan);
-            setAtasan(atasan);
         } catch (error) {
             console.log(error);
         }
@@ -356,7 +360,7 @@ const page = () => {
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 text-left">
-                                            <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                            <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
@@ -371,7 +375,19 @@ const page = () => {
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </td>
-                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}></td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <List
+                                                className="px-4"
+                                                renderItem={
+                                                    (item) =>
+                                                        <List.Item>
+                                                            {item.isi_lampiran}
+                                                        </List.Item>}
+                                            />
+
+                                        </div>
+                                    </td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
                                         <div className="flex items-center justify-center">
                                             <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdNilai}/penilaian/${IdSkp}/${item.id}/bukti_dukung`)}>
@@ -458,6 +474,66 @@ const page = () => {
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
                             <td colSpan={4}></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table className="normaltable">
+                    <thead>
+                        <tr>
+                            <th className="text-left px-4">Lampiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <b>Dukungan Sumber Daya</b>
+                                    <List
+                                        className="px-4"
+                                        dataSource={skp?.lampiran.sumber_daya}
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+
+                                </div>
+                                {/* looping through here */}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <b>Skema Pertanggung Jawaban</b>
+                                    <List
+                                        className="px-4"
+                                        dataSource={skp?.lampiran.skema}
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <p>Konsekuensi</p>
+                                    <List
+                                        className="px-4"
+                                        dataSource={skp?.lampiran.konsekuensi}
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

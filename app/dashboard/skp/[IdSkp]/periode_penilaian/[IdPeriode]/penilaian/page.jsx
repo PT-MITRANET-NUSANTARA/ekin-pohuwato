@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import {  PrinterOutlined,  } from '@ant-design/icons';
+import { FileOutlined, PrinterOutlined, } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,7 +16,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
     const { IdSkp, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [skp, setSKP] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -118,26 +118,13 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small" direction="vertical">
-                    <Button
-                        // type='primary'
-                        size="middle"
-                        onClick={() => router.push(window.location.pathname + `/${record._id}/lihat_hasil`)}
-                    >
-                        Lihat Hasil
-                    </Button>
+
                     <Button
                         // type='primary'
                         size="middle"
                         onClick={() => router.push(window.location.pathname + `/${record._id}/penilaian_rhk`)}
                     >
                         Hasil Kerja
-                    </Button>
-                    <Button
-                        // type='primary'
-                        size="middle"
-                        onClick={() => router.push(window.location.pathname + `/${record._id}/rencana_aksi`)}
-                    >
-                        Rencana Aksi
                     </Button>
 
                     <Button
@@ -148,7 +135,7 @@ const page = () => {
                         Perilaku
                     </Button>
                     <Button onClick={() => router.push(window.location.pathname + `/${record.id}/predikat_kinerja`)}>Predikat Kinerja</Button>
-                   
+
                 </Space>
             )
         }
@@ -242,12 +229,27 @@ const page = () => {
                         <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
                         </Button>
-                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, formFields: evaluasiKinerjaPrintFields, title: 'Cetak Dokumen Evaluasi Kinerja', onSubmit: () => {} })}>
+                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, formFields: evaluasiKinerjaPrintFields, title: 'Cetak Dokumen Evaluasi Kinerja', onSubmit: () => { } })}>
                             Cetak Dokumen Evaluasi Kinerja
+                        </Button>
+                        <Button
+                            size="middle"
+                            onClick={() => router.push(window.location.pathname + `/rencana_aksi`)}
+                        >
+                            Rencana Aksi
                         </Button>
                         <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/lihat_kurva`)}>
                             Lihat Kurva
                         </Button>
+                        <Button
+                            type='primary'
+                            icon={<FileOutlined />}
+                            size="middle"
+                            onClick={() => router.push(window.location.pathname + `/lihat_hasil`)}
+                        >
+                            Lihat Hasil
+                        </Button>
+
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />
                     <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
