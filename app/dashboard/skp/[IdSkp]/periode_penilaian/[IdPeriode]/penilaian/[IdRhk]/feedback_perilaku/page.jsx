@@ -44,20 +44,26 @@ const page = () => {
     const fetchData = async () => {
         try {
             const skp = await getById(IdRhk);
-            const skpAtasan = await getById(IdSkp);
-            console.log('atasan', skpAtasan);
-            
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
-            const jabatan = skpAtasan.data.jabatan;
 
-            const atasan = jabatan.find((item) => {
-                return item.id_posjab === skp.data.posjab[index];
-            });
+
+            const skpAtasan = await getById(IdSkp);
+            if (skpAtasan) {
+                const jabatan = skpAtasan.data.jabatan;
+                const atasan = jabatan.find((item) => {
+                    return item.id_posjab === skp.data.posjab[index];
+                });
+                setAtasan(atasan);
+            }   
+            else
+            {
+                setAtasan(bawahan.unor.atasan)
+            }
+          
 
             setData(skp.data);
             setBawahan(bawahan);
-            setAtasan(atasan);
             setIndex(bawahan.id_posjab)
         } catch (error) {
             console.log(error);
