@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Form, Input, InputNumber, List, message, Modal, Progress, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
+import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined, PrinterOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -255,9 +255,9 @@ const page = () => {
                             Sasaran Kinerja Pegawai
                         </Title>
                         <div className="flex items-center gap-x-2">
-                            {/* <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak Form Penilaian
-                            </Button> */}
+                            <Button type="default" icon={<PrinterOutlined />} >
+                                Cetak Hasil
+                            </Button>
 
                             <Button
                                 type="primary"
@@ -402,6 +402,7 @@ const page = () => {
                             <th>NO</th>
                             <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                             <th>RENCANA HASIL KERJA</th>
+                            <th>RENCANA AKSI</th>
                             <th>ASPEK</th>
                             <th>INDIKATOR KINERJA</th>
                             <th>TARGET TAHUNAN</th>
@@ -433,6 +434,19 @@ const page = () => {
                                                 {item.klasifikasi ? item.klasifikasi : ''}
                                             </Tag>
                                             {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                        </div>
+                                    </td>
+                                    <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <List
+                                                className="px-4"
+                                                renderItem={
+                                                    (item) =>
+                                                        <List.Item>
+                                                            {item.isi_lampiran}
+                                                        </List.Item>}
+                                            />
+
                                         </div>
                                     </td>
                                 </tr>
@@ -637,6 +651,63 @@ const page = () => {
                                         return predikat || '';
                                 }
                             })() : ''}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table className="normaltable">
+                    <thead>
+                        <tr>
+                            <th className="text-left px-4">Lampiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <b>Dukungan Sumber Daya</b>
+                                    <List
+                                        className="px-4"
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+
+                                </div>
+                                {/* looping through here */}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <b>Skema Pertanggung Jawaban</b>
+                                    <List
+                                        className="px-4"
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>
+                                <div className="flex flex-col gap-y-2 p-4">
+                                    <p>Konsekuensi</p>
+                                    <List
+                                        className="px-4"
+                                        renderItem={
+                                            (item) =>
+                                                <List.Item>
+                                                    {item.isi_lampiran}
+                                                </List.Item>}
+                                    />
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
