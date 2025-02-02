@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getById, update } from '@/controller/SKPController';
 import { formatDateToDayMonthYear } from '@/utils/util';
-import { CrudModal } from '@/components';
+import { CrudModal, ItemRow } from '@/components';
 import useNotification from '@/app/hook/useNotification';
 const { Title } = Typography;
 const page = () => {
@@ -257,39 +257,7 @@ const page = () => {
                                     </td>
                                 </tr>
                                 {skp?.rhks.map((item, index) => (
-                                    <>
-                                        <tr>
-                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
-                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rkt ? item.rkt.name : item.rhk.desc}</p>
-                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
-                                                </div>
-                                            </td>
-                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
-                                                    <Tag color="blue" className="w-fit">
-                                                        {item.klasifikasi ? item.klasifikasi : ''}
-                                                    </Tag>
-                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {item.aspek?.map((aspek) => (
-                                            <>
-                                                <tr>
-                                                    <td>{aspek.jenis}</td>
-                                                    <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                        <div className="flex flex-col gap-y-2 text-left">
-                                                            <p>{aspek.indikator}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                </tr>
-                                            </>
-                                        ))}
-                                    </>
+                                    <ItemRow key={index} item={item} index={index} />
                                 ))}
                             </tbody>
                         </table>
