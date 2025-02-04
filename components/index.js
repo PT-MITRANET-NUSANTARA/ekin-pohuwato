@@ -12,3 +12,4 @@ export { default as MatriksCard } from './Card/MatriksCard';
 export { default as FilterField } from './FilterField/FilterField';
 export { default as DataLoading } from './DataLoading/DataLoading';
 export { default as LoaderPage } from './LoaderPage/LoaderPage';
+export { default as ItemRow } from './ItemRow/ItemRow';
