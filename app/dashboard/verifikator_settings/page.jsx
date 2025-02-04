@@ -50,20 +50,22 @@ const page = () => {
         }
     };
 
-    console.log(unit);
+    console.log(data);
 
     const onSubmit = async (values, type, id) => {
         try {
             setSubmitLoading(true);
             let response;
-
+            const dt = {
+                unit: unit.find((item) => item.id_sapk == values.unit)
+            }
             switch (type) {
                 case 'create':
-                    response = await store(values);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
-                    response = await update(id, values);
+                    response = await update(id, dt);
                     break;
 
                 case 'delete':
@@ -113,10 +115,18 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Unit',
+            title: 'ID Unit',
+            dataIndex: 'id_unor',
+            key: 'id_unor',
+            searchable: true,
+            render:(_, record) => record.unit.id_sapk
+        },
+        {
+            title: 'Nama Unit',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
-            searchable: true
+            searchable: true,
+            render:(_, record)=> record.unit.nama_unor
         },
         // {
         //     title: 'Jabatan',

@@ -17,78 +17,31 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [absence, setAbsence] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const absence = await getByUserId(data.user.idASN);
-            setAbsence(absence.data);
-            setLoading(false);
-        } catch (error) { }
-    };
-
-    const onSubmit = async (values, type, id) => {
-        try {
-            let response;
-
-            const dt = { ...values, user_id: data.user.idASN };
-            console.log(dt);
-            switch (type) {
-                case 'create':
-                    response = await store(data.user.idASN, dt);
-                    break;
-
-                case 'edit':
-                    response = await update(id, dt);
-                    break;
-
-                case 'delete':
-                    response = await destroy(id);
-                    break;
-
-                default:
-                    throw new Error('Tipe operasi tidak valid');
-            }
-            console.log(response);
-
-            if (response.ok) {
-                const absence = await getByUserId(data.user.idASN);
-                setAbsence(absence.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Absence' : type === 'edit' ? 'Berhasil Mengedit Absence' : 'Berhasil Menambahkan Absence',
-                    type: 'success'
-                });
-            } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
-            }
+            const data = await getByUserId(user.user.nipBaru);
+            console.log(data);
+            
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
-
-        console.log('Operation completed');
-        handleClose();
     };
 
     const Column = [
@@ -160,50 +113,6 @@ const page = () => {
                     </Space>
                 );
             }
-        }
-    ];
-
-    const formFields = [
-        {
-            label: 'Status',
-            name: 'status',
-            type: 'select',
-            options: [
-                {
-                    label: 'Hadir',
-                    value: 'Hadir'
-                },
-                {
-                    label: 'Izin',
-                    value: 'Sakit'
-                },
-                {
-                    label: 'Sakit',
-                    value: 'Izin'
-                },
-                {
-                    label: 'Alpha',
-                    value: 'Alpha'
-                }
-            ],
-            rules: [
-                {
-                    required: true,
-                    message: 'Field status wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Tanggal',
-            name: 'date',
-            type: 'date',
-            extra: { maxDate: dayjs(), minDate: dayjs() },
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode mulai wajib di isi'
-                }
-            ]
         }
     ];
 
@@ -287,8 +196,8 @@ const page = () => {
                     label: 'Alpha',
                     value: 'Alpha'
                 }
-            ],
-        },
+            ]
+        }
     ];
 
     const handleClose = () => {
@@ -314,19 +223,13 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Data Harian
                         </Title>
-                        <div className="flex items-center gap-x-2">
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
-                                Tambah Absence
-                            </Button>
-                        </div>
                     </div>
                     <div className="w-full">
                         <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={absence} loading={loading} />
+                        <DataTable columns={Column} data={data} loading={loading} />
                     </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
         </div>

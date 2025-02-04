@@ -35,20 +35,13 @@ function validatePeriodePenilaianData(data: any) {
 }
 
 // GET method to fetch PeriodePenilaian
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     await dbConnect();
 
     try {
-        const page = req.nextUrl.searchParams.get('page');
-        const limit = req.nextUrl.searchParams.get('limit');
-        const filters = req.nextUrl.searchParams.get('filters');
-        let periodePenilaians;
+        const { id } = params;
 
-        if (page === 'undefined' || limit === 'undefined') {
-            periodePenilaians = await PeriodePenilaian.find(getFilterQuery(filters)).populate('skp');
-        } else {
-            periodePenilaians = await PeriodePenilaian.getAll(Number(page), Number(limit), JSON.parse(filters as string));
-        }
+        let periodePenilaians = await PeriodePenilaian.findById(id);
 
         return NextResponse.json(createResponse(200, 'Success', periodePenilaians, true));
     } catch (error) {

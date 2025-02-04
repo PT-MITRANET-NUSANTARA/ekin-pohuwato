@@ -56,5 +56,8 @@ require('../models/Perilaku');
 require('../models/Absence');
 require('../models/FeedbackPerilaku');
 require('../models/FeedbackRHK');
+require('../models/MessageHarian');
+require('../models/MessageSKP');
+require('../models/Settings');
 
 export default dbConnect;

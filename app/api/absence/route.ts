@@ -9,7 +9,8 @@ const absenceSchema = Joi.object({
     user_id: Joi.string().required().label('User ID'),
     date: Joi.date().required().label('Tanggal'),
     unit: Joi.object().required().label('Unit'),
-    status: Joi.string().valid('Hadir', 'Sakit', 'Izin', 'Alpha').required().label('Status')
+    status: Joi.string().valid('Hadir', 'Sakit', 'Izin', 'Alpha').required().label('Status'),
+    jabatan: Joi.object().required().label('Jabatan')
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',

@@ -32,11 +32,17 @@ export async function GET(req: NextRequest, { params }: { params: { user_id: str
     try {
         const { user_id } = params;
         const unit_id = req.nextUrl.searchParams.get('unit_id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let absences;
-        if (unit_id) {
-            absences = await Absence.find({user_id: user_id, 'unit.id': unit_id})
+        if (unit_id && unit_id != 'undifined') {
+            absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
         } else {
-            absences = await Absence.find({ user_id: user_id });
+            let f = filters && filters != 'undefined' ? JSON.parse(filters) : {};
+            f = { ...f, user_id: user_id };
+
+            absences = await Absence.getAll(Number(page), Number(limit), f);
         }
 
         return NextResponse.json(createResponse(200, 'Success', absences, true));

@@ -4,7 +4,7 @@ import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId } from '@/controller/AbsenceController';
+import { destroy, getAll, store, update, getByUserId, getByUnitId } from '@/controller/AbsenceController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,40 +12,50 @@ import { dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import dayjs from 'dayjs';
+import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [absence, setAbsence] = useState(null);
     const [loading, setLoading] = useState(false);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [unor, setUnor] = useState(null);
 
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const absence = await getByUserId(data.user.idASN);
-            setAbsence(absence.data);
+            const data = await getByUnitId(user.jabatan.unor.induk.id);
+            const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
+            setUnor(unit.mapData.data);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+        } catch (error) {
+            console.log(error);
+        } finally {
             setLoading(false);
-        } catch (error) { }
+        }
     };
 
     const onSubmit = async (values, type, id) => {
         try {
             let response;
 
-            const dt = { ...values, user_id: data.user.idASN };
+            const dt = { ...values, unit: user.jabatan.unor.induk, jabatan: unor.find((item) => item.nip_asn == values.user_id) };
             console.log(dt);
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN, dt);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
@@ -62,8 +72,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const absence = await getByUserId(data.user.idASN);
-                setAbsence(absence.data);
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -97,6 +106,18 @@ const page = () => {
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
+        },
+        {
+            title: 'Nama',
+            dataIndex: 'name',
+            key: 'name',
+            render: (_, record) => record.jabatan.nama_asn
+        },
+        {
+            title: 'NIP',
+            dataIndex: 'nip',
+            key: 'nip',
+            render: (_, record) => record.user_id
         },
         {
             title: 'Tanggal',
@@ -166,18 +187,12 @@ const page = () => {
     const formFields = [
         {
             label: 'Pilih Pegawai',
-            name: 'pegawai',
+            name: 'user_id',
             type: 'select',
-            options: [
-                {
-                    label: 'Pegawai1',
-                    value: 'pegawai1'
-                },
-                {
-                    label: 'Pegawai2',
-                    value: 'pegawai2'
-                },
-            ],
+            options: unor?.map((item) => ({
+                label: item.nama_asn,
+                value: item.nip_asn
+            })),
             rules: [
                 {
                     required: true,
@@ -192,23 +207,23 @@ const page = () => {
             options: [
                 {
                     label: 'Hadir',
-                    value: 'hadir'
+                    value: 'Hadir'
                 },
                 {
                     label: 'Tanpa Keterangan',
-                    value: 'tanpa_keterangan'
+                    value: 'Tanpa Keterangan'
                 },
                 {
                     label: 'Dinas Luar',
-                    value: 'dinas_luar'
+                    value: 'Dinas'
                 },
                 {
                     label: 'Sakit',
-                    value: 'sakit'
+                    value: 'Sakit'
                 },
                 {
                     label: 'Izin',
-                    value: 'izin'
+                    value: 'Izin'
                 }
             ],
             rules: [
@@ -312,8 +327,8 @@ const page = () => {
                     label: 'Alpha',
                     value: 'Alpha'
                 }
-            ],
-        },
+            ]
+        }
     ];
 
     const handleClose = () => {
@@ -349,7 +364,7 @@ const page = () => {
                         <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={absence} loading={loading} />
+                        <DataTable columns={Column} data={data} loading={loading} />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>

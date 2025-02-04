@@ -14,6 +14,7 @@ interface Msg {
 
 interface IHarian extends Document {
     absence: string;
+    skp: mongoose.Schema.Types.ObjectId;
     date: Date;
     startDateTime: string;
     endDateTime: string;
@@ -24,8 +25,6 @@ interface IHarian extends Document {
     progress: number;
     tautan?: string;
     files?: [object];
-    msg?: Msg;
-    user_id: string;
     createdAt?: Date;
     unit: Object;
     updatedAt?: Date;
@@ -43,6 +42,11 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
     {
         absence: {
             type: String,
+            required: true
+        },
+        skp: {
+            type: Schema.Types.ObjectId,
+            ref: 'SKP',
             required: true
         },
         unit: {
@@ -71,18 +75,6 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
             type: Number,
             required: true
         },
-        msg: {
-            status: {
-                type: String,
-                enum: Object.values(MsgStatus),
-                default: MsgStatus.PERIKSA
-            },
-            message: {
-                type: String,
-                required: false,
-                default: ''
-            }
-        },
         rhk: {
             type: Schema.Types.ObjectId,
             ref: 'RHK',
@@ -104,10 +96,6 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
             type: [Object],
             required: false
         },
-        user_id: {
-            type: String,
-            required: true
-        }
     },
     { timestamps: true }
 );

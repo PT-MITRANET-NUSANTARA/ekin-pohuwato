@@ -13,6 +13,7 @@ enum AbsenceStatus {
 interface IAbsence extends Document {
     user_id: string;
     date: Date;
+    jabatan: Object;
     status: AbsenceStatus;
     createdAt?: Date;
     unit: Object;
@@ -34,6 +35,10 @@ const AbsenceSchema = new Schema<IAbsence, AbsenceModel, IAbsenceMethods>(
             required: true
         },
         unit: {
+            type: Object,
+            required: true
+        },
+        jabatan: {
             type: Object,
             required: true
         },
@@ -71,6 +76,6 @@ AbsenceSchema.static('getAll', async function getAll(page: number = 1, limit: nu
     };
 });
 
-const Absence: AbsenceModel = mongoose.models.Absence as AbsenceModel || mongoose.model<IAbsence>('Absence', AbsenceSchema);
+const Absence: AbsenceModel = (mongoose.models.Absence as AbsenceModel) || mongoose.model<IAbsence>('Absence', AbsenceSchema);
 
 export default Absence;
