@@ -62,6 +62,6 @@ RencanaAksiSchema.static('getAll', async function getAll(page: number = 1, limit
     };
 });
 
-const RencanaAksi: RencanaAksiModel = (mongoose.models.Periode as RencanaAksiModel) || mongoose.model<IRencanaAksi, RencanaAksiModel>('RencanaAksi', RencanaAksiSchema);
+const RencanaAksi: RencanaAksiModel = mongoose.models.RencanaAksi as RencanaAksiModel || mongoose.model<IRencanaAksi, RencanaAksiModel>('RencanaAksi', RencanaAksiSchema);
 
 export default RencanaAksi;

@@ -33,9 +33,19 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
     try {
         const { unit_id } = params;
         const user_id = req.nextUrl.searchParams.get('user_id');
+        const page = req.nextUrl.searchParams.get('page');
+        const limit = req.nextUrl.searchParams.get('limit');
+        const filters = req.nextUrl.searchParams.get('filters');
         let absences;
-
-        absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
+        if (user_id && user_id != 'undifined') {
+            absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
+        } else {
+            let f = filters && filters != 'undefined' ? JSON.parse(filters) : {};
+            f = {...f, 'unit.id': unit_id}
+            console.log(f);
+            
+            absences = await Absence.getAll(Number(page), Number(limit), f);
+        }
 
         return NextResponse.json(createResponse(200, 'Success', absences, true));
     } catch (error) {

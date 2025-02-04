@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
-
+        
         const newRencanaAksi = new RencanaAksi(body);
         await newRencanaAksi.save();
         return NextResponse.json(createResponse(201, 'Success', newRencanaAksi, true));

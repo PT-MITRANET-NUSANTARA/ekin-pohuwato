@@ -1,22 +1,21 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, List, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, InfoModal } from '@/components';
 import { getById } from '@/controller/SKPController';
-
+import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
+import { store } from '@/controller/RencanaAksiController';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-    const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
-    const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -34,7 +33,6 @@ const page = () => {
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
 
-
             const skpAtasan = await getById(IdSkp);
             if (skpAtasan) {
                 const jabatan = skpAtasan.data.jabatan;
@@ -42,11 +40,9 @@ const page = () => {
                     return item.id_posjab === skp.data.posjab[index];
                 });
                 setAtasan(atasan);
+            } else {
+                setAtasan(bawahan.unor.atasan);
             }
-            else {
-                setAtasan(bawahan.unor.atasan)
-            }
-
 
             setData(skp.data);
             setBawahan(bawahan);
@@ -157,6 +153,8 @@ const page = () => {
         }
     ];
 
+    const rencanaAksi = () => {};
+
     const getRealisasi = (aspek, harian) => {
         if (aspek.jenis === 'kualitas') {
             const percentase = harian.reduce((max, item) => {
@@ -212,7 +210,7 @@ const page = () => {
                 }
             ]
         }
-    ]
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -232,7 +230,6 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Rencana Aksi
                         </Title>
-
                     </div>
 
                     <div className="grid grid-flow-row divide-y text-xs">
@@ -371,48 +368,48 @@ const page = () => {
                                         </div>
                                     </td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                        <div className='flex flex-col gap-y-2 p-2'>
+                                        <div className="flex flex-col gap-y-2 p-2">
                                             <div className="flex flex-col gap-y-2 p-4">
                                                 <List
                                                     className="px-4"
-                                                    renderItem={
-                                                        (item) =>
-                                                            <List.Item
-                                                                actions={[
-                                                                    <Button
-                                                                        icon={<EditOutlined />}
-                                                                        onClick={() =>
-                                                                            setModal({
-                                                                                formFields: rencanaAksiFields,
-                                                                                modalData: {},
-                                                                                onSubmit: (values) => {
-                                                                                    console.log('seharusnya ini mengedit lampiran')
-                                                                                },
-                                                                                title: 'Edit Dukungan Sumber Daya',
-                                                                                trigger: true,
-                                                                                type: 'edit',
-                                                                            })
-                                                                        }
-                                                                    />,
-                                                                    <Button
-                                                                        icon={<DeleteOutlined />}
-                                                                        onClick={() =>
-                                                                            setModal({
-                                                                                formFields: rencanaAksiFields,
-                                                                                modalData: {},
-                                                                                onSubmit: (values) => {
-                                                                                    console.log('seharusnya ini menghapus lampiran')
-                                                                                },
-                                                                                title: 'Delete Dukungan Sumber Daya',
-                                                                                trigger: true,
-                                                                                type: 'delete',
-                                                                            })
-                                                                        }
-                                                                    />
-                                                                ]}
-                                                            >
-                                                                {item.isi_lampiran}
-                                                            </List.Item>}
+                                                    renderItem={(item) => (
+                                                        <List.Item
+                                                            actions={[
+                                                                <Button
+                                                                    icon={<EditOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: rencanaAksiFields,
+                                                                            modalData: {},
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini mengedit lampiran');
+                                                                            },
+                                                                            title: 'Edit Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'edit'
+                                                                        })
+                                                                    }
+                                                                />,
+                                                                <Button
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: rencanaAksiFields,
+                                                                            modalData: {},
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini menghapus lampiran');
+                                                                            },
+                                                                            title: 'Delete Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'delete'
+                                                                        })
+                                                                    }
+                                                                />
+                                                            ]}
+                                                        >
+                                                            {item.isi_lampiran}
+                                                        </List.Item>
+                                                    )}
                                                 />
                                                 <Button
                                                     className="w-fit"
@@ -420,8 +417,24 @@ const page = () => {
                                                     onClick={() =>
                                                         setModal({
                                                             formFields: rencanaAksiFields,
-                                                            onSubmit: (values) => {
-                                                                console.log('disini harusnya menambahkan rencana aksi')
+                                                            onSubmit: async (values) => {
+                                                                console.log(IdPeriode);
+                                                                const periode = await getByIdPenilaian(IdPeriode);
+                                                                console.log(periode);
+
+                                                                const data = {
+                                                                    rhk: item._id,
+                                                                    isi: values.rencana_aksi,
+                                                                    target: values.target,
+                                                                    periodePenilaian: IdPeriode
+                                                                };
+
+                                                                const res = await store(data);
+                                                                console.log(res);
+
+                                                                if (res.ok) {
+                                                                    fetchData();
+                                                                }
                                                             },
                                                             title: 'Tambah Rencana Aksi',
                                                             trigger: true,
@@ -458,37 +471,53 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{data?.hasil ? (() => {
-                                const hasil = data.hasil[IdPeriode];
-                                switch (hasil) {
-                                    case 2:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p>Sesuai ekspektasi</p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 3:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p>Diatas ekspektasi</p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 1:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p>Dibawah ekspektasi</p>
-                                            </div>
-                                        );
-                                    default:
-                                        return hasil || '';
-                                }
-                            })() : ''}</td>
+                            <td colSpan={4}>
+                                {data?.hasil
+                                    ? (() => {
+                                          const hasil = data.hasil[IdPeriode];
+                                          switch (hasil) {
+                                              case 2:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>Sesuai ekspektasi</p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 3:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>Diatas ekspektasi</p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 1:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>Dibawah ekspektasi</p>
+                                                      </div>
+                                                  );
+                                              default:
+                                                  return hasil || '';
+                                          }
+                                      })()
+                                    : ''}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
