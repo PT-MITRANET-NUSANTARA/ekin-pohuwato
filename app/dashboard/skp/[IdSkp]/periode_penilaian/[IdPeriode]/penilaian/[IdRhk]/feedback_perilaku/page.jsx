@@ -4,7 +4,7 @@ import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Prog
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CrudModal, InfoModal } from '@/components';
+import { CrudModal, FeedbackButton, InfoModal } from '@/components';
 import { dummyFeedback } from '@/data';
 import { title } from 'process';
 import { useParams } from 'next/navigation';
@@ -15,7 +15,6 @@ import { getById as getPenilaian } from '@/controller/periodePenilaianController
 
 const { Title } = Typography;
 const { Option } = Select;
-
 import { store, destroy } from '@/controller/penilaianController';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
@@ -684,42 +683,7 @@ const page = () => {
                                             ''
                                         )}
                                         <div className="flex items-center justify-center">
-                                            <Button
-                                                icon={<EditOutlined />}
-                                                size="small"
-                                                onClick={() =>
-                                                    setModal({
-                                                        trigger: true,
-                                                        modalData: { content: item.feedback.isi, category: item.feedback.like },
-                                                        title: 'Edit Feedback',
-                                                        formFields: formFields,
-                                                        onSubmit: async (values) => {
-                                                            console.log('HERE');
-
-                                                            const dt = {
-                                                                ...item,
-                                                                feedback: {
-                                                                    ...item.feedback,
-                                                                    [IdPeriode]: {
-                                                                        isi: values.content,
-                                                                        like: values.category
-                                                                    }
-                                                                }
-                                                            };
-                                                            console.log('PERILAKU', dt);
-                                                            const res = await updatePerilaku(item._id, dt);
-                                                            console.log(res);
-                                                            if (res.ok) {
-                                                                fetchData();
-                                                                setModal({ trigger: false, modalData: {} });
-                                                                message.success('Data Berhsil Di Ubah');
-                                                            }
-                                                        }
-                                                    })
-                                                }
-                                            >
-                                                Edit
-                                            </Button>
+                                            <FeedbackButton item={item} IdPeriode={IdPeriode} fetchData={fetchData} formFields={formFields}  setModal={setModal} updatePerilaku={updatePerilaku} />
                                         </div>
                                     </div>
                                 </td>

@@ -4,7 +4,7 @@ import { Breadcrumb, Button, Card, List, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { CrudModal, InfoModal } from '@/components';
+import { CrudModal, InfoModal, RencanaAksiButton } from '@/components';
 import { getById } from '@/controller/SKPController';
 import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
@@ -368,85 +368,7 @@ const page = () => {
                                         </div>
                                     </td>
                                     <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                        <div className="flex flex-col gap-y-2 p-2">
-                                            <div className="flex flex-col gap-y-2 p-4">
-                                                <List
-                                                    className="px-4"
-                                                    renderItem={(item) => (
-                                                        <List.Item
-                                                            actions={[
-                                                                <Button
-                                                                    icon={<EditOutlined />}
-                                                                    onClick={() =>
-                                                                        setModal({
-                                                                            formFields: rencanaAksiFields,
-                                                                            modalData: {},
-                                                                            onSubmit: (values) => {
-                                                                                console.log('seharusnya ini mengedit lampiran');
-                                                                            },
-                                                                            title: 'Edit Dukungan Sumber Daya',
-                                                                            trigger: true,
-                                                                            type: 'edit'
-                                                                        })
-                                                                    }
-                                                                />,
-                                                                <Button
-                                                                    icon={<DeleteOutlined />}
-                                                                    onClick={() =>
-                                                                        setModal({
-                                                                            formFields: rencanaAksiFields,
-                                                                            modalData: {},
-                                                                            onSubmit: (values) => {
-                                                                                console.log('seharusnya ini menghapus lampiran');
-                                                                            },
-                                                                            title: 'Delete Dukungan Sumber Daya',
-                                                                            trigger: true,
-                                                                            type: 'delete'
-                                                                        })
-                                                                    }
-                                                                />
-                                                            ]}
-                                                        >
-                                                            {item.isi_lampiran}
-                                                        </List.Item>
-                                                    )}
-                                                />
-                                                <Button
-                                                    className="w-fit"
-                                                    type="primary"
-                                                    onClick={() =>
-                                                        setModal({
-                                                            formFields: rencanaAksiFields,
-                                                            onSubmit: async (values) => {
-                                                                console.log(IdPeriode);
-                                                                const periode = await getByIdPenilaian(IdPeriode);
-                                                                console.log(periode);
-
-                                                                const data = {
-                                                                    rhk: item._id,
-                                                                    isi: values.rencana_aksi,
-                                                                    target: values.target,
-                                                                    periodePenilaian: IdPeriode
-                                                                };
-
-                                                                const res = await store(data);
-                                                                console.log(res);
-
-                                                                if (res.ok) {
-                                                                    fetchData();
-                                                                }
-                                                            },
-                                                            title: 'Tambah Rencana Aksi',
-                                                            trigger: true,
-                                                            type: 'create',
-                                                            modalData: {}
-                                                        })
-                                                    }
-                                                >
-                                                    Tambah
-                                                </Button>
-                                            </div>
-                                        </div>
+                                        <RencanaAksiButton />
                                     </td>
                                 </tr>
                                 {item.aspek?.map((aspek) => (
