@@ -22,8 +22,14 @@ export default function RootLayout({ children }) {
           <ConfigProvider
             theme={{
               token: {
-                fontFamily: jakarta
+                fontFamily: jakarta,
+                colorPrimary: '#6D97B0',
+                colorInfo: '#51AEFF',
+                colorSuccess: '#90B522',
+                colorWarning: '#FCA235',
+                colorError: '#FF6D70',
               },
+
             }}
           >
             {children}

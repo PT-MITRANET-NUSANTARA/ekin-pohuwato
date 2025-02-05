@@ -424,7 +424,7 @@ const page = () => {
             <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={handleClose} type={modal.type}>
                 <CrudModal.Extra>
                     <div className="flex flex-col">
-                        <Card className="mt-12 bg-blue-500 text-white mb-6">
+                        <Card className="mt-12 bg-color-primary-600 text-white mb-6">
                             <p className="text-xs">
                                 Cek terlebih dahulu data Unit Kerja dan Atasan sebelum membuat SKP. Jika terdapat kesalahan bisa dilakukan perubahan pada menu <b>Profil</b>.
                             </p>
@@ -453,7 +453,7 @@ const page = () => {
                             </div>
                         )}
 
-                        <Card className=" bg-blue-500 text-white">
+                        <Card className=" bg-color-primary-600 text-white">
                             <p className="text-xs">
                                 Periode Rencana SKP yang dibuat pada menu ini adalah <b>TAHUNAN</b>. Periode Penilaian Periodik (BULANAN / TRIWULANAN) dan FINAL dibuat di menu Penilaian.
                             </p>

@@ -18,7 +18,7 @@ const Overviewcard = ({ overview, desc, icon, isLoading }) => {
                         </>
                     )}
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500 p-2 text-2xl text-white">{icon}</div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-color-primary-500 p-2 text-2xl text-white">{icon}</div>
             </div>
         </Card>
     );

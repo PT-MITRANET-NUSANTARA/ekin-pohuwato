@@ -61,7 +61,7 @@ const Page = () => {
 
     return (
         <section className="w-full min-h-screen h-full flex items-center">
-            <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-blue-500">
+            <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-color-primary-500">
                 <Card className="max-w-md w-ful p-3">
                     {/* <div className="flex items-start w-24 mb-8">
                         <img src="/brand.png" />

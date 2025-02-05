@@ -111,7 +111,7 @@ const layout = ({ children }) => {
         <Layout className="min-h-screen">
             <DashboardSider collapsed={collapsed} />
             <Layout>
-                <Header className="bg-blue-500 p-0">
+                <Header className="bg-color-primary-500 p-0">
                     <div className="w-full h-full flex px-4 items-center justify-between">
                         <Button className="text-white " type="text" icon={<MenuOutlined />} onClick={() => setCollapsed(!collapsed)} color="default"></Button>
                         <div className="flex items-center gap-x-4">

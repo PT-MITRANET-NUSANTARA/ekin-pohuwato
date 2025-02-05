@@ -185,7 +185,7 @@ const page = () => {
             </div>
             <div className="col-span-2">
                 {/* <Avatar src={foto} shape="square" size={200} className="border-4 border-blue-500" /> */}
-                <Image src={foto} className="w-full border-4 border-blue-500 rounded-lg" />
+                <Image src={foto} className="w-full border-4 border-color-primary-500 rounded-lg" />
             </div>
             <div className="col-span-6">
                 <Card>
