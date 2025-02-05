@@ -17,10 +17,20 @@ export const getByUnitId = async (unit_id: string, page: number, limit: number, 
     return response;
 };
 
+
+
 // Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+export const getByPerilakuAndPeriode = async (perilaku: string, periode: string,) => {
+    const url = `/api/${path}?periode=${periode}&perilaku=${perilaku}`;
     const response = await apiRequest(url, {
         method: 'GET'
     });

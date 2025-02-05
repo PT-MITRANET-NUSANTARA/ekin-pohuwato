@@ -542,21 +542,22 @@ const page = () => {
                     </thead>
                     <tbody className="capitalize">
                         {data?.perilakus?.map((item, index) => (
-                            <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td style={{ padding: '8px' }}>
-                                    <div className="flex flex-col gap-y-2 text-left">
-                                        <b>{item.name}</b>
-                                        <ol className="list-decimal list-inside">
-                                            {item.isi.map((isiItem, isiIndex) => (
-                                                <li key={isiIndex}>{isiItem}</li>
-                                            ))}
-                                        </ol>
-                                    </div>
-                                </td>
-                                <td>{item.espektasi || ''}</td>
-                                <td>{item.feedback[IdPeriode]?.isi || ''}</td>
-                            </tr>
+                            // <tr key={index}>
+                            //     <td>{index + 1}</td>
+                            //     <td style={{ padding: '8px' }}>
+                            //         <div className="flex flex-col gap-y-2 text-left">
+                            //             <b>{item.name}</b>
+                            //             <ol className="list-decimal list-inside">
+                            //                 {item.isi.map((isiItem, isiIndex) => (
+                            //                     <li key={isiIndex}>{isiItem}</li>
+                            //                 ))}
+                            //             </ol>
+                            //         </div>
+                            //     </td>
+                            //     <td>{item.espektasi || ''}</td>
+                            //     <td>{item.feedback[IdPeriode]?.isi || ''}</td>
+                            // </tr>
+                            <perilakuRow />
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
@@ -732,3 +733,21 @@ const page = () => {
 };
 
 export default page;
+
+const perilakuRow = ({ item, index, IdPeriode }) => (
+    <tr key={index}>
+        <td>{index + 1}</td>
+        <td style={{ padding: '8px' }}>
+            <div className="flex flex-col gap-y-2 text-left">
+                <b>{item.name}</b>
+                <ol className="list-decimal list-inside">
+                    {item.isi.map((isiItem, isiIndex) => (
+                        <li key={isiIndex}>{isiItem}</li>
+                    ))}
+                </ol>
+            </div>
+        </td>
+        <td>{item.espektasi || ''}</td>
+        <td>{item.feedback[IdPeriode]?.isi || ''}</td>
+    </tr>
+);

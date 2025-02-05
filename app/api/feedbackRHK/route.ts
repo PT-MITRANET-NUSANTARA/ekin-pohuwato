@@ -8,7 +8,7 @@ import getFilterQuery from '@/utils/getFilterQuery';
 // Joi schema untuk validasi FeedbackRHK
 const feedbackRHKSchema = Joi.object({
     penilai: Joi.string().hex().length(24).required().label('Penilai'), // ObjectId
-    rhk: Joi.string().hex().length(24).required().label('RHK'), // ObjectId
+    aspek: Joi.string().hex().length(24).required().label('Aspek'), // ObjectId
     periodePenilaian: Joi.string().hex().length(24).optional().label('Periode Penilaian'), // ObjectId
     isi: Joi.string().required().label('Isi'),
     like: Joi.boolean().optional().label('Like')
@@ -35,17 +35,20 @@ export async function GET(req: NextRequest) {
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
+        const aspek = req.nextUrl.searchParams.get('aspek');
+        const periode = req.nextUrl.searchParams.get('periode');
         let feedbacks;
 
-        
-            if (page === 'undefined' || limit === 'undefined') {
-                feedbacks = await FeedbackRHK.find(getFilterQuery(filters)).populate('penilai rhk periodePenilaian');
-            } else {
-                feedbacks = await FeedbackRHK.find(getFilterQuery(filters))
-                    .skip((Number(page) - 1) * Number(limit))
-                    .limit(Number(limit))
-                    .populate('penilai rhk periodePenilaian');
-            }
+        if (aspek && periode && aspek !== 'undefined' && periode !== 'undefined') {
+            feedbacks = await FeedbackRHK.findOne({ aspek: aspek, periodePenilaian: periode }).populate('penilai aspek periodePenilaian');
+        } else if (page === 'undefined' || limit === 'undefined') {
+            feedbacks = await FeedbackRHK.find(getFilterQuery(filters)).populate('penilai rhk periodePenilaian');
+        } else {
+            feedbacks = await FeedbackRHK.find(getFilterQuery(filters))
+                .skip((Number(page) - 1) * Number(limit))
+                .limit(Number(limit))
+                .populate('penilai rhk periodePenilaian');
+        }
 
         return NextResponse.json(createResponse(200, 'Success', feedbacks, true));
     } catch (error) {
@@ -66,9 +69,18 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Validation Error', errors));
         }
 
-        const newFeedback = new FeedbackRHK(body);
-        await newFeedback.save();
-        return NextResponse.json(createResponse(201, 'Success', newFeedback, true));
+        const aspek = await FeedbackRHK.findOne({ aspek: body.aspek, periodePenilaian: body.periodePenilaian });
+        let feedback;
+        if (aspek) {
+            const updatedFeedback = await FeedbackRHK.findOneAndUpdate({ _id: aspek._id }, body, { new: true });
+            feedback = updatedFeedback;
+        } else {
+            const newFeedback = new FeedbackRHK(body);
+            await newFeedback.save();
+            feedback = newFeedback;
+        }
+
+        return NextResponse.json(createResponse(201, 'Success', feedback, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create FeedbackRHK' }, { status: 500 });

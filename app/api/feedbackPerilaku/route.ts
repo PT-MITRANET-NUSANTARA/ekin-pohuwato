@@ -35,17 +35,22 @@ export async function GET(req: NextRequest) {
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
+        const perilaku = req.nextUrl.searchParams.get('perilaku');
+        const periode = req.nextUrl.searchParams.get('periode');
+
         let feedbacks;
 
-  
-            if (page === 'undefined' || limit === 'undefined') {
-                feedbacks = await FeedbackPerilaku.find(getFilterQuery(filters)).populate('penilai perilaku periodePenilaian');
-            } else {
-                feedbacks = await FeedbackPerilaku.find(getFilterQuery(filters))
-                    .skip((Number(page) - 1) * Number(limit))
-                    .limit(Number(limit))
-                    .populate('penilai perilaku periodePenilaian');
-            }
+        if (perilaku && periode && perilaku !== 'undefined' && periode !== 'undefined') {
+            feedbacks = await FeedbackPerilaku.findOne({ perilaku: perilaku, periodePenilaian: periode }).populate('penilai perilaku periodePenilaian');
+        }
+        else if (page === 'undefined' || limit === 'undefined') {
+            feedbacks = await FeedbackPerilaku.find(getFilterQuery(filters)).populate('penilai perilaku periodePenilaian');
+        } else {
+            feedbacks = await FeedbackPerilaku.find(getFilterQuery(filters))
+                .skip((Number(page) - 1) * Number(limit))
+                .limit(Number(limit))
+                .populate('penilai perilaku periodePenilaian');
+        }
 
         return NextResponse.json(createResponse(200, 'Success', feedbacks, true));
     } catch (error) {
@@ -66,9 +71,22 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(createResponse(400, 'Validation Error', errors));
         }
 
-        const newFeedback = new FeedbackPerilaku(body);
-        await newFeedback.save();
-        return NextResponse.json(createResponse(201, 'Success', newFeedback, true));
+        const perilaku = await FeedbackPerilaku.findOne({ perilaku: body.perilaku, periodePenilaian: body.periodePenilaian });
+        let feedback;
+        if (perilaku) {
+            const updatedFeedback = await FeedbackPerilaku.findOneAndUpdate({ _id: perilaku._id }, body, { new: true });
+
+            if (!updatedFeedback) {
+                return NextResponse.json(createResponse(404, 'FeedbackPerilaku not found', null));
+            }
+            feedback = updatedFeedback;
+        } else {
+            const newFeedback = new FeedbackPerilaku(body);
+            await newFeedback.save();
+            feedback = newFeedback;
+        }
+
+        return NextResponse.json(createResponse(201, 'Success', feedback, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create FeedbackPerilaku' }, { status: 500 });

@@ -7,19 +7,22 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, InfoModal } from '@/components';
 import { getById, update } from '@/controller/SKPController';
-import { store, destroy } from '@/controller/penilaianController';
+import { store as storePenilaian, destroy, getBySKPAndPeriode } from '@/controller/penilaianController';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import { update as updateAspek } from '@/controller/AspekController';
 import { dummyFeedback } from '@/data';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
+import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
+import { getByPerilakuAndPeriode } from '@/controller/FeedbackPerilakuController';
+
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {}, isRating: false });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [data, setData] = useState(null);
@@ -39,6 +42,8 @@ const page = () => {
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
             const jabatan = skpAtasan.jabatan;
+            const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            setPenilaian(nilai.data);
 
             const atasan = jabatan.find((item) => {
                 return item.unor.induk.id === bawahan.unor.induk.id;
@@ -48,7 +53,7 @@ const page = () => {
             setBawahan(bawahan);
             const periode = await getPenilaian(IdPeriode);
 
-            setPeriode(periode.data)
+            setPeriode(periode.data);
 
             setAtasan(atasan);
         } catch (error) {
@@ -191,10 +196,9 @@ const page = () => {
         }
     };
 
-    console.log('atasan', bawahan)
+    console.log('atasan', bawahan);
     return (
         <div className="w-full flex flex-col gap-y-4">
-
             <Breadcrumb
                 items={[
                     {
@@ -205,14 +209,16 @@ const page = () => {
                     }
                 ]}
             />
-            <Card>
-                <div className='flex gap-x-2'>
-                    <ExclamationCircleFilled className='text-blue-500 text-lg' />
-                    <p>
-                        Rencana hasil kerja ini telah dilakukan penilaian, penilaian RHK hanya dapat dilakukan sekali, dan tidak dapat diubah.
-                    </p>
-                </div>
-            </Card>
+            {penilaian && penilaian.ratingKinerja ? (
+                <Card>
+                    <div className="flex gap-x-2">
+                        <ExclamationCircleFilled className="text-blue-500 text-lg" />
+                        <p>Rencana hasil kerja ini telah dilakukan penilaian, penilaian RHK hanya dapat dilakukan sekali, dan tidak dapat diubah.</p>
+                    </div>
+                </Card>
+            ) : (
+                <></>
+            )}
             <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
@@ -230,30 +236,29 @@ const page = () => {
                                 onClick={() =>
                                     setModal({
                                         trigger: true,
-                                        modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 },
+                                        modalData: { rating: penilaian && penilaian?.ratingKinerja ? penilaian?.ratingKinerja : 1 },
                                         isRating: true,
                                         title: 'Tambah Rating Hasil Kerja',
                                         formFields: ratingFields,
                                         onSubmit: async (value) => {
-                                            console.log(data);
+                                            console.log(value.rating);
+                                            console.log(penilaian);
 
                                             const dt = {
-                                                ...data,
-                                                hasil: {
-                                                    ...data.hasil,
-                                                    [IdPeriode]: value.rating
-                                                }
+                                                ...penilaian,
+                                                ratingKinerja: value.rating,
+                                                penilai: IdSkp,
+                                                skp: IdRhk,
+                                                periodePenilaian: IdPeriode
                                             };
-
-                                            const res = await update(data._id, dt);
+                                            const res = await storePenilaian(dt);
                                             console.log(res);
 
                                             if (res.ok) {
-                                                setModal({
-                                                    trigger: false,
-                                                    modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 },
-
-                                                })
+                                                // setModal({
+                                                //     trigger: false,
+                                                //     modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 }
+                                                // });
                                                 fetchData();
                                             }
                                         }
@@ -553,54 +558,7 @@ const page = () => {
                                                     })
                                                 )}
                                             </td>
-                                            <td>
-                                                <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
-                                                    {aspek.feedback && aspek.feedback[IdPeriode].like !== null ? (
-                                                        <Tag className="m-0 w-fit" color={aspek.feedback[IdPeriode].like ? 'green' : 'red'}>
-                                                            {aspek.feedback[IdPeriode].like ? 'baik' : 'buruk'}
-                                                        </Tag>
-                                                    ) : null}
-                                                    {aspek.feedback ? aspek.feedback[IdPeriode].feedback : null}
-                                                    <Button
-                                                        className="w-fit"
-                                                        size="small"
-                                                        icon={<PlusOutlined />}
-                                                        onClick={() =>
-                                                            setModal({
-                                                                title: 'Tambah Feedback',
-                                                                trigger: true,
-                                                                formFields: feedbackFields,
-                                                                onSubmit: async (values) => {
-                                                                    console.log(values);
-                                                                    console.log(aspek);
-
-                                                                    const dt = {
-                                                                        ...aspek,
-                                                                        feedback: {
-                                                                            ...item.feedback,
-                                                                            [IdPeriode]: {
-                                                                                feedback: values.feedback,
-                                                                                like: values.category
-                                                                            }
-                                                                        }
-                                                                    };
-
-                                                                    const res = await updateAspek(aspek._id, dt);
-                                                                    console.log(res);
-
-                                                                    if (res.ok) {
-                                                                        fetchData();
-                                                                        setModal({ trigger: false, modalData: {} });
-                                                                        message.success('Data Berhasil Di Ubah');
-                                                                    }
-                                                                }
-                                                            })
-                                                        }
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                </div>
-                                            </td>
+                                            <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
                                             {/* <td></td> */}
                                         </tr>
                                     </>
@@ -614,37 +572,53 @@ const page = () => {
                         </tr>
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
-                            <td colSpan={4}>{data?.hasil ? (() => {
-                                const hasil = data.hasil[IdPeriode];
-                                switch (hasil) {
-                                    case 2:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p>Sesuai ekspektasi</p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 3:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p>Diatas ekspektasi</p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 1:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p>Dibawah ekspektasi</p>
-                                            </div>
-                                        );
-                                    default:
-                                        return hasil || '';
-                                }
-                            })() : ''}</td>
+                            <td colSpan={4}>
+                                {penilaian?.ratingKinerja
+                                    ? (() => {
+                                          const hasil = penilaian?.ratingKinerja;
+                                          switch (hasil) {
+                                              case 2:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>Sesuai ekspektasi</p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 3:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>Diatas ekspektasi</p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 1:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>Dibawah ekspektasi</p>
+                                                      </div>
+                                                  );
+                                              default:
+                                                  return hasil || '';
+                                          }
+                                      })()
+                                    : ''}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -672,102 +646,162 @@ const page = () => {
                                     </div>
                                 </td>
                                 <td>{item.espektasi || ''}</td>
-                                <td>{item.feedback[IdPeriode]?.isi || ''}</td>
+                                <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} formFields={formFields} setModal={setModal} />
                             </tr>
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={3}>{data?.perilaku ? (() => {
-                                const perilaku = data.perilaku[IdPeriode];
-                                switch (perilaku) {
-                                    case 2:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p>Sesuai ekspektasi</p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 3:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p>Diatas ekspektasi</p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p><s>Dibawah ekspektasi</s></p>
-                                            </div>
-                                        );
-                                    case 1:
-                                        return (
-                                            <div className='inline-flex gap-2'>
-                                                <p><s>Diatas ekspektasi</s></p>
-                                                <p><s>Sesuai ekspektasi</s></p>
-                                                <p>Dibawah ekspektasi</p>
-                                            </div>
-                                        );
-                                    default:
-                                        return perilaku || '';
-                                }
-                            })() : ''}</td>
+                            <td colSpan={3}>
+                                {penilaian?.ratingPerilaku
+                                    ? (() => {
+                                          const perilaku = penilaian?.ratingPerilaku;
+                                          switch (perilaku) {
+                                              case 2:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>Sesuai ekspektasi</p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 3:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>Diatas ekspektasi</p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Dibawah ekspektasi</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 1:
+                                                  return (
+                                                      <div className="inline-flex gap-2">
+                                                          <p>
+                                                              <s>Diatas ekspektasi</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Sesuai ekspektasi</s>
+                                                          </p>
+                                                          <p>Dibawah ekspektasi</p>
+                                                      </div>
+                                                  );
+                                              default:
+                                                  return perilaku || '';
+                                          }
+                                      })()
+                                    : ''}
+                            </td>
                         </tr>
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
-                            <td colSpan={3}>{data?.predikat ? (() => {
-                                const predikat = data.predikat[IdPeriode];
-                                switch (predikat) {
-                                    case 5:
-                                        return (
-                                            <div className='flex flex-col gap-2'>
-                                                <p><s>Sangat Kurang</s></p>
-                                                <p><s>Kurang</s></p>
-                                                <p><s>Butuh Perbaikan</s></p>
-                                                <p><s>Baik</s></p>
-                                                <p>Istimewah</p>
-                                            </div>
-                                        );
-                                    case 4:
-                                        return (
-                                            <div className='flex flex-col gap-2'>
-                                                <p><s>Sangat Kurang</s></p>
-                                                <p><s>Kurang</s></p>
-                                                <p><s>Butuh Perbaikan</s></p>
-                                                <p>Baik</p>
-                                                <p><s>Istimewah</s></p>
-                                            </div>
-                                        );
-                                    case 3:
-                                        return (
-                                            <div className='flex flex-col gap-2'>
-                                                <p><s>Sangat Kurang</s></p>
-                                                <p><s>Kurang</s></p>
-                                                <p>Butuh Perbaikan</p>
-                                                <p><s>Baik</s></p>
-                                                <p><s>Istimewah</s></p>
-                                            </div>
-                                        );
-                                    case 2:
-                                        return (
-                                            <div className='flex flex-col gap-2'>
-                                                <p><s>Sangat Kurang</s></p>
-                                                <p>Kurang</p>
-                                                <p><s>Butuh Perbaikan</s></p>
-                                                <p><s>Baik</s></p>
-                                                <p><s>Istimewah</s></p>
-                                            </div>
-                                        );
-                                    case 1:
-                                        return (
-                                            <div className='flex flex-col gap-2'>
-                                                <p>Sangat Kurang</p>
-                                                <p><s>Kurang</s></p>
-                                                <p><s>Butuh Perbaikan</s></p>
-                                                <p><s>Baik</s></p>
-                                                <p><s>Istimewah</s></p>
-                                            </div>
-                                        );
-                                    default:
-                                        return predikat || '';
-                                }
-                            })() : ''}</td>
+                            <td colSpan={3}>
+                                {penilaian?.ratingPredikat
+                                    ? (() => {
+                                          const predikat = penilaian?.ratingPredikat;
+                                          switch (predikat) {
+                                              case 5:
+                                                  return (
+                                                      <div className="flex flex-col gap-2">
+                                                          <p>
+                                                              <s>Sangat Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Butuh Perbaikan</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Baik</s>
+                                                          </p>
+                                                          <p>Istimewah</p>
+                                                      </div>
+                                                  );
+                                              case 4:
+                                                  return (
+                                                      <div className="flex flex-col gap-2">
+                                                          <p>
+                                                              <s>Sangat Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Butuh Perbaikan</s>
+                                                          </p>
+                                                          <p>Baik</p>
+                                                          <p>
+                                                              <s>Istimewah</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 3:
+                                                  return (
+                                                      <div className="flex flex-col gap-2">
+                                                          <p>
+                                                              <s>Sangat Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Kurang</s>
+                                                          </p>
+                                                          <p>Butuh Perbaikan</p>
+                                                          <p>
+                                                              <s>Baik</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Istimewah</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 2:
+                                                  return (
+                                                      <div className="flex flex-col gap-2">
+                                                          <p>
+                                                              <s>Sangat Kurang</s>
+                                                          </p>
+                                                          <p>Kurang</p>
+                                                          <p>
+                                                              <s>Butuh Perbaikan</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Baik</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Istimewah</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              case 1:
+                                                  return (
+                                                      <div className="flex flex-col gap-2">
+                                                          <p>Sangat Kurang</p>
+                                                          <p>
+                                                              <s>Kurang</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Butuh Perbaikan</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Baik</s>
+                                                          </p>
+                                                          <p>
+                                                              <s>Istimewah</s>
+                                                          </p>
+                                                      </div>
+                                                  );
+                                              default:
+                                                  return predikat || '';
+                                          }
+                                      })()
+                                    : ''}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -775,11 +809,9 @@ const page = () => {
                     {modal.isRating && (
                         <CrudModal.Extra>
                             <Card className="mt-6  mb-4">
-                                <div className='flex gap-x-6'>
-                                    <WarningOutlined className='text-yellow-500 text-lg' width={200} />
-                                    <p className="text-xs">
-                                        Penilaian RHK hanya bisa dilakukan sekali, setelah diberi nilai, nilai RHK tidak dapat berubah
-                                    </p>
+                                <div className="flex gap-x-6">
+                                    <WarningOutlined className="text-yellow-500 text-lg" width={200} />
+                                    <p className="text-xs">Penilaian RHK hanya bisa dilakukan sekali, setelah diberi nilai, nilai RHK tidak dapat berubah</p>
                                 </div>
                             </Card>
                         </CrudModal.Extra>
@@ -792,3 +824,100 @@ const page = () => {
 };
 
 export default page;
+
+const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByAspekAndPeriode(item._id, IdPeriode);
+            console.log(res);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) {}
+    };
+    return (
+        <td>
+            <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
+                {data?.like !== undefined ? (
+                    <Tag className="m-0 w-fit" color={data?.like ? 'green' : 'red'}>
+                        {data?.like ? 'baik' : 'buruk'}
+                    </Tag>
+                ) : (
+                    ''
+                )}
+                {data?.isi}
+                <Button
+                    className="w-fit"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    onClick={() =>
+                        setModal({
+                            title: 'Tambah Feedback',
+                            trigger: true,
+                            formFields: feedbackFields,
+                            onSubmit: async (values) => {
+                                console.log(values);
+                                console.log(item);
+
+                                const dt = {
+                                    penilai: IdSkp,
+                                    periodePenilaian: IdPeriode,
+                                    aspek: item._id,
+                                    like: values.category,
+                                    isi: values.feedback
+                                };
+
+                                const res = await storeRHKFeedback(dt);
+                                console.log(res);
+
+                                if (res.ok) {
+                                    getData();
+                                    setModal({ trigger: false, modalData: {} });
+                                    message.success('Data Berhasil Di Ubah');
+                                }
+                            }
+                        })
+                    }
+                >
+                    Edit
+                </Button>
+            </div>
+        </td>
+    );
+};
+
+const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByPerilakuAndPeriode(item._id, IdPeriode);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) {}
+    };
+
+    return (
+        <td>
+            <div className="flex flex-col items-center justify-center gap-y-2">
+                {data?.isi}
+                {/* {data?.like !== undefined ? (
+                    <Tag className="m-0" color={data?.like ? 'green' : 'red'}>
+                        {data?.like ? 'baik' : 'buruk'}
+                    </Tag>
+                ) : (
+                    ''
+                )} */}
+            </div>
+        </td>
+    );
+};
