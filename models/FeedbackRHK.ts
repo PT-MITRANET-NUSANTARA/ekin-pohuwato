@@ -3,7 +3,7 @@ import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
 interface IFeedbackRHK extends Document {
     penilai: mongoose.Schema.Types.ObjectId;
-    rhk: mongoose.Schema.Types.ObjectId;
+    aspek: mongoose.Schema.Types.ObjectId;
     periodePenilaian: mongoose.Types.ObjectId;
     isi: string;
     like?: Boolean;
@@ -24,9 +24,9 @@ const FeedbackRHKScheme = new Schema<IFeedbackRHK, FeedbackRHKModel, IFeedbackRH
         ref: 'PeriodePenilaian',
         required: false
     },
-    rhk: {
+    aspek: {
         type: Schema.Types.ObjectId,
-        ref: 'RHK',
+        ref: 'Aspek',
         required: true
     },
     isi: {

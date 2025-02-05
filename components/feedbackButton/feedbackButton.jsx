@@ -1,9 +1,11 @@
-"use client"
+'use client';
 
+import { store } from '@/controller/FeedbackPerilakuController';
+import { perilaku } from '@/utils/blueprint';
 import { EditOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 
-const feedbackButton = ({ item, IdPeriode, setModal, formFields, updatePerilaku, fetchData }) => {
+const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSKP }) => {
     const handleClick = () => {
         setModal({
             trigger: true,
@@ -14,18 +16,15 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, updatePerilaku,
                 console.log('HERE');
 
                 const dt = {
-                    ...item,
-                    feedback: {
-                        ...item.feedback,
-                        [IdPeriode]: {
-                            isi: values.content,
-                            like: values.category
-                        }
-                    }
+                    isi: values.content,
+                    like: values.category,
+                    perilaku: item._id,
+                    periodePenilaian: IdPeriode,
+                    penilai: IdSKP
                 };
                 console.log('PERILAKU', dt);
 
-                const res = await updatePerilaku(item._id, dt);
+                const res = await store( dt);
                 console.log(res);
 
                 if (res.ok) {
@@ -42,6 +41,6 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, updatePerilaku,
             Edit
         </Button>
     );
-}
+};
 
-export default feedbackButton
+export default feedbackButton;

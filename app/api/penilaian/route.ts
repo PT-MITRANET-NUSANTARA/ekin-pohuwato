@@ -6,14 +6,16 @@ import { createResponse } from '@/utils/api';
 
 // Joi schema for validating Penilaian
 const penilaianSchema = Joi.object({
-    ratingKinerja: Joi.number().min(1).max(5).optional().label('Rating Kinerja'),
-    ratingPerilaku: Joi.number().min(1).max(5).optional().label('Rating Perilaku'),
+    ratingKinerja: Joi.number().min(1).max(5).optional().label('Rating Kinerja').allow(null),
+    ratingPerilaku: Joi.number().min(1).max(5).optional().label('Rating Perilaku').allow(null),
+    ratingPredikat: Joi.number().min(1).max(5).optional().label('Rating Predikat').allow(null),
+
     periodePenilaian: Joi.string().hex().length(24).required().label('Periode Penilaian'), // Expecting string ObjectId
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
     skp: Joi.string().hex().length(24).required().label('SKP'), // Expecting string ObjectId
-    Penilai: Joi.string().hex().length(24).required().label('Penilai'), // Expecting string ObjectId
+    penilai: Joi.string().hex().length(24).required().label('Penilai'), // Expecting string ObjectId
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
 }).messages({
@@ -42,10 +44,19 @@ export async function GET(req: NextRequest) {
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
+        const periode = req.nextUrl.searchParams.get('periode');
+        const skp = req.nextUrl.searchParams.get('skp');
         let penilaians;
 
+        console.log('here', skp, periode);
+        
         if (id) {
             penilaians = await Penilaian.findOne({ _id: id }).populate('periodePenilaian');
+        } else if (periode && skp && periode !== 'undefined' && skp !== 'undefined') {
+            penilaians = await Penilaian.findOne({
+                skp: skp,
+                periodePenilaian: periode
+            }).populate('periodePenilaian');
         } else {
             if (page === 'undefined' || limit === 'undefined') {
                 penilaians = await Penilaian.find({}).populate('periodePenilaian');
@@ -69,13 +80,29 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
 
         const errors = validatePenilaianData(body);
+
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const newPenilaian = new Penilaian(body);
-        await newPenilaian.save();
-        return NextResponse.json(createResponse(201, 'Success', newPenilaian, true));
+        const penilaians = await Penilaian.findOne({
+            skp: body.skp,
+            periodePenilaian: body.periodePenilaian
+        }).populate('periodePenilaian');
+        let nilai;
+        if (penilaians) {
+            
+            const updatedPenilaian = await Penilaian.findOneAndUpdate({ _id: penilaians._id }, body, { new: true });
+            nilai = updatedPenilaian;
+        }else
+        {
+            const newPenilaian = new Penilaian(body);
+            await newPenilaian.save();
+            nilai = newPenilaian;
+        }
+
+ 
+        return NextResponse.json(createResponse(201, 'Success', nilai, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create Penilaian' }, { status: 500 });

@@ -17,6 +17,14 @@ export const getByUnitId = async (unit_id: string, page: number, limit: number, 
     return response;
 };
 
+export const getByAspekAndPeriode = async (aspek: string, periode: string) => {
+    const url = `/api/${path}?periode=${periode}&aspek=${aspek}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
 // Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
