@@ -24,8 +24,8 @@ const DashboardSider = ({ collapsed }) => {
             }}
         >
             <div className="w-full flex items-center justify-center mb-6">
-                <div className="w-20 flex items-center justify-center gap-x-2 mt-4">
-                    <img src="/brand.png" alt="" />
+                <div className="w-12 flex items-center justify-center gap-x-2 mt-4">
+                    <img src="/ekinerja_pohuwato.png" alt="" />
                 </div>
             </div>
             <Menu

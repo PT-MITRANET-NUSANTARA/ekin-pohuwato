@@ -107,10 +107,10 @@ const Page = () => {
             <div className="hidden w-full h-full min-h-screen lg:flex items-center justify-center bg-white">
                 <div className='flex flex-col gap-y-4 items-center justify-center'>
                     <div className="w-80">
-                        <img src="/pohuwato.jpg" className="w-full" />
+                        <img src="/ekinerja_pohuwato.png" className="w-full" />
                     </div>
-                    <h1 className='font-bold text-4xl text-center leading-none'><span className='text-purple-400'>E</span> Kinerja</h1>
-                    <span className='text-purple-400 text-center font-semibold text-2xl'>Pohuwato</span>
+                    <h1 className='font-bold text-4xl text-center leading-none'><span className='text-color-primary-500'>E</span> Kinerja</h1>
+                    <span className='text-color-primary-500 text-center font-semibold text-2xl'>Pohuwato</span>
                 </div>
             </div>
         </section>

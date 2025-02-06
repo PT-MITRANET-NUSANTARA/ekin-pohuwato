@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
             theme={{
               token: {
                 fontFamily: jakarta,
-                colorPrimary: '#6D97B0',
+                colorPrimary: '#5e9ea0',
                 colorInfo: '#51AEFF',
                 colorSuccess: '#90B522',
                 colorWarning: '#FCA235',
