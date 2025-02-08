@@ -1,23 +1,21 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, Space, Typography, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
-import { store, update,destroy,  getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
+import { store, update, destroy, getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
 import { getAll } from '@/controller/IDSN/UnitController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
 import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
-import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 
 const page = () => {
-    const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit] = useState(null);
@@ -40,7 +38,7 @@ const page = () => {
         try {
             const data = await getAllVerifikasi(pagination.page, pagination.limit, pagination.filters);
             console.log(data);
-            
+
             setData(data.data.data);
             const unit = await getAll(user.token);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
@@ -121,16 +119,16 @@ const page = () => {
             dataIndex: 'id_unor',
             key: 'id_unor',
             searchable: true,
-            render:(_, record) => record.unit.id_sapk
+            render: (_, record) => record.unit.id_sapk
         },
         {
             title: 'Nama Unit',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
             searchable: true,
-            render:(_, record)=> record.unit.nama_unor
+            render: (_, record) => record.unit.nama_unor
         },
-    
+
         {
             title: 'Action',
             key: 'action',
@@ -158,13 +156,6 @@ const page = () => {
                         }}
                         size="middle"
                         icon={<EditOutlined />}
-                    />
-                    <Button
-                        color="primary"
-                        variant="outlined"
-                        onClick={router.push(window.location.pathname + `/${record.id}`)}
-                        size="middle"
-                        icon={<EyeOutlined />}
                     />
                 </Space>
             )

@@ -451,7 +451,7 @@ const page = () => {
                                 {item.aspek?.map((aspek) => (
                                     <>
                                         <tr>
-                                            <td>{aspek.jenis}</td>
+                                            <td>{aspek.jenis}</td>as
                                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
                                                     <p>{aspek.indikator}</p>

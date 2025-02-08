@@ -61,7 +61,7 @@ const Page = () => {
 
     return (
         <section className="w-full min-h-screen h-full flex items-center">
-            <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-blue-500">
+            <div className=" w-full h-full min-h-screen px-4 flex items-center justify-center bg-color-primary-500">
                 <Card className="max-w-md w-ful p-3">
                     {/* <div className="flex items-start w-24 mb-8">
                         <img src="/brand.png" />
@@ -107,10 +107,10 @@ const Page = () => {
             <div className="hidden w-full h-full min-h-screen lg:flex items-center justify-center bg-white">
                 <div className='flex flex-col gap-y-4 items-center justify-center'>
                     <div className="w-80">
-                        <img src="/pohuwato.jpg" className="w-full" />
+                        <img src="/ekinerja_pohuwato.png" className="w-full" />
                     </div>
-                    <h1 className='font-bold text-4xl text-center leading-none'><span className='text-purple-400'>E</span> Kinerja</h1>
-                    <span className='text-purple-400 text-center font-semibold text-2xl'>Pohuwato</span>
+                    <h1 className='font-bold text-4xl text-center leading-none'><span className='text-color-primary-500'>E</span> Kinerja</h1>
+                    <span className='text-color-primary-500 text-center font-semibold text-2xl'>Pohuwato</span>
                 </div>
             </div>
         </section>
