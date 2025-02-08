@@ -197,7 +197,10 @@ const page = () => {
                         onClick={async () => {
                             setModal({
                                 trigger: true,
-                                modalData: record,
+                                modalData: {
+                                    ...record,
+                                    unit: record.unit.map((item) => item.id_sapk)
+                                },
                                 title: `Edit Admin ${record.name}`,
                                 formFields: editField,
                                 type: 'edit'
