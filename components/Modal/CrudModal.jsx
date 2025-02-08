@@ -265,7 +265,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     const handleSubmit = (values) => {
         const arrayListImage = (imageList || []).map((img) => img.fileId);
-        onSubmit(values, type, data?._id, imageList, fileList);
+        onSubmit(values, type, data?._id, imageList, fileList, data);
     };
 
     const extraContent = React.Children.map(children, (child) => {

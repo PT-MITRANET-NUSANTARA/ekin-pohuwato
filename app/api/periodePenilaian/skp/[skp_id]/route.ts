@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import PeriodePenilaian from '../../../models/PeriodePenilaian';
+PeriodePenilaian;
 import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import getFilterQuery from '@/utils/getFilterQuery';
+import PeriodePenilaian from '@/models/PeriodePenilaian';
 
 // Schema for validating PeriodePenilaian
 const periodePenilaianSchema = Joi.object({
@@ -34,10 +35,12 @@ function validatePeriodePenilaianData(data: any) {
 }
 
 // GET method to fetch PeriodePenilaian
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { skp_id: string } }) {
     await dbConnect();
 
     try {
+        const { skp_id } = params;
+
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
@@ -66,13 +69,6 @@ export async function POST(req: NextRequest) {
         const errors = validatePeriodePenilaianData(body);
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        if (body.periodePenilaian) {
-            const periodePenilaian = await PeriodePenilaian.findOne({ periodePenilaian: body.periodePenilaian, skp: body.skp });
-            if (periodePenilaian) {
-                return NextResponse.json({ error: 'Periode Sudah Ada' }, { status: 500 });
-            }
         }
 
         const newPeriodePenilaian = new PeriodePenilaian(body);
