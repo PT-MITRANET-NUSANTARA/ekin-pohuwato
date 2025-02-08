@@ -7,13 +7,15 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, InfoModal } from '@/components';
 import { getById, update } from '@/controller/SKPController';
-import { store, destroy } from '@/controller/penilaianController';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import { update as updateAspek } from '@/controller/AspekController';
 import { dummyFeedback } from '@/data';
 import { store as storePenilaian } from '@/controller/penilaianController';
+import { getRealisasi } from '@/controller/RHKController';
 import { store, destroy, getBySKPAndPeriode } from '@/controller/penilaianController';
 import dayjs from 'dayjs';
+import { getByPerilakuAndPeriode } from '@/controller/FeedbackPerilakuController';
+import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
 import { dateFormatter } from '@/utils';
 const { Title } = Typography;
 const page = () => {
@@ -60,8 +62,6 @@ const page = () => {
             console.log(error);
         }
     };
-
-    console.log(data);
 
     // const onSubmit = async (value) => {
     //     try {
@@ -164,38 +164,6 @@ const page = () => {
         }
     ];
 
-    const getRealisasi = (aspek, harian) => {
-        if (aspek.jenis === 'kualitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-            if (percentase) {
-                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
-                return percent + '%';
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'kuantitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-
-            if (percentase) {
-                const target = aspek.target_tahunan.target;
-                const realisasi = percentase.progress;
-                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
-
-                return percent + ' ' + aspek.target_tahunan.satuan;
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'waktu') {
-            return harian.length + ' ' + aspek.target_tahunan.satuan;
-        } else {
-            return '';
-        }
-    };
-
     const predikatFields = [
         {
             label: 'Beri Rating',
@@ -274,26 +242,23 @@ const page = () => {
                                         title: 'Tambah Predikat Kinerja Pegawai',
                                         isRating: true,
                                         formFields: predikatFields,
-                                        modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 },
+                                        modalData: { rating: penilaian && penilaian?.ratingPredikat ? penilaian?.ratingPredikat : 1 },
                                         onSubmit: async (value) => {
-                                            console.log(data);
-
                                             const dt = {
-                                                ...data,
-                                                predikat: {
-                                                    ...data.predikat,
-                                                    [IdPeriode]: value.rating
-                                                }
+                                                ...penilaian,
+                                                ratingPredikat: value.rating,
+                                                penilai: IdSkp,
+                                                skp: IdRhk,
+                                                periodePenilaian: IdPeriode
                                             };
 
-                                            const res = await update(data._id, dt);
-                                            console.log(res);
+                                            const res = await storePenilaian(dt);
 
                                             if (res.ok) {
-                                                setModal({
-                                                    trigger: false,
-                                                    modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 }
-                                                });
+                                                // setModal({
+                                                //     trigger: false,
+                                                //     modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 }
+                                                // });
                                                 fetchData();
                                             }
                                         }
@@ -451,37 +416,15 @@ const page = () => {
                                 {item.aspek?.map((aspek) => (
                                     <>
                                         <tr>
-                                            <td>{aspek.jenis}</td>as
+                                            <td>{aspek.jenis}</td>
                                             <td style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
                                                     <p>{aspek.indikator}</p>
                                                 </div>
                                             </td>
                                             <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                            <td>
-                                                {' '}
-                                                {getRealisasi(
-                                                    aspek,
-                                                    item.harians?.filter((h) => {
-                                                        // Convert item.date and periode.endDateTime to Day.js objects
-                                                        const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                                        const endDateTime = dayjs(periode.periodeEnd); // Convert endDateTime to Day.js object
-
-                                                        // Check if h.date is less than or equal to endDateTime
-                                                        return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
-                                                    })
-                                                )}
-                                            </td>
-                                            <td>
-                                                <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
-                                                    {aspek.feedback && aspek.feedback[IdPeriode].like !== null ? (
-                                                        <Tag className="m-0 w-fit" color={aspek.feedback[IdPeriode].like ? 'green' : 'red'}>
-                                                            {aspek.feedback[IdPeriode].like ? 'baik' : 'buruk'}
-                                                        </Tag>
-                                                    ) : null}
-                                                    {aspek.feedback ? aspek.feedback[IdPeriode].feedback : null}
-                                                </div>
-                                            </td>
+                                            <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
+                                            <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
                                             {/* <td></td> */}
                                         </tr>
                                     </>
@@ -496,9 +439,9 @@ const page = () => {
                         <tr>
                             <td colSpan={6}>Rating Hasil Kinerja</td>
                             <td colSpan={4}>
-                                {data?.hasil
+                                {penilaian?.ratingKinerja
                                     ? (() => {
-                                          const hasil = data.hasil[IdPeriode];
+                                          const hasil = penilaian?.ratingKinerja;
                                           switch (hasil) {
                                               case 2:
                                                   return (
@@ -556,29 +499,30 @@ const page = () => {
                     </thead>
                     <tbody className="capitalize">
                         {data?.perilakus?.map((item, index) => (
-                            // <tr key={index}>
-                            //     <td>{index + 1}</td>
-                            //     <td style={{ padding: '8px' }}>
-                            //         <div className="flex flex-col gap-y-2 text-left">
-                            //             <b>{item.name}</b>
-                            //             <ol className="list-decimal list-inside">
-                            //                 {item.isi.map((isiItem, isiIndex) => (
-                            //                     <li key={isiIndex}>{isiItem}</li>
-                            //                 ))}
-                            //             </ol>
-                            //         </div>
-                            //     </td>
-                            //     <td>{item.espektasi || ''}</td>
-                            //     <td>{item.feedback[IdPeriode]?.isi || ''}</td>
-                            // </tr>
-                            <perilakuRow />
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td style={{ padding: '8px' }}>
+                                    <div className="flex flex-col gap-y-2 text-left">
+                                        <b>{item.name}</b>
+                                        <ol className="list-decimal list-inside">
+                                            {item.isi.map((isiItem, isiIndex) => (
+                                                <li key={isiIndex}>{isiItem}</li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="flex items-center justify-center">{item.espektasi}</div>
+                                </td>
+                                <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                            </tr>
                         ))}
                         <tr>
                             <td colSpan={3}>Rating Perilaku</td>
-                            <td colSpan={3}>
-                                {data?.perilaku
+                            <td colSpan={4}>
+                                {penilaian?.ratingPerilaku
                                     ? (() => {
-                                          const perilaku = data.perilaku[IdPeriode];
+                                          const perilaku = penilaian?.ratingPerilaku;
                                           switch (perilaku) {
                                               case 2:
                                                   return (
@@ -626,9 +570,9 @@ const page = () => {
                         <tr>
                             <td colSpan={3}>Peredikat Kinerja</td>
                             <td colSpan={3}>
-                                {data?.predikat
+                                {penilaian?.ratingPredikat
                                     ? (() => {
-                                          const predikat = data.predikat[IdPeriode];
+                                          const predikat = penilaian.ratingPredikat;
                                           switch (predikat) {
                                               case 5:
                                                   return (
@@ -749,7 +693,7 @@ const page = () => {
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 <div className="flex flex-col gap-y-2 p-4">
                                     <b>Skema Pertanggung Jawaban</b>
-                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                    <List dataSource={data?.lampiran.skema} className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                 </div>
                             </td>
                         </tr>
@@ -783,20 +727,85 @@ const page = () => {
 
 export default page;
 
-const perilakuRow = ({ item, index, IdPeriode }) => (
-    <tr key={index}>
-        <td>{index + 1}</td>
-        <td style={{ padding: '8px' }}>
-            <div className="flex flex-col gap-y-2 text-left">
-                <b>{item.name}</b>
-                <ol className="list-decimal list-inside">
-                    {item.isi.map((isiItem, isiIndex) => (
-                        <li key={isiIndex}>{isiItem}</li>
-                    ))}
-                </ol>
+
+const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByPerilakuAndPeriode(item._id, IdPeriode);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) {}
+    };
+
+    return (
+        <td>
+            <div className="flex flex-col items-center justify-center gap-y-2">
+                {data?.isi}
+                {/* {data?.like !== undefined ? (
+                    <Tag className="m-0" color={data?.like ? 'green' : 'red'}>
+                        {data?.like ? 'baik' : 'buruk'}
+                    </Tag>
+                ) : (
+                    ''
+                )}
+                <div className="flex items-center justify-center">
+                    <FeedbackButton IdSKP={IdSKP} item={item} IdPeriode={IdPeriode} fetchData={getData} formFields={formFields} setModal={setModal} />
+                </div> */}
             </div>
         </td>
-        <td>{item.espektasi || ''}</td>
-        <td>{item.feedback[IdPeriode]?.isi || ''}</td>
-    </tr>
-);
+    );
+};
+
+const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByAspekAndPeriode(item._id, IdPeriode);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) {}
+    };
+    return (
+        <td>
+            <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
+                {/* {data?.like !== undefined ? (
+                    <Tag className="m-0 w-fit" color={data?.like ? 'green' : 'red'}>
+                        {data?.like ? 'baik' : 'buruk'}
+                    </Tag>
+                ) : (
+                    ''
+                )} */}
+                {data?.isi}
+            </div>
+        </td>
+    );
+};
+
+const RealisasiRow = ({ item, aspek, IdPeriode }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getRealisasi(item._id, 'utama', aspek._id, IdPeriode);
+            console.log(res.data);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) {}
+    };
+    return <td>{data? data: 0}</td>;
+};

@@ -427,7 +427,6 @@ const page = () => {
                                     <th>NO</th>
                                     <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                                     <th>RENCANA HASIL KERJA</th>
-                                    <th>BUKTI DUKUNG</th>
                                     <th>ASPEK</th>
                                     <th>INDIKATOR KINERJA</th>
                                     <th>TARGET TAHUNAN</th>
@@ -463,129 +462,7 @@ const page = () => {
                                                         {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                     </div>
                                                 </td>
-                                                <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                                    <div className="flex items-center justify-center">
-                                                        <Button type="primary" onClick={() => setBuktiModal({ modalData: null, trigger: true })}>
-                                                            Lihat
-                                                        </Button>
-                                                        <Modal open={buktiModal.trigger} onCancel={() => setBuktiModal({ modalData: null, trigger: false })} footer={null}>
-                                                            <Table
-                                                                className="mt-8"
-                                                                dataSource={item.harians}
-                                                                pagination={false}
-                                                                bordered
-                                                                columns={[
-                                                                    {
-                                                                        title: 'Tanggal',
-                                                                        dataIndex: 'date',
-                                                                        key: 'date',
-                                                                        render: (record) => (record ? dateFormatter(record) : null)
-                                                                    },
-                                                                    {
-                                                                        title: 'Tautan',
-                                                                        dataIndex: 'tautan',
-                                                                        key: 'tautan',
-                                                                        render: (_, record) => (
-                                                                            <a href={record.tautan} target="_blank" rel="noopener noreferrer">
-                                                                                Lihat Tautan
-                                                                            </a>
-                                                                        )
-                                                                    },
-                                                                    {
-                                                                        title: 'Bukti',
-                                                                        dataIndex: 'files',
-                                                                        key: 'files',
-                                                                        render: (_, record) => (
-                                                                            <>
-                                                                                <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
-                                                                                <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                                                                                    <List
-                                                                                        className="my-6"
-                                                                                        itemLayout="horizontal"
-                                                                                        dataSource={fileModal.modalData}
-                                                                                        renderItem={(item) => (
-                                                                                            <List.Item>
-                                                                                                <div className="w-full flex justify-between items-center">
-                                                                                                    <div>
-                                                                                                        <p>{item.name}</p>
-                                                                                                        <small>{item.fileId}</small>
-                                                                                                    </div>
-                                                                                                    <div>
-                                                                                                        <Button
-                                                                                                            size="small"
-                                                                                                            icon={<DownloadOutlined />}
-                                                                                                            onClick={() => {
-                                                                                                                const a = document.createElement('a');
-                                                                                                                a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                                                                                a.download = item.name;
-                                                                                                                a.click();
-                                                                                                            }}
-                                                                                                        />
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </List.Item>
-                                                                                        )}
-                                                                                    />
-                                                                                </Modal>
-                                                                            </>
-                                                                        )
-                                                                    },
-                                                                    {
-                                                                        title: 'action',
-                                                                        key: 'action',
-                                                                        render: (record) => (
-                                                                            <Button
-                                                                                icon={<ExclamationOutlined />}
-                                                                                type="default"
-                                                                                onClick={() => {
-                                                                                    setInfoModal({
-                                                                                        title: 'Informasi Harian',
-                                                                                        trigger: true,
-                                                                                        type: 'desc',
-                                                                                        data: [
-                                                                                            {
-                                                                                                key: 'title',
-                                                                                                label: 'Nama Kegiatan',
-                                                                                                children: record.namaKegiatan
-                                                                                            },
-                                                                                            {
-                                                                                                key: 'desc',
-                                                                                                label: 'Deskripsi',
-                                                                                                children: record.deskripsiKegiatan
-                                                                                            },
-                                                                                            {
-                                                                                                key: 'start_time',
-                                                                                                label: 'Waktu Mulai',
-                                                                                                children: record.startDateTime
-                                                                                            },
-                                                                                            {
-                                                                                                key: 'end_time',
-                                                                                                label: 'Waktu Selesai',
-                                                                                                children: record.endDateTime
-                                                                                            },
-                                                                                            // {
-                                                                                            //     key: 'skp',
-                                                                                            //     label: 'SKP',
-                                                                                            //     children: record.isSKP ? 'SKP' : 'Bukan SKP'
-                                                                                            // },
-                                                                                            {
-                                                                                                key: 'progress',
-                                                                                                label: 'Progress',
-                                                                                                children: <Progress type="circle" percent={record.progress} size={80} />
-                                                                                            }
-                                                                                        ],
-                                                                                        isLoading: false,
-                                                                                        onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                                                                                    });
-                                                                                }}
-                                                                            />
-                                                                        )
-                                                                    }
-                                                                ]}
-                                                            />
-                                                        </Modal>
-                                                    </div>
-                                                </td>
+                                              
                                             </tr>
                                             {item.aspek?.map((aspek) => (
                                                 <>

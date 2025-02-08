@@ -8,6 +8,13 @@ export const getById = async (id: string) => {
     return response;
 };
 
+export const getRealisasi = async (id: string, jenis: string, aspek: string, periode: string) => {
+    const response = await apiRequest(`/api/${path}/${id}/realisasi?jenis=${jenis}&aspek=${aspek}&periode=${periode}`, {
+        method: 'GET'
+    });
+    return response;
+};
+
 export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
@@ -16,6 +23,8 @@ export const getBySKPId = async (skp_id: string, page: number, limit: number, fi
     });
     return response;
 };
+
+
 
 
 // Fetch all Visi records

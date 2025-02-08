@@ -12,6 +12,7 @@ interface IAspek extends Document {
   rhk: mongoose.Schema.Types.ObjectId; 
   jenis: Jenis; 
   indikator: string; 
+  realisasi: Object; 
   target_tahunan: Object; 
   desc? : string;
   feedback: Object;
@@ -40,10 +41,10 @@ const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
     type: String,
     required: false
   },
-  feedback: {
+  realisasi: {
     type: Object,
-    required: false,
-    default: null
+    required: true,
+    default: {},
   },
   target_tahunan: {
     type: Object,
