@@ -4,7 +4,7 @@ import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Prog
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CrudModal, DataLoading, FeedbackButton, InfoModal } from '@/components';
+import { CrudModal, DataLoading, FeedbackButton, InfoModal, RealisasiRow, RhkRow } from '@/components';
 import { dummyFeedback } from '@/data';
 import { title } from 'process';
 import { useParams } from 'next/navigation';
@@ -243,6 +243,25 @@ const page = () => {
         }
     };
 
+    const renderPerilakuTag = (ratingPredikat) => {
+        switch (ratingPredikat) {
+            case 2:
+                return (
+                    <Tag color='blue'>Sesuai Ekspektasi</Tag>
+                );
+            case 3:
+                return (
+                    <Tag color='green'>Diatas Ekspektasi</Tag>
+                );
+            case 1:
+                return (
+                    <Tag color='orange'>Dibawah Ekspektasi</Tag>
+                );
+            default:
+                return <Tag color="error">Belum Dinilai</Tag>;
+        }
+    };
+
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -275,6 +294,8 @@ const page = () => {
                             <div className="w-full flex items-center justify-between">
                                 <Title className="mt-2" level={5}>
                                     Pengisian Feedback Atasan
+                                    {" "}
+                                    {renderPerilakuTag(penilaian?.ratingPerilaku)}
                                 </Title>
                                 <div className="flex items-center gap-x-2">
                                     <Button
@@ -462,7 +483,7 @@ const page = () => {
                                                         {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                     </div>
                                                 </td>
-                                              
+
                                             </tr>
                                             {item.aspek?.map((aspek) => (
                                                 <>
@@ -474,20 +495,7 @@ const page = () => {
                                                             </div>
                                                         </td>
                                                         <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                        <td>
-                                                            {getRealisasi(
-                                                                aspek,
-                                                                item.harians?.filter((h) => {
-                                                                    // Convert item.date and periode.endDateTime to Day.js objects
-                                                                    const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                                                    const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
-
-                                                                    // Check if h.date is less than or equal to endDateTime
-                                                                    return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
-                                                                })
-                                                            )}
-                                                        </td>
-
+                                                        <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
                                                         <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
                                                         {/* <td></td> */}
                                                     </tr>
@@ -738,6 +746,40 @@ const page = () => {
                                 </tr>
                             </tbody>
                         </table>
+                        <table className="normaltable">
+                            <thead>
+                                <tr>
+                                    <th className="text-left px-4">Lampiran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style={{ border: '1px solid black', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Dukungan Sumber Daya</b>
+                                            <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                        </div>
+                                        {/* looping through here */}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ border: '1px solid black', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Skema Pertanggung Jawaban</b>
+                                            <List dataSource={data?.lampiran.skema} className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ border: '1px solid black', padding: '8px' }}>
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <p>Konsekuensi</p>
+                                            <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
                             {modal.isRating && (
                                 <CrudModal.Extra>
@@ -793,38 +835,6 @@ const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }
                 <div className="flex items-center justify-center">
                     <FeedbackButton IdSKP={IdSKP} item={item} IdPeriode={IdPeriode} fetchData={getData} formFields={formFields} setModal={setModal} />
                 </div>
-            </div>
-        </td>
-    );
-};
-
-const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
-    const [data, setData] = useState(null);
-    useEffect(() => {
-        getData();
-    }, []);
-
-    const getData = async () => {
-        try {
-            const res = await getByAspekAndPeriode(item._id, IdPeriode);
-            console.log(res);
-            if (res.ok) {
-                setData(res.data);
-            }
-        } catch (error) { }
-    };
-    return (
-        <td>
-            <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
-                {/* {data?.like !== undefined ? (
-                    <Tag className="m-0 w-fit" color={data?.like ? 'green' : 'red'}>
-                        {data?.like ? 'baik' : 'buruk'}
-                    </Tag>
-                ) : (
-                    ''
-                )} */}
-                {data?.isi}
-
             </div>
         </td>
     );
