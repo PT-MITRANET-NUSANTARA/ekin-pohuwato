@@ -5,7 +5,7 @@ import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-de
 import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
-import { store, update,destroy,  getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
+import { store, update, destroy, getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
 import { getAll } from '@/controller/IDSN/UnitController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
@@ -40,7 +40,7 @@ const page = () => {
         try {
             const data = await getAllVerifikasi(pagination.page, pagination.limit, pagination.filters);
             console.log(data);
-            
+
             setData(data.data.data);
             const unit = await getAll(user.token);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
@@ -60,10 +60,10 @@ const page = () => {
             let response;
             const dt = {
                 unit: unit.find((item) => item.id_sapk == values.unit)
-            }
+            };
             switch (type) {
                 case 'create':
-                    response = await store(dt);
+                    response = await store({ ...dt, jabatan: [] });
                     break;
 
                 case 'edit':
@@ -121,51 +121,41 @@ const page = () => {
             dataIndex: 'id_unor',
             key: 'id_unor',
             searchable: true,
-            render:(_, record) => record.unit.id_sapk
+            render: (_, record) => record.unit.id_sapk
         },
         {
             title: 'Nama Unit',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
             searchable: true,
-            render:(_, record)=> record.unit.nama_unor
+            render: (_, record) => record.unit.nama_unor
         },
-    
+
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        color="primary"
-                        variant="outlined"
-                        onClick={async () => {
-                            const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
-                            const jabatan_nama = jabatan.mapData.data
-                                .map(({ nama_jabatan }) => ({
-                                    label: nama_jabatan,
-                                    value: nama_jabatan
-                                }))
-                                .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
-                            setSelectedUnor(record);
-                            setSelectedUnit(jabatan_nama);
+                        onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: record,
-                                title: `Edit Admin ${record._id}`,
-                                type: 'edit'
-                            });
-                        }}
+                                modalData: {
+                                    ...record
+                                },
+                                title: `Edit verifikasi ${record._id}`,
+                                type: 'delete'
+                            })
+                        }
+                        // type='primary'
                         size="middle"
-                        icon={<EditOutlined />}
+                        danger
+                        icon={<DeleteOutlined />}
                     />
-                    <Button
-                        color="primary"
-                        variant="outlined"
-                        onClick={router.push(window.location.pathname + `/${record.id}`)}
-                        size="middle"
-                        icon={<EyeOutlined />}
-                    />
+
+                    <Button onClick={() => router.push(window.location.pathname + `/${record._id}`)} size="middle" color="danger">
+                        Detail
+                    </Button>
                 </Space>
             )
         }

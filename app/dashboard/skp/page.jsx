@@ -7,7 +7,7 @@ import { dummySkp } from '@/data';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CrudModal, FilterField } from '@/components';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { destroy, getAll, store, update, getByUserId, storeAtasan } from '@/controller/SKPController';
@@ -28,7 +28,7 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { success, error } = useNotification()
+    const { success, error } = useNotification();
 
     const [resntra, setRenstra] = useState(null);
     const [periodeRKT, setPeriodeRKT] = useState(null);
@@ -43,6 +43,7 @@ const page = () => {
 
     useEffect(() => {
         if (user) {
+           
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
@@ -51,7 +52,7 @@ const page = () => {
         try {
             const data = await getByUserId(user.jabatan.nip_asn, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
-            console.log('here', data);
+            console.log('here', pagination);
 
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const selectedJabatan = user.jabatan;
@@ -72,8 +73,7 @@ const page = () => {
         }
     };
 
-    console.log("USER", user);
-
+    console.log('USER', user);
 
     const onSubmit = async (values, type, id) => {
         setSubmitLoading(true);
@@ -81,7 +81,7 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, jabatan: [user.jabatan], user_id: user.jabatan.nip_asn, posjab: [] };
-            dt.periodeRKT = [values.periodeRKT]
+            dt.periodeRKT = [values.periodeRKT];
 
             switch (type) {
                 case 'create':
@@ -103,7 +103,7 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP')
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP');
             } else {
                 if (Array.isArray(response.data)) {
                     response.data.forEach((err) => {
@@ -262,10 +262,10 @@ const page = () => {
             name: 'renstra',
             type: 'select',
             filter: 'eq',
-            options: resntra?.map((item) => ({ 
-                value: item._id, 
+            options: resntra?.map((item) => ({
+                value: item._id,
                 label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
-                id: item._id 
+                id: item._id
             }))
         },
         {
@@ -273,18 +273,18 @@ const page = () => {
             name: 'periodeRKT',
             type: 'select',
             filter: 'eq',
-            options: periodeRKT?.map((item) => ({ 
-                value: item._id, 
+            options: periodeRKT?.map((item) => ({
+                value: item._id,
                 label: formatDateToDayMonthYear(item.periode_start) + ' - ' + formatDateToDayMonthYear(item.periode_end),
                 id_option_parent: item.renstra._id
             })),
-            parentField: 'renstra',
-            
-        },
+            parentField: 'renstra'
+        }
     ];
 
     const handleClose = () => {
-        setModal({ trigger: false, modalData: null });s
+        setModal({ trigger: false, modalData: null });
+        s;
     };
 
     return (

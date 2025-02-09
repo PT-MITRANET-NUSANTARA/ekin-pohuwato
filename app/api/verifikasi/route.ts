@@ -11,6 +11,7 @@ const verifikasiSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+    jabatan: Joi.array().items(Joi.object()).label('Jabatan').allow({}),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
 }).messages({

@@ -10,6 +10,7 @@ const verifikasiSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+    jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan').allow({}),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
 }).messages({
@@ -51,8 +52,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const updatedVerifikasi = await Verifikasi.findOneAndUpdate({ _id: id }, body, { new: true });
+        if (body.jabatan) {
+            
+        }
 
+        const updatedVerifikasi = await Verifikasi.findOneAndUpdate({ _id: id }, body, { new: true });
 
         if (!updatedVerifikasi) {
             return NextResponse.json(createResponse(404, 'Verifikasi not found', null));

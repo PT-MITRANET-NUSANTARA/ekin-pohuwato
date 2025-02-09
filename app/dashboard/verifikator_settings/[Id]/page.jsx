@@ -5,20 +5,23 @@ import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummyVerifikator } from '@/data/dummyData';
-import { store, update, destroy, getAll as getAllVerifikasi } from '@/controller/VerifikasiController';
+import { store, update, destroy, getAll as getAllVerifikasi, getById } from '@/controller/VerifikasiController';
 import { getAll } from '@/controller/IDSN/UnitController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
 import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
+import { useParams } from 'next/navigation';
 
 const { Title } = Typography;
 
 const page = () => {
+    const { Id } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit] = useState(null);
+    const [jabatan, setJabatan] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedUnor, setSelectedUnor] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -36,12 +39,20 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getAllVerifikasi(pagination.page, pagination.limit, pagination.filters);
+            const data = await getById(Id);
             console.log(data);
-
-            setData(data.data.data);
+            setData(data.data);
             const unit = await getAll(user.token);
-            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            const jabatan = await getAllPosjabByUnit(user.token, data.data.unit.id_sapk);
+            const jabatan_nama = jabatan.mapData.data
+                .map(({ nama_jabatan }) => ({
+                    label: nama_jabatan,
+                    value: nama_jabatan
+                }))
+                .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
+            setJabatan(jabatan_nama);
+            console.log(jabatan_nama);
+
             setUnit(unit.mapData);
         } catch (error) {
             console.log(error);
@@ -52,20 +63,58 @@ const page = () => {
 
     console.log(data);
 
-    const onSubmit = async (values, type, id) => {
+    const onSubmit = async (values, type, id, _, _i, dt) => {
         try {
             setSubmitLoading(true);
             let response;
-            const dt = {
-                unit: unit.find((item) => item.id_sapk == values.unit)
-            }
             switch (type) {
                 case 'create':
-                    response = await store(dt);
+                    const isDuplicate = (data.jabatan || []).some((j) => j.name === values.jabatan);
+                    if (isDuplicate) {
+                        setAlert({
+                            show: true,
+                            message: 'Gagal',
+                            description: 'Jabatan Sudah Ada',
+                            type: 'error'
+                        });
+                        handleClose();
+                        return;
+                    }
+                    response = await update(data._id, {
+                        ...data,
+                        jabatan: [
+                            ...(data.jabatan || []),
+                            {
+                                name: values.jabatan,
+                                unit: []
+                            }
+                        ]
+                    });
                     break;
 
                 case 'edit':
-                    response = await update(id, dt);
+                    const result = values.unit.map((item) => {
+                        // Cari unit yang memiliki id_sapk yang sama dengan item
+                        return unit.find((unit) => unit.id_sapk === item);
+                    });
+                    
+
+                    console.log(result);
+                    
+
+                    const tmp = {
+                        ...data,
+                        jabatan: data.jabatan.map(
+                            (j) =>
+                                j.name === dt.name
+                                    ? { ...j, name: dt.name, unit: result } // Overwrite name dan unit jika cocok
+                                    : j // Biarkan data lama jika tidak cocok
+                        )
+                    };
+                    console.log(tmp);
+
+                    response = await update(data._id, tmp);
+
                     break;
 
                 case 'delete':
@@ -114,19 +163,27 @@ const page = () => {
             render: (text, record, index) => index + 1,
             width: '5%'
         },
+
         {
-            title: 'ID Unit',
-            dataIndex: 'id_unor',
-            key: 'id_unor',
-            searchable: true,
-            render: (_, record) => record.unit.id_sapk
-        },
-        {
-            title: 'Nama Unit',
+            title: 'Jabatan',
             dataIndex: 'nama_unor',
             key: 'nama_unor',
             searchable: true,
-            render: (_, record) => record.unit.nama_unor
+            render: (_, record) => record.name
+        },
+
+        {
+            title: 'Unit',
+            dataIndex: 'nama_unor',
+            key: 'nama_unor',
+            searchable: true,
+            render: (_, record) => {
+                return record.unit?.map((item) => (
+                    <Tag key={item.id_sapk} color="blue">
+                        {item.nama_unor}
+                    </Tag>
+                ));
+            }
         },
 
         {
@@ -138,19 +195,14 @@ const page = () => {
                         color="primary"
                         variant="outlined"
                         onClick={async () => {
-                            const jabatan = await getAllPosjabByUnit(data.token, record.id_sapk);
-                            const jabatan_nama = jabatan.mapData.data
-                                .map(({ nama_jabatan }) => ({
-                                    label: nama_jabatan,
-                                    value: nama_jabatan
-                                }))
-                                .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
-                            setSelectedUnor(record);
-                            setSelectedUnit(jabatan_nama);
                             setModal({
                                 trigger: true,
-                                modalData: record,
-                                title: `Edit Admin ${record._id}`,
+                                modalData: {
+                                    ...record,
+                                    unit: record.unit.map((item) => item.id_sapk)
+                                },
+                                title: `Edit Admin ${record.name}`,
+                                formFields: editField,
                                 type: 'edit'
                             });
                         }}
@@ -164,8 +216,8 @@ const page = () => {
 
     const formFields = [
         {
-            label: 'Unit Organisasi',
-            name: 'unit',
+            label: 'Jabatan',
+            name: 'jabatan',
             type: 'select',
             rules: [
                 {
@@ -173,10 +225,26 @@ const page = () => {
                     message: 'Field role wajib di isi'
                 }
             ],
+            options: jabatan
+        }
+    ];
+
+    const editField = [
+        {
+            label: 'Unit',
+            name: 'unit',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field misi wajib di isi'
+                }
+            ],
             options: unit?.map((item) => ({
                 label: item.nama_unor,
                 value: item.id_sapk
-            }))
+            })),
+            mode: 'multiple'
         }
     ];
 
@@ -275,7 +343,7 @@ const page = () => {
                     <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-12">
                             <Title className="mt-2" level={5}>
-                                Data Admin Verifikator
+                                Data Admin Verifikator {data?.unit.nama_unor}
                             </Title>
                             <div>
                                 <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
@@ -287,9 +355,9 @@ const page = () => {
                             <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} loading={loading} />
+                            <DataTable columns={Column} data={data.jabatan} loading={loading} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} />
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
                 </Card>
             )}
