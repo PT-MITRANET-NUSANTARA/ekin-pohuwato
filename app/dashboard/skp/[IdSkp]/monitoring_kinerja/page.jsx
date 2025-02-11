@@ -8,7 +8,8 @@ import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyBawahan } from '@/data/dummyData';
-import { getBySKP } from '@/controller/SKPController';
+import { getBySKP, getBySKPId } from '@/controller/SKPController';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
@@ -19,14 +20,20 @@ const page = () => {
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [dataBawahan, setDataBawahan] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (user) {
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const response = await getBySKP(IdSkp);
-            setDataBawahan(response.data);
+            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            setData(data.data.data);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -40,6 +47,16 @@ const page = () => {
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
             width: '5%'
+        },
+        {
+            title: 'NIP',
+            dataIndex: 'name',
+            key: 'name',
+            searchable: true,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nip_asn : 'No Jabatan';
+            }
         },
         {
             title: 'Nama',
@@ -81,7 +98,6 @@ const page = () => {
                         onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
                         // type='primary'
                         size="middle"
-                        
                     >
                         Detail
                     </Button>
@@ -113,7 +129,7 @@ const page = () => {
                                 Bawahan Monitoring Kinerja
                             </Title>
                         </div>
-                        <DataTable columns={Column} data={dataBawahan} loading={loading} />
+                        <DataTable columns={Column} data={data} loading={loading} />
                     </div>
                 </Card>
             )}

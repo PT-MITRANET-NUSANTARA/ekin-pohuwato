@@ -22,6 +22,7 @@ const page = () => {
     const { IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [data, setData] = useState(null);
+
     const { data: user, setData: setUser } = useFetchData(getData);
     const [isJT, setIsJT] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -44,11 +45,15 @@ const page = () => {
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
             const skp = await getSKP(IdSkp);
-            
-            const periode = await getAll('undefined', 'undefined', { skp: skp.data.skp[skp.data.skp.length - 1]._id });
+            console.log(skp);
+            console.log(skp);
+            if (!isJT) {
+                const periode = await getAll('undefined', 'undefined', { skp: skp.data.skp[skp.data.skp.length - 1]._id });
+                setPeriode(periode.data);
+            }
 
-            setPeriode(periode.data);
             setIsJT(isJT);
+         
             setData(data.data.data);
             setLoading(false);
         } catch (error) {
