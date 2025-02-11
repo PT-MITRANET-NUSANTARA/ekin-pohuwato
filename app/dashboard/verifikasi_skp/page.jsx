@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Modal, Space, Tag, Typography } from 'antd';
-import { CheckCircleFilled, CheckOutlined, CloseOutlined, XOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Tag, Typography } from 'antd';
+import { CheckCircleFilled, CheckOutlined, CloseOutlined, HistoryOutlined, XOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
@@ -18,6 +18,7 @@ const page = () => {
     const { confirm } = Modal;
     const router = useRouter()
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -107,7 +108,7 @@ const page = () => {
             dataIndex: 'status',
             key: 'status',
             render: (_, record) => (
-                <>
+                <div className='inline-flex items-center'>
                     {(() => {
                         switch (record.status) {
                             case 'approved':
@@ -140,7 +141,63 @@ const page = () => {
                                 );
                         }
                     })()}
-                </>
+                    <Button
+                        icon={<HistoryOutlined />}
+                        variant='link'
+                        color='primary'
+                        onClick={() => {
+                            setFeedbackModal({ trigger: true, modalData: data })
+                        }}
+                    />
+                    <Modal title="List Feedback" open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} >
+                        <List
+                            className="w-full col-span-4 mt-6"
+                            itemLayout="horizontal"
+                            dataSource={feedBackModal.modalData}
+                            renderItem={(item) => (
+                                <List.Item>
+                                    <button className='inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md'>
+                                        <div className='inline-flex gap-x-2 items-center'>
+                                            <HistoryOutlined />
+                                            <b>10 Januari 2024</b>
+                                        </div>
+                                        {(() => {
+                                            switch (item.status) {
+                                                case 'approved':
+                                                    return (
+                                                        <Tag color="blue" className="capitalize">
+                                                            {item.status}
+                                                        </Tag>
+                                                    );
+                                                case 'rejected':
+                                                    return (
+                                                        <div className="flex flex-col gap-y-2">
+                                                            <Tag color="red" className="capitalize w-fit">
+                                                                {item.status}
+                                                            </Tag>
+                                                            "{record.keterangan}"
+                                                        </div>
+                                                    );
+                                                case 'submitted':
+                                                    return (
+                                                        <Tag color="yellow" className="capitalize">
+                                                            {item.status}
+                                                        </Tag>
+                                                    );
+                                                case 'draft':
+                                                    return (
+                                                        <Tag color="blue" className="capitalize">
+                                                            {item.status}
+                                                        </Tag>
+                                                    );
+                                            }
+                                        })()}
+                                    </button>
+                                </List.Item>
+                            )}
+                        />
+                    </Modal>
+                </div>
             ),
             searchable: true
         },

@@ -153,7 +153,6 @@ const page = () => {
             dataIndex: 'periode_start',
             key: 'periode_start',
             sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
-
             render: (record) => formatDateToDayMonthYear(record)
         },
         {
