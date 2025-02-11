@@ -35,7 +35,6 @@ const page = () => {
     const [absence, setAbsence] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [selectedFeedback, setSelectedFeedback] = useState(null);
-    const [selectedFeedback, setSelectedFeedback] = useState(null);
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
@@ -49,12 +48,14 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, pagination.filters);
+            console.log(data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
 
             const skp = await getSKPByUser(user.user.nipBaru);
             console.log('SKP', skp);
             const absence = await getAbsence(IdHarian);
             setAbsence(absence.data);
+            
             const rhks = skp?.data.flatMap((item) => item.rhks);
             setSKP(skp.data);
             setRHK(rhks);
@@ -196,7 +197,7 @@ const page = () => {
                         icon={<HistoryOutlined />}
                         color="default"
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: data })
+                            setFeedbackModal({ trigger: true, modalData: record.messageHarian})
                         }}
                     />
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
@@ -211,7 +212,7 @@ const page = () => {
                                         <button className="inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md" onClick={() => setSelectedFeedback(item)}>
                                             <div className="inline-flex gap-x-2 items-center">
                                                 <HistoryOutlined />
-                                                <b>10 Januari 2024</b>
+                                                <b>{dateFormatter(item.createdAt)}</b>
                                             </div>
                                             {renderStatusTag(item.status)}
                                         </button>
@@ -223,7 +224,7 @@ const page = () => {
                                 <div className='flex flex-col gap-y-2'>
                                     {selectedFeedback ? (
                                         <div className='p-3 rounded-md border border-gray-300 text-sm'>
-                                            {selectedFeedback.status}
+                                            {selectedFeedback.isi}
                                         </div>
                                     ) : (
                                         <Card className=" mb-4">
@@ -241,7 +242,7 @@ const page = () => {
                             </div>
                         </div>
                     </Modal>
-                </>
+                </div>
             )
         },
         {

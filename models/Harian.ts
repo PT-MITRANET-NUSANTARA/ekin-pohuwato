@@ -153,6 +153,9 @@ HarianSchema.static('getAll', async function getAll(page: number = 1, limit: num
             .skip(skip)
             .limit(limit)
             .populate({
+                path: 'messageHarian' // Ensure this matches your virtual field name
+            })
+            .populate({
                 path: 'rhk',
                 populate: {
                     path: 'skp'
@@ -178,7 +181,7 @@ HarianSchema.static('getAll', async function getAll(page: number = 1, limit: num
     };
 });
 
-HarianSchema.virtual('MessageHarians', {
+HarianSchema.virtual('messageHarian', {
     ref: 'MessageHarian',
     localField: '_id',
     foreignField: 'harian',

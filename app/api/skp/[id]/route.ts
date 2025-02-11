@@ -33,6 +33,7 @@ const skpSchema = Joi.object({
     hasil: Joi.object().optional().label('Hasil'),
     perilaku: Joi.object().optional().label('Perilaku'),
     updatedAt: Joi.date().optional(),
+    messageSKP: Joi.optional(),
     periodeRKT: Joi.array().items(Joi.optional()).optional().label('PeriodeRKT'),
 
     status: Joi.string().valid('draft', 'submitted', 'approved', 'rejected').label('Status').optional()

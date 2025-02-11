@@ -115,7 +115,7 @@ const page = () => {
                         variant='link'
                         color='primary'
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: data })
+                            setFeedbackModal({ trigger: true, modalData: record.messageSKP})
                         }}
                     />
                     <Modal title="List Feedback" open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} >
@@ -129,12 +129,12 @@ const page = () => {
                                         <div className='inline-flex items-center justify-between w-full '>
                                             <div className='inline-flex gap-x-2 items-center'>
                                                 <HistoryOutlined />
-                                                <b>10 Januari 2024</b>
+                                                <b>{dateFormatter( item.createdAt)}</b>
                                             </div>
                                             {renderStatusTag(item.status)}
                                         </div>
                                         <div className=' rounded-lg w-full text-sm text-left'>
-                                            Ini harusnya berisi pesan yang ada dalam history
+                                            {item.isi}
                                         </div>
                                     </button>
                                 </List.Item>

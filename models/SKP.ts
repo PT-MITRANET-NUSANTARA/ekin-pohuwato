@@ -134,6 +134,13 @@ SKPSchema.virtual('periodePenilaian', {
     justOne: true
 });
 
+SKPSchema.virtual('messageSKP', {
+    ref: 'MessageSKP',
+    localField: '_id',
+    foreignField: 'skp',
+    justOne: false,
+});
+
 // Static methods
 SKPSchema.static('findByUserId', function (userId: string) {
     return this.findOne({ user_id: userId });
@@ -171,7 +178,7 @@ SKPSchema.method('cascadeDelete', async function cascadeDelete() {
 SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters));
-    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp').populate('periodeRKT'), this.countDocuments(buildFilterQuery(filters))]);
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp').populate('periodeRKT').populate('messageSKP'), this.countDocuments(buildFilterQuery(filters))]);
 
     return {
         data: results,
