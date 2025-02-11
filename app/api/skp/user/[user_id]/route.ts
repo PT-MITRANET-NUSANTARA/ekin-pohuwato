@@ -73,7 +73,7 @@ export async function GET(req: NextRequest, { params }: { params: { user_id: str
         let skps;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            skps = await SKP.find({ user_id: user_id }).populate('skp').populate('periodeRKT');
+            skps = await SKP.find({ user_id: user_id }).populate('skp').populate('rhks');
         } else {
             const f = JSON.parse(filters as string);
             f['user_id'] = user_id;

@@ -13,17 +13,17 @@ enum Status {
     REJECTED = 'rejected'
 }
 
-interface ILampiran  {
-    sumber_daya: [],
-    skema: [],
-    konsekuensi: [],
+interface ILampiran {
+    sumber_daya: [];
+    skema: [];
+    konsekuensi: [];
 }
 
 interface ISKP {
     user_id: string;
     periode_awal: Date;
     periode_akhir: Date;
-    posjab: string[]
+    posjab: string[];
     skp?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
     periodeRKT: mongoose.Schema.Types.ObjectId[]; // Reference to Renstra
     rhks?: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId
@@ -61,7 +61,7 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
         posjab: {
             type: [String],
             required: true,
-            default: [],
+            default: []
         },
         periodeRKT: {
             type: [Schema.Types.ObjectId],
@@ -84,7 +84,7 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             default: {
                 sumber_daya: [],
                 skema: [],
-                konsekuensi: [],
+                konsekuensi: []
             }
         },
         pendekatan: {

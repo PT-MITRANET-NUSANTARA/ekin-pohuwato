@@ -1,97 +1,81 @@
-import { apiRequest } from "@/utils/apiRequest";
-
-export const getByUserId = async (id: string) => {
-    try {
-        const response = await apiRequest('/api/harian', {
-            method: 'GET',
-            headers: {
-                'user-id': id,
-            },
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching by user ID:", error);
-        throw error;
-    }
-}
-
-export const getByUserIdAbsence = async (id: string, absence: string) => {
-    try {
-        const response = await apiRequest(`/api/harian?absence=${absence}`, {
-            method: 'GET',
-            headers: {
-                'user-id': id,
-            },
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching by user ID:", error);
-        throw error;
-    }
-}
-
+import { apiRequest } from '@/utils/apiRequest';
+const path: string = 'harian';
+// Fetch a single Visi record by ID
 export const getById = async (id: string) => {
-    try {
-        const response = await apiRequest(`/api/harian?id=${id}`, {
-            method: 'GET',
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching by ID:", error);
-        throw error;
-    }
-}
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'GET'
+    });
+    return response;
+};
 
-export const getAll = async () => {
-    try {
-        const response = await apiRequest('/api/harian', {
-            method: 'GET',
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching all records:", error);
-        throw error;
-    }
-}
+export const getByUnitId = async (unit_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/unit/${unit_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
 
-export const store = async (id: string, data: any) => {
-    try {
-        
-        const response = await apiRequest('/api/harian', {
-            method: 'POST',
-            headers: {
-                'user-id': id,
-            },
-            body: data,
-        });
-        return response;
-    } catch (error) {
-        console.error("Error storing record:", error);
-        throw error;
-    }
-}
+export const getByUserId = async (user_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/user/${user_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+export const getByAbsence = async (absence_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/absence/${absence_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+// Fetch all Visi records
+export const getAll = async (page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+// Create a new Visi record
+export const store = async (data: any) => {
+    const response = await apiRequest(`/api/${path}`, {
+        method: 'POST',
+        body: data
+    });
+    return response;
+};
+
 
 export const update = async (id: string, data: any) => {
-    try {
-        const response = await apiRequest(`/api/harian?id=${id}`, {
-            method: 'PUT',
-            body: data,
-        });
-        return response;
-    } catch (error) {
-        console.error("Error updating record:", error);
-        throw error;
-    }
-}
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'PUT',
+        body: data
+    });
+    return response;
+};
 
+// Delete a Visi record by ID
 export const destroy = async (id: string) => {
-    try {
-        const response = await apiRequest(`/api/harian?id=${id}`, {
-            method: 'DELETE',
-        });
-        return response;
-    } catch (error) {
-        console.error("Error deleting record:", error);
-        throw error;
-    }
-}
+    const response = await apiRequest(`/api/${path}/${id}`, {
+        method: 'DELETE'
+    });
+    return response;
+};

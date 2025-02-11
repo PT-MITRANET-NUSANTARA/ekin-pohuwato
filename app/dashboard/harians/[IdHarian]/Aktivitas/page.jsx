@@ -4,14 +4,15 @@ import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, T
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getById, getByAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
+import { getById as getAbsence } from '@/controller/AbsenceController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 import { dummyfileList } from '@/data/dummyData';
@@ -20,50 +21,45 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
+    const { IdHarian } = useParams();
     const [loading, setLoading] = useState(true);
-    const { data, setData } = useFetchData(getData);
+    const [data, setData] = useState(null);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const [harian, setHarian] = useState(null);
     const [rhk, setRHK] = useState(null);
-    const [periode, setPeriode] = useState(null);
     const [skp, setSKP] = useState(null);
+    const [absence, setAbsence] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
-
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
+
+    console.log(user);
 
     const fetchData = async () => {
         try {
-            const harian = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            const periode = await getByUnitId(selectedJabatan.unor.induk.id);
-            console.log('HERE', data.user.idASN);
+            const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, pagination.filters);
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
 
-            const skp = await getSKPByUser(data.user.idASN);
+            const skp = await getSKPByUser(user.user.nipBaru);
+            console.log('SKP', skp);
+            const absence = await getAbsence(IdHarian);
+            setAbsence(absence.data);
             const rhks = skp?.data.flatMap((item) => item.rhks);
             setSKP(skp.data);
-            setPeriode(periode.data);
             setRHK(rhks);
-            setHarian(harian.data);
+            setData(data.data.data);
             setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
-    
-    console.log('harian', harian);
-
-    const params = new URLSearchParams(window.location.search);
-    const paramEntries = Object.fromEntries(params.entries());
-
-    console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
@@ -85,8 +81,9 @@ const page = () => {
             });
 
             dt = {
-                absence: paramEntries._id,
-                date: new Date(paramEntries.date),
+                skp: values.skp,
+                absence: IdHarian,
+                date: absence.date,
                 startDateTime: dayjs(values.startDateTime).format('HH:mm:ss').toString(),
                 endDateTime: dayjs(values.endDateTime).format('HH:mm:ss').toString(),
                 rhk: values.rhk,
@@ -94,16 +91,15 @@ const page = () => {
                 deskripsiKegiatan: values.deskripsiKegiatan,
                 tautan: values.tautan,
                 files: updatedListImage,
-
-                user_id: data.user.idASN,
+                user_id: user.user.nipBaru,
                 progress: values.progress
             };
 
             console.log(dt);
-            
+
             switch (type) {
                 case 'create':
-                    response = await store(data.user.idASN, dt);
+                    response = await store(dt);
                     break;
 
                 case 'edit':
@@ -120,8 +116,7 @@ const page = () => {
             console.log(response);
 
             if (response.ok) {
-                const res = await getByUserIdAbsence(data.user.idASN, paramEntries._id);
-                setHarian(res.data);
+                fetchData();
                 setAlert({
                     show: true,
                     message: response.msg,
@@ -157,7 +152,7 @@ const page = () => {
             render: (text, record, index) => index + 1,
             width: '5%'
         },
-        
+
         {
             title: 'Tanggal',
             dataIndex: 'date',
@@ -184,28 +179,28 @@ const page = () => {
             dataIndex: 'msg',
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
-                render: (_, record) => (
+            render: (_, record) => (
                 <>
                     {console.log(record)}
                     {(() => {
-                        switch (record.msg?.status) {
-                            case 'Periksa':
+                        switch (record.status) {
+                            case 'submitted':
                                 return (
                                     <Tag color="blue" className="capitalize w-fit">
-                                        {record.msg.status}
+                                        {record.status}
                                     </Tag>
                                 );
-                            case 'Terima':
+                            case 'approved':
                                 return (
                                     <Tag color="green" className="capitalize w-fit">
-                                        {record.msg.status}
+                                        {record.status}
                                     </Tag>
                                 );
-                            case 'Tolak':
+                            case 'rejected':
                                 return (
                                     <div className="flex flex-col gap-y-2">
                                         <Tag color="yellow" className="capitalize w-fit">
-                                            {record.msg.status}
+                                            {record.status}
                                         </Tag>
                                         <span className="text-red-500">{record.msg.message}</span>
                                     </div>
@@ -232,7 +227,7 @@ const page = () => {
                 <a href={record.tautan} target="_blank" rel="noopener noreferrer">
                     Lihat Tautan
                 </a>
-            ),
+            )
         },
         {
             title: 'Bukti',
@@ -254,12 +249,16 @@ const page = () => {
                                             <small>{item.fileId}</small>
                                         </div>
                                         <div>
-                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                            <Button
+                                                size="small"
+                                                icon={<DownloadOutlined />}
+                                                onClick={() => {
                                                     const a = document.createElement('a');
                                                     a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
                                                     a.download = item.name;
                                                     a.click();
-                                                }} />
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </List.Item>
@@ -376,7 +375,7 @@ const page = () => {
         }
     ];
 
-    console.log(rhk)
+    console.log(rhk);
 
     const rhkFields = [
         {
@@ -394,22 +393,20 @@ const page = () => {
             name: 'desc',
             type: 'longtext'
         }
-        
     ];
 
-
     const formFields = [
-        {
-            label: 'Periode',
-            name: 'periodeRKT',
-            type: 'select',
+        // {
+        //     label: 'Periode',
+        //     name: 'periodeRKT',
+        //     type: 'select',
 
-            options: periode?.map((item) => ({
-                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
-                value: item._id,
-                id: item._id
-            }))
-        },
+        //     options: periode?.map((item) => ({
+        //         label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+        //         value: item._id,
+        //         id: item._id
+        //     }))
+        // },
         {
             label: 'SKP',
             name: 'skp',
@@ -417,11 +414,11 @@ const page = () => {
 
             options: skp?.map((item) => ({
                 label: `${dateFormatter(item.periode_awal)} - ${dateFormatter(item.periode_akhir)}`,
-                value: item._id,
-                id_option_parent: item.periodeRKT,
-                id: item._id
-            })),
-            parentField: 'periodeRKT'
+                value: item._id
+                // id_option_parent: item.periodeRKT,
+                // id: item._id
+            }))
+            // parentField: 'periodeRKT'
         },
         {
             label: 'RHK',
@@ -537,13 +534,13 @@ const page = () => {
                                 Detail Data Harian
                             </Title>
                             <div>
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({  formFields: formFields,modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ formFields: formFields, modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                     Tambah
                                 </Button>
                             </div>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={harian} loading={loading} />
+                            <DataTable columns={Column} data={data} loading={loading} />
                         </div>
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
