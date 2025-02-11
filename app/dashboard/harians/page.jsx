@@ -117,7 +117,9 @@ const page = () => {
                 return (
                     <Space size="small">
                         <Button
-                            onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
+                            // onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
+                            onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas`)}
+
                             // type='primary'
                             size="middle"
                             variant="outlined"

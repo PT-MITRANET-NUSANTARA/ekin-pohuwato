@@ -15,8 +15,9 @@ const harianSchema = Joi.object({
     files: Joi.array().items(Joi.object()).label('Berkas'),
     user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
+    skp: Joi.string().required().label('SKP'),
+    status: Joi.string().valid('submitted', 'approved', 'rejected').label('Status').optional(),
     isSKP: Joi.boolean().optional(),
-    unit: Joi.object().required().label('Unit'),
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
@@ -50,8 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     try {
         const { id } = params;
-
-        const harian = Harian.findById(id);
+        const harian = await Harian.findById(id);
 
         return NextResponse.json(createResponse(200, 'Success', harian, true));
     } catch (error) {

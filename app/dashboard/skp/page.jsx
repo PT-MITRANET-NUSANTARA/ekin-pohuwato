@@ -73,8 +73,6 @@ const page = () => {
         }
     };
 
-    console.log('USER', user);
-
     const onSubmit = async (values, type, id) => {
         setSubmitLoading(true);
         try {

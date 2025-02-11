@@ -146,7 +146,7 @@ const page = () => {
                                 }))
                                 .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
                             setSelectedUnor(record);
-                            setSelectedUnit(jabatan_nama);
+                        setSelectedUnit(jabatan_nama);
                             setModal({
                                 trigger: true,
                                 modalData: record,

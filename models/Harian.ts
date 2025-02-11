@@ -7,9 +7,10 @@ enum MsgStatus {
     TOLAK = 'Tolak'
 }
 
-interface Msg {
-    status: MsgStatus;
-    message: string;
+enum Status {
+    SUBMITTED = 'submitted',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
 }
 
 interface IHarian extends Document {
@@ -24,9 +25,9 @@ interface IHarian extends Document {
     deskripsiKegiatan: string;
     progress: number;
     tautan?: string;
+    status: Status;
     files?: [object];
     createdAt?: Date;
-    unit: Object;
     updatedAt?: Date;
 }
 
@@ -49,10 +50,6 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
             ref: 'SKP',
             required: true
         },
-        unit: {
-            type: Object,
-            required: true
-        },
         date: {
             type: Date,
             default: Date.now,
@@ -66,6 +63,12 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
         startDateTime: {
             type: String,
             required: true
+        },
+        status: {
+            type: String,
+            enum: Object.values(Status),
+            required: false,
+            default: Status.SUBMITTED
         },
         endDateTime: {
             type: String,
@@ -95,7 +98,7 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
         files: {
             type: [Object],
             required: false
-        },
+        }
     },
     { timestamps: true }
 );
