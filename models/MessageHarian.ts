@@ -1,16 +1,16 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
 enum Status {
-    TERIMA = 'terima',
-    TOLAK = 'tolak',
+    SUBMITTED = 'submitted',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
 }
 
 export interface IMessageHarian extends Document {
     harian: mongoose.Schema.Types.ObjectId;
-    messageHarian: mongoose.Schema.Types.ObjectId;
+    messageHarian?: mongoose.Schema.Types.ObjectId;
     status: Status;
     isi: string;
-    jabatan: Object;
 }
 
 const MessageHarianSchema = new Schema<IMessageHarian>(
@@ -23,19 +23,16 @@ const MessageHarianSchema = new Schema<IMessageHarian>(
         messageHarian: {
             type: Schema.Types.ObjectId,
             ref: 'MessageHarian',
-            required: true,
+            required: false,
         },
-        jabatan: {
-            type: Object,
-            required: true,
-        },
+    
         status: {
             required: true,
             enum: Object.values(Status),
             type: String,
         },
         isi: {
-            required: true,
+            required: false,
             type: String,
         },
     },

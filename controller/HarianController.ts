@@ -8,6 +8,13 @@ export const getById = async (id: string) => {
     return response;
 };
 
+export const getByAtasanId = async (id: string) => {
+    const response = await apiRequest(`/api/${path}/skp/atasan/${id}`, {
+        method: 'GET'
+    });
+    return response;
+};
+
 export const getByUnitId = async (unit_id: string, page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}/unit/${unit_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
@@ -62,7 +69,6 @@ export const store = async (data: any) => {
     });
     return response;
 };
-
 
 export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/${path}/${id}`, {
