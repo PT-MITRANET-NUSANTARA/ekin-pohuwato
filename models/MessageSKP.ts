@@ -10,7 +10,6 @@ export interface IMessageSKP extends Document {
     skp: mongoose.Schema.Types.ObjectId;
     status: Status;
     isi: string;
-    atasan: mongoose.Schema.Types.ObjectId;
 }
 
 const MessageSKPSchema = new Schema<IMessageSKP>(
@@ -20,11 +19,7 @@ const MessageSKPSchema = new Schema<IMessageSKP>(
             ref: 'SKP',
             required: true
         },
-        atasan: {
-            type: Schema.Types.ObjectId,
-            ref: 'SKP',
-            required: true
-        },
+       
         status: {
             required: true,
             enum: Object.values(Status),

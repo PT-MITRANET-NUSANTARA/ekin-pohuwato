@@ -27,19 +27,19 @@ const page = () => {
 
     useEffect(() => {
         if (user) {
-            const updatedFilters = {
-                ...pagination.filters,
-                'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
-                status: { $ne: 'draft' }
-            };
-            setPagination({ ...pagination, filters: updatedFilters });
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const data = await getAll(pagination.page, pagination.limit, pagination.filters);
+            const data = await getAll(pagination.page, pagination.limit, {
+                ...pagination.filters,
+                'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
+                status: { $in: ['submitted', 'approved', 'rejected'] }
+            });
+            console.log(data);
+            
             const filteredUsers = data.data.data.filter((user) => {
                 const lastJabatan = data.data.data.jabatan?.at(-1); // Ambil elemen terakhir dengan at(-1)
                 return lastJabatan?.unor?.induk?.id === user.jabatan?.unor?.induk;
