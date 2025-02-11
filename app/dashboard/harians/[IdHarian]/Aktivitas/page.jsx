@@ -1,14 +1,14 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined, HistoryOutlined, SendOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined, HistoryOutlined, SendOutlined, WarningOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getById, getByAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { dateFormatter } from '@/utils';
+import { dateFormatter, renderStatusTag } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
@@ -34,6 +34,7 @@ const page = () => {
     const [skp, setSKP] = useState(null);
     const [absence, setAbsence] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -188,51 +189,14 @@ const page = () => {
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
-                <>
-                    {console.log(record)}
-                    {(() => {
-                        switch (record.status) {
-                            case 'submitted':
-                                return (
-                                    <Tag color="blue" className="capitalize w-fit">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'approved':
-                                return (
-                                    <Tag color="green" className="capitalize w-fit">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'rejected':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="yellow" className="capitalize w-fit">
-                                            {record.status}
-                                        </Tag>
-                                        "{record.keterangan}"
-                                    </div>
-                                );
-                            case 'submitted':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
+                <div className='inline-flex items-center'>
+                    {renderStatusTag(record.status)}
                     <Button
                         variant="link"
                         icon={<HistoryOutlined />}
                         color="default"
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: data });
+                            setFeedbackModal({ trigger: true, modalData: data })
                         }}
                     />
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
@@ -249,23 +213,30 @@ const page = () => {
                                                 <HistoryOutlined />
                                                 <b>10 Januari 2024</b>
                                             </div>
-                                            <Tag color={item.status === 'approved' ? 'blue' : item.status === 'rejected' ? 'red' : item.status === 'submitted' ? 'yellow' : 'gray'} className="capitalize">
-                                                {item.status}
-                                            </Tag>
+                                            {renderStatusTag(item.status)}
                                         </button>
                                     </List.Item>
                                 )}
                             />
                             {/* Chat Bubble & Reply Input */}
-                            <div className="col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
-                                <div className="flex flex-col gap-y-2">
-                                    {selectedFeedback ? <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.status}</div> : <div className="text-gray-400 text-sm">Pilih feedback untuk melihat status</div>}
+                            <div className='col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between'>
+                                <div className='flex flex-col gap-y-2'>
+                                    {selectedFeedback ? (
+                                        <div className='p-3 rounded-md border border-gray-300 text-sm'>
+                                            {selectedFeedback.status}
+                                        </div>
+                                    ) : (
+                                        <Card className=" mb-4">
+                                            <div className="flex gap-x-6">
+                                                <WarningOutlined className="text-yellow-500 text-lg" width={200} />
+                                                <p className="text-xs">Pilih salah satu item histori disamping untuk melakukan feedback</p>
+                                            </div>
+                                        </Card>
+                                    )}
                                 </div>
-                                <div className="w-full grid grid-cols-12 gap-4">
-                                    <TextArea placeholder="Masukkan feedback" className="col-span-9" />
-                                    <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
-                                        Kirim
-                                    </Button>
+                                <div className='w-full grid grid-cols-12 gap-4'>
+                                    <TextArea disabled={!selectedFeedback} placeholder='Masukkan feedback' className='col-span-9 text-sm' />
+                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant='solid' color='primary' className='col-span-3'>Kirim</Button>
                                 </div>
                             </div>
                         </div>

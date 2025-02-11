@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Space, Tag, Typography } from 'antd';
 import { CheckCircleFilled, CheckOutlined, CloseOutlined, HistoryOutlined, XOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, FilterField } from '@/components';
+import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { dummySKPVerification } from '@/data/dummyData';
 import Link from 'next/link';
@@ -10,7 +10,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAll, update } from '@/controller/SKPController';
 import { useRouter } from 'next/navigation';
-import { dateFormatter } from '@/utils';
+import { dateFormatter, renderStatusTag } from '@/utils';
 
 const { Title } = Typography;
 
@@ -109,38 +109,7 @@ const page = () => {
             key: 'status',
             render: (_, record) => (
                 <div className='inline-flex items-center'>
-                    {(() => {
-                        switch (record.status) {
-                            case 'approved':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'rejected':
-                                return (
-                                    <div className='flex flex-col gap-y-2'>
-                                        <Tag color="red" className="capitalize w-fit">
-                                            {record.status}
-                                        </Tag>
-                                        "{record.keterangan}"
-                                    </div>
-
-                                );
-                            case 'submitted':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
+                    {renderStatusTag(record.status)}
                     <Button
                         icon={<HistoryOutlined />}
                         variant='link'
@@ -156,42 +125,17 @@ const page = () => {
                             dataSource={feedBackModal.modalData}
                             renderItem={(item) => (
                                 <List.Item>
-                                    <button className='inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md'>
-                                        <div className='inline-flex gap-x-2 items-center'>
-                                            <HistoryOutlined />
-                                            <b>10 Januari 2024</b>
+                                    <button className='w-full flex flex-col gap-y-2  items-center hover:bg-gray-100 p-3 rounded-md'>
+                                        <div className='inline-flex items-center justify-between w-full '>
+                                            <div className='inline-flex gap-x-2 items-center'>
+                                                <HistoryOutlined />
+                                                <b>10 Januari 2024</b>
+                                            </div>
+                                            {renderStatusTag(item.status)}
                                         </div>
-                                        {(() => {
-                                            switch (item.status) {
-                                                case 'approved':
-                                                    return (
-                                                        <Tag color="blue" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                                case 'rejected':
-                                                    return (
-                                                        <div className="flex flex-col gap-y-2">
-                                                            <Tag color="red" className="capitalize w-fit">
-                                                                {item.status}
-                                                            </Tag>
-                                                            "{record.keterangan}"
-                                                        </div>
-                                                    );
-                                                case 'submitted':
-                                                    return (
-                                                        <Tag color="yellow" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                                case 'draft':
-                                                    return (
-                                                        <Tag color="blue" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                            }
-                                        })()}
+                                        <div className=' rounded-lg w-full text-sm text-left'>
+                                            Ini harusnya berisi pesan yang ada dalam history
+                                        </div>
                                     </button>
                                 </List.Item>
                             )}
@@ -366,31 +310,31 @@ const page = () => {
                     }
                 ]}
             />
-            {/* {loading ? (
+            {loading ? (
                 <DataLoading loadingData={loading} />
-            ) : ( */}
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                        <Title className="mt-2" level={5}>
-                            Data verifikasi SKP
-                        </Title>
-                        <div>
-                            {/* <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-4">
+                            <Title className="mt-2" level={5}>
+                                Data verifikasi SKP
+                            </Title>
+                            <div>
+                                {/* <Button loading={loading} type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields })}>
                                     Tambah
                                 </Button> */}
+                            </div>
                         </div>
+                        <div className="w-full">
+                            {/* <FilterField fields={filterFileds}></FilterField> */}
+                        </div>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={modal.onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
                     </div>
-                    <div className="w-full">
-                        {/* <FilterField fields={filterFileds}></FilterField> */}
-                    </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} setPagination={setPagination} pagination={pagination} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={modal.onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type} />
-                </div>
-            </Card>
-            {/* )} */}
+                </Card>
+            )}
         </div>
     );
 };
