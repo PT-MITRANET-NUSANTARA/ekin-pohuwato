@@ -13,6 +13,7 @@ import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanControlle
 import { getBySKPId, storeBawahan, update } from '@/controller/SKPController';
 import useNotification from '@/app/hook/useNotification';
 import TextArea from 'antd/es/input/TextArea';
+import { renderStatusTag } from '@/utils';
 
 const { Title } = Typography;
 
@@ -93,38 +94,7 @@ const page = () => {
             key: 'status',
             render: (_, record) => (
                 <div className='inline-flex items-center'>
-                    {(() => {
-                        console.log(record)
-                        switch (record.status) {
-                            case 'approved':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'rejected':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="red" className="capitalize w-fit">
-                                            {record.status}
-                                        </Tag>
-                                        "{record.keterangan}"
-                                    </div>
-                                );
-                            case 'submitted':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
+                    {renderStatusTag(record.status)}
                     <Button
                         icon={<HistoryOutlined />}
                         variant='link'
@@ -140,42 +110,17 @@ const page = () => {
                             dataSource={feedBackModal.modalData}
                             renderItem={(item) => (
                                 <List.Item>
-                                    <button className='inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md'>
-                                        <div className='inline-flex gap-x-2 items-center'>
-                                            <HistoryOutlined />
-                                            <b>10 Januari 2024</b>
+                                    <button className='w-full flex flex-col gap-y-2  items-center hover:bg-gray-100 p-3 rounded-md'>
+                                        <div className='inline-flex items-center justify-between w-full '>
+                                            <div className='inline-flex gap-x-2 items-center'>
+                                                <HistoryOutlined />
+                                                <b>10 Januari 2024</b>
+                                            </div>
+                                            {renderStatusTag(item.status)}
                                         </div>
-                                        {(() => {
-                                            switch (item.status) {
-                                                case 'approved':
-                                                    return (
-                                                        <Tag color="blue" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                                case 'rejected':
-                                                    return (
-                                                        <div className="flex flex-col gap-y-2">
-                                                            <Tag color="red" className="capitalize w-fit">
-                                                                {item.status}
-                                                            </Tag>
-                                                            "{record.keterangan}"
-                                                        </div>
-                                                    );
-                                                case 'submitted':
-                                                    return (
-                                                        <Tag color="yellow" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                                case 'draft':
-                                                    return (
-                                                        <Tag color="blue" className="capitalize">
-                                                            {item.status}
-                                                        </Tag>
-                                                    );
-                                            }
-                                        })()}
+                                        <div className=' rounded-lg w-full text-sm text-left'>
+                                            Ini harusnya berisi pesan yang ada dalam history
+                                        </div>
                                     </button>
                                 </List.Item>
                             )}
