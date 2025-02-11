@@ -1,29 +1,35 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
 export interface ISettings extends Document {
-    key: string;
-    value: string;
-    description?: string;
+    istirahat_start: string;
+    istirahat_end: string;
+    total_time: number;
+    total_feedback: number;
 }
 
 const SettingsSchema = new Schema<ISettings>(
     {
-        key: {
-            type: String,
-            required: true,
-            unique: true 
-        },
-        value: {
+        istirahat_start: {
             type: String,
             required: true
         },
-        description: {
-            type: String
+        istirahat_end: {
+            type: String,
+            required: true
+        },
+        total_time: {
+            type: Number,
+            required: true
+        },
+        total_feedback: {
+            type: Number,
+            required: true
         }
     },
     { timestamps: true }
 );
 
+// Create and export the model
 const Settings: Model<ISettings> = mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema);
 
 export default Settings;

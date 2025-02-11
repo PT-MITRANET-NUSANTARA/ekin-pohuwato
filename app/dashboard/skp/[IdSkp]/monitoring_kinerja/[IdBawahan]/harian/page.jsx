@@ -10,7 +10,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyBawahan, dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
-import {getByUserId} from '@/controller/AbsenceController'
+import { getByUserId } from '@/controller/AbsenceController';
+import { getData } from '@/controller/AuthorizationController';
 
 const { Title } = Typography;
 
@@ -18,13 +19,16 @@ const page = () => {
     const router = useRouter();
     const { IdSkp, IdBawahan } = useParams();
     const { IdOrganisasi, IdTanggal } = useParams();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
-        fetchData();
-    })
+        if (user) {
+            fetchData();
+        }
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
@@ -34,7 +38,6 @@ const page = () => {
             console.log(error);
         }
     };
-
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -98,7 +101,7 @@ const page = () => {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
-            render: (record) => record ? dateFormatter(record) : 'undifined' 
+            render: (record) => (record ? dateFormatter(record) : 'undifined')
         },
         {
             title: 'Status Kehadiran',
