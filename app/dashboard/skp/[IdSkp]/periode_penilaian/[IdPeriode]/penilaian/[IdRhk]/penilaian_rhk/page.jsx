@@ -968,7 +968,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Dukungan Sumber Daya</b>
-                                            <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                            <List className="px-4" dataSource={data?.lampiran.sumber_daya} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                         {/* looping through here */}
                                     </td>
@@ -985,7 +985,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                            <List className="px-4" dataSource={data?.lampiran.konsekuensi} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                     </td>
                                 </tr>

@@ -26,9 +26,8 @@ const MessageSKPSchema = new Schema<IMessageSKP>(
             type: String
         },
         isi: {
-            required: true,
+            required: false,
             type: String,
-            default: ''
         }
     },
     { timestamps: true }

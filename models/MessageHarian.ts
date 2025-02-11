@@ -18,29 +18,28 @@ const MessageHarianSchema = new Schema<IMessageHarian>(
         harian: {
             type: Schema.Types.ObjectId,
             ref: 'Harian',
-            required: true,
+            required: true
         },
         messageHarian: {
             type: Schema.Types.ObjectId,
             ref: 'MessageHarian',
-            required: false,
+            required: false
         },
-    
+
         status: {
             required: true,
             enum: Object.values(Status),
-            type: String,
+            type: String
         },
         isi: {
             required: false,
-            type: String,
-        },
+            type: String
+        }
     },
     { timestamps: true }
 );
 
 // Fix the model name here to 'MessageHarian' instead of 'MessageSKP'
-const MessageHarian: Model<IMessageHarian> =
-    mongoose.models.MessageHarian || mongoose.model<IMessageHarian>('MessageHarian', MessageHarianSchema);
+const MessageHarian: Model<IMessageHarian> = mongoose.models.MessageHarian || mongoose.model<IMessageHarian>('MessageHarian', MessageHarianSchema);
 
 export default MessageHarian;

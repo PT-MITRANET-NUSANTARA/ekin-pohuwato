@@ -68,7 +68,7 @@ export async function GET(req: NextRequest, { params }: { params: { atasan_id: s
         };
 
        
-        const harians = await Harian.find({ skp: { $in: skp } }).populate(populateOptions).populate('skp').populate('absence').populate('MessageHarians');
+        const harians = await Harian.find({ skp: { $in: skp } }).populate(populateOptions).populate('skp').populate('absence').populate('messageHarian');
       
 
         return NextResponse.json(createResponse(200, 'Success', harians, true));

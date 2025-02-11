@@ -68,7 +68,7 @@ export async function GET(req: NextRequest, { params }: { params: { absence_id: 
         let harian;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            harian = await Harian.find({ absence_id: absence_id }).populate(populateOptions);
+            harian = await Harian.find({ absence_id: absence_id }).populate(populateOptions).populate('messageHarian');
         } else {
             const f = JSON.parse(filters as string);
             f['absence'] = absence_id;
