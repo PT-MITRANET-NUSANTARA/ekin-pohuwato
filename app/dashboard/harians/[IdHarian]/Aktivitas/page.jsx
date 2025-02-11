@@ -55,7 +55,7 @@ const page = () => {
             console.log('SKP', skp);
             const absence = await getAbsence(IdHarian);
             setAbsence(absence.data);
-            
+
             const rhks = skp?.data.flatMap((item) => item.rhks);
             setSKP(skp.data);
             setRHK(rhks);
@@ -190,14 +190,14 @@ const page = () => {
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
-                <div className='inline-flex items-center'>
+                <div className="inline-flex items-center">
                     {renderStatusTag(record.status)}
                     <Button
                         variant="link"
                         icon={<HistoryOutlined />}
                         color="default"
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: record.messageHarian})
+                            setFeedbackModal({ trigger: true, modalData: record.messageHarian });
                         }}
                     />
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
@@ -220,12 +220,10 @@ const page = () => {
                                 )}
                             />
                             {/* Chat Bubble & Reply Input */}
-                            <div className='col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between'>
-                                <div className='flex flex-col gap-y-2'>
+                            <div className="col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
+                                <div className="flex flex-col gap-y-2">
                                     {selectedFeedback ? (
-                                        <div className='p-3 rounded-md border border-gray-300 text-sm'>
-                                            {selectedFeedback.isi}
-                                        </div>
+                                        <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.isi}</div>
                                     ) : (
                                         <Card className=" mb-4">
                                             <div className="flex gap-x-6">
@@ -235,9 +233,11 @@ const page = () => {
                                         </Card>
                                     )}
                                 </div>
-                                <div className='w-full grid grid-cols-12 gap-4'>
-                                    <TextArea disabled={!selectedFeedback} placeholder='Masukkan feedback' className='col-span-9 text-sm' />
-                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant='solid' color='primary' className='col-span-3'>Kirim</Button>
+                                <div className="w-full grid grid-cols-12 gap-4">
+                                    <TextArea disabled={!selectedFeedback} placeholder="Masukkan feedback" className="col-span-9 text-sm" />
+                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
+                                        Kirim
+                                    </Button>
                                 </div>
                             </div>
                         </div>

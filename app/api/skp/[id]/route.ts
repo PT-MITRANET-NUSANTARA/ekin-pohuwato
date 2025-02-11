@@ -111,22 +111,26 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
+        const currentSKP = await SKP.findById(id);
         const updatedSKP = await SKP.findOneAndUpdate({ _id: id }, body, { new: true });
-        const message = new MessageSKP({
-            skp: id,
-            status: body.status,
-            user_id: body.user_id,
-            isi: body.status === 'rejected' ? body.msg : ' '
-        });
-        await message.save();
 
-        const notification = new Notification({
-            user_id: body.user_id,
-            message: `SKP ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
-            type: body.status === 'rejected' ? 'error' : 'success'
-        });
+        if (currentSKP?.status !== updatedSKP?.status) {
+            const message = new MessageSKP({
+                skp: id,
+                status: body.status,
+                user_id: body.user_id,
+                isi: body.status === 'rejected' ? body.msg : ' '
+            });
+            await message.save();
 
-        await notification.save();
+            const notification = new Notification({
+                user_id: body.user_id,
+                message: `SKP ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
+                type: body.status === 'rejected' ? 'error' : 'success'
+            });
+            await notification.save();
+        }
+
         if (!updatedSKP) {
             return NextResponse.json(createResponse(404, 'SKP not found', null));
         }

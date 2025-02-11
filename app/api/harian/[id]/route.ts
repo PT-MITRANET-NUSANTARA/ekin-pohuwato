@@ -68,23 +68,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
-
+        const currentHarian = await Harian.findById(id);
         const updatedHarian = await Harian.findOneAndUpdate({ _id: id }, body, { new: true });
         const absence = await Absence.findById(body.absence);
-        const msg = new MessageHarian({
-            harian: id,
-            status: body.status,
-            isi: body.status === 'rejected' ? body.msg : ' '
-        });
+        if (currentHarian?.status !== updatedHarian?.status) {
+            const msg = new MessageHarian({
+                harian: id,
+                status: body.status,
+                isi: body.status === 'rejected' ? body.msg : ' '
+            });
 
-        await msg.save();
-        const notification = new Notification({
-            user_id: absence?.jabatan?.nip_asn,
-            message: `Harian ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
-            type: body.status === 'rejected' ? 'error' : 'success'
-        });
+            await msg.save();
+            const notification = new Notification({
+                user_id: absence?.jabatan?.nip_asn,
+                message: `Harian ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
+                type: body.status === 'rejected' ? 'error' : 'success'
+            });
 
-        await notification.save();
+            await notification.save();
+        }
 
         if (!updatedHarian) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));
