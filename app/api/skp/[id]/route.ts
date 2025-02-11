@@ -7,6 +7,8 @@ import Perilaku from '@/models/Perilaku';
 import RKT from '@/models/RKT';
 import SKP from '@/models/SKP';
 import RHK from '@/models/RHK';
+import MessageSKP from '@/models/MessageSKP';
+import Notification from '@/models/Notification';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -23,7 +25,7 @@ const skpSchema = Joi.object({
     id: Joi.optional(),
     renstra: Joi.optional(),
     posjab: Joi.array().items(Joi.optional()).label('Posjab'),
-
+    msg: Joi.string().optional().label('Message'),
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
@@ -109,7 +111,21 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
         const updatedSKP = await SKP.findOneAndUpdate({ _id: id }, body, { new: true });
+        const message = new MessageSKP({
+            skp: id,
+            status: body.status,
+            user_id: body.user_id,
+            isi: body.status === 'rejected' ? body.msg : ' '
+        });
+        await message.save();
 
+        const notification = new Notification({
+            user_id: body.user_id,
+            message: `SKP ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
+            type: body.status === 'rejected' ? 'error' : 'success'
+        });
+
+        await notification.save();
         if (!updatedSKP) {
             return NextResponse.json(createResponse(404, 'SKP not found', null));
         }

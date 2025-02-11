@@ -8,6 +8,7 @@ import RKT from '@/models/RKT';
 import getFilterQuery from '@/utils/getFilterQuery';
 import Aspek from '@/models/Aspek';
 import SKP from '@/models/SKP';
+import MessageSKP from '@/models/MessageSKP';
 
 const skpSchema = Joi.object({
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
@@ -125,6 +126,11 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
 
         const updatedBody = { ...body, skp: [skp._id], periodeRKT: [skp.periodeRKT], periode_awal: skp.periode_awal, periode_akhir: skp.periode_akhir };
         const newSKP = new SKP(updatedBody);
+        const message = new MessageSKP({
+            skp: newSKP._id,
+            status: 'submitted',
+            user_id: body.user_id
+        });
         await newSKP.save();
         if (newSKP) {
             for (const item of perilaku) {

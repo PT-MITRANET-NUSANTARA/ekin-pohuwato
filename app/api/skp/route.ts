@@ -9,6 +9,7 @@ import Perilaku from '@/models/Perilaku';
 import RKT from '@/models/RKT';
 import getFilterQuery from '@/utils/getFilterQuery';
 import Aspek from '@/models/Aspek';
+import MessageSKP from '@/models/MessageSKP';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -99,6 +100,12 @@ export async function POST(req: NextRequest) {
         const newSKP = new SKP(body);
 
         await newSKP.save();
+        const message = new MessageSKP({
+            skp: newSKP._id,
+            status: 'submitted',
+            user_id: body.user_id
+        });
+        await message.save()
         if (newSKP) {
             for (const item of perilaku) {
                 const perilakuData = new Perilaku({
