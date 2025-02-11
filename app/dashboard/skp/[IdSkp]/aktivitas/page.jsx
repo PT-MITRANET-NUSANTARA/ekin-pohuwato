@@ -118,6 +118,7 @@ const page = () => {
                             setFeedbackModal({ trigger: true, modalData: data });
                         }}
                     />
+                    {console.log(record)}
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
                         <div className="w-full grid grid-cols-12 items-start gap-4">
                             <List

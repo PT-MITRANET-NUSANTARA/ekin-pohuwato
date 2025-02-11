@@ -187,7 +187,7 @@ const page = () => {
                     <Button
                         variant="link"
                         icon={<HistoryOutlined />}
-                        color="default"
+                        color="primary"
                         onClick={() => {
                             setFeedbackModal({ trigger: true, modalData: record.messageHarian });
                         }}
@@ -211,7 +211,7 @@ const page = () => {
                                 )}
                             />
                             {/* Chat Bubble & Reply Input */}
-                            <div className="col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
+                            <div className="col-span-6 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
                                 <div className="flex flex-col gap-y-2">
                                     {selectedFeedback ? (
                                         <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.isi}</div>
