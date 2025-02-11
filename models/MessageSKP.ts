@@ -1,8 +1,9 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
 enum Status {
-    TERIMA = 'terima',
-    TOLAK = 'tolak'
+    SUBMITTED = 'submitted',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
 }
 
 export interface IMessageSKP extends Document {
@@ -10,7 +11,6 @@ export interface IMessageSKP extends Document {
     status: Status;
     isi: string;
     atasan: mongoose.Schema.Types.ObjectId;
-    jabatan: Object;
 }
 
 const MessageSKPSchema = new Schema<IMessageSKP>(
@@ -25,18 +25,15 @@ const MessageSKPSchema = new Schema<IMessageSKP>(
             ref: 'SKP',
             required: true
         },
-        jabatan: {
-            type: Object,
-            required: true,
-        },
         status: {
             required: true,
             enum: Object.values(Status),
-            type: String,
+            type: String
         },
         isi: {
             required: true,
             type: String,
+            default: ''
         }
     },
     { timestamps: true }

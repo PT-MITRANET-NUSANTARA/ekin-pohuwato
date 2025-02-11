@@ -26,7 +26,7 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -188,62 +188,89 @@ const page = () => {
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
-                <div className='inline-flex items-center'>
-                    {renderStatusTag(record.status)}
+                <>
+                    {console.log(record)}
+                    {(() => {
+                        switch (record.status) {
+                            case 'submitted':
+                                return (
+                                    <Tag color="blue" className="capitalize w-fit">
+                                        {record.status}
+                                    </Tag>
+                                );
+                            case 'approved':
+                                return (
+                                    <Tag color="green" className="capitalize w-fit">
+                                        {record.status}
+                                    </Tag>
+                                );
+                            case 'rejected':
+                                return (
+                                    <div className="flex flex-col gap-y-2">
+                                        <Tag color="yellow" className="capitalize w-fit">
+                                            {record.status}
+                                        </Tag>
+                                        "{record.keterangan}"
+                                    </div>
+                                );
+                            case 'submitted':
+                                return (
+                                    <Tag color="yellow" className="capitalize">
+                                        {record.status}
+                                    </Tag>
+                                );
+                            case 'draft':
+                                return (
+                                    <Tag color="blue" className="capitalize">
+                                        {record.status}
+                                    </Tag>
+                                );
+                        }
+                    })()}
                     <Button
-                        variant='link'
+                        variant="link"
                         icon={<HistoryOutlined />}
-                        color='default'
+                        color="default"
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: data })
+                            setFeedbackModal({ trigger: true, modalData: data });
                         }}
                     />
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
-                        <div className='w-full grid grid-cols-12 items-start gap-4'>
+                        <div className="w-full grid grid-cols-12 items-start gap-4">
                             {/* List Feedback */}
                             <List
-                                className='w-full col-span-4 mt-6'
-                                itemLayout='horizontal'
+                                className="w-full col-span-4 mt-6"
+                                itemLayout="horizontal"
                                 dataSource={feedBackModal.modalData}
                                 renderItem={(item) => (
                                     <List.Item>
-                                        <button
-                                            className='inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md'
-                                            onClick={() => setSelectedFeedback(item)}
-                                        >
-                                            <div className='inline-flex gap-x-2 items-center'>
+                                        <button className="inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md" onClick={() => setSelectedFeedback(item)}>
+                                            <div className="inline-flex gap-x-2 items-center">
                                                 <HistoryOutlined />
                                                 <b>10 Januari 2024</b>
                                             </div>
-                                            {renderStatusTag(item.status)}
+                                            <Tag color={item.status === 'approved' ? 'blue' : item.status === 'rejected' ? 'red' : item.status === 'submitted' ? 'yellow' : 'gray'} className="capitalize">
+                                                {item.status}
+                                            </Tag>
                                         </button>
                                     </List.Item>
                                 )}
                             />
                             {/* Chat Bubble & Reply Input */}
-                            <div className='col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between'>
-                                <div className='flex flex-col gap-y-2'>
-                                    {selectedFeedback ? (
-                                        <div className='p-3 rounded-md border border-gray-300 text-sm'>
-                                            {selectedFeedback.status}
-                                        </div>
-                                    ) : (
-                                        <Card className=" mb-4">
-                                            <div className="flex gap-x-6">
-                                                <WarningOutlined className="text-yellow-500 text-lg" width={200} />
-                                                <p className="text-xs">Pilih salah satu item histori disamping untuk melakukan feedback</p>
-                                            </div>
-                                        </Card>
-                                    )}
+                            <div className="col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
+                                <div className="flex flex-col gap-y-2">
+                                    {selectedFeedback ? <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.status}</div> : <div className="text-gray-400 text-sm">Pilih feedback untuk melihat status</div>}
                                 </div>
-                                <div className='w-full grid grid-cols-12 gap-4'>
-                                    <TextArea disabled={!selectedFeedback} placeholder='Masukkan feedback' className='col-span-9 text-sm' />
-                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant='solid' color='primary' className='col-span-3'>Kirim</Button>
+                                <div className="w-full grid grid-cols-12 gap-4">
+                                    <TextArea placeholder="Masukkan feedback" className="col-span-9" />
+                                    <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
+                                        Kirim
+                                    </Button>
                                 </div>
                             </div>
                         </div>
                     </Modal>
-                </div>
+                </>
             )
         },
         {

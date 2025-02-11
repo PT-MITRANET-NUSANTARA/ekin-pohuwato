@@ -2,12 +2,28 @@
 
 import { CrudModal, DataTable, InfoModal } from '@/components';
 import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Typography } from 'antd';
-import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, CloseOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, ExclamationCircleFilled, ExclamationOutlined, EyeOutlined, FileAddOutlined, OrderedListOutlined, SearchOutlined, XOutlined } from '@ant-design/icons';
+import {
+    CheckCircleFilled,
+    CheckCircleOutlined,
+    CloseCircleFilled,
+    CloseCircleOutlined,
+    CloseOutlined,
+    DeleteOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    ExclamationCircleFilled,
+    ExclamationOutlined,
+    EyeOutlined,
+    FileAddOutlined,
+    OrderedListOutlined,
+    SearchOutlined,
+    XOutlined
+} from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummyAktivitas, dummyfileList } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
-import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAtasanId } from '@/controller/HarianController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
@@ -23,7 +39,7 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
-    const { data, setData } = useFetchData(getData);
+    const { data, setData } = useState(null);
     const [periksa, setPeriksa] = useState(null);
     const [tolak, setTolak] = useState(null);
     const [terima, setTerima] = useState(null);
@@ -34,45 +50,22 @@ const page = () => {
     const [form] = Form.useForm();
     const [messageValue, setMessageValue] = useState('');
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
+            const data = await getByAtasanId(IdSkp);
+            console.log(data);
 
-            const unit = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
-
-            // Filter data bawahan
-            const bawahan = unit.mapData.data.filter((item) => (item.unor.id === selectedJabatan.unor.id && item.nama_jabatan !== selectedJabatan.nama_jabatan) || item.unor.atasan?.unor_id === selectedJabatan.unor.id);
-
-            const allHarian = [];
-
-            for (let item of bawahan) {
-                const response = await getByUserId(item.id_asn);
-
-                if (Array.isArray(response.data)) {
-                    allHarian.push(...response.data);
-                } else {
-                    allHarian.push(response.data);
-                }
-            }
-
-            const harianBawahan = allHarian.filter((item) => {
-                const skpArray = item.rhk?.skp?.skp; // Pastikan skp adalah array
-                const lastSkp = skpArray?.[skpArray.length - 1]; // Ambil elemen terakhir
-                return lastSkp?._id === IdSkp; // Bandingkan dengan IdSkp
-            });
-
-            setBawahan(bawahan);
-            setTerima(harianBawahan.filter((item) => item.msg?.status === 'Terima'));
-            setPeriksa(harianBawahan.filter((item) => item.msg?.status === 'Periksa'));
-            setTolak(harianBawahan.filter((item) => item.msg?.status === 'Tolak'));
+            setTerima(data.data.filter((item) => item.status === 'approved'));
+            setPeriksa(data.data.filter((item) => item.status === 'submitted'));
+            setTolak(data.data.filter((item) => item.status === 'rejected'));
 
             setLoading(false);
         } catch (error) {
@@ -103,18 +96,18 @@ const page = () => {
                 )
             },
             {
-                title: 'IdASN',
+                title: 'NIP',
                 dataIndex: 'IdASN',
                 key: 'IdASN',
                 sorter: (a, b) => a.IdASN.length - b.IdASN.length,
-                render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.userId
+                render: (_, record) => record.absence.jabatan.nip_asn
             },
             {
                 title: 'Nama',
                 dataIndex: 'name',
                 key: 'name',
                 sorter: (a, b) => a.name.length - b.name.length,
-                render: (_, record) => bawahan?.find((item) => item.userId === record.user_id)?.nama_asn
+                render: (_, record) => record.absence.jabatan.nama_asn
             },
             {
                 title: 'Tanggal',
@@ -128,7 +121,7 @@ const page = () => {
                 title: 'Status',
                 dataIndex: 'msg',
                 key: 'msg',
-                render: (_, record) => <Tag color={record.msg.status === 'Periksa' ? 'blue' : record.msg.status === 'Terima' ? 'green' : 'yellow'}>{record.msg.status}</Tag>
+                render: (_, record) => <Tag color={record.status === 'submitted' ? 'blue' : record.status === 'approved' ? 'green' : 'yellow'}>{record.status}</Tag>
             },
             {
                 title: 'Bukti',
@@ -138,29 +131,33 @@ const page = () => {
                     <>
                         <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
                         <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                        <List
-                            className="my-6"
-                            itemLayout="horizontal"
-                            dataSource={fileModal.modalData}
-                            renderItem={(item) => (
-                                <List.Item>
-                                    <div className="w-full flex justify-between items-center">
-                                        <div>
-                                            <p>{item.name}</p>
-                                            <small>{item.fileId}</small>
+                            <List
+                                className="my-6"
+                                itemLayout="horizontal"
+                                dataSource={fileModal.modalData}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        <div className="w-full flex justify-between items-center">
+                                            <div>
+                                                <p>{item.name}</p>
+                                                <small>{item.fileId}</small>
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    size="small"
+                                                    icon={<DownloadOutlined />}
+                                                    onClick={() => {
+                                                        const a = document.createElement('a');
+                                                        a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+                                                        a.download = item.name;
+                                                        a.click();
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div>
-                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
-                                                    const a = document.createElement('a');
-                                                    a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                    a.download = item.name;
-                                                    a.click();
-                                                }} />
-                                        </div>
-                                    </div>
-                                </List.Item>
-                            )}
-                        />
+                                    </List.Item>
+                                )}
+                            />
                         </Modal>
                     </>
                 ),
@@ -171,7 +168,7 @@ const page = () => {
                 key: 'action',
                 render: (_, record) => (
                     <Space size="small">
-                        {record.msg.status !== 'Terima' && (
+                        {record.status !== 'approved' && (
                             <Button
                                 onClick={() => {
                                     confirm({
@@ -181,18 +178,21 @@ const page = () => {
                                         async onOk() {
                                             const dt = {
                                                 ...record,
-                                                msg: {
-                                                    status: 'Terima',
-                                                    message: ''
-                                                },
                                                 rhk: record.rhk._id,
-                                                user_id: String(record.user_id)
+                                                skp: record.skp._id,
+                                                absence: record.absence._id,
+                                                status: 'approved'
                                             };
+                                            console.log(record.rhk._id);
+
                                             const res = await update(record._id, dt);
+                                            console.log(res);
+
                                             if (res.ok) {
                                                 fetchData();
                                             }
                                         },
+
                                         onCancel() {
                                             console.log('Cancel');
                                         }
@@ -202,7 +202,7 @@ const page = () => {
                                 icon={<CheckCircleOutlined />}
                             />
                         )}
-                        {record.msg.status !== 'Tolak' && (
+                        {record.status !== 'rejected' && (
                             <Button
                                 onClick={() => {
                                     confirm({
@@ -233,14 +233,15 @@ const page = () => {
                                             const values = await form.validateFields();
                                             const dt = {
                                                 ...record,
-                                                msg: {
-                                                    status: 'Tolak',
-                                                    message: values.masukan // Use form's field value
-                                                },
                                                 rhk: record.rhk._id,
-                                                user_id: String(record.user_id)
+                                                skp: record.skp._id,
+                                                absence: record.absence._id,
+                                                status: 'rejected',
+                                                msg: values.masukan
                                             };
                                             const res = await update(record._id, dt);
+                                            console.log(res);
+
                                             if (res.ok) {
                                                 fetchData();
                                                 setAlert({
@@ -311,14 +312,14 @@ const page = () => {
             }
         ];
 
-        if (status === 'Tolak') {
-            columns.push({
-                title: 'Feedback',
-                dataIndex: 'message',
-                key: 'message',
-                render: (_, record) => <span>{record.msg.message}</span>
-            });
-        }
+        // if (status === 'Tolak') {
+        //     columns.push({
+        //         title: 'Feedback',
+        //         dataIndex: 'message',
+        //         key: 'message',
+        //         render: (_, record) => <span>{record.msg.message}</span>
+        //     });
+        // }
 
         return columns;
     };

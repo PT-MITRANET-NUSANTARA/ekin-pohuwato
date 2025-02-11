@@ -74,8 +74,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
             } else if (rhkAspek.jenis === 'waktu') {
                 realisasi = await waktuRecursive(rhkAspek, rhkPeriode, rhk, 0);
-
-
             }
         } else {
             // Jika bukan 'utama', hitung realisasi berdasarkan harian

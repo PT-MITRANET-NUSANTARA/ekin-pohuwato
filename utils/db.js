@@ -59,5 +59,6 @@ require('../models/FeedbackRHK');
 require('../models/MessageHarian');
 require('../models/MessageSKP');
 require('../models/Settings');
+require('../models/Notification');
 
 export default dbConnect;

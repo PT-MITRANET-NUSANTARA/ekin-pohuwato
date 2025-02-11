@@ -14,7 +14,7 @@ enum Status {
 }
 
 interface IHarian extends Document {
-    absence: string;
+    absence: mongoose.Schema.Types.ObjectId;
     skp: mongoose.Schema.Types.ObjectId;
     date: Date;
     startDateTime: string;
@@ -43,7 +43,8 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
     {
         absence: {
             type: String,
-            required: true
+            required: true,
+            ref: 'Absence'
         },
         skp: {
             type: Schema.Types.ObjectId,
@@ -175,6 +176,13 @@ HarianSchema.static('getAll', async function getAll(page: number = 1, limit: num
             pageSize: limit
         }
     };
+});
+
+HarianSchema.virtual('MessageHarians', {
+    ref: 'MessageHarian',
+    localField: '_id',
+    foreignField: 'harian',
+    justOne: false
 });
 
 const Harian: HarianModel = (mongoose.models.Harian as HarianModel) || mongoose.model<IHarian>('Harian', HarianSchema);

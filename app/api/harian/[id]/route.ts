@@ -3,6 +3,9 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Harian from '@/models/Harian';
+import MessageHarian from '@/models/MessageHarian';
+import Absence from '@/models/Absence';
+import Notification from '@/models/Notification';
 
 const harianSchema = Joi.object({
     date: Joi.date().required().label('Tanggal'),
@@ -13,7 +16,6 @@ const harianSchema = Joi.object({
     deskripsiKegiatan: Joi.string().required().label('Deskripsi Kegiatan'),
     tautan: Joi.string().uri().label('Tautan'),
     files: Joi.array().items(Joi.object()).label('Berkas'),
-    user_id: Joi.string().required().label('User ID'), // Menambahkan user_id ke skema
     createdAt: Joi.date().optional(),
     skp: Joi.string().required().label('SKP'),
     status: Joi.string().valid('submitted', 'approved', 'rejected').label('Status').optional(),
@@ -21,12 +23,7 @@ const harianSchema = Joi.object({
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
-    msg: Joi.object({
-        status: Joi.string().optional().label('status msg'),
-        message: Joi.string().optional().allow('').label('message msg')
-    })
-        .optional()
-        .label('msg'),
+    msg: Joi.string().optional().label('msg'),
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional()
@@ -73,6 +70,21 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         const updatedHarian = await Harian.findOneAndUpdate({ _id: id }, body, { new: true });
+        const absence = await Absence.findById(body.absence);
+        const msg = new MessageHarian({
+            harian: id,
+            status: body.status,
+            isi: body.status === 'rejected' ? body.msg : ' '
+        });
+
+        await msg.save();
+        const notification = new Notification({
+            user_id: absence?.jabatan?.nip_asn,
+            message: `Harian ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
+            type: body.status === 'rejected' ? 'error' : 'success'
+        });
+
+        await notification.save();
 
         if (!updatedHarian) {
             return NextResponse.json(createResponse(404, 'Harian not found', null));
