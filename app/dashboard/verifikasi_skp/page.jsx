@@ -250,7 +250,7 @@ const page = () => {
                                         type: 'create',
                                         formFields: feedbackFields,
                                         onSubmit: async (value) => {
-                                            const data = { ...record, status: 'rejected', keterangan: value.feedback };
+                                            const data = { ...record, status: 'rejected', msg: value.feedback };
                                             console.log(data);
 
                                             const res = await update(data._id, data);
