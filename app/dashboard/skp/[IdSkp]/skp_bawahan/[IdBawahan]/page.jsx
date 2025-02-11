@@ -34,7 +34,6 @@ const page = () => {
         try {
             const skp = await getById(IdBawahan);
             const skpAtasan = await getById(IdSkp);
-            console.log('atasan', skpAtasan);
 
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
@@ -354,10 +353,8 @@ const page = () => {
                                                             formFields: ekspektasiPimpinanFields,
                                                             onSubmit: async (values) => {
                                                                 const dt = { ...item, espektasi: values.ekspektasi };
-                                                                console.log(dt);
 
                                                                 const res = await update(item._id, dt);
-                                                                console.log(res);
 
                                                                 if (res.ok) {
                                                                     fetchData();

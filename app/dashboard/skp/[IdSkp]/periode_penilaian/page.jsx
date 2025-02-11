@@ -35,7 +35,6 @@ const page = () => {
         }
     }, [user]);
 
-    console.log(user);
 
     const fetchData = async () => {
         try {
@@ -45,7 +44,6 @@ const page = () => {
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
             const skp = await getSKP(IdSkp);
-            console.log(skp);
             
             const periode = await getAll('undefined', 'undefined', { skp: skp.data.skp[skp.data.skp.length - 1]._id });
 
@@ -80,7 +78,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 const newData = await getAll(IdSkp);
@@ -109,7 +106,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -119,7 +115,6 @@ const page = () => {
             let response;
             const selected = periode?.find((item) => item._id === values.periode);
             let dt = { skp: IdSkp, periodePenilaian: values.periode, periodeStart: selected.periodeStart, periodeEnd: selected.periodeEnd, name: selected.name };
-            console.log(dt);
 
             switch (type) {
                 case 'create':
@@ -137,7 +132,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 const newData = await getAll(IdSkp);
@@ -166,7 +160,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -275,7 +268,6 @@ const page = () => {
         }
     ];
 
-    console.log('isJt', isJT);
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}

@@ -40,7 +40,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getById(Id);
-            console.log(data);
             setData(data.data);
             const unit = await getAll(user.token);
             const jabatan = await getAllPosjabByUnit(user.token, data.data.unit.id_sapk);
@@ -51,7 +50,6 @@ const page = () => {
                 }))
                 .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
             setJabatan(jabatan_nama);
-            console.log(jabatan_nama);
 
             setUnit(unit.mapData);
         } catch (error) {
@@ -61,7 +59,6 @@ const page = () => {
         }
     };
 
-    console.log(data);
 
     const onSubmit = async (values, type, id, _, _i, dt) => {
         try {
@@ -99,7 +96,6 @@ const page = () => {
                     });
                     
 
-                    console.log(result);
                     
 
                     const tmp = {
@@ -111,7 +107,6 @@ const page = () => {
                                     : j // Biarkan data lama jika tidak cocok
                         )
                     };
-                    console.log(tmp);
 
                     response = await update(data._id, tmp);
 
@@ -124,7 +119,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -152,7 +146,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 

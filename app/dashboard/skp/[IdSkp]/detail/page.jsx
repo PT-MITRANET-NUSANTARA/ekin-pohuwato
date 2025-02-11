@@ -40,7 +40,6 @@ const page = () => {
         router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
 
-    console.log(skp);
 
     const cetakSkpFields = [
         {
@@ -100,9 +99,7 @@ const page = () => {
         } else {
             error('Gagal', res.data);
         }
-        console.log(res);
 
-        console.log(dt);
     };
 
     return (
@@ -261,7 +258,6 @@ const page = () => {
                                 ))}
                             </tbody>
                         </table>
-                        {console.log('perilaku', skp)}
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr className="uppercase">

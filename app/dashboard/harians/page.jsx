@@ -34,7 +34,6 @@ const page = () => {
         setLoading(true);
         try {
             const data = await getByUserId(user.user.nipBaru);
-            console.log(data);
 
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });

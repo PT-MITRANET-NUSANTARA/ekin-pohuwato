@@ -66,7 +66,6 @@ const page = () => {
             });
         }
 
-        console.log('Operation completed');
         handleClose();
     };
 

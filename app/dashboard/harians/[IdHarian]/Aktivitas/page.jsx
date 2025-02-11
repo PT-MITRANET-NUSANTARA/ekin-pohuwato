@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined, HistoryOutlined, SendOutlined, WarningOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, OrderedListOutlined, ExclamationOutlined, DownloadOutlined, SearchOutlined, HistoryOutlined, SendOutlined, WarningOutlined, LinkOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading, InfoModal } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getById, getByAbsence } from '@/controller/HarianController';
@@ -26,7 +26,7 @@ const page = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -43,7 +43,6 @@ const page = () => {
         }
     }, [user, pagination.page, pagination.limit]);
 
-    console.log(user);
 
     const fetchData = async () => {
         try {
@@ -51,7 +50,6 @@ const page = () => {
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
 
             const skp = await getSKPByUser(user.user.nipBaru);
-            console.log('SKP', skp);
             const absence = await getAbsence(IdHarian);
             setAbsence(absence.data);
             const rhks = skp?.data.flatMap((item) => item.rhks);
@@ -67,7 +65,6 @@ const page = () => {
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
 
-    console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         try {
@@ -103,7 +100,6 @@ const page = () => {
                 progress: values.progress
             };
 
-            console.log(dt);
 
             switch (type) {
                 case 'create':
@@ -121,7 +117,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -149,7 +144,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -166,7 +160,6 @@ const page = () => {
             dataIndex: 'date',
             key: 'date',
             sorter: (a, b) => a.date.length - b.date.length,
-            width: '30%',
             render: (record) => dateFormatter(record)
         },
         {
@@ -179,7 +172,6 @@ const page = () => {
                         Info
                     </Button>
                 </>
-                // console.log(record)
             )
         },
         {
@@ -188,45 +180,8 @@ const page = () => {
             key: 'msg',
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
-                <>
-                    {console.log(record)}
-                    {(() => {
-                        switch (record.status) {
-                            case 'submitted':
-                                return (
-                                    <Tag color="blue" className="capitalize w-fit">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'approved':
-                                return (
-                                    <Tag color="green" className="capitalize w-fit">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'rejected':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="yellow" className="capitalize w-fit">
-                                            {record.status}
-                                        </Tag>
-                                        "{record.keterangan}"
-                                    </div>
-                                );
-                            case 'submitted':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
+                <div className='inline-flex items-center'>
+                    {renderStatusTag(record.status)}
                     <Button
                         variant="link"
                         icon={<HistoryOutlined />}
@@ -237,40 +192,39 @@ const page = () => {
                     />
                     <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
                         <div className="w-full grid grid-cols-12 items-start gap-4">
-                            {/* List Feedback */}
                             <List
-                                className="w-full col-span-4 mt-6"
+                                className="w-full col-span-6 mt-6"
                                 itemLayout="horizontal"
                                 dataSource={feedBackModal.modalData}
                                 renderItem={(item) => (
                                     <List.Item>
-                                        <button className="inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md" onClick={() => setSelectedFeedback(item)}>
-                                            <div className="inline-flex gap-x-2 items-center">
-                                                <HistoryOutlined />
-                                                <b>10 Januari 2024</b>
+                                        <button className='w-full flex flex-col gap-y-2  items-center hover:bg-gray-100 p-3 rounded-md' onClick={() => setSelectedFeedback(item)}>
+                                            <div className='inline-flex items-center justify-between w-full '>
+                                                <div className='inline-flex gap-x-2 items-center'>
+                                                    <HistoryOutlined />
+                                                    <small>10 Januari 2024</small>
+                                                </div>
+                                                {renderStatusTag(item.status)}
                                             </div>
-                                            <Tag color={item.status === 'approved' ? 'blue' : item.status === 'rejected' ? 'red' : item.status === 'submitted' ? 'yellow' : 'gray'} className="capitalize">
-                                                {item.status}
-                                            </Tag>
+                                            <div className='rounded-lg w-full text-sm text-left'>
+                                                Ini harusnya berisi pesan yang ada dalam history
+                                            </div>
                                         </button>
                                     </List.Item>
                                 )}
                             />
-                            {/* Chat Bubble & Reply Input */}
-                            <div className="col-span-8 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
+                            <div className="col-span-6 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
                                 <div className="flex flex-col gap-y-2">
                                     {selectedFeedback ? <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.status}</div> : <div className="text-gray-400 text-sm">Pilih feedback untuk melihat status</div>}
                                 </div>
                                 <div className="w-full grid grid-cols-12 gap-4">
-                                    <TextArea placeholder="Masukkan feedback" className="col-span-9" />
-                                    <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
-                                        Kirim
-                                    </Button>
+                                    <TextArea placeholder="Masukkan feedback" className="col-span-10" />
+                                    <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-2" />
                                 </div>
                             </div>
                         </div>
                     </Modal>
-                </>
+                </div>
             )
         },
         {
@@ -278,16 +232,17 @@ const page = () => {
             dataIndex: 'progress',
             key: 'progress',
             render: (_, record) => <span>{record.progress} %</span>,
-            width: '240px'
         },
         {
             title: 'Tautan',
             dataIndex: 'tautan',
             key: 'tautan',
             render: (_, record) => (
-                <a href={record.tautan} target="_blank" rel="noopener noreferrer">
-                    Lihat Tautan
-                </a>
+                <Button
+                    variant='solid'
+                    onClick={() => window.open(record.tautan, "_blank", "noopener,noreferrer")}
+                    icon={<LinkOutlined />}
+                />
             )
         },
         {
@@ -328,7 +283,6 @@ const page = () => {
                     </Modal>
                 </>
             ),
-            width: '240px'
         },
         {
             title: 'Action',
@@ -435,8 +389,6 @@ const page = () => {
             )
         }
     ];
-
-    console.log(rhk);
 
     const rhkFields = [
         {
@@ -588,25 +540,29 @@ const page = () => {
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
-                <Card className="">
-                    <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
-                            <Title className="mt-2" level={5}>
-                                Detail Data Harian
-                            </Title>
-                            <div>
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ formFields: formFields, modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                    Tambah
-                                </Button>
+                <>
+                    <Card className="">
+                        <div className="flex flex-col">
+                            <div className="flex items-center justify-between mb-12">
+                                <Title className="mt-2" level={5}>
+                                    Detail Data Harian
+                                </Title>
+                                <div>
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ formFields: formFields, modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                        Tambah
+                                    </Button>
+                                </div>
                             </div>
+                            <div className="overflow-x-auto">
+                                <DataTable columns={Column} data={data} loading={loading} />
+                            </div>
+
                         </div>
-                        <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={data} loading={loading} />
-                        </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
-                        <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
-                    </div>
-                </Card>
+                    </Card>
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
+                    <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
+                </>
+
             )}
         </div>
     );

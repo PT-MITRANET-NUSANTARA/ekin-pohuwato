@@ -53,7 +53,6 @@ const page = () => {
             let response;
 
             const dt = { ...values, unit: user.jabatan.unor.induk, jabatan: unor.find((item) => item.nip_asn == values.user_id) };
-            console.log(dt);
             switch (type) {
                 case 'create':
                     response = await store(dt);
@@ -70,7 +69,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -97,7 +95,6 @@ const page = () => {
             });
         }
 
-        console.log('Operation completed');
         handleClose();
     };
 

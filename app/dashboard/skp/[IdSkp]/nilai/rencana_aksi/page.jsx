@@ -37,7 +37,6 @@ const page = () => {
         }
     };
 
-    console.log(skp);
 
     const rencanaAksiFields = [
         {
@@ -231,7 +230,6 @@ const page = () => {
                                                                 title: 'Tambah Rencana Aksi',
                                                                 type: 'create',
                                                                 onSubmit: async (values) => {
-                                                                    console.log(item);
 
                                                                     const dt = {
                                                                         skp: item.skp,
@@ -245,10 +243,8 @@ const page = () => {
                                                                             target: values.target
                                                                         }
                                                                     };
-                                                                    console.log('DT', dt);
 
                                                                     const res = await update(item._id, dt);
-                                                                    console.log(res);
 
                                                                     if (res.ok) {
                                                                         fetchData();

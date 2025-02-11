@@ -150,7 +150,6 @@ const page = () => {
                                     content: <span>Klik ok untuk mengajukan SKP ini</span>,
                                     async onOk() {
                                         const data = { ...record, status: 'submitted' };
-                                        console.log(data);
 
                                         const res = await update(data._id, data);
                                         if (res.ok) {
@@ -158,7 +157,6 @@ const page = () => {
                                         }
                                     },
                                     onCancel() {
-                                        console.log('Cancel');
                                     }
                                 });
                             }}
@@ -195,7 +193,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -223,7 +220,6 @@ const page = () => {
             });
         }
 
-        console.log('Operation completed');
         setSubmitLoading(false);
 
         handleClose();

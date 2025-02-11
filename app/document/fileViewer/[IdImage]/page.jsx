@@ -20,8 +20,6 @@ const page = () => {
     };
     fetchData();
   }, []);
-  console.log(data);
-  console.log(IdImage);
 
   if (loading) {
     return <div>Loading...</div>;

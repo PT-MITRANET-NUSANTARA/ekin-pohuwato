@@ -48,7 +48,6 @@ const page = () => {
             const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
             const bawahan = skp.data.jabatan[index];
             const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
-            console.log('nilai', nilai);
             setPenilaian(nilai.data);
 
             const skpAtasan = await getById(IdSkp);
@@ -70,9 +69,7 @@ const page = () => {
         }
         setLoading(false)
     };
-    console.log(data);
-    console.log(atasan);
-    console.log(bawahan);
+
 
     const formFields = [
         {
@@ -312,7 +309,6 @@ const page = () => {
                                                 title: 'Tambah Rating Perilaku Kerja',
                                                 formFields: ratingFileds,
                                                 onSubmit: async (value) => {
-                                                    console.log(data);
 
                                                     const dt = {
                                                         ...penilaian,
@@ -323,7 +319,6 @@ const page = () => {
                                                     };
 
                                                     const res = await storePenilaian(dt);
-                                                    console.log(res);
 
                                                     if (res.ok) {
                                                         // setModal({
@@ -811,10 +806,8 @@ const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }
 
     const getData = async () => {
         try {
-            console.log('ITEM', IdPeriode);
 
             const res = await getByPerilakuAndPeriode(item._id, IdPeriode);
-            console.log(res);
             if (res.ok) {
                 setData(res.data);
             }

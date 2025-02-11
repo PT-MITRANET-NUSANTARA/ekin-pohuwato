@@ -67,7 +67,6 @@ const page = () => {
 
     const onSubmit = async (values, type, id) => {
         try {
-            console.log(values);
             setSubmitLoading(true);
             let response;
             let dt = values;
@@ -95,7 +94,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData()
@@ -116,7 +114,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 

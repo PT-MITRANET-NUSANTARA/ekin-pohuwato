@@ -38,7 +38,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
-            console.log("SKP", data);
             
             const rhks = await getRHKBySkp(IdSkp);
             setRhk(rhks.data);
@@ -123,8 +122,6 @@ const page = () => {
                                 formFields: AspekFields,
                                 onSubmit: async (values) => {
                                     const dt = values;
-                                    console.log(dt);
-                                    console.log(record);
 
                                     // const response = await updateAspek(record._id, dt);
                                     // if (response.ok) {

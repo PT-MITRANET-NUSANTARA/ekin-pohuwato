@@ -41,7 +41,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const harian = await getByUserIdAbsence(IdBawahan, IdHarian);
-            console.log(harian);
 
             const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
             setDT(calculateTotalMinutes(harian_terima));
@@ -52,7 +51,6 @@ const page = () => {
         }
     };
 
-    console.log('harian', dt);
 
     const calculateTotalMinutes = (data) => {
         let menit = 0;
@@ -72,8 +70,6 @@ const page = () => {
 
     const params = new URLSearchParams(window.location.search);
     const paramEntries = Object.fromEntries(params.entries());
-
-    console.log(paramEntries);
 
     const onSubmit = async (values, type, id, listImage, fileList) => {
         handleClose();
@@ -307,7 +303,6 @@ const page = () => {
                                         user_id: String(record.user_id)
                                     };
                                     const res = await update(record._id, dt);
-                                    console.log(res);
                                     
                                     if (res.ok) {
                                         fetchData();
@@ -366,7 +361,6 @@ const page = () => {
                                 isLoading: false,
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
                             });
-                            console.log(record);
                         }}
                     />
                 </Space>

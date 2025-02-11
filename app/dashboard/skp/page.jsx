@@ -52,7 +52,6 @@ const page = () => {
         try {
             const data = await getByUserId(user.jabatan.nip_asn, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
-            console.log('here', pagination);
 
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const selectedJabatan = user.jabatan;
@@ -97,7 +96,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -115,7 +113,6 @@ const page = () => {
             error('Gagal', err.message);
         }
 
-        console.log('Operation completed');
         setSubmitLoading(false);
 
         handleClose();
@@ -336,7 +333,6 @@ const page = () => {
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
                                                 <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
-                                            {console.log(item)}
                                             <div className="grid grid-flow-row divide-y text-xs">
                                                 <div className="flex items-center justify-between py-2">
                                                     <span className="uppercase font-semibold">periode</span>

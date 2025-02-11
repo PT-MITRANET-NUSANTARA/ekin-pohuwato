@@ -80,8 +80,6 @@ const page = () => {
         }
     ];
 
-    console.log(skp);
-
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb

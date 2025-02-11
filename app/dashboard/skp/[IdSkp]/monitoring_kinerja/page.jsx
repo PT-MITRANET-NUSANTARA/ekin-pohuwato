@@ -26,7 +26,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const response = await getBySKP(IdSkp);
-            console.log(response.data);
             setDataBawahan(response.data);
             setLoading(false);
         } catch (error) {
@@ -34,7 +33,6 @@ const page = () => {
         }
     };
 
-    console.log(dataBawahan);
 
     const Column = [
         {

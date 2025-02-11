@@ -61,7 +61,6 @@ const page = () => {
 
 
     const customSubmit = (values, type, id, formData) => {
-        console.log(values);
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${IdSkp}/${IdNilai}/form_penilaian?${query}`);
     };
@@ -165,7 +164,6 @@ const page = () => {
                                         });
 
                                         // const realisasi = {};
-                                        console.log(res.data.rhks);
 
                                         // res.data.rhks.forEach(item, (index) => {
                                         //     item.aspek.forEach((aspek) => {
@@ -202,7 +200,6 @@ const page = () => {
                                             });
                                         });
 
-                                        console.log(atasan);
 
                                         const query = {
                                             atasan: atasan,
@@ -214,10 +211,8 @@ const page = () => {
                                             periodeEnd: dateFormatter(periode.data.periodeEnd)
                                         };
 
-                                        console.log(query);
 
                                         const pdfBlob = await getHasilSkp(query);
-                                        console.log(pdfBlob);
 
                                         const url = window.URL.createObjectURL(pdfBlob);
                                         const a = document.createElement('a');
@@ -228,7 +223,6 @@ const page = () => {
                                         a.remove();
                                         window.URL.revokeObjectURL(url);
 
-                                        console.log(realisasi);
                                     }
                                 }}
                             >

@@ -61,8 +61,6 @@ const page = () => {
 
     // Membuat format yang diinginkan
     const formattedDate = `${day} ${month} ${year}`;
-    console.log(tujuan);
-    console.log(program);
 
     useEffect(() => {
         // Automatically open print dialog when page is loaded

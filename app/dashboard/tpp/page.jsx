@@ -56,7 +56,6 @@ const page = () => {
         try {
             let response;
             const jabatan = pegawai.find((item) => item.id_asn === values.pegawai);
-            console.log(values);
 
             const dt = {
                 periodeRKT: values.periodeRKT,
@@ -83,7 +82,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-            console.log(response);
             if (response.ok) {
                 const data = await getByUnitId(unor);
                 setTpp(data.data);
@@ -111,11 +109,9 @@ const page = () => {
         }
         setLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
-    console.log(tpp);
 
     const Column = [
         {

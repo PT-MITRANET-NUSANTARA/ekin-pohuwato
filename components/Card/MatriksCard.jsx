@@ -25,7 +25,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
         try {
             const response = await getById(dataItem._id);
             const jabatan = response.data.jabatan[response.data.jabatan.length - 1];
-            console.log('matrix', jabatan);
             const rhks = response.data.rhks.filter(rhk => rhk.posjab === jabatan.id_posjab);
             setRhk(rhks)
             setData(response.data);
@@ -298,13 +297,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                 onSubmit: async (values) => {
                                     setSubmitLoading(true);
 
-                                    console.log(record);
                                     let dt = values;
-                                    console.log(dt);
 
                                     dt = { ...dt, skp: record.skp, posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab };
                                     const response = await updateRHK(record._id, dt);
-                                    console.log(response);
 
                                     if (response.ok) {
                                         message.success('Berhasil Mengubah RHK');
@@ -380,7 +376,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     formFields: rhkData.fields,
                                     onSubmit: async (value) => {
                                         const skp = data;
-                                        console.log(skp);
                                         setSubmitLoading(true);
                                         const dt = {
                                             ...value,
@@ -389,7 +384,6 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         };
                                         const rhk = await storeRHK(dt);
 
-                                        console.log(rhk);
 
                                         message.success('Berhasil Menambahkan RHK');
                                         fetchData();

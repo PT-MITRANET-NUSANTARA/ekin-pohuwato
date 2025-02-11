@@ -34,7 +34,6 @@ const page = () => {
             const jabatan = await getByNIP(data.token, data.user.nipBaru);
             const skp = await getById(IdPenilaian);
             setSkp(skp.data);
-            console.log(skp.data);
             
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
 
@@ -45,7 +44,6 @@ const page = () => {
     };
   
 
-    console.log('atasan', jabatan);
 
     // useEffect(() => {
     //     // Automatically open print dialog when page is loaded

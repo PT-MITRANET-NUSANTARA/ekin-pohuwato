@@ -39,7 +39,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getAllVerifikasi(pagination.page, pagination.limit, pagination.filters);
-            console.log(data);
 
             setData(data.data.data);
             const unit = await getAll(user.token);
@@ -52,7 +51,6 @@ const page = () => {
         }
     };
 
-    console.log(data);
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -77,7 +75,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -105,7 +102,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 

@@ -77,7 +77,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -97,7 +96,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 

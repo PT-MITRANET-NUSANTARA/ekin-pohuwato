@@ -88,7 +88,6 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 // Update the file list using the previous state
                 setFileList((prevList) => {
                     const newList = prevList.map((item) => (item.uid === file.uid ? { ...item, fileId: data.fileId } : item));
-                    console.log('Updated fileList', newList);
                     return newList;
                 });
 
@@ -108,15 +107,11 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
 
     // Fungsi untuk menangani penghapusan file
     const handleRemove = async (file) => {
-        console.log('DELETE', file);
 
         try {
             // Find the fileId from imageList using the file.uid or file.fileId
-            console.log('IMAGELIST', imageList);
-            console.log('FILE', file);
 
             const imageId = imageList.find((img) => img.uid === file.uid).fileId;
-            console.log('IMAGEID', imageId);
 
             if (!imageId) {
                 message.error(`No file ID found for ${file.name}, cannot delete.`);

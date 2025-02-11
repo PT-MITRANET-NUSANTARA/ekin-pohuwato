@@ -50,8 +50,6 @@ const page = () => {
             console.log(error);
         }
     };
-    console.log(data);
-
     // const onSubmit = async (value) => {
     //     try {
     //         let data;

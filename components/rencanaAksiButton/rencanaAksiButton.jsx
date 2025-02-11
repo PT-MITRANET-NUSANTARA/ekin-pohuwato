@@ -57,9 +57,7 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
             setModal({
               formFields: rencanaAksiFields,
               onSubmit: async (values) => {
-                console.log(IdPeriode);
                 const periode = await getByIdPenilaian(IdPeriode);
-                console.log(periode);
 
                 const data = {
                   rhk: item._id,
@@ -69,7 +67,6 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
                 };
 
                 const res = await store(data);
-                console.log(res);
 
                 if (res.ok) {
                   fetchData();

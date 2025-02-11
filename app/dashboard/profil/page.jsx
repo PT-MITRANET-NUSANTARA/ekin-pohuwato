@@ -39,7 +39,6 @@ const page = () => {
             const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
 
             const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
-            console.log('AtASAN', isAtasan);
 
             let bawahan = [];
             let unor = [];

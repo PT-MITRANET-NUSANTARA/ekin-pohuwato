@@ -47,7 +47,6 @@ const page = () => {
 
             setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
-            console.log(renstra);
 
             setRenstra(renstra.data);
         } catch (error) {
@@ -79,7 +78,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -100,14 +98,11 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
     const customSubmit = async (values, type, id, formData) => {
         setSubmitLoading(true);
-        console.log(values);
-        console.log(id);
         const res = await getById(id);
 
         const periode = res.data;
@@ -129,8 +124,6 @@ const page = () => {
 
         const uniqueTujuan = allTujuan.filter((item, index, self) => index === self.findIndex((tujuan) => tujuan._id === item._id));
 
-        console.log(uniqueProgram);
-        console.log(uniqueTujuan);
 
         const query = {
             nama_pihak_pertama: values.nama_pihak_pertama,
@@ -141,11 +134,9 @@ const page = () => {
             program: uniqueProgram,
             tujuan: uniqueTujuan
         };
-        console.log('data', query);
 
         const pdfBlob = await getPerjanjianKinerja(query);
 
-        console.log(pdfBlob);
         setSubmitLoading(false);
 
         const url = window.URL.createObjectURL(pdfBlob);
@@ -162,7 +153,6 @@ const page = () => {
     };
 
     const perjanjianSubmit = async (values, type, id, listImage, fileList) => {
-        console.log('SUBMIT', listImage, fileList);
 
         const updatedListImage = listImage.map((img) => {
             const matchingFile = fileList.find((file) => file.uid === img.uid);
@@ -179,14 +169,11 @@ const page = () => {
         });
         handleClose();
 
-        console.log(updatedListImage);
 
         const periode = data.find((item) => item._id === id);
         periode.perjanjianKinerja = updatedListImage;
-        console.log('HERE', periode);
 
         const response = await update(id, periode);
-        console.log(response);
 
         if (response.ok) {
             fetchData();
@@ -223,7 +210,6 @@ const page = () => {
                     <Button
                         icon={<SearchOutlined />}
                         onClick={() => {
-                            console.log(record)
                             setInfoModal({
                                 title: 'Informasi Renstra',
                                 trigger: true,

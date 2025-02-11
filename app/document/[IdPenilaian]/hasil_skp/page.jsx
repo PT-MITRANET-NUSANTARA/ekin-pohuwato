@@ -115,7 +115,6 @@ const page = () => {
         }
     };
 
-    console.log('atasan', atasan);
 
     return (
         <div className="p-6">

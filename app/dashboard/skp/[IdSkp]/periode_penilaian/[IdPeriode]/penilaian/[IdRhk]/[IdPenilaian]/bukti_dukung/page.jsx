@@ -29,7 +29,6 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getById(IdPenilaian);
-            console.log(data);
             
             const periode = await getPenilaian(IdPeriode);
             const harian = data.data.harians?.filter((h) => {
@@ -40,7 +39,6 @@ const page = () => {
                 // Check if h.date is less than or equal to endDateTime
                 return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime) ) && h.isSKP === true;
             })
-            console.log(harian);
             
             setData(harian);
         } catch (error) {
@@ -48,7 +46,6 @@ const page = () => {
         }
     };
 
-    console.log(data);
     
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
@@ -114,7 +111,6 @@ const page = () => {
             sorter: (a, b) => a.msg.length - b.msg.length,
             render: (_, record) => (
                 <>
-                    {console.log(record)}
                     {(() => {
                         switch (record.msg?.status) {
                             case 'Periksa':

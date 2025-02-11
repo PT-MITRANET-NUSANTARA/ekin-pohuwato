@@ -64,7 +64,6 @@ const page = () => {
         setLoading(false)
     };
 
-    console.log(data);
 
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
@@ -184,7 +183,6 @@ const page = () => {
         }
     };
 
-    console.log('atasan', bawahan);
     return (
         <div className="w-full flex flex-col gap-y-4">
             <Breadcrumb
@@ -245,7 +243,6 @@ const page = () => {
                                                         periodePenilaian: IdPeriode
                                                     };
                                                     const res = await storePenilaian(dt);
-                                                    console.log(res);
 
                                                     if (res.ok) {
                                                         // setModal({
@@ -844,6 +841,41 @@ const page = () => {
 
 export default page;
 
+const RealisasiRow = ({ item, aspek, IdPeriode }) => {
+    const [data, setData] = useState(undefined);
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getRealisasi(item._id, "utama", aspek._id, IdPeriode);
+            if (res.ok) {
+                setData(res.data);
+            } else {
+                setData(null);
+            }
+        } catch (error) {
+            setData(null);
+        }
+    };
+
+    return (
+        <td>
+            <div className="flex items-center justify-center">
+                {data === undefined ? (
+                    <Skeleton.Input active size="small" />
+                ) : data ? (
+                    data
+                ) : (
+                    ""
+                )}
+            </div>
+        </td>
+    );
+};
+
 const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
     const [data, setData] = useState(null);
     useEffect(() => {
@@ -853,7 +885,6 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
     const getData = async () => {
         try {
             const res = await getByAspekAndPeriode(item._id, IdPeriode);
-            console.log(res);
             if (res.ok) {
                 setData(res.data);
             }
@@ -880,8 +911,7 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
                             trigger: true,
                             formFields: feedbackFields,
                             onSubmit: async (values) => {
-                                console.log(values);
-                                console.log(item);
+
 
                                 const dt = {
                                     penilai: IdSkp,
@@ -892,7 +922,6 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
                                 };
 
                                 const res = await storeRHKFeedback(dt);
-                                console.log(res);
 
                                 if (res.ok) {
                                     getData();

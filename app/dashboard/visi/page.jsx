@@ -81,7 +81,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -140,8 +139,6 @@ const page = () => {
                 }
             }
         });
-        console.log(pagination);
-
         fetchData();
     };
 

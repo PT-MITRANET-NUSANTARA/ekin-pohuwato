@@ -45,8 +45,6 @@ const page = () => {
     const onSubmit = async (values, type, id) => {
         try {
             let response;
-            console.log(values);
-            console.log(id);
             const dt = {
                 unit: selectedUnor,
                 jabatan: values
@@ -91,7 +89,6 @@ const page = () => {
             });
         }
 
-        console.log('Operation completed');
         handleClose();
     };
 

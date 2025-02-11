@@ -54,7 +54,6 @@ const page = () => {
             const sub = await getSubByUnit(user.jabatan?.unor?.induk.id);
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
             const periode = await getPeriodeByUnit(user.jabatan?.unor?.induk.id);
-            console.log(periode);
 
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
@@ -70,7 +69,6 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
-            console.log(dt);
             setSubmitLoading(true);
 
             switch (type) {
@@ -90,7 +88,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -109,7 +106,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -167,7 +163,6 @@ const page = () => {
                     <Space size="small">
                         <Button
                             onClick={() => {
-                                console.log(record)
                                 setInfoModal({
                                     title: 'Informasi Kegiatan',
                                     trigger: true,

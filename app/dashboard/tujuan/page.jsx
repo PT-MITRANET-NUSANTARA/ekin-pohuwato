@@ -38,11 +38,9 @@ const page = () => {
         try {
             const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
-            console.log(data);
 
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
-            console.log(renstra);
 
             setRenstra(renstra.data);
         } catch (error) {
@@ -58,7 +56,6 @@ const page = () => {
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
 
-            console.log(dt);
 
             switch (type) {
                 case 'create':
@@ -76,7 +73,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -96,7 +92,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 

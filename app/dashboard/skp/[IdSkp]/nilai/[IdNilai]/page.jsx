@@ -56,7 +56,6 @@ const page = () => {
 
 
     const customSubmit = (values, type, id, formData) => {
-        console.log(values);
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${IdSkp}/${IdNilai}/form_penilaian?${query}`);
     };

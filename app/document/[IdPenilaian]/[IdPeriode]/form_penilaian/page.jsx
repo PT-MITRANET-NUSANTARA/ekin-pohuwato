@@ -79,7 +79,6 @@ const page = () => {
         }
     };
 
-    console.log("atasan", atasan)
 
     return (
         <div className="p-6">
@@ -212,7 +211,6 @@ const page = () => {
                                                 item.harians?.filter((h) => {
                                                     const hDate = dayjs(h.date); // Convert h.date to Day.js object
                                                     const endDateTime = dayjs(periode.endDateTime); // Convert endDateTime to Day.js object
-                                                    console.log(h);
                                                     // Check if h.date is less than or equal to endDateTime
                                                     return hDate.isBefore(endDateTime) || hDate.isSame(endDateTime);
                                                 })

@@ -29,15 +29,12 @@ const layout = ({ children }) => {
     const fetchData = async () => {
         try {
             const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
-            console.log(foto);
-
             setFoto(foto);
         } catch (error) {
             console.log(error);
         }
     };
 
-    console.log(foto);
 
     const items = [
         {
@@ -63,7 +60,6 @@ const layout = ({ children }) => {
             label: (
                 <button onClick={async () => {
                     const res = await logOut();
-                    console.log(res);
 
                     if (res.ok) {
                         message.success('Berhasil Keluar');

@@ -12,7 +12,7 @@ import { Tag } from "antd";
             return <Tag color="yellow" className="capitalize">{status}</Tag>;
 
         case "draft":
-            return <Tag color="blue" className="capitalize">{status}</Tag>;
+            return <Tag color="orange" className="capitalize">{status}</Tag>;
 
         default:
             return <Tag color="gray" className="capitalize">{status}</Tag>;

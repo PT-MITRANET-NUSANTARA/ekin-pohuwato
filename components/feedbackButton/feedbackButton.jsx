@@ -13,7 +13,6 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSK
             title: 'Edit Feedback',
             formFields: formFields,
             onSubmit: async (values) => {
-                console.log('HERE');
 
                 const dt = {
                     isi: values.content,
@@ -22,10 +21,8 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSK
                     periodePenilaian: IdPeriode,
                     penilai: IdSKP
                 };
-                console.log('PERILAKU', dt);
 
                 const res = await store( dt);
-                console.log(res);
 
                 if (res.ok) {
                     fetchData();

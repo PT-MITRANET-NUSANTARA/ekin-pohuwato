@@ -38,14 +38,12 @@ const page = () => {
                 'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
                 status: { $in: ['submitted', 'approved', 'rejected'] }
             });
-            console.log(data);
             
             const filteredUsers = data.data.data.filter((user) => {
                 const lastJabatan = data.data.data.jabatan?.at(-1); // Ambil elemen terakhir dengan at(-1)
                 return lastJabatan?.unor?.induk?.id === user.jabatan?.unor?.induk;
             });
 
-            console.log(filteredUsers);
 
             setData(filteredUsers);
             setPagination({ ...pagination, filters: pagination.filters, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
@@ -170,7 +168,6 @@ const page = () => {
                                         content: <span>Klik ok untuk verifikasi SKP ini</span>,
                                         async onOk() {
                                             const data = { ...record, status: 'approved' };
-                                            console.log(data);
 
                                             const res = await update(data._id, data);
                                             if (res.ok) {
@@ -178,7 +175,6 @@ const page = () => {
                                             }
                                         },
                                         onCancel() {
-                                            console.log('Cancel');
                                         }
                                     });
                                 }}
@@ -195,10 +191,8 @@ const page = () => {
                                         formFields: feedbackFields,
                                         onSubmit: async (value) => {
                                             const data = { ...record, status: 'rejected', msg: value.feedback };
-                                            console.log(data);
 
                                             const res = await update(data._id, data);
-                                            console.log(res);
 
                                             if (res.ok) {
                                                 setModal({ trigger: false, modalData: null });
@@ -224,7 +218,6 @@ const page = () => {
                                     content: <span>Klik ok untuk verifikasi SKP ini</span>,
                                     async onOk() {
                                         const data = { ...record, status: 'approved' };
-                                        console.log(data);
 
                                         const res = await update(data._id, data);
                                         if (res.ok) {
@@ -232,7 +225,6 @@ const page = () => {
                                         }
                                     },
                                     onCancel() {
-                                        console.log('Cancel');
                                     }
                                 });
                             }}

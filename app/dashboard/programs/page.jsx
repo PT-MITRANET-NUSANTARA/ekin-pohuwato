@@ -63,7 +63,6 @@ const page = () => {
             let response;
             let dt = values;
             dt = { ...dt, unit: user.jabatan.unor.induk };
-            console.log("here", dt);
 
             setSubmitLoading(true);
             switch (type) {
@@ -84,7 +83,6 @@ const page = () => {
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
-            console.log(response);
 
             if (response.ok) {
                 fetchData();
@@ -256,7 +254,6 @@ const page = () => {
                                 isLoading: false,
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
                             });
-                            console.log(record);
                         }}
                         // type='primary'
                         size="middle"

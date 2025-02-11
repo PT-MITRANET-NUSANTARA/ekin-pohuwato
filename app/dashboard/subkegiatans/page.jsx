@@ -96,7 +96,6 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-            console.log(response);
             if (response.ok) {
                 fetchData()
                 success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Sub Kegiatan' : type === 'edit' ? 'Berhasil Mengedit Sub Kegiatan' : 'Berhasil Menambahkan Sub Kegiatan')
@@ -115,7 +114,6 @@ const page = () => {
         }
         setSubmitLoading(false);
 
-        console.log('Operation completed');
         handleClose();
     };
 
@@ -262,7 +260,6 @@ const page = () => {
                                 onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
                             });
 
-                            console.log(record);
                         }}
                         // type='primary'
                         size="middle"
