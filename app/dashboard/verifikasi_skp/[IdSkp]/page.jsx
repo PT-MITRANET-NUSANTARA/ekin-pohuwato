@@ -1,7 +1,7 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Skeleton, Tag, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, List, Skeleton, Tag, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,7 +19,7 @@ const page = () => {
     const [jabatan, setJabatan] = useState(null);
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
 
     useEffect(() => {
         fetchData();
@@ -296,6 +296,7 @@ const page = () => {
                                 ))}
                             </tbody>
                         </table>
+              
                         <table className="normaltable">
                             <thead>
                                 <tr>
@@ -305,43 +306,201 @@ const page = () => {
                             <tbody>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
-                                            <p>Dukungan Sumber Daya</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
-                                                Edit
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Dukungan Sumber Daya</b>
+                                            <List
+                                                className="px-4"
+                                                dataSource={skp?.lampiran.sumber_daya}
+                                                renderItem={
+                                                    (item) =>
+                                                        <List.Item
+                                                            actions={[
+                                                                <Button
+                                                                    icon={<EditOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini mengedit lampiran')
+                                                                            },
+                                                                            title: 'Edit Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'edit',
+                                                                        })
+                                                                    }
+                                                                />,
+                                                                <Button
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini menghapus lampiran')
+                                                                            },
+                                                                            title: 'Delete Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'delete',
+                                                                        })
+                                                                    }
+                                                                />
+                                                            ]}
+                                                        >
+                                                            {item.isi_lampiran}
+                                                        </List.Item>}
+                                            />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('sumber_daya', values);
+                                                        },
+                                                        title: 'Tambah Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'create',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
+                                                Tambah
                                             </Button>
                                         </div>
                                         {/* looping through here */}
-                                        <ul>
-                                            <li></li>
-                                        </ul>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
-                                            <p>Skema Pertanggung Jawaban</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
-                                                Edit
+                                        <div className="flex flex-col gap-y-2 p-4">
+                                            <b>Skema Pertanggung Jawaban</b>
+                                            <List
+                                                className="px-4"
+                                                dataSource={skp?.lampiran.skema}
+                                                renderItem={
+                                                    (item) =>
+                                                        <List.Item
+                                                            actions={[
+                                                                <Button
+                                                                    icon={<EditOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini mengedit lampiran')
+                                                                            },
+                                                                            title: 'Edit Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'edit',
+                                                                        })
+                                                                    }
+                                                                />,
+                                                                <Button
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini menghapus lampiran')
+                                                                            },
+                                                                            title: 'Delete Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'delete',
+                                                                        })
+                                                                    }
+                                                                />
+                                                            ]}>
+                                                            {item.isi_lampiran}
+                                                        </List.Item>}
+                                            />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('skema', values);
+                                                        },
+                                                        title: 'Edit Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'create',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
+                                                Tambah
                                             </Button>
-                                            {/* looping through here */}
-                                            <ul>
-                                                <li></li>
-                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
-                                        <div className="flex flex-col gap-y-2">
+                                        <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <Button className="w-fit" type="primary" onClick={() => setModal({ formFields: lampiranFields, onSubmit: () => {}, title: 'Edit Dukungan Sumber Daya', trigger: true })}>
-                                                Edit
+                                            <List
+                                                className="px-4"
+                                                dataSource={skp?.lampiran.konsekuensi}
+                                                renderItem={
+                                                    (item) =>
+                                                        <List.Item
+                                                            actions={[
+                                                                <Button
+                                                                    icon={<EditOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini mengedit lampiran')
+                                                                            },
+                                                                            title: 'Edit Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'edit',
+                                                                        })
+                                                                    }
+                                                                />,
+                                                                <Button
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={() =>
+                                                                        setModal({
+                                                                            formFields: lampiranFields,
+                                                                            modalData: item,
+                                                                            onSubmit: (values) => {
+                                                                                console.log('seharusnya ini menghapus lampiran')
+                                                                            },
+                                                                            title: 'Delete Dukungan Sumber Daya',
+                                                                            trigger: true,
+                                                                            type: 'delete',
+                                                                        })
+                                                                    }
+                                                                />
+                                                            ]}>
+                                                            {item.isi_lampiran}
+                                                        </List.Item>}
+                                            />
+                                            <Button
+                                                className="w-fit"
+                                                type="primary"
+                                                onClick={() =>
+                                                    setModal({
+                                                        formFields: lampiranFields,
+                                                        onSubmit: (values) => {
+                                                            addLampiran('konsekuensi', values);
+                                                        },
+                                                        title: 'Edit Dukungan Sumber Daya',
+                                                        trigger: true,
+                                                        type: 'edit',
+                                                        modalData: {}
+                                                    })
+                                                }
+                                            >
+                                                Tambah
                                             </Button>
-                                            {/* looping through here */}
-                                            <ul>
-                                                <li></li>
-                                            </ul>
                                         </div>
                                     </td>
                                 </tr>

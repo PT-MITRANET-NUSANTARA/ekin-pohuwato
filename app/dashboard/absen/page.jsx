@@ -2,7 +2,7 @@
 
 import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
-import { DataTable, CrudModal, FilterField } from '@/components';
+import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUnitId } from '@/controller/AbsenceController';
 import useFetchData from '@/hooks/useFetchData';
@@ -34,6 +34,7 @@ const page = () => {
     }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
+        setLoading(true)
         try {
             const data = await getByUnitId(user.jabatan.unor.induk.id);
             const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
@@ -133,28 +134,41 @@ const page = () => {
                 <>
                     {(() => {
                         switch (status) {
-                            case 'hadir':
+                            case 'Hadir':
                                 return (
                                     <Tag color="blue" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'alpa':
+                            case 'Dinas diluar':
                                 return (
-                                    <Tag color="red" className="capitalize">
+                                    <Tag color="green" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'izin':
+                            case 'Izin':
                                 return (
                                     <Tag color="yellow" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+
+                            case 'Sakit':
+                                return (
+                                    <Tag color="orange" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'Tanpa Keterangan':
+                                return (
+                                    <Tag color="red" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
                             default:
                                 return (
                                     <Tag color="error" className="capitalize">
-                                        {status}
+                                        undefined
                                     </Tag>
                                 );
                         }
@@ -171,13 +185,21 @@ const page = () => {
                 return (
                     <Space size="small">
                         <Button
+                            onClick={() => setModal({ trigger: true, title: 'create', type: 'edit', modalData: { ...record, date: dateFormatter(record.date) } })}
+                            // type='primary'
+                            size="middle"
+                            variant="outlined"
+                            icon={<EditOutlined />}
+                        />
+                        <Button
                             onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
                             // type='primary'
                             size="middle"
-                            color="primary"
                             variant="outlined"
-                            icon={<DatabaseOutlined />}
-                        />
+                        >
+                            Detail
+                        </Button>
+
                     </Space>
                 );
             }
@@ -348,27 +370,32 @@ const page = () => {
                     }
                 ]}
             />
-            <Card className="">
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between mb-12">
-                        <Title className="mt-2" level={5}>
-                            Data Harian
-                        </Title>
-                        <div className="flex items-center gap-x-2">
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
-                                Tambah Absen
-                            </Button>
+            {loading ? (
+                <DataLoading loadingData={loading} />
+            ) : (
+                <Card className="">
+                    <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-12">
+                            <Title className="mt-2" level={5}>
+                                Data Harian
+                            </Title>
+                            <div className="flex items-center gap-x-2">
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, title: 'create', type: 'create' })}>
+                                    Tambah Absen
+                                </Button>
+                            </div>
+                        </div >
+                        <div className="w-full">
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
                         </div>
-                    </div>
-                    <div className="w-full">
-                        <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={data} loading={loading} />
-                    </div>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
-                </div>
-            </Card>
+                        <div className="overflow-x-auto">
+                            <DataTable columns={Column} data={data} loading={loading} />
+                        </div>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                    </div >
+                </Card >
+            )}
+
         </div>
     );
 };

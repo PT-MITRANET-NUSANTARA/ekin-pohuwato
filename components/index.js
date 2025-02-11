@@ -15,3 +15,6 @@ export { default as LoaderPage } from './LoaderPage/LoaderPage';
 export { default as ItemRow } from './ItemRow/ItemRow';
 export { default as RencanaAksiButton } from './rencanaAksiButton/rencanaAksiButton';
 export { default as FeedbackButton } from './feedbackButton/feedbackButton';
+export { default as PerilakuRow } from './PerilakuRow/PerilakuRow';
+export { default as RhkRow } from './RhkRow/RhkRow';
+export { default as RealisasiRow } from './RealisasiRow/RealisasiRow';
