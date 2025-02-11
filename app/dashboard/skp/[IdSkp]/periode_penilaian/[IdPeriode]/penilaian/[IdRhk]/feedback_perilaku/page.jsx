@@ -36,6 +36,8 @@ const page = () => {
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [index, setIndex] = useState(0);
+    const [utama, setUtama] = useState(null);
+    const [tambahan, setTambahan] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -60,7 +62,8 @@ const page = () => {
             } else {
                 setAtasan(bawahan.unor.atasan);
             }
-
+            setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
+            setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
             setData(skp.data);
             setBawahan(bawahan);
             setIndex(bawahan.id_posjab);
@@ -456,53 +459,92 @@ const page = () => {
                                         Utama
                                     </td>
                                 </tr>
-                                {data?.rhks
-                                    .filter((item) => item.posjab == index)
-                                    .map((item, index) => (
-                                        <>
-                                            <tr>
-                                                <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
-                                                <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                    <div className="flex flex-col gap-y-2 text-left">
-                                                        <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                {utama?.map((item, index) => (
+                                    <>
+                                        <tr>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
 
-                                                        {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
-                                                    </div>
-                                                </td>
-                                                <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                    <div className="flex flex-col gap-y-2 text-left">
-                                                        <p>{item.desc}</p>
-                                                        <Tag color="blue" className="w-fit">
-                                                            {item.klasifikasi ? item.klasifikasi : ''}
-                                                        </Tag>
-                                                        {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
-                                                    </div>
-                                                </td>
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.desc}</p>
+                                                    <Tag color="blue" className="w-fit">
+                                                        {item.klasifikasi ? item.klasifikasi : ''}
+                                                    </Tag>
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
 
-                                            </tr>
-                                            {item.aspek?.map((aspek) => (
-                                                <>
-                                                    <tr>
-                                                        <td>{aspek.jenis}</td>
-                                                        <td style={{ maxWidth: '12rem', padding: '8px' }}>
-                                                            <div className="flex flex-col gap-y-2 text-left">
-                                                                <p>{aspek.indikator}</p>
-                                                            </div>
-                                                        </td>
-                                                        <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                        <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
-                                                        <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
-                                                        {/* <td></td> */}
-                                                    </tr>
-                                                </>
-                                            ))}
-                                        </>
-                                    ))}
+                                        </tr>
+                                        {item.aspek?.map((aspek) => (
+                                            <>
+                                                <tr>
+                                                    <td>{aspek.jenis}</td>
+                                                    <td style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                        <div className="flex flex-col gap-y-2 text-left">
+                                                            <p>{aspek.indikator}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    {/* <td></td> */}
+                                                </tr>
+                                            </>
+                                        ))}
+                                    </>
+                                ))}
                                 <tr>
                                     <td colSpan={6} className="text-left px-2">
                                         Tambahan
                                     </td>
                                 </tr>
+                                {tambahan?.map((item, index) => (
+                                    <>
+                                        <tr>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.desc}</p>
+                                                    <Tag color="blue" className="w-fit">
+                                                        {item.klasifikasi ? item.klasifikasi : ''}
+                                                    </Tag>
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                        {item.aspek?.map((aspek) => (
+                                            <>
+                                                <tr>
+                                                    <td>{aspek.jenis}</td>
+                                                    <td style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                        <div className="flex flex-col gap-y-2 text-left">
+                                                            <p>{aspek.indikator}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
+                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    {/* <td></td> */}
+                                                </tr>
+                                            </>
+                                        ))}
+                                    </>
+                                ))}
+
                                 <tr>
                                     <td colSpan={6}>Rating Hasil Kinerja</td>
                                     <td colSpan={4}>

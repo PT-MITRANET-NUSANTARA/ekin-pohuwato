@@ -30,6 +30,8 @@ const page = () => {
     const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [utama, setUtama] = useState(null);
+    const [tambahan, setTambahan] = useState(null);
     useEffect(() => {
         fetchData();
     }, []);
@@ -52,6 +54,9 @@ const page = () => {
             const periode = await getPenilaian(IdPeriode);
 
             setPeriode(periode.data);
+
+            setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
+            setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
 
             setData(skp.data);
             setBawahan(bawahan);
@@ -410,7 +415,56 @@ const page = () => {
                                         Utama
                                     </td>
                                 </tr>
-                                {data?.rhks.map((item, index) => (
+                                {utama?.map((item, index) => (
+                                    <>
+                                        <tr>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                <div className="flex flex-col gap-y-2 text-left">
+                                                    <p>{item.desc}</p>
+                                                    <Tag color="blue" className="w-fit">
+                                                        {item.klasifikasi ? item.klasifikasi : ''}
+                                                    </Tag>
+                                                    {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
+                                                </div>
+                                            </td>
+                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
+                                                <div className="flex flex-col gap-y-2 p-4">
+                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {item.aspek?.map((aspek) => (
+                                            <>
+                                                <tr>
+                                                    <td>{aspek.jenis}</td>
+                                                    <td style={{ maxWidth: '12rem', padding: '8px' }}>
+                                                        <div className="flex flex-col gap-y-2 text-left">
+                                                            <p>{aspek.indikator}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    {/* <td></td> */}
+                                                </tr>
+                                            </>
+                                        ))}
+                                    </>
+                                ))}
+                                <tr>
+                                    <td colSpan={9} className="text-left px-2">
+                                        Tambahan
+                                    </td>
+                                </tr>
+                                {tambahan?.map((item, index) => (
                                     <>
                                         <tr>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
@@ -454,11 +508,6 @@ const page = () => {
                                         ))}
                                     </>
                                 ))}
-                                <tr>
-                                    <td colSpan={9} className="text-left px-2">
-                                        Tambahan
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td colSpan={6}>Rating Hasil Kinerja</td>
                                     <td colSpan={4}>
