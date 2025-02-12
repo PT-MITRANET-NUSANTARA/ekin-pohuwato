@@ -177,6 +177,8 @@ SKPSchema.method('cascadeDelete', async function cascadeDelete() {
 
 SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
+    console.log('filters', filters);
+    
     const query = this.find(buildFilterQuery(filters));
     const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp').populate('periodeRKT').populate('messageSKP'), this.countDocuments(buildFilterQuery(filters))]);
 

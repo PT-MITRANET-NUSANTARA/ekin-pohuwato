@@ -54,7 +54,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         // Jika jenis aspek adalah 'deskripsi', kembalikan realisasi langsung
         if (rhkAspek.jenis === 'deskripsi') {
-            return NextResponse.json(createResponse(200, 'Success', rhkAspek.realisasi.isi, true));
+            return NextResponse.json(createResponse(200, 'Success', rhkAspek.realisasi.isi ? rhkAspek.realisasi.isi : '', true));
         }
 
         let realisasi;
@@ -68,10 +68,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
             if (rhkAspek.jenis === 'kualitas') {
                 realisasi = await kualitasRecursive(rhkAspek, rhkPeriode, rhk, 0);
-
             } else if (rhkAspek.jenis === 'kuantitas') {
                 realisasi = await kuantitasRecursive(rhkAspek, rhkPeriode, rhk, 0);
-
             } else if (rhkAspek.jenis === 'waktu') {
                 realisasi = await waktuRecursive(rhkAspek, rhkPeriode, rhk, 0);
             }

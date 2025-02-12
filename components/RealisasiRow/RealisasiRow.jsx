@@ -5,7 +5,7 @@ import { Button, Skeleton } from "antd";
 import { PlusOutlined } from '@ant-design/icons';
 
 
-const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = true }) => {
+const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = false }) => {
     const [data, setData] = useState(undefined);
 
     useEffect(() => {

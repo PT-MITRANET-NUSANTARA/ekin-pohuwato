@@ -9,6 +9,7 @@ import getFilterQuery from '@/utils/getFilterQuery';
 import Aspek from '@/models/Aspek';
 import SKP from '@/models/SKP';
 import MessageSKP from '@/models/MessageSKP';
+import buildFilterQuery from '@/utils/buildFilterQuery';
 
 const skpSchema = Joi.object({
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
@@ -65,10 +66,11 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
-
+        
+        console.log(skp_id);
+        
         // Filter dasar untuk memastikan `skp` adalah array dan tidak kosong
         const baseFilter = {
-            skp: { $exists: true, $type: 'array', $ne: [] }, // Pastikan `skp` adalah array dan tidak kosong
             $expr: {
                 $eq: [
                     { $arrayElemAt: ['$skp', -1] }, // Ambil elemen terakhir dari array `skp`
@@ -84,6 +86,9 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
             // Jika ada pagination, gabungkan filter dasar dengan filter tambahan
             const additionalFilters = filters ? JSON.parse(filters) : {};
             const combinedFilters = { ...baseFilter, ...additionalFilters };
+
+            console.log('filters', buildFilterQuery(combinedFilters));
+            
 
             skps = await SKP.getAll(Number(page), Number(limit), combinedFilters);
         }
@@ -131,6 +136,7 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
             status: 'submitted',
             user_id: body.user_id
         });
+        await message.save()
         await newSKP.save();
         if (newSKP) {
             for (const item of perilaku) {
