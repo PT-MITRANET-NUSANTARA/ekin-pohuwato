@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
@@ -240,6 +240,11 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Data Harian
                             </Title>
+                            <div>
+                                <Tooltip title="Refresh Data">
+                                    <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                </Tooltip>
+                            </div>
                         </div>
                         <Card type="inner" title="Status" className="mb-6">
                             <div className="grid grid-flow-row divide-y text-xs">

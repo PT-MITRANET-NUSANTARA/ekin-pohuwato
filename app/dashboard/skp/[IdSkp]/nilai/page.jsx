@@ -2,8 +2,8 @@
 
 import { CrudModal, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
-import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Space, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -79,7 +79,7 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
@@ -90,6 +90,9 @@ const page = () => {
                             <Button type='primary' onClick={() => router.push(`nilai/rencana_aksi`)}>
                                 Rencana Aksi
                             </Button>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
                         </div>
                     </div>
                     <DataTable columns={Column} data={data} loading={loading} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, InputNumber, List, Modal, Select, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, InputNumber, List, Modal, Select, Tag, Tooltip, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -307,6 +307,9 @@ const page = () => {
                                     >
                                         Cetak Hasil SKP
                                     </Button>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
                                 </div>
                             </div>
                             <div className="grid grid-flow-row divide-y text-xs">

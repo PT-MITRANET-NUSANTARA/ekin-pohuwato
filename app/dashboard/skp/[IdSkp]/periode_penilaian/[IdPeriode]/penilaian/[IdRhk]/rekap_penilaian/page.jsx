@@ -2,11 +2,11 @@
 
 import { DataTable } from '@/components';
 import { dummyRekapPenilaian } from '@/data';
-import { Breadcrumb, Button, Card, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Tooltip, Typography } from 'antd';
 import Link from 'next/link';
 import React from 'react';
 
-const {Title} = Typography;
+const { Title } = Typography;
 
 const page = () => {
 
@@ -57,7 +57,7 @@ const page = () => {
     ];
     return (
         <div className="w-full flex flex-col gap-y-4">
-       
+
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
@@ -65,7 +65,12 @@ const page = () => {
                             Rekap Penilaian Bawahan
                         </Title>
                         <div>
-                            <Button type="primary"onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
+                        </div>
+                        <div>
+                            <Button type="primary" onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                 Download Excel
                             </Button>
                         </div>

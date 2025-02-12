@@ -5,7 +5,8 @@ export const DashboardLink = [
     {
         icon: DashboardOutlined,
         label: 'Dashboard',
-        path: '/dashboard'
+        path: '/dashboard',
+        permission: ['admin'],
     },
 
     {
@@ -18,12 +19,14 @@ export const DashboardLink = [
             // },
             {
                 label: 'Visi',
-                path: '/dashboard/visi'
+                path: '/dashboard/visi',
+                permission: ['user']
             },
             {
                 label: 'Misi',
-                path: '/dashboard/misi'
-            }
+                path: '/dashboard/misi',
+                permission: ['admin', 'user']
+            },
         ]
     },
     {
@@ -68,11 +71,6 @@ export const DashboardLink = [
         ]
     },
 
-    // {
-    //   icon: FieldTimeOutlined,
-    //   label: 'Feedback Harian',
-    //   path: "/dashboard/harians",
-    // },
     {
         icon: AuditOutlined,
         label: 'SKP',
@@ -83,14 +81,8 @@ export const DashboardLink = [
         label: 'Harian',
         path: '/dashboard/harians'
     },
-    {
-        icon: BlockOutlined,
-        label: 'TPP',
-        path: '/dashboard/tpp'
-    },
-   
 
-  
+
     {
         icon: UserSwitchOutlined,
         label: 'UMPEG',
@@ -102,7 +94,11 @@ export const DashboardLink = [
             {
                 label: 'Absen',
                 path: '/dashboard/absen'
-            }
+            },
+            {
+                label: 'TPP',
+                path: '/dashboard/tpp'
+            },
         ]
     },
     {

@@ -1,8 +1,8 @@
 'use client';
 
 import { CrudModal, DataTable, InfoModal } from '@/components';
-import { Breadcrumb, Button, Card, List, Modal, Skeleton, Space, Tag, Typography } from 'antd';
-import { EditOutlined, EyeOutline, CheckCircleFilled, PlusOutlined, HistoryOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, List, Modal, Skeleton, Space, Tag, Tooltip, Typography } from 'antd';
+import { EditOutlined, EyeOutline, CheckCircleFilled, PlusOutlined, HistoryOutlined, ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { dummySkpBawahan } from '@/data/dummyData';
@@ -44,7 +44,7 @@ const page = () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
             console.log('data', data);
-            
+
             const selectedJabatan = user.jabatan;
 
             const unit = await getAllPosjabByUnit(user.token, selectedJabatan.unor.induk.id);
@@ -262,7 +262,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-         
+
             <Card>
                 <div className="flex items-center justify-between mb-6">
                     <div className='flex flex-col'>
@@ -272,12 +272,13 @@ const page = () => {
                         <p className="text-sm uppercase">{user?.jabatan.unor.nama}</p>
 
                     </div>
-
-                    <div>
-
+                    <div className='inline-flex gap-x-2 items-center'>
                         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', })}>
                             Tambah
                         </Button>
+                        <Tooltip title="Refresh Data">
+                            <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                        </Tooltip>
                     </div>
                 </div>
                 {loadingData ? (

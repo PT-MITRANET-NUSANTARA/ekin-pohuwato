@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined, ExclamationOutlined, DownloadOutlined, OrderedListOutlined, HistoryOutlined, WarningOutlined, SendOutlined, LinkOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined, ExclamationOutlined, DownloadOutlined, OrderedListOutlined, HistoryOutlined, WarningOutlined, SendOutlined, LinkOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, InfoModal, DataLoading } from '@/components';
 import { dateFormatter, renderStatusTag } from '@/utils';
 import React, { useEffect, useState } from 'react';
@@ -348,7 +348,11 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Detail Data Harian
                             </Title>
-                            <div></div>
+                            <div>
+                                <Tooltip title="Refresh Data">
+                                    <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                </Tooltip>
+                            </div>
                         </div>
                         <div>
                             <Card type="inner" title="Status" className="mb-6">

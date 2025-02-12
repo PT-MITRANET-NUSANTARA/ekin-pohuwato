@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumb, Button, Card, Space, Tag, Tooltip, Typography } from 'antd';
-import { DatabaseOutlined, DeleteOutlined, DotChartOutlined, EditOutlined, EyeOutlined, PieChartOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, DeleteOutlined, DotChartOutlined, EditOutlined, EyeOutlined, PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
 import { dummyTimKerja } from '@/data';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -85,7 +85,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-          
+
             <Card>
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
@@ -97,6 +97,9 @@ const page = () => {
                                 <Button type="primary" icon={<DotChartOutlined />} onClick={() => router.push(`/dashboard/skp/${IdSkp}/matriks_peran_hasil/${IdSkp}`)}>
                                     Matriks Unit Kerja
                                 </Button>
+                            </Tooltip>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
                             </Tooltip>
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { CrudModal, DataLoading, DataTable, InfoModal } from '@/components';
-import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Tooltip, Typography } from 'antd';
 import {
     CheckCircleFilled,
     CheckCircleOutlined,
@@ -12,6 +12,7 @@ import {
     HistoryOutlined,
     LinkOutlined,
     OrderedListOutlined,
+    ReloadOutlined,
     SearchOutlined,
     SendOutlined,
 } from '@ant-design/icons';
@@ -369,7 +370,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -380,6 +381,11 @@ const page = () => {
                                 <Title className="mt-2" level={5}>
                                     Data Aktivitas SKP
                                 </Title>
+                                <div>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
+                                </div>
                             </div>
                             {/* <DataTable columns={Column} data={dummyAktivitas} loading={false} /> */}
                             {loading ? (

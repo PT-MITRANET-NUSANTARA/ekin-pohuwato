@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input, Skeleton, message } from 'antd';
+import { Breadcrumb, Button, Card, Collapse, Form, Modal, Select, Space, Tag, Typography, Input, Skeleton, message, Tooltip } from 'antd';
 import { ReloadOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { use, useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ const { Option } = Select;
 
 const page = () => {
     const { Id, IdSkp } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const router = useRouter();
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
@@ -38,7 +38,7 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
-            
+
             const rhks = await getRHKBySkp(IdSkp);
             setRhk(rhks.data);
             setData(data.data.data);
@@ -140,7 +140,7 @@ const page = () => {
 
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Aspek', type: 'delete', formFields: AspekFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Delete Aspek', type: 'delete', formFields: AspekFields, onSubmit: () => { } })}
                         size="middle"
                         color="danger"
                         icon={<DeleteOutlined />}
@@ -170,7 +170,7 @@ const page = () => {
                 <Space size="small">
                     <Button
                         // type='primary'
-                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Rencana Aksi', type: 'edit', formFields: RhkFields, onSubmit: () => {} })}
+                        onClick={() => setModal({ trigger: true, modalData: record, title: 'Edit Rencana Aksi', type: 'edit', formFields: RhkFields, onSubmit: () => { } })}
                         size="middle"
                         icon={<EditOutlined />}
                     />
@@ -320,7 +320,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-           
+
             <Card>
                 <div className="flex items-center justify-between mb-6">
                     <Title className="mt-2" level={5}>
@@ -330,6 +330,9 @@ const page = () => {
                         <Button type="default" icon={<PrinterOutlined />} onClick={() => router.push('/document/1/matriks_peran_hasil')}>
                             Cetak
                         </Button>
+                        <Tooltip title="Refresh Data">
+                            <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                        </Tooltip>
                     </div>
                 </div>
 

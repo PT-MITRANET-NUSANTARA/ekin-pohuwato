@@ -1,7 +1,7 @@
 'use client';
 
-import { Breadcrumb, Button, Card, List, Skeleton, Tag, Typography } from 'antd';
-import { PlusOutlined, ExclamationCircleFilled, WarningOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, List, Skeleton, Tag, Tooltip, Typography } from 'antd';
+import { PlusOutlined, ExclamationCircleFilled, WarningOutlined, PrinterOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -288,7 +288,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-         
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -361,6 +361,9 @@ const page = () => {
                                     >
                                         Buat Predikat Kinerja
                                     </Button>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
                                 </div>
                             </div>
 
