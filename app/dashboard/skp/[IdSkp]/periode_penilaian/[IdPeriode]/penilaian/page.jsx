@@ -221,12 +221,9 @@ const page = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-x-2 mb-4">
-                        <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
+                        {/* <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
-                        </Button>
-                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, formFields: evaluasiKinerjaPrintFields, title: 'Cetak Dokumen Evaluasi Kinerja', onSubmit: () => { } })}>
-                            Cetak Dokumen Evaluasi Kinerja
-                        </Button>
+                        </Button> */}
                         <Button
                             size="middle"
                             onClick={() => router.push(window.location.pathname + `/rencana_aksi`)}

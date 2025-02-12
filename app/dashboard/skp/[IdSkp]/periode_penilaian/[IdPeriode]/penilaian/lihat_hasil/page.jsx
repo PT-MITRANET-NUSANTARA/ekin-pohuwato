@@ -16,7 +16,7 @@ import { getById as getPenilaian } from '@/controller/periodePenilaianController
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
 import { getRealisasi } from '@/controller/RHKController';
-import { getFormPenilaian, getHasilSkp } from '@/controller/ReportController';
+import { getEvaluasiKinerja, getFormPenilaian, getHasilSkp } from '@/controller/ReportController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 
 const page = () => {
@@ -110,6 +110,61 @@ const page = () => {
             setSubmitLoading(false)
         }
     };
+
+    const printEvaluasiKinerja = async (values) => {
+        setSubmitLoading(true)
+        const periode = await getPenilaian(IdPeriode);
+
+        if (data) {
+            const index = data.jabatan.length - 1;
+            const bawahan = data.jabatan[index];
+            const atasan = bawahan.unor.atasan;
+
+            const realisasi = {};
+
+            data.rhks.forEach((rhk) => {
+                if (!realisasi[rhk._id]) {
+                    realisasi[rhk._id] = {};
+                }
+
+                rhk.aspek.forEach(async (aspek) => {
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    realisasi[rhk._id][aspek._id] = data.data;
+                });
+            });
+
+            const query = {
+                atasan: atasan,
+                bawahan: bawahan,
+                skp: data,
+                utama: utama,
+                tambahan: tambahan,
+                realisasi: realisasi,
+                penilaian: penilaian,
+                periode: periode.data,
+                periodeStart: dateFormatter(periode.data.periodeStart),
+                periodeEnd: dateFormatter(periode.data.periodeEnd),
+                lokasi_tertanda_dinilai: values.lokasi_dinilai,
+                tanggal_tertanda_dinilai: values.tanggal_dinilai,
+                tanggal_tertanda_penilai: values.tanggal_penilai,
+                lokasi_tertanda_penilai: values.lokasi_penilai,
+
+            };
+
+            const pdfBlob = await getEvaluasiKinerja(query);
+
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'evaluasi_kinerja.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSubmitLoading(false)
+        }
+    }
 
     const printHasilSkp = async (values) => {
         setSubmitLoading(true)
@@ -231,10 +286,10 @@ const page = () => {
                                     Nilai
                                 </Title>
                                 <div className="flex items-center gap-x-2">
-                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Form Penilaian`, type: 'edit', formFields: formCetak, onSubmit: printFormPenilaian })}>
+                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Form Penilaian`, type: 'create', formFields: formCetak, onSubmit: printFormPenilaian })}>
                                         Cetak Form Penilaian
                                     </Button>
-                                    <Button type="default" icon={<PrinterOutlined />}>
+                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Evaluasi Kinerja`, type: 'create', formFields: formCetak, onSubmit: printEvaluasiKinerja })}>
                                         Cetak Dokumen Evaluasi Kinerja
                                     </Button>
                                     <Button
