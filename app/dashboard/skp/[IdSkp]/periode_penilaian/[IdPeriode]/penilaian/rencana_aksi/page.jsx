@@ -14,8 +14,8 @@ const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -24,37 +24,30 @@ const page = () => {
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
+    const [jabatan, setJabatan] = useState(null);
+
     const [tambahan, setTambahan] = useState(null);
     useEffect(() => {
         fetchData();
     }, []);
 
     const fetchData = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const skp = await getById(IdSkp);
-            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
-            const bawahan = skp.data.jabatan[index];
-
-            const skpAtasan = await getById(IdSkp);
-            if (skpAtasan) {
-                const jabatan = skpAtasan.data.jabatan;
-                const atasan = jabatan.find((item) => {
-                    return item.id_posjab === skp.data.posjab[index];
-                });
-                setAtasan(atasan);
-            } else {
-                setAtasan(bawahan.unor.atasan);
-            }
+            console.log(skp.data.rhks);
 
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
+            console.log(skp.data.rhks.filter((item) => item.jenis === 'utama'));
+
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
+
             setData(skp.data);
-            setBawahan(bawahan);
         } catch (error) {
             console.log(error);
         }
-        setLoading(false)
+        setLoading(false);
     };
     // const onSubmit = async (value) => {
     //     try {
@@ -90,14 +83,14 @@ const page = () => {
     //     }
     // };
 
-    const onClose = () => {
-        setModal((prev) => ({ ...prev, trigger: false }));
+    const handleClose = () => {
+        setModal({ trigger: false, modalData: null });
     };
 
     const rencanaAksiFields = [
         {
             label: 'Rencana Aksi',
-            name: 'rencana_aksi',
+            name: 'isi',
             type: 'longtext',
             rules: [
                 {
@@ -152,14 +145,14 @@ const page = () => {
                                     {data?.status}
                                 </Tag>
                             </div>
-                            <div className="flex items-center justify-between py-2">
+                            {/* <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">Model SKP</span>
                                 <p className="text-right capitalize">JAJF</p>
                             </div>
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">jenis pegawai</span>
                                 <p className="text-right capitalize">pemimpin</p>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     <div className="w-full grid grid-cols-12 gap-4 mb-6">
@@ -168,13 +161,13 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">nama</span>
                                     <p color="blue" className="capitalize">
-                                        {bawahan?.nama_asn}
+                                        {jabatan?.unor.atasan.asn.nama_atasan}
                                     </p>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">nip</span>
                                     <p color="blue" className="capitalize">
-                                        {bawahan?.nip_asn}
+                                        {jabatan?.unor.atasan.asn.nip_atasan}
                                     </p>
                                 </div>
                                 {/* <div className="flex items-center justify-between py-2">
@@ -185,13 +178,13 @@ const page = () => {
                             </div> */}
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">jabatan</span>
-                                    <p className="text-right capitalize"> {bawahan?.nama_jabatan}</p>
+                                    <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
                                 </div>
                                 <div className="flex justify-between py-2">
                                     <span className="uppercase font-semibold">unit kerja</span>
                                     <div className="flex flex-col gap-y-2 text-right items-end">
-                                        <p>{bawahan?.unor.nama} </p>
-                                        <small>ID : {bawahan?.unor.id}</small>
+                                        <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                        <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                     </div>
                                 </div>
                             </div>
@@ -201,13 +194,13 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">nama</span>
                                     <p color="blue" className="capitalize">
-                                        {bawahan?.unor?.atasan?.asn?.nama_atasan}
+                                        {jabatan?.nama_asn}
                                     </p>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">nip</span>
                                     <p color="blue" className="capitalize">
-                                        {bawahan?.unor?.atasan?.asn?.nip_atasan}
+                                        {jabatan?.nip_asn}
                                     </p>
                                 </div>
                                 {/* <div className="flex items-center justify-between py-2">
@@ -218,13 +211,13 @@ const page = () => {
                             </div> */}
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">jabatan</span>
-                                    <p className="text-right capitalize"> {bawahan?.unor?.atasan?.unor_jabatan}</p>
+                                    <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
                                 </div>
                                 <div className="flex justify-between py-2">
                                     <span className="uppercase font-semibold">unit kerja</span>
                                     <div className="flex flex-col gap-y-2 text-right items-end">
-                                        <p>{bawahan?.unor?.atasan?.unor_nama}</p>
-                                        <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
+                                        <p>{jabatan?.unor.nama}</p>
+                                        <small>ID : {jabatan?.unor.id}</small>
                                     </div>
                                 </div>
                             </div>
@@ -237,9 +230,9 @@ const page = () => {
                                 <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                                 <th>RENCANA HASIL KERJA</th>
                                 <th>RENCANA AKSI</th>
-                                <th>ASPEK</th>
+                                {/* <th>ASPEK</th>
                                 <th>INDIKATOR KINERJA INDIVIDU</th>
-                                <th>TARGET TAHUNAN</th>
+                                <th>TARGET TAHUNAN</th> */}
                             </tr>
                         </thead>
                         <tbody className="capitalize text-sm">
@@ -272,7 +265,7 @@ const page = () => {
                                             <RencanaAksiButton IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
                                         </td>
                                     </tr>
-                                    {item.aspek?.map((aspek) => (
+                                    {/* {item.aspek?.map((aspek) => (
                                         <>
                                             <tr>
                                                 <td>{aspek.jenis}</td>
@@ -284,7 +277,7 @@ const page = () => {
                                                 <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                             </tr>
                                         </>
-                                    ))}
+                                    ))} */}
                                 </>
                             ))}
                             <tr>
@@ -313,10 +306,10 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                            <RencanaAksiButton />
+                                            <RencanaAksiButton IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
                                         </td>
                                     </tr>
-                                    {item.aspek?.map((aspek) => (
+                                    {/* {item.aspek?.map((aspek) => (
                                         <>
                                             <tr>
                                                 <td>{aspek.jenis}</td>
@@ -328,66 +321,15 @@ const page = () => {
                                                 <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                             </tr>
                                         </>
-                                    ))}
+                                    ))} */}
                                 </>
                             ))}
-                            <tr>
-                                <td colSpan={6}>Rating Hasil Kinerja</td>
-                                <td colSpan={4}>
-                                    {data?.hasil
-                                        ? (() => {
-                                            const hasil = data.hasil[IdPeriode];
-                                            switch (hasil) {
-                                                case 2:
-                                                    return (
-                                                        <div className="inline-flex gap-2">
-                                                            <p>
-                                                                <s>Diatas ekspektasi</s>
-                                                            </p>
-                                                            <p>Sesuai ekspektasi</p>
-                                                            <p>
-                                                                <s>Dibawah ekspektasi</s>
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                case 3:
-                                                    return (
-                                                        <div className="inline-flex gap-2">
-                                                            <p>Diatas ekspektasi</p>
-                                                            <p>
-                                                                <s>Sesuai ekspektasi</s>
-                                                            </p>
-                                                            <p>
-                                                                <s>Dibawah ekspektasi</s>
-                                                            </p>
-                                                        </div>
-                                                    );
-                                                case 1:
-                                                    return (
-                                                        <div className="inline-flex gap-2">
-                                                            <p>
-                                                                <s>Diatas ekspektasi</s>
-                                                            </p>
-                                                            <p>
-                                                                <s>Sesuai ekspektasi</s>
-                                                            </p>
-                                                            <p>Dibawah ekspektasi</p>
-                                                        </div>
-                                                    );
-                                                default:
-                                                    return hasil || '';
-                                            }
-                                        })()
-                                        : ''}
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
-                    <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                    <CrudModal type="create" onClose={handleClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
                     <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                 </Card>
             )}
-
         </div>
     );
 };

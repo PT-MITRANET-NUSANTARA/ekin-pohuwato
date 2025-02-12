@@ -46,3 +46,10 @@ export const destroy = async (id: string) => {
     });
     return response;
 }
+
+export const getByRhkId = async (rhk_id: string, periode: string) => {
+    const response = await apiRequest(`/api/${path}/rhk/${rhk_id}?periodePenilaian=${periode}`, {
+        method: 'GET',
+    });
+    return response;
+}

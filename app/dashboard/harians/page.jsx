@@ -33,8 +33,7 @@ const page = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const data = await getByUserId(user.user.nipBaru);
-
+            const data = await getByUserId(user.user.nipBaru, pagination.page, pagination.limit, pagination.filters);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
         } catch (error) {

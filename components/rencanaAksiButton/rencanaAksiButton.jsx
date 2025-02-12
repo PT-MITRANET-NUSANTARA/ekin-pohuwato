@@ -2,14 +2,33 @@
 
 import { Button, List } from "antd";
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useEffect, useState } from "react";
+import { destroy, getByRhkId, update } from "@/controller/RencanaAksiController";
 
-const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getByIdPenilaian, store, fetchData }) => {
+const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getByIdPenilaian, store }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const data = await getByRhkId(item._id, IdPeriode);
+      console.log(data);
+      setData(data.data)
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
   return (
     <div className="flex flex-col gap-y-2 p-2">
       <div className="flex flex-col gap-y-2 p-4">
         <List
         // isi dalam data source sumber data yang ingin ditampilkan
-          dataSource={item}
+          dataSource={data}
           className="px-4"
           renderItem={(item) => (
             <List.Item
@@ -19,8 +38,22 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
                   onClick={() =>
                     setModal({
                       formFields: rencanaAksiFields,
-                      modalData: {},
-                      onSubmit: (values) => {
+                      modalData: item,
+                      onSubmit: async (values) => {
+                        console.log(values);
+                        const data = {
+                          rhk: item.rhk,
+                          periodePenilaian: item.periodePenilaian,
+                          isi: values.isi,
+                          target: values.target,
+                        };
+                        console.log(data);
+                        
+                        const res = await update(item._id,data);
+        
+                        if (res.ok) {
+                          fetchData();
+                        }
                         console.log('seharusnya ini mengedit lampiran');
                       },
                       title: 'Edit Dukungan Sumber Daya',
@@ -34,8 +67,15 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
                   onClick={() =>
                     setModal({
                       formFields: rencanaAksiFields,
-                      modalData: {},
-                      onSubmit: (values) => {
+                      modalData: item,
+                      onSubmit: async (values) => {
+                        console.log(values);
+        
+                        const res = await destroy(item._id);
+        
+                        if (res.ok) {
+                          fetchData();
+                        }
                         console.log('seharusnya ini menghapus lampiran');
                       },
                       title: 'Delete Dukungan Sumber Daya',
@@ -46,7 +86,9 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
                 />
               ]}
             >
-              {item.isi_lampiran}
+              {item.isi}
+
+              Target: {item.target}
             </List.Item>
           )}
         />
@@ -57,11 +99,10 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
             setModal({
               formFields: rencanaAksiFields,
               onSubmit: async (values) => {
-                const periode = await getByIdPenilaian(IdPeriode);
 
                 const data = {
                   rhk: item._id,
-                  isi: values.rencana_aksi,
+                  isi: values.isi,
                   target: values.target,
                   periodePenilaian: IdPeriode
                 };
@@ -83,6 +124,7 @@ const rencanaAksiButton = ({ item, setModal, rencanaAksiFields, IdPeriode, getBy
         </Button>
       </div>
     </div>
+   
   )
 }
 
