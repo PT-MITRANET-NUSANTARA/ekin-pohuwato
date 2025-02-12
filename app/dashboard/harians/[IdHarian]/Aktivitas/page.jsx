@@ -220,7 +220,9 @@ const page = () => {
                                 </div>
                                 <div className="w-full grid grid-cols-12 gap-4">
                                     <TextArea disabled={!selectedFeedback} placeholder="Masukkan feedback" className="col-span-9 text-sm" />
-                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
+                                    <Button onClick={async () => {
+                                        
+                                    }} disabled={!selectedFeedback} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
                                         Kirim
                                     </Button>
                                 </div>

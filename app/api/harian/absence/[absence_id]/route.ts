@@ -3,6 +3,7 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Harian from '@/models/Harian';
+import buildFilterQuery from '@/utils/buildFilterQuery';
 
 const harianSchema = Joi.object({
     date: Joi.date().required().label('Tanggal'),
@@ -66,17 +67,45 @@ export async function GET(req: NextRequest, { params }: { params: { absence_id: 
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let harian;
-
+        console.log(await Harian.find({}).populate('messageHarian'));
+        
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            harian = await Harian.find({ absence_id: absence_id }).populate(populateOptions).populate('messageHarian');
+            harian = await Harian.find({ absence_id: absence_id }).populate('messageHarian').populate(populateOptions);
         } else {
+            console.log('HEREABSENCE');
+            const skip = (Number(page) - 1) * Number(limit);
             const f = JSON.parse(filters as string);
             f['absence'] = absence_id;
-            harian = await Harian.getAll(Number(page), Number(limit), f);
+            const query = await Harian.find(buildFilterQuery(f))
+                .skip(skip)
+                .limit(Number(limit))
+               
+                .populate({
+                    path: 'rhk',
+                    populate: {
+                        path: 'skp'
+                    }
+                })
+                .populate({
+                    path: 'skp',
+                    populate: {
+                        path: 'skp'
+                    }
+                }) .populate('messageHarian');
+
+            const total = await Harian.countDocuments(buildFilterQuery(f));
+
+            harian = {
+                data: query,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / Number(limit)),
+                    totalItems: total,
+                    pageSize: Number(limit)
+                }
+            };
         }
 
-        console.log(harian);
-        
         return NextResponse.json(createResponse(200, 'Success', harian, true));
     } catch (error) {
         console.error('GET error:', error);
