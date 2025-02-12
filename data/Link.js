@@ -20,7 +20,7 @@ export const DashboardLink = [
             {
                 label: 'Visi',
                 path: '/dashboard/visi',
-                permission: ['user']
+                permission: ['admin', 'user']
             },
             {
                 label: 'Misi',
@@ -35,23 +35,28 @@ export const DashboardLink = [
         children: [
             {
                 label: 'Renstra',
-                path: '/dashboard/renstra'
+                path: '/dashboard/renstra',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Tujuan',
-                path: '/dashboard/tujuan'
+                path: '/dashboard/tujuan',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Program',
-                path: '/dashboard/programs'
+                path: '/dashboard/programs',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Kegiatan',
-                path: '/dashboard/kegiatans'
+                path: '/dashboard/kegiatans',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Sub Kegiatan',
-                path: '/dashboard/subkegiatans'
+                path: '/dashboard/subkegiatans',
+                permission: ['admin', 'user']
             }
         ]
     },
@@ -62,11 +67,13 @@ export const DashboardLink = [
         children: [
             {
                 label: 'Periode RKT',
-                path: '/dashboard/periode_rkt'
+                path: '/dashboard/periode_rkt',
+                permission: ['admin', 'user']
             },
             {
                 label: 'RKT',
-                path: '/dashboard/rkt'
+                path: '/dashboard/rkt',
+                permission: ['admin', 'user']
             }
         ]
     },
@@ -74,12 +81,14 @@ export const DashboardLink = [
     {
         icon: AuditOutlined,
         label: 'SKP',
-        path: '/dashboard/skp'
+        path: '/dashboard/skp',
+        permission: ['admin', 'user']
     },
     {
         icon: FieldTimeOutlined,
         label: 'Harian',
-        path: '/dashboard/harians'
+        path: '/dashboard/harians',
+        permission: ['admin', 'user']
     },
 
 
@@ -89,15 +98,18 @@ export const DashboardLink = [
         children: [
             {
                 label: 'Monitoring Kinerja',
-                path: '/dashboard/monitoring_kinerja'
+                path: '/dashboard/monitoring_kinerja',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Absen',
-                path: '/dashboard/absen'
+                path: '/dashboard/absen',
+                permission: ['admin', 'user']
             },
             {
                 label: 'TPP',
-                path: '/dashboard/tpp'
+                path: '/dashboard/tpp',
+                permission: ['admin', 'user']
             },
         ]
     },
@@ -107,7 +119,8 @@ export const DashboardLink = [
         children: [
             {
                 label: 'Verifikasi SKP',
-                path: '/dashboard/verifikasi_skp'
+                path: '/dashboard/verifikasi_skp',
+                permission: ['admin', 'user']
             },
             // {
             //     label: 'JPT',
@@ -121,15 +134,18 @@ export const DashboardLink = [
         children: [
             {
                 label: 'Verifikator Setting',
-                path: '/dashboard/verifikator_settings'
+                path: '/dashboard/verifikator_settings',
+                permission: ['admin', 'user']
             },
             {
                 label: 'UMPEG Settings',
-                path: '/dashboard/umpeg_settings'
+                path: '/dashboard/umpeg_settings',
+                permission: ['admin', 'user']
             },
             {
                 label: 'Web Settings',
-                path: '/dashboard/web_settings'
+                path: '/dashboard/web_settings',
+                permission: ['admin', 'user']
             }
         ]
     },

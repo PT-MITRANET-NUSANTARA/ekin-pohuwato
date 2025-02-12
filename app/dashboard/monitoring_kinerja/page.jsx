@@ -76,35 +76,58 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Tanggal',
-            dataIndex: 'nama',
-            key: 'nama',
-            sorter: (a, b) => a.nama.length - b.nama.length,
+            title: 'NIP',
+            dataIndex: 'name',
+            key: 'name',
+            searchable: true,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nip_asn : 'No Jabatan';
+            }
         },
         {
-            title: 'Anggota',
-            dataIndex: 'anggota',
-            key: 'anggota',
-            sorter: (a, b) => a.anggota.length - b.anggota.length,
-            searchable: true
+            title: 'Nama',
+            dataIndex: 'name',
+            key: 'name',
+            searchable: true,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
+            }
         },
+        {
+            title: 'Unit',
+            dataIndex: 'unor',
+            key: 'unor',
+            searchable: true,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
+            }
+        },
+        {
+            title: 'Jabatan',
+            dataIndex: 'jabatan',
+            key: 'jabatan',
+            searchable: true,
+            render: (_, record) => {
+                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
+                return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
+            }
+        },
+
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Admin ${record._id}`, type: 'edit' })}
+                        onClick={() => router.push(window.location.pathname + `/${record.id}`)}
                         // type='primary'
                         size="middle"
-                        icon={<EditOutlined />}
-                    />
-                    <Button
-                        onClick={() => router.push(`/dashboard/monitoring_kinerja/${record._id}/tanggal`)}
-                        // type='primary'
-                        size="middle"
-                        icon={<DatabaseOutlined />}
-                    />
+                    >
+                        Detail
+                    </Button>
                 </Space>
             )
         }
@@ -145,7 +168,7 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
