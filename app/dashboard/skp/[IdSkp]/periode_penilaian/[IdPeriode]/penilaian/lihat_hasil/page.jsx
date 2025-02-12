@@ -9,12 +9,15 @@ import { dummyFeedback } from '@/data';
 import { title } from 'process';
 const { Title } = Typography;
 const { Option } = Select;
+import { store as storePenilaian, getBySKPAndPeriode } from '@/controller/penilaianController';
 import { getById } from '@/controller/SKPController';
 import { useParams, useRouter } from 'next/navigation';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
+import { getRealisasi } from '@/controller/RHKController';
 import { getHasilSkp } from '@/controller/ReportController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const page = () => {
     const router = useRouter();
@@ -22,13 +25,13 @@ const page = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
-    const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [skp, setSkp] = useState(null);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
+    const [jabatan, setJabatan] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -38,32 +41,19 @@ const page = () => {
         setLoading(true);
         try {
             const skp = await getById(IdSkp);
-            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
-            const bawahan = skp.data.jabatan[index];
-
-
-            const skpAtasan = await getById(IdSkp);
-            if (skpAtasan) {
-                const jabatan = skpAtasan.data.jabatan;
-                const atasan = jabatan.find((item) => {
-                    return item.id_posjab === skp.data.posjab[index];
-                });
-                setAtasan(atasan);
-            }
-            else {
-                setAtasan(bawahan.unor.atasan)
-            }
-
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
             setData(skp.data);
-            setBawahan(bawahan);
+            const nilai = await getBySKPAndPeriode(IdSkp, IdPeriode);
+            console.log('nilai', nilai);
+            
+            setPenilaian(nilai.data);
         } catch (error) {
             console.log(error);
         }
-        setLoading(false)
+        setLoading(false);
     };
-
 
     const customSubmit = (values, type, id, formData) => {
         const query = new URLSearchParams(values).toString();
@@ -87,39 +77,6 @@ const page = () => {
             ]
         }
     ];
-
-    const getRealisasi = (aspek, harian) => {
-        if (aspek.jenis === 'kualitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-            if (percentase) {
-                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
-                return percent + '%';
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'kuantitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-
-            if (percentase) {
-                const target = aspek.target_tahunan.target;
-                const realisasi = percentase.progress;
-                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
-
-                return percent + ' ' + aspek.target_tahunan.satuan;
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'waktu') {
-            return harian.length + ' ' + aspek.target_tahunan.satuan;
-        } else {
-            return '';
-        }
-    };
-
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -154,23 +111,14 @@ const page = () => {
                                         type="primary"
                                         icon={<PrinterOutlined />}
                                         onClick={async () => {
-                                            const res = await getById(record._id);
                                             const periode = await getPenilaian(IdPeriode);
                                             // console.log(periode);
                                             // console.log(res);
-                                            if (res.ok) {
-                                                console.log(res.data);
-                                                const skpAtasan = res.data.skp.find((item) => item._id === IdSkp);
-
-                                                const index = res.data.skp.findIndex((item) => item._id === IdSkp);
-                                                const bawahan = res.data.jabatan[index];
-                                                const jabatan = skpAtasan.jabatan;
-
+                                            if (data) {
+                                                const index = data.jabatan.length - 1;
+                                                const bawahan = data.jabatan[index];
                                                 // console.log(data);
-
-                                                const atasan = jabatan.find((item) => {
-                                                    return item.unor.induk.id === bawahan.unor.induk.id;
-                                                });
+                                                const atasan = bawahan.unor.atasan;
 
                                                 // const realisasi = {};
 
@@ -190,38 +138,32 @@ const page = () => {
                                                 // });
                                                 const realisasi = {};
 
-                                                res.data.rhks.forEach((rhk) => {
+                                                data.rhks.forEach((rhk) => {
                                                     if (!realisasi[rhk._id]) {
                                                         realisasi[rhk._id] = {}; // Inisialisasi objek untuk rhk._id jika belum ada
                                                     }
 
-                                                    rhk.aspek.forEach((aspek) => {
-                                                        // Filter data harian sesuai kondisi
-                                                        const filteredHarians = rhk.harians?.filter((h) => {
-                                                            const hDate = dayjs(h.date); // Konversi h.date ke Day.js object
-                                                            const endDateTime = dayjs(periode.data.periodeEnd); // Konversi periodeEnd ke Day.js object
-
-                                                            return hDate.isBefore(endDateTime) || (hDate.isSame(endDateTime) && h.isSKP === true);
-                                                        });
-
-                                                        // Hitung realisasi untuk aspek
-                                                        realisasi[rhk._id][aspek._id] = getRealisasi(aspek, filteredHarians);
+                                                    rhk.aspek.forEach(async (aspek) => {
+                                                        const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                                                        realisasi[rhk._id][aspek._id] = data.data;
                                                     });
                                                 });
-
 
                                                 const query = {
                                                     atasan: atasan,
                                                     bawahan: bawahan,
-                                                    skp: res.data,
+                                                    skp: data,
+                                                    utama: utama,
+                                                    tambahan: tambahan,
                                                     realisasi: realisasi,
+                                                    penilaian: penilaian,
                                                     periode: periode.data,
                                                     periodeStart: dateFormatter(periode.data.periodeStart),
                                                     periodeEnd: dateFormatter(periode.data.periodeEnd)
                                                 };
 
-
                                                 const pdfBlob = await getHasilSkp(query);
+                                                console.log(pdfBlob);
 
                                                 const url = window.URL.createObjectURL(pdfBlob);
                                                 const a = document.createElement('a');
@@ -244,7 +186,7 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">periode</span>
                                     <Tag color="blue" className="capitalize">
-                                        {data?.periode_awal && data?.periode_akhir ? dateFormatter(data?.periode_awal) + ' - ' + dateFormatter(data?.periode_akhir) : 'tanggal tidak tersedia'}
+                                        {data?.periode_awal && data?.periode_akhir ? formatDateToDayMonthYear(data?.periode_awal) + ' - ' + formatDateToDayMonthYear(data?.periode_akhir) : 'tanggal tidak tersedia'}
                                     </Tag>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
@@ -259,14 +201,14 @@ const page = () => {
                                         {data?.status}
                                     </Tag>
                                 </div>
-                                <div className="flex items-center justify-between py-2">
+                                {/* <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">Model SKP</span>
                                     <p className="text-right capitalize">JAJF</p>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">jenis pegawai</span>
                                     <p className="text-right capitalize">pemimpin</p>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                         <div className="w-full grid grid-cols-12 gap-4 mb-6">
@@ -275,13 +217,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.nama_asn}
+                                            {jabatan?.unor.atasan.asn.nama_atasan}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.id_asn}
+                                            {jabatan?.unor.atasan.asn.nip_atasan}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -292,13 +234,13 @@ const page = () => {
                             </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {bawahan?.nama_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{bawahan?.unor.nama} </p>
-                                            <small>ID : {bawahan?.unor.id}</small>
+                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -308,13 +250,13 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {atasan?.nama_asn}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {atasan?.id_asn}
+                                            {jabatan?.nip_asn}
                                         </p>
                                     </div>
                                     {/* <div className="flex items-center justify-between py-2">
@@ -325,13 +267,13 @@ const page = () => {
                             </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {atasan?.nama_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{atasan?.unor.nama}</p>
-                                            <small>ID : {atasan?.unor.id}</small>
+                                            <p>{jabatan?.unor.nama}</p>
+                                            <small>ID : {jabatan?.unor.id}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -381,15 +323,7 @@ const page = () => {
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 p-4">
-                                                    <List
-                                                        className="px-4"
-                                                        renderItem={
-                                                            (item) =>
-                                                                <List.Item>
-                                                                    {item.isi_lampiran}
-                                                                </List.Item>}
-                                                    />
-
+                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                                 </div>
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
@@ -445,15 +379,7 @@ const page = () => {
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 p-4">
-                                                    <List
-                                                        className="px-4"
-                                                        renderItem={
-                                                            (item) =>
-                                                                <List.Item>
-                                                                    {item.isi_lampiran}
-                                                                </List.Item>}
-                                                    />
-
+                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                                 </div>
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
@@ -474,7 +400,7 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={true} />
                                                     <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} />
                                                 </tr>
                                             </>
@@ -510,9 +436,7 @@ const page = () => {
                                                 </ol>
                                             </div>
                                         </td>
-                                        <td>
-
-                                        </td>
+                                        <td></td>
                                         <td></td>
                                     </tr>
                                 ))}
@@ -537,16 +461,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Dukungan Sumber Daya</b>
-                                            <List
-                                                className="px-4"
-                                                dataSource={skp?.lampiran.sumber_daya}
-                                                renderItem={
-                                                    (item) =>
-                                                        <List.Item>
-                                                            {item.isi_lampiran}
-                                                        </List.Item>}
-                                            />
-
+                                            <List className="px-4" dataSource={data?.lampiran.sumber_daya} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                         {/* looping through here */}
                                     </td>
@@ -555,16 +470,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Skema Pertanggung Jawaban</b>
-                                            <List
-                                                className="px-4"
-                                                dataSource={skp?.lampiran.skema}
-                                                renderItem={
-                                                    (item) =>
-                                                        <List.Item>
-                                                            {item.isi_lampiran}
-                                                        </List.Item>}
-                                            />
-
+                                            <List className="px-4" dataSource={data?.lampiran.skema} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                     </td>
                                 </tr>
@@ -572,15 +478,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <List
-                                                className="px-4"
-                                                dataSource={skp?.lampiran.konsekuensi}
-                                                renderItem={
-                                                    (item) =>
-                                                        <List.Item>
-                                                            {item.isi_lampiran}
-                                                        </List.Item>}
-                                            />
+                                            <List className="px-4" dataSource={data?.lampiran.konsekuensi} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                     </td>
                                 </tr>
@@ -590,7 +488,6 @@ const page = () => {
                     <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
                 </>
             )}
-
         </div>
     );
 };

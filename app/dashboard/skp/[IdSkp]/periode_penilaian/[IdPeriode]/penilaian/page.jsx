@@ -33,6 +33,7 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            console.log(data);
             const skp = await getById(IdSkp);
             setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
