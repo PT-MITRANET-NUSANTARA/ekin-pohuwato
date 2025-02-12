@@ -16,7 +16,7 @@ import { getById as getPenilaian } from '@/controller/periodePenilaianController
 import dayjs from 'dayjs';
 import { dateFormatter } from '@/utils';
 import { getRealisasi } from '@/controller/RHKController';
-import { getHasilSkp } from '@/controller/ReportController';
+import { getFormPenilaian, getHasilSkp } from '@/controller/ReportController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 
 const page = () => {
@@ -56,9 +56,59 @@ const page = () => {
         setLoading(false);
     };
 
-    const printFormPenilaian = (values, type, id, formData) => {
-        const query = new URLSearchParams(values).toString();
-        router.push(`/document/${IdSkp}/${IdNilai}/form_penilaian?${query}`);
+    const printFormPenilaian = async (values) => {
+        setSubmitLoading(true)
+        const periode = await getPenilaian(IdPeriode);
+
+        if (data) {
+            const index = data.jabatan.length - 1;
+            const bawahan = data.jabatan[index];
+            const atasan = bawahan.unor.atasan;
+
+            const realisasi = {};
+
+            data.rhks.forEach((rhk) => {
+                if (!realisasi[rhk._id]) {
+                    realisasi[rhk._id] = {};
+                }
+
+                rhk.aspek.forEach(async (aspek) => {
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    realisasi[rhk._id][aspek._id] = data.data;
+                });
+            });
+
+            const query = {
+                atasan: atasan,
+                bawahan: bawahan,
+                skp: data,
+                utama: utama,
+                tambahan: tambahan,
+                realisasi: realisasi,
+                penilaian: penilaian,
+                periode: periode.data,
+                periodeStart: dateFormatter(periode.data.periodeStart),
+                periodeEnd: dateFormatter(periode.data.periodeEnd),
+                lokasi_tertanda_dinilai: values.lokasi_dinilai,
+                tanggal_tertanda_dinilai: values.tanggal_dinilai,
+                tanggal_tertanda_penilai: values.tanggal_penilai,
+                lokasi_tertanda_penilai: values.lokasi_penilai,
+
+            };
+
+            const pdfBlob = await getFormPenilaian(query);
+
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'formPenilaian.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSubmitLoading(false)
+        }
     };
 
     const printHasilSkp = async (values) => {
@@ -98,7 +148,7 @@ const page = () => {
                 tanggal_tertanda_dinilai: values.tanggal_dinilai,
                 tanggal_tertanda_penilai: values.tanggal_penilai,
                 lokasi_tertanda_penilai: values.lokasi_penilai,
-                
+
             };
 
             const pdfBlob = await getHasilSkp(query);
@@ -120,21 +170,7 @@ const page = () => {
         setModal({ trigger: false, modalData: null });
     };
 
-    const formPerjanjian = [
-        {
-            label: 'Lokasi',
-            name: 'lokasi',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field lokasi wajib di isi'
-                }
-            ]
-        }
-    ];
-
-    const formHasilSkp = [
+    const formCetak = [
         {
             label: 'Lokasi Pegawai Dinilai',
             name: 'lokasi_dinilai',
@@ -183,7 +219,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -195,7 +231,7 @@ const page = () => {
                                     Nilai
                                 </Title>
                                 <div className="flex items-center gap-x-2">
-                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Form Penilaian`, type: 'edit', formFields: formPerjanjian, onSubmit: printFormPenilaian })}>
+                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Form Penilaian`, type: 'edit', formFields: formCetak, onSubmit: printFormPenilaian })}>
                                         Cetak Form Penilaian
                                     </Button>
                                     <Button type="default" icon={<PrinterOutlined />}>
@@ -209,7 +245,7 @@ const page = () => {
                                                 trigger: true,
                                                 title: `Cetak Hasil SKP`,
                                                 type: 'create',
-                                                formFields: formHasilSkp,
+                                                formFields: formCetak,
                                                 onSubmit: printHasilSkp
                                             })
                                         }
@@ -522,7 +558,7 @@ const page = () => {
                             </tbody>
                         </table>
                     </Card>
-                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} isLoading={submitLoading}/>
+                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} isLoading={submitLoading} />
                 </>
             )}
         </div>

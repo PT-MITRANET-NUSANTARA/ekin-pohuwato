@@ -102,7 +102,6 @@ const page = () => {
                 deskripsiKegiatan: values.deskripsiKegiatan,
                 tautan: values.tautan,
                 files: updatedListImage,
-                user_id: user.user.nipBaru,
                 progress: values.progress
             };
 
@@ -539,7 +538,7 @@ const page = () => {
 
                         </div>
                     </Card>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
+                    <CrudModal isLoading={submitLoading} title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                     <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                 </>
 

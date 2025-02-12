@@ -25,6 +25,7 @@ const page = () => {
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
     const [jabatan, setJabatan] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState()
 
     const [tambahan, setTambahan] = useState(null);
     useEffect(() => {
@@ -262,7 +263,7 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                            <RencanaAksiButton IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
+                                            <RencanaAksiButton  setSubmitLoading={setSubmitLoading} IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
                                         </td>
                                     </tr>
                                     {/* {item.aspek?.map((aspek) => (
@@ -326,7 +327,7 @@ const page = () => {
                             ))}
                         </tbody>
                     </table>
-                    <CrudModal type="create" onClose={handleClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
+                    <CrudModal isLoading={submitLoading} type="create" onClose={handleClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}></CrudModal>
                     <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                 </Card>
             )}
