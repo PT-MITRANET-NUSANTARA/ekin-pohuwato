@@ -24,6 +24,7 @@ const page = () => {
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [loading, setLoading] = useState()
     useEffect(() => {
         if (user) {
             fetchData();
@@ -31,12 +32,14 @@ const page = () => {
     }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
+        setLoading(true)
         try {
             const data = await getByUserId(IdBawahan);
             setData(data.data);
         } catch (error) {
             console.log(error);
         }
+        setLoading(false);
     };
 
     const onSubmit = async (values, type, id) => {

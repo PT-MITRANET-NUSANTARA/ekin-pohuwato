@@ -242,6 +242,7 @@ const CrudModal = ({ isModalOpen, data, onClose, title, formFields, onSubmit, ty
                 return (
                     <Upload
                         listType="picture"
+                        disabled={isDisabled}
                         multiple
                         fileList={fileList}
                         onChange={handleUploadChange}

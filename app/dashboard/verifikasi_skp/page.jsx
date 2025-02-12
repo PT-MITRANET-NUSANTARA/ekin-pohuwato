@@ -11,6 +11,7 @@ import { getData } from '@/controller/AuthorizationController';
 import { getAll, update } from '@/controller/SKPController';
 import { useRouter } from 'next/navigation';
 import { dateFormatter, renderStatusTag } from '@/utils';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
@@ -19,11 +20,12 @@ const page = () => {
     const router = useRouter()
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+        const { success, error } = useNotification()
+    
 
     useEffect(() => {
         if (user) {
@@ -172,6 +174,7 @@ const page = () => {
                                             const res = await update(data._id, data);
                                             if (res.ok) {
                                                 fetchData();
+                                                success('Berhasil', 'Berhasil menyetujui laporan')
                                             }
                                         },
                                         onCancel() {
@@ -197,6 +200,8 @@ const page = () => {
                                             if (res.ok) {
                                                 setModal({ trigger: false, modalData: null });
                                                 fetchData();
+                                                success('Berhasil', 'Berhasil menolak laporan')
+
                                             }
                                         }
                                     })
@@ -291,7 +296,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

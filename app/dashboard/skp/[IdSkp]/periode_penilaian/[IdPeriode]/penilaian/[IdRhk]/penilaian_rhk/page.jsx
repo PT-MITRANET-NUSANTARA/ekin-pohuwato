@@ -11,6 +11,7 @@ import { store as storePenilaian, getBySKPAndPeriode } from '@/controller/penila
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
 import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 const page = () => {
@@ -1058,6 +1059,7 @@ export default page;
 
 
 const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
+    const { success, error } = useNotification()
     const [data, setData] = useState(null);
     useEffect(() => {
         getData();
@@ -1107,7 +1109,7 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
                                 if (res.ok) {
                                     getData();
                                     setModal({ trigger: false, modalData: {} });
-                                    message.success('Data Berhasil Di Ubah');
+                                    success('Berhasil','Data Berhasil Di Ubah');
                                 }
                             }
                         })

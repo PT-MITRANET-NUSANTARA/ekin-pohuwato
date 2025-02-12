@@ -15,7 +15,6 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const { success, error } = useNotification()
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [submitLoading, setSubmitLoading] = useState(false);
     const [periode, setPeriode] = useState(null);
@@ -233,9 +232,9 @@ const page = () => {
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
+    
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

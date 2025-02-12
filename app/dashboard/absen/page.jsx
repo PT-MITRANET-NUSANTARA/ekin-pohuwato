@@ -13,19 +13,21 @@ import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
 import dayjs from 'dayjs';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [absence, setAbsence] = useState(null);
     const [loading, setLoading] = useState(false);
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [unor, setUnor] = useState(null);
+    const { success, error } = useNotification()
+
 
     useEffect(() => {
         if (user) {
@@ -72,27 +74,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Absence' : type === 'edit' ? 'Berhasil Mengedit Absence' : 'Berhasil Menambahkan Absence',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Absen' : type === 'edit' ? 'Berhasil Mengedit Absen' : 'Berhasil Menambahkan Absen')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', response.data);
         }
 
         handleClose();
@@ -356,7 +349,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

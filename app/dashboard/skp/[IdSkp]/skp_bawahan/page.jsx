@@ -197,32 +197,26 @@ const page = () => {
             if (response.ok) {
                 fetchData();
                 success('Berhasil', response.msg);
-                // setAlert({
-                //     show: true,
-                //     message: response.msg,
-                //     description: type === 'delete' ? 'Berhasil Menghapus SKP' : type === 'edit' ? 'Berhasil Mengedit SKP' : 'Berhasil Menambahkan SKP',
-                //     type: 'success'
-                // });
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
 
         setSubmitLoading(false);
 
         handleClose();
+    };
+
+    const handleClose = () => {
+        setModal({ trigger: false, modalData: null });
     };
 
     const formFields = [

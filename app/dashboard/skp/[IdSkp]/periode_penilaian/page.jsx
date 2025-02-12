@@ -14,22 +14,25 @@ import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/IDSN/UnitController';
 import { getById as getSKP } from '@/controller/SKPController';
 import { cekJT } from '@/utils/jabatanUtils';
+import useNotification from '@/app/hook/useNotification';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const { IdSkp } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [data, setData] = useState(null);
 
     const { data: user, setData: setUser } = useFetchData(getData);
     const [isJT, setIsJT] = useState(false);
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [loading, setLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState();
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [periode, setPeriode] = useState([]);
+    const { success, error } = useNotification()
+
     useEffect(() => {
         if (user) {
             fetchData();
@@ -87,27 +90,18 @@ const page = () => {
             if (response.ok) {
                 const newData = await getAll(IdSkp);
                 setData(newData.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Periode RKT' : type === 'edit' ? 'Berhasil Mengedit Periode RKT' : 'Berhasil Menambahkan Periode RKT',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Periode Penilaian' : type === 'edit' ? 'Berhasil Mengedit Periode Penilaian' : 'Berhasil Menambahkan Periode Penilaian')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -141,27 +135,18 @@ const page = () => {
             if (response.ok) {
                 const newData = await getAll(IdSkp);
                 setData(newData.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Periode RKT' : type === 'edit' ? 'Berhasil Mengedit Periode RKT' : 'Berhasil Menambahkan Periode RKT',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Periode Penilaian' : type === 'edit' ? 'Berhasil Mengedit Periode Penilaian' : 'Berhasil Menambahkan Periode Penilaian')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -201,11 +186,34 @@ const page = () => {
                 <Space size="small">
                     {isJT && (
                         <>
-                            <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Edit Renstra ${record._id}`, type: 'edit' })} size="middle" icon={<EditOutlined />} />
-                            <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Renstra ${record._id}`, type: 'show' })} size="middle" color="default" icon={<EyeOutlined />} />
+                            <Button
+                                onClick={() =>
+                                    setModal({
+                                        trigger: true,
+                                        modalData: { ...record, periodeStart: dayjs(record.periodeStart), periodeEnd: dayjs(record.periodeEnd) }, title: `Edit Renstra ${record._id}`,
+                                        type: 'edit',
+                                        formFields: formFields,
+                                        onSubmit: jptSubmitPeriode
+                                    })}
+                                size="middle"
+                                icon={<EditOutlined />}
+                            />
                         </>
                     )}
-                    <Button onClick={() => setModal({ trigger: true, modalData: record, title: `Delete Renstra ${record._id}`, type: 'delete' })} size="middle" color="danger" icon={<DeleteOutlined />} />
+                    <Button
+                        onClick={() =>
+                            setModal({
+                                trigger: true,
+                                modalData: { ...record, periodeStart: dayjs(record.periodeStart), periodeEnd: dayjs(record.periodeEnd) }, title: `Edit Renstra ${record._id}`,
+                                title: `Delete Renstra ${record._id}`,
+                                type: 'delete',
+                                formFields: formFields,
+                                onSubmit: SubmitPeriode
+                            })}
+                        size="middle"
+                        color="danger"
+                        icon={<DeleteOutlined />}
+                    />
 
                     <Button onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${record._id}/penilaian`)} size="middle" color="danger">
                         Detail
@@ -275,7 +283,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

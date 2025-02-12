@@ -17,6 +17,7 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 import { dummyfileList } from '@/data/dummyData';
 import TextArea from 'antd/es/input/TextArea';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
@@ -29,7 +30,6 @@ const page = () => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [rhk, setRHK] = useState(null);
     const [skp, setSKP] = useState(null);
     const [absence, setAbsence] = useState(null);
@@ -37,6 +37,8 @@ const page = () => {
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const { data: user, setData: setUser } = useFetchData(getData);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const { success, error } = useNotification()
+
     useEffect(() => {
         if (user) {
             fetchData();
@@ -122,27 +124,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Aktivitas' : type === 'edit' ? 'Berhasil Mengedit Aktivitas' : 'Berhasil Menambahkan Aktivitas')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -302,29 +295,13 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: {
-                                    ...record,
-                                    skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
-                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
-                                },
-                                title: `Renstra ${record._id}`,
-                                type: 'show'
-                            })
-                        }
-                        // type='primary'
-                        size="middle"
-                        color="default"
-                        icon={<EyeOutlined />}
-                    />
-                    <Button
-                        onClick={() =>
-                            setModal({
-                                trigger: true,
                                 formFields: formFields,
                                 modalData: {
                                     ...record,
                                     skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
-                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
+                                    rhk: { label: record.rhk.desc, value: record.rhk._id },
+                                    startDateTime: dayjs(`${dayjs().format("YYYY-MM-DD")} ${record.startDateTime}`, "YYYY-MM-DD HH:mm:ss"),
+                                    endDateTime: dayjs(`${dayjs().format("YYYY-MM-DD")} ${record.endDateTime}`, "YYYY-MM-DD HH:mm:ss"),
                                 },
                                 title: `Renstra ${record._id}`,
                                 type: 'edit'
@@ -339,11 +316,13 @@ const page = () => {
                         onClick={() =>
                             setModal({
                                 trigger: true,
+                                formFields: formFields,
                                 modalData: {
-                                    formFields: formFields,
                                     ...record,
                                     skp: { label: `${dateFormatter(record.rhk.skp.periode_awal)} - ${dateFormatter(record.rhk.skp.periode_akhir)}`, value: record.rhk.skp._id },
-                                    rhk: { label: record.rhk.desc, value: record.rhk._id }
+                                    rhk: { label: record.rhk.desc, value: record.rhk._id },
+                                    startDateTime: dayjs(`${dayjs().format("YYYY-MM-DD")} ${record.startDateTime}`, "YYYY-MM-DD HH:mm:ss"),
+                                    endDateTime: dayjs(`${dayjs().format("YYYY-MM-DD")} ${record.endDateTime}`, "YYYY-MM-DD HH:mm:ss"),
                                 },
                                 title: `Delete Renstra ${record._id}`,
                                 type: 'delete'
@@ -535,7 +514,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {

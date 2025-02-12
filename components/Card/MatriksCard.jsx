@@ -10,12 +10,13 @@ import { store as storeAspek } from '@/controller/AspekController';
 import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
 import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
 import CrudModal from '../Modal/CrudModal';
+import useNotification from '@/app/hook/useNotification';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [submitLoading, setSubmitLoading] = useState(false);
-
+    const { success, error } = useNotification()
     const [data, setData] = useState(null);
     const [rhk, setRhk] = useState([]);
     useEffect(() => {
@@ -54,7 +55,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                     }
                 };
                 await updateAspek(id, updatedData);
-                message.success('Berhasil Mengedit Aspek');
+                success('Berhasil', 'Berhasil Mengedit Aspek')
             } else {
                 const newData = {
                     rhk: value.rhk,
@@ -66,12 +67,12 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                     }
                 };
                 await storeAspek(newData);
-                message.success('Berhasil Menambahkan Aspek');
+                success('Berhasil', 'Berhasil Menambahkan Aspek');
             }
 
-            fetchData(); 
-        } catch (error) {
-            message.error('Operasi gagal: ' + error.message);
+            fetchData();
+        } catch (err) {
+            error('Gagal' + err.message);
         } finally {
             setSubmitLoading(false);
             setModal({ trigger: false });
@@ -303,10 +304,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                     const response = await updateRHK(record._id, dt);
 
                                     if (response.ok) {
-                                        message.success('Berhasil Mengubah RHK');
+                                        success('Berhasil', 'Berhasil Mengubah RHK');
                                         setModal({ trigger: false });
                                     } else {
-                                        message.error('Gagal Mengubah RHK');
+                                        error('Gagal', 'Gagal Mengubah RHK');
                                     }
                                     setSubmitLoading(false);
                                 }
@@ -330,10 +331,10 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
 
                                     const response = await destroyRHK(record._id);
                                     if (response.ok) {
-                                        message.success('Berhasil Menghapus RHK');
+                                        success('Berhasil', 'Berhasil Menghapus RHK');
                                         setModal({ trigger: false });
                                     } else {
-                                        message.error('Gagal Menghapus RHK');
+                                        error('Gagal', 'Gagal Menghapus RHK');
                                     }
                                     setSubmitLoading(false);
                                 }
@@ -385,7 +386,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         const rhk = await storeRHK(dt);
 
 
-                                        message.success('Berhasil Menambahkan RHK');
+                                        success('Berhasil', 'Berhasil Menambahkan RHK');
                                         fetchData();
                                         setSubmitLoading(false);
                                         setModal({ trigger: false });

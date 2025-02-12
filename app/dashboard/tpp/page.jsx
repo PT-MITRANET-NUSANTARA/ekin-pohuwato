@@ -14,6 +14,7 @@ import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { dateFormatter } from '@/utils';
 import { title } from 'process';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
@@ -21,13 +22,14 @@ const page = () => {
     const router = useRouter();
     const { data, setData, msg, status } = useFetchData(getData);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [periode, setPeriode] = useState(null);
     const [pegawai, setPegawai] = useState(null);
     const [loading, setLoading] = useState(true);
     const [tpp, setTpp] = useState(null);
     const [unor, setUnor] = useState(null);
+    const { success, error } = useNotification()
+
     useEffect(() => {
         if (data) {
             fetchData();
@@ -85,27 +87,18 @@ const page = () => {
             if (response.ok) {
                 const data = await getByUnitId(unor);
                 setTpp(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Sub Kegiatan' : type === 'edit' ? 'Berhasil Mengedit Sub Kegiatan' : 'Berhasil Menambahkan Sub Kegiatan',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus TPP' : type === 'edit' ? 'Berhasil Mengedit TPP' : 'Berhasil Menambahkan TPP')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
         setLoading(false);
 
@@ -302,34 +295,98 @@ const page = () => {
         }
     ];
 
+    const onFilter = async (values) => {
+        filterFileds.forEach((field) => {
+            let value = values[field.name];
+            if (value !== undefined && value !== null) {
+                switch (field.type) {
+                    case 'date':
+                        value = dateFormatter(value);
+                        break;
+
+                    default:
+                        value = value;
+                        break;
+                }
+
+                switch (field.filter) {
+                    case 'gte':
+                        pagination.filters[field.name] = { $gte: value };
+                        break;
+                    case 'lte':
+                        pagination.filters[field.name] = { $lte: value };
+                        break;
+                    case 'gt':
+                        pagination.filters[field.name] = { $gt: value };
+                        break;
+                    case 'lt':
+                        pagination.filters[field.name] = { $lt: value };
+                        break;
+                    case 'eq':
+                        pagination.filters[field.name] = value; // Equality
+                        break;
+                    case 'ne':
+                        pagination.filters[field.name] = { $ne: value };
+                        break;
+                    case 'in':
+                        pagination.filters[field.name] = { $in: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'nin':
+                        pagination.filters[field.name] = { $nin: Array.isArray(value) ? value : [value] };
+                        break;
+                    case 'regex':
+                        pagination.filters[field.name] = { $regex: value, $options: 'i' }; // Case-insensitive regex
+                        break;
+                    case 'exists':
+                        pagination.filters[field.name] = { $exists: Boolean(value) };
+                        break;
+                    default:
+                        console.warn(`Unsupported filter type: ${field.filter}`);
+                }
+            } else {
+                if (pagination.filters.hasOwnProperty(field.name)) {
+                    delete pagination.filters[field.name];
+                }
+            }
+        });
+        fetchData();
+    };
+
     const filterFileds = [
         {
-            id: 1,
-            name: 'periode rkt',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            label: 'Periode RKT',
+            name: 'periode_rkt',
+            type: 'select',
+            filter: 'eq',
+            options: periode?.map((item) => ({
+                label: `${dateFormatter(item.periode_start)} - ${dateFormatter(item.periode_end)}`,
+                value: item._id
+            }))
         },
         {
-            id: 1,
+            label: 'Pegawai',
             name: 'pegawai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
+            type: 'select',
+            filter: "eq",
+            options: pegawai?.map((item) => ({
+                label: item.nama_asn,
+                value: item.id_asn,
+                id: item.id_asn
+            }))
         },
         {
-            id: 1,
+            label: 'Status',
             name: 'status',
+            type: 'select',
+            filter: 'eq',
             options: [
                 {
-                    label: 'sample',
-                    value: 'sample'
+                    label: 'Menerima',
+                    value: true
+                },
+                {
+                    label: 'Tidak Menerima',
+                    value: false
                 }
             ]
         }
@@ -341,7 +398,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
             <Breadcrumb
                 items={[
                     {
@@ -368,7 +424,8 @@ const page = () => {
                             </div>
                         </div>
                         <div className="w-full">
-                            <FilterField fields={filterFileds}></FilterField>
+                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
+
                         </div>
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={tpp} />

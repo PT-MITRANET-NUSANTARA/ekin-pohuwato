@@ -11,6 +11,7 @@ import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { getBySKPId } from '@/controller/SKPController';
+import { renderStatusTag } from '@/utils';
 
 const { Title } = Typography;
 
@@ -76,37 +77,7 @@ const page = () => {
             key: 'status',
             render: (_, record) => (
                 <>
-                    {(() => {
-                        switch (record.status) {
-                            case 'approved':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'rejected':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="red" className="capitalize w-fit">
-                                            {record.status}
-                                        </Tag>
-                                        "{record.keterangan}"
-                                    </div>
-                                );
-                            case 'submitted':
-                                return (
-                                    <Tag color="yellow" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                            case 'draft':
-                                return (
-                                    <Tag color="blue" className="capitalize">
-                                        {record.status}
-                                    </Tag>
-                                );
-                        }
-                    })()}
+                    {renderStatusTag(record.status)}
                 </>
             )
         },

@@ -70,7 +70,7 @@ const FilterField = ({ fields, onSubmit = () => { } }) => {
     return (
         <>
             <hr className="mb-4" />
-            <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-2" layout='vertical'>
+            <Form form={form} onFinish={onSubmit} className="w-full mb-2 inline-flex gap-6 items-center" layout='vertical'>
                 <div className="grid grid-cols-12 w-full gap-4">
                     {fields?.map((field, index) => (
                         <Form.Item key={index} name={field.name} className='col-span-4 m-0' label={`Pilih ${field.name}`} >
@@ -78,26 +78,29 @@ const FilterField = ({ fields, onSubmit = () => { } }) => {
                         </Form.Item>
                     ))}
                 </div>
-                <Form.Item>
-                    <Button
-                        size="large"
-                        variant='solid'
-                        color='primary'
-                        htmlType='submit'
-                        icon={<FilterOutlined />}
-                    />
-                </Form.Item>
-                <Form.Item>
-                    <Button
-                        size="large"
-                        icon={<RedoOutlined />}
-                        onClick={() => {
-                            form.resetFields();
-                            setSelectValues({});
-                            onSubmit({});
-                        }} // Reset all fields
-                    />
-                </Form.Item>
+                <div className='inline-flex items-center gap-x-2'>
+                    <Form.Item>
+                        <Button
+                            size="large"
+                            variant='solid'
+                            color='primary'
+                            htmlType='submit'
+                            icon={<FilterOutlined />}
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button
+                            size="large"
+                            icon={<RedoOutlined />}
+                            onClick={() => {
+                                form.resetFields();
+                                setSelectValues({});
+                                onSubmit({});
+                            }} // Reset all fields
+                        />
+                    </Form.Item>
+                </div>
+
             </Form>
         </>
     );
