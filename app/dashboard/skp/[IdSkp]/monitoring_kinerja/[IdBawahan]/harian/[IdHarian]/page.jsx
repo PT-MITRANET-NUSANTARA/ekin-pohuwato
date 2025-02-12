@@ -5,13 +5,13 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import { DataTable, CrudModal, InfoModal, DataLoading } from '@/components';
 import { dateFormatter } from '@/utils';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyfileList } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
-import { getByUserId as getRHKByUserId } from '@/controller/RHKController';
+import { getById as getAbsenceById } from '@/controller/AbsenceController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
@@ -24,27 +24,39 @@ const page = () => {
     const router = useRouter();
     const { IdBawahan, IdHarian } = useParams();
     const [loading, setLoading] = useState(true);
-    const { data, setData } = useFetchData(getData);
+    const [data, setData] = useState(null);
+
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
-    const [dt, setDT] = useState(null);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+
+    const { data: user, setData: setUser } = useFetchData(getData);
+
     const MENIT = process.env.NEXT_PUBLIC_TIME;
     useEffect(() => {
-        if (data) {
+        if (user) {
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const harian = await getByUserIdAbsence(IdBawahan, IdHarian);
+            console.log(IdHarian);
+            console.log(IdHarian);
+            
+            const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, {
+                ...pagination.filters,
+                // status: { $in: ['approved', ] }
+            });
 
-            const harian_terima = harian.data.filter((item) => item.msg.status === 'Terima');
-            setDT(calculateTotalMinutes(harian_terima));
-            setHarian(harian_terima);
+            console.log(data);
+            setData(data.data.data)
+            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            const harian = getAbsenceById(IdHarian);
+            setHarian(harian.data);
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -68,125 +80,10 @@ const page = () => {
         return { menit, date };
     };
 
-    const params = new URLSearchParams(window.location.search);
-    const paramEntries = Object.fromEntries(params.entries());
-
     const onSubmit = async (values, type, id, listImage, fileList) => {
         handleClose();
     };
 
-    const somthing = {
-        msg: {
-            status: 'Terima',
-            message: ''
-        },
-        _id: '674c5037da4c0da45c146347',
-        absence: '1',
-        date: '2024-10-01T00:00:00.000Z',
-        isSKP: false,
-        startDateTime: '05:00:00',
-        endDateTime: '07:00:00',
-        progress: 23,
-        rhk: {
-            _id: '6749ad9fbce9981ab0384ce2',
-            skp: {
-                _id: '6749ad9ebce9981ab0384cd2',
-                periode_awal: '2024-11-28T16:00:00.000Z',
-                periode_akhir: '2024-11-29T16:00:00.000Z',
-                user_id: '980035363',
-                skp: ['6749ad76bce9981ab0384c83'],
-                periodeRKT: '6749ad4cbce9981ab0384c64',
-                renstra: '6749accabce9981ab0384bba',
-                jabatan: [
-                    {
-                        id_posjab: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282',
-                        unor: {
-                            id: '8ae482855a71b686015a74eabbde7454',
-                            nama: 'BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
-                            atasan: {
-                                unor_id: '8ae482a75a4bd60d015a4d1931d72258',
-                                unor_nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
-                                unor_jabatan: 'KEPALA BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
-                                asn: {
-                                    idasn_atasan: '980038195',
-                                    nip_atasan: '196710281989021002',
-                                    nama_atasan: 'SUPRATMAN NENTO'
-                                }
-                            },
-                            induk: {
-                                id: '8ae482a75a4bd60d015a4d1931d72258',
-                                id_simpeg: 2171,
-                                nama: 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA'
-                            }
-                        },
-                        jenis_jabatan: {
-                            id: '1',
-                            nama: 'Jabatan Struktural'
-                        },
-                        jabatan_status: {
-                            id: 7,
-                            nama: 'Administrator'
-                        },
-                        eselon: {
-                            id: '32',
-                            nama: 'III.b'
-                        },
-                        golongan_pns: {
-                            id: '34',
-                            nama: 'III/d'
-                        },
-                        golongan_pppk: {
-                            id: '',
-                            nama: null
-                        },
-                        jabfung: {
-                            id: 'null',
-                            nama: null
-                        },
-                        jabfungum: {
-                            id: 'null',
-                            nama: null
-                        },
-                        id_asn: '980035363',
-                        nama_asn: 'SYAIFUL SAFRIL LUMA',
-                        jenis_asn: 'PNS',
-                        nama_jabatan: 'KEPALA BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI KEPEGAWAIAN',
-                        tmt_jabatan: '2023-01-06',
-                        tunjangan: 980000,
-                        pejabat_sk: 'BUPATI POHUWATO',
-                        nomor_sk: '1/SK-Bup/BKPSDM/133-I',
-                        tgl_sk: '2023-01-06',
-                        doc: 'fb13dd64-d12d-4bb4-bed9-55b3da71c282_197904012005011015_1731380829854.pdf',
-                        userId: '980035363',
-                        NCSISTIME: '2024-11-12 03:09:46.856'
-                    }
-                ],
-                status: 'approved',
-                pendekatan: 'kuantitatif',
-                keterangan: '',
-                createdAt: '2024-11-29T12:03:42.490Z',
-                updatedAt: '2024-11-29T12:03:42.490Z',
-                __v: 0,
-                id: '6749ad9ebce9981ab0384cd2'
-            },
-            desc: 'lkasjd',
-            rhk: '6749ad77bce9981ab0384c97',
-            jenis: 'utama',
-            klasifikasi: 'organisasi',
-            createdAt: '2024-11-29T12:03:43.696Z',
-            updatedAt: '2024-11-29T12:03:43.696Z',
-            __v: 0,
-            id: '6749ad9fbce9981ab0384ce2'
-        },
-        namaKegiatan: 'alksdjalksdj',
-        deskripsiKegiatan: 'kajsdalkjsd',
-        tautan: 'https://www.notion.so/Revisi-Hari-ini-1138d9a7c625800cb232fabe8dcc9178',
-        files: [],
-        user_id: '980035363',
-        createdAt: '2024-12-01T12:01:59.476Z',
-        updatedAt: '2024-12-01T12:03:08.535Z',
-        __v: 0
-    };
     const Column = [
         {
             title: 'No',
@@ -255,7 +152,7 @@ const page = () => {
                 <>
                     <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
                     <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                    <List
+                        <List
                             className="my-6"
                             itemLayout="horizontal"
                             dataSource={fileModal.modalData}
@@ -267,12 +164,16 @@ const page = () => {
                                             <small>{item.fileId}</small>
                                         </div>
                                         <div>
-                                        <Button size='small' icon={<DownloadOutlined />} onClick={() => {
+                                            <Button
+                                                size="small"
+                                                icon={<DownloadOutlined />}
+                                                onClick={() => {
                                                     const a = document.createElement('a');
                                                     a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
                                                     a.download = item.name;
                                                     a.click();
-                                                }} />
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </List.Item>
@@ -303,7 +204,7 @@ const page = () => {
                                         user_id: String(record.user_id)
                                     };
                                     const res = await update(record._id, dt);
-                                    
+
                                     if (res.ok) {
                                         fetchData();
                                     }
@@ -419,21 +320,21 @@ const page = () => {
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Tanggal</span>
-                                        <p className="text-right uppercase">{dt?.date}</p>
+                                        <p className="text-right uppercase">{data?.date}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Total Menit</span>
-                                        <p className="text-right uppercase">{dt?.menit} menit</p>
+                                        <p className="text-right uppercase">{data?.menit} menit</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Sisa Menit Yang Harus DIcapai</span>
-                                        <p className="text-right uppercase">{dt?.menit - MENIT} Menit</p>
+                                        <p className="text-right uppercase">{data?.menit - MENIT} Menit</p>
                                     </div>
                                 </div>
                             </Card>
                         </div>
                         <div className="overflow-x-auto">
-                            <DataTable columns={Column} data={harian} loading={loading} />
+                            <DataTable columns={Column} data={data} loading={loading} />
                         </div>
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={modal.formFields} type={modal.type}></CrudModal>
                         <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />

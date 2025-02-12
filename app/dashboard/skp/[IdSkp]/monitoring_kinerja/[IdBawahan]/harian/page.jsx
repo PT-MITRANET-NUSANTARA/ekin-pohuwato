@@ -36,11 +36,9 @@ const page = () => {
         setLoading(true);
         try {
             const skp = await getById(IdBawahan);
-            console.log(skp);
-            
-            const data = await getByUserId(user.user.nipBaru, pagination.page, pagination.limit, {
+            const data = await getByUserId(skp.data.user_id, pagination.page, pagination.limit, {
                 ...pagination.filters,
-                date: { $gte: skp.data.periode_awal, $lte: skp.data.periode_akhir }
+                date: { $gte: dateFormatter(skp.data.periode_awal), $lte: dateFormatter( skp.data.periode_akhir) }
             });
             console.log(data);
 
@@ -156,7 +154,6 @@ const page = () => {
             title: 'Action',
             key: 'action',
             render: (_, record) => {
-                const query = new URLSearchParams(record).toString();
                 return (
                     <Space size="small">
                         <Button

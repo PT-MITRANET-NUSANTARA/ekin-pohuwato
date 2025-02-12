@@ -249,7 +249,7 @@ const page = () => {
             label: 'Tanggal',
             name: 'date',
             type: 'date',
-            extra: { maxDate: dayjs(), minDate: dayjs() },
+            // extra: { maxDate: dayjs(), minDate: dayjs() },
             rules: [
                 {
                     required: true,
