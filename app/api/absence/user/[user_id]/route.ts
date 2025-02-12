@@ -36,12 +36,21 @@ export async function GET(req: NextRequest, { params }: { params: { user_id: str
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let absences;
-        if (unit_id && unit_id != 'undifined') {
-            absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
+
+        if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
+            if (unit_id && unit_id != 'undifined') {
+                absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
+            } else {
+                let f = filters && filters != 'undefined' ? JSON.parse(filters) : {};
+                f = { ...f, user_id: user_id };
+
+                absences = await Absence.getAll(Number(page), Number(limit), f);
+            }
         } else {
             let f = filters && filters != 'undefined' ? JSON.parse(filters) : {};
             f = { ...f, user_id: user_id };
-
+            if (unit_id) f.unit_id = unit_id;
+            console.log(f);
             absences = await Absence.getAll(Number(page), Number(limit), f);
         }
 

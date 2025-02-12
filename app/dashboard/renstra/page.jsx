@@ -53,6 +53,9 @@ const page = () => {
         }
     };
 
+    console.log(pagination);
+    
+
     const onSubmit = async (values, type, id) => {
         try {
             setSubmitLoading(true);
