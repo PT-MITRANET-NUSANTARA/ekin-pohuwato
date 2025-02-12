@@ -43,6 +43,8 @@ const page = () => {
     const fetchData = async () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            console.log('data', data);
+            
             const selectedJabatan = user.jabatan;
 
             const unit = await getAllPosjabByUnit(user.token, selectedJabatan.unor.induk.id);

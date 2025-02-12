@@ -66,9 +66,9 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
-        
+
         console.log(skp_id);
-        
+
         // Filter dasar untuk memastikan `skp` adalah array dan tidak kosong
         const baseFilter = {
             $expr: {
@@ -83,14 +83,25 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
             // Jika tidak ada pagination, gunakan filter dasar
             skps = await SKP.find(baseFilter).populate('skp').populate('periodeRKT');
         } else {
-            // Jika ada pagination, gabungkan filter dasar dengan filter tambahan
-            const additionalFilters = filters ? JSON.parse(filters) : {};
+            const additionalFilters = filters ? buildFilterQuery(JSON.parse(filters)) : {};
             const combinedFilters = { ...baseFilter, ...additionalFilters };
 
-            console.log('filters', buildFilterQuery(combinedFilters));
-            
+            console.log('filters', combinedFilters);
 
-            skps = await SKP.getAll(Number(page), Number(limit), combinedFilters);
+            const skp = (Number(page) - 1) * Number(limit);
+            const total = await SKP.countDocuments(combinedFilters); // Get total count of documents
+
+            const query = await SKP.find(combinedFilters).skip(skp).limit(Number(limit)).populate('skp').populate('periodeRKT').populate('messageSKP');
+
+            skps = {
+                data: query, // query is already an array
+                pagination: {
+                    currentPage: Number(page),
+                    totalPages: Math.ceil(total / Number(limit)),
+                    totalItems: total,
+                    pageSize: Number(limit)
+                }
+            };
         }
 
         return NextResponse.json(createResponse(200, 'Success', skps, true));
@@ -136,7 +147,7 @@ export async function POST(req: NextRequest, { params }: { params: { skp_id: str
             status: 'submitted',
             user_id: body.user_id
         });
-        await message.save()
+        await message.save();
         await newSKP.save();
         if (newSKP) {
             for (const item of perilaku) {
