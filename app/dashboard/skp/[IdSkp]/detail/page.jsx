@@ -19,6 +19,8 @@ const page = () => {
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [utama, setUtama] = useState(null);
+    const [tambahan, setTambahan] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -30,6 +32,9 @@ const page = () => {
             setSkp(skp.data);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             setLoadingData(false);
+
+            setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
+            setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
         } catch (error) {
             console.log(error);
         }
@@ -253,7 +258,15 @@ const page = () => {
                                         Utama
                                     </td>
                                 </tr>
-                                {skp?.rhks.map((item, index) => (
+                                {utama?.map((item, index) => (
+                                    <ItemRow key={index} item={item} index={index} />
+                                ))}
+                                <tr>
+                                    <td colSpan={6} className="text-left px-2">
+                                        Tambahan
+                                    </td>
+                                </tr>
+                                {tambahan?.map((item, index) => (
                                     <ItemRow key={index} item={item} index={index} />
                                 ))}
                             </tbody>
