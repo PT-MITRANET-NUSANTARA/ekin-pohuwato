@@ -58,8 +58,6 @@ const page = () => {
             setIsJT(isJT);
 
             setData(data.data.data);
-
-            console.log(data);
             
             setLoading(false);
         } catch (error) {

@@ -10,6 +10,7 @@ import Aspek from '@/models/Aspek';
 import SKP from '@/models/SKP';
 import MessageSKP from '@/models/MessageSKP';
 import buildFilterQuery from '@/utils/buildFilterQuery';
+import mongoose from 'mongoose';
 
 const skpSchema = Joi.object({
     pendekatan: Joi.string().valid('kualitatif', 'kuantitatif').required().label('Pendekatan'),
@@ -66,31 +67,51 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
-        
-        console.log(skp_id);
-        
+
         // Filter dasar untuk memastikan `skp` adalah array dan tidak kosong
         const baseFilter = {
             $expr: {
                 $eq: [
                     { $arrayElemAt: ['$skp', -1] }, // Ambil elemen terakhir dari array `skp`
-                    skp_id // Bandingkan dengan `skp_id`
+                    new mongoose.Types.ObjectId(skp_id) // Bandingkan dengan `skp_id`
                 ]
             }
         };
+
+        // console.log(await SKP.find(baseFilter));
+        
 
         if (!page || !limit || page === 'undefined' || limit === 'undefined') {
             // Jika tidak ada pagination, gunakan filter dasar
             skps = await SKP.find(baseFilter).populate('skp').populate('periodeRKT');
         } else {
-            // Jika ada pagination, gabungkan filter dasar dengan filter tambahan
-            const additionalFilters = filters ? JSON.parse(filters) : {};
-            const combinedFilters = { ...baseFilter, ...additionalFilters };
 
-            console.log('filters', buildFilterQuery(combinedFilters));
+            const skip = (Number(page) - 1) * Number(limit);
+            console.log({
+                ...baseFilter,
+                ...buildFilterQuery(JSON.parse(filters as string))
+            });
             
+            const query = await SKP.find({
+                ...baseFilter,
+                ...buildFilterQuery(JSON.parse(filters as string))
+            }).skip(skip).limit(Number(limit)).populate('skp').populate('periodeRKT').populate('messageSKP');
 
-            skps = await SKP.getAll(Number(page), Number(limit), combinedFilters);
+            const total = await SKP.countDocuments({
+                ...baseFilter,
+                ...buildFilterQuery(JSON.parse(filters as string))
+            });
+
+            skps = {
+                data: query,
+                total,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / Number(limit)),
+                    totalItems: total,
+                    pageSize: limit
+                }
+            }
         }
 
         return NextResponse.json(createResponse(200, 'Success', skps, true));
