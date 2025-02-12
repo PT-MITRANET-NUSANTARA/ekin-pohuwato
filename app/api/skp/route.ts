@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let skps;
-
+        
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
             skps = await SKP.find(getFilterQuery(filters)).populate('skp').populate('periodeRKT');
         } else {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
                         jenis: 'utama',
                         klasifikasi: 'organisasi',
                         desc: rkt.name,
-                        status: 'approved',
+                        status: 'submitted',
                         posjab: body.jabatan[0].id_posjab
                     });
                     await rhk.save();

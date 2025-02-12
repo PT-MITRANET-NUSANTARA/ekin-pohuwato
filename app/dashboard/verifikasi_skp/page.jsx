@@ -40,6 +40,8 @@ const page = () => {
                 'jabatan[-1].unor.induk.id': user.jabatan?.unor?.induk,
                 status: { $in: ['submitted', 'approved', 'rejected'] }
             });
+
+            console.log(data);            
             
             const filteredUsers = data.data.data.filter((user) => {
                 const lastJabatan = data.data.data.jabatan?.at(-1); // Ambil elemen terakhir dengan at(-1)

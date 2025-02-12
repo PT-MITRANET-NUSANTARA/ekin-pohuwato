@@ -32,7 +32,10 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, pagination.filters);
+            const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, {
+                ...pagination.filters,
+                status: { $in: [ 'approved'] }
+            });
             console.log(data);
             const skp = await getById(IdSkp);
             setData(data.data.data);

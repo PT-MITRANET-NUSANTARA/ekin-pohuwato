@@ -52,7 +52,9 @@ const page = () => {
             console.log(data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
 
-            const skp = await getSKPByUser(user.user.nipBaru);
+            const skp = await getSKPByUser(user.user.nipBaru, 'undefined', 'undefined', {
+                status: { $in: [ 'approved'] }
+            });
             const absence = await getAbsence(IdHarian);
             setAbsence(absence.data);
 
