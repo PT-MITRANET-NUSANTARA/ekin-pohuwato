@@ -98,7 +98,7 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record.user_id}/harian`)}
+                        onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${record._id}/harian`)}
                         // type='primary'
                         size="middle"
                     >

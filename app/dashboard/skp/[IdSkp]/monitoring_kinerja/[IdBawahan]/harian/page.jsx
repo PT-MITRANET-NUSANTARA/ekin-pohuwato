@@ -12,6 +12,7 @@ import { dummyAktivitas, dummyBawahan, dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
 import { getByUserId } from '@/controller/AbsenceController';
 import { getData } from '@/controller/AuthorizationController';
+import { getById } from '@/controller/SKPController';
 
 const { Title } = Typography;
 
@@ -24,7 +25,7 @@ const page = () => {
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
-    const [loading, setLoading] = useState()
+    const [loading, setLoading] = useState();
     useEffect(() => {
         if (user) {
             fetchData();
@@ -32,10 +33,18 @@ const page = () => {
     }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const data = await getByUserId(IdBawahan);
-            setData(data.data);
+            const skp = await getById(IdBawahan);
+            console.log(skp);
+            
+            const data = await getByUserId(user.user.nipBaru, pagination.page, pagination.limit, {
+                ...pagination.filters,
+                date: { $gte: skp.data.periode_awal, $lte: skp.data.periode_akhir }
+            });
+            console.log(data);
+
+            setData(data.data.data);
         } catch (error) {
             console.log(error);
         }

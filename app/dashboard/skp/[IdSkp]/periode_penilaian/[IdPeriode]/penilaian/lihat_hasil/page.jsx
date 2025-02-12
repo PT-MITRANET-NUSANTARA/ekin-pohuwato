@@ -47,7 +47,7 @@ const page = () => {
             setData(skp.data);
             const nilai = await getBySKPAndPeriode(IdSkp, IdPeriode);
             console.log('nilai', nilai);
-            
+
             setPenilaian(nilai.data);
         } catch (error) {
             console.log(error);
