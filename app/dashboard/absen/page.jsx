@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, message, Space, Table, Tag, Typography } from 'antd';
+import { Button, Card, message, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, FilterField, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ const page = () => {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [unor, setUnor] = useState(null);
     const { success, error } = useNotification()
+    const [submitLoading, setSubmitLoading] = useState(false)
 
 
     useEffect(() => {
@@ -51,6 +52,7 @@ const page = () => {
     };
 
     const onSubmit = async (values, type, id) => {
+        setSubmitLoading(true)
         try {
             let response;
 
@@ -87,7 +89,7 @@ const page = () => {
         } catch (error) {
             error('Gagal', response.data);
         }
-
+        setSubmitLoading(false)
         handleClose();
     };
 
@@ -175,11 +177,25 @@ const page = () => {
                 return (
                     <Space size="small">
                         <Button
-                            onClick={() => setModal({ trigger: true, title: 'create', type: 'edit', modalData: { ...record, date: dateFormatter(record.date) } })}
+                            onClick={() => setModal({ trigger: true, title: 'Hapus Data Absensi', type: 'edit', modalData: { ...record, date: dateFormatter(record.date) } })}
                             // type='primary'
                             size="middle"
                             variant="outlined"
                             icon={<EditOutlined />}
+                        />
+                        <Button 
+                             onClick={() => 
+                                setModal({ 
+                                    trigger: true, 
+                                    title: 'Hapus Data Absensi', 
+                                    type: 'delete', 
+                                    modalData: { ...record, date: dateFormatter(record.date) } 
+                                })
+                            }
+                            // type='primary'
+                            size="middle"
+                            variant="outlined"
+                            icon={<DeleteOutlined />}
                         />
                         <Button
                             onClick={() => router.push(`/dashboard/harians/${record._id}/aktivitas?${query}`)}
@@ -189,6 +205,7 @@ const page = () => {
                         >
                             Detail
                         </Button>
+                        
 
                     </Space>
                 );
@@ -349,16 +366,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -380,7 +387,7 @@ const page = () => {
                         <div className="overflow-x-auto">
                             <DataTable columns={Column} data={data} loading={loading} />
                         </div>
-                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
+                        <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type} isLoading={submitLoading}></CrudModal>
                     </div >
                 </Card >
             )}

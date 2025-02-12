@@ -38,6 +38,8 @@ const page = () => {
     const [index, setIndex] = useState(0);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
+    const [jabatan, setJabatan] = useState(null);
+
 
     useEffect(() => {
         fetchData();
@@ -47,26 +49,18 @@ const page = () => {
         setLoading(true)
         try {
             const skp = await getById(IdRhk);
-            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
-            const bawahan = skp.data.jabatan[index];
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
-            setPenilaian(nilai.data);
+            console.log('nilai', nilai);
 
-            const skpAtasan = await getById(IdSkp);
-            if (skpAtasan) {
-                const jabatan = skpAtasan.data.jabatan;
-                const atasan = jabatan.find((item) => {
-                    return item.id_posjab === skp.data.posjab[index];
-                });
-                setAtasan(atasan);
-            } else {
-                setAtasan(bawahan.unor.atasan);
-            }
+            setPenilaian(nilai.data);
+            setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
-            setData(skp.data);
-            setBawahan(bawahan);
-            setIndex(bawahan.id_posjab);
+            const periode = await getPenilaian(IdPeriode);
+            setPeriode(periode.data);
+
+            setAtasan(atasan);
         } catch (error) {
             console.log(error);
         }
@@ -137,76 +131,6 @@ const page = () => {
         }
     ];
 
-    // const predikatFields = [
-    //     {
-    //         label: 'Beri Rating',
-    //         name: 'rating',
-    //         type: 'select',
-    //         options: [
-    //             {
-    //                 label: 'Istimewa',
-    //                 value: 'Istimewa'
-    //             },
-    //             {
-    //                 label: 'Baik',
-    //                 value: 'Baik'
-    //             },
-    //             {
-    //                 label: 'Butuh Perbaikan',
-    //                 value: 'Butuh Perbaikan'
-    //             },
-    //             {
-    //                 label: 'Kurang (Misconduct)',
-    //                 value: 'Kurang (Misconduct)'
-    //             }
-    //             ,
-    //             {
-    //                 label: 'Sangat Kurang',
-    //                 value: 'Sangat Kurang'
-    //             }
-    //         ],
-    //         rules: [
-    //             {
-    //                 required: true,
-    //                 message: 'Field rating wajib di isi'
-    //             }
-    //         ]
-    //     }
-    // ];
-
-    // const onSubmit = async (value) => {
-    //     try {
-    //         let data;
-
-    //         if (penilaian) {
-    //             data = {
-    //                 ...penilaian,
-    //                 ratingPerilaku: value.rating
-    //             };
-
-    //             console.log(data);
-
-    //             // Call the update function and handle response
-    //             const res = await update(penilaian._id, data);
-    //             console.log(res);
-    //         } else {
-    //             data = {
-    //                 ratingPerilaku: value.rating,
-    //                 periodePenilaian: IdPeriode,
-    //                 skp: IdRhk
-    //             };
-
-    //             const res = await store(data);
-    //             console.log(res);
-    //         }
-
-    //         // Close modal on success
-    //         setModal((prev) => ({ ...prev, trigger: false }));
-    //     } catch (err) {
-    //         console.error(err); // Log the error
-    //     }
-    // };
-
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
@@ -264,16 +188,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+         
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -377,63 +292,52 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.nama_asn}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.id_asn}
+                                            {jabatan?.nip_asn}
                                         </p>
                                     </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {bawahan?.nama_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{bawahan?.unor.nama} </p>
-                                            <small>ID : {bawahan?.unor.id}</small>
+                                            <p>{jabatan?.unor.nama}</p>
+                                            <small>ID : {jabatan?.unor.id}</small>
                                         </div>
                                     </div>
                                 </div>
                             </Card>
-                            <Card type="inner" title="Pegawai Yang Penilai Kinerja" className="col-span-6 w-full">
+                            <Card type="inner" title="Pegawai Penilai Kinerja" className="col-span-6 w-full">
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.unor?.atasan?.asn?.nama_atasan}
+                                            {jabatan?.unor.atasan.asn.nama_atasan}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.unor?.atasan?.asn?.nip_atasan}
+                                            {jabatan?.unor.atasan.asn.nip_atasan}
                                         </p>
                                     </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                                    <p color="green" className="capitalize">
-                                                        Penata Tingkat I / III/d
-                                                    </p>
-                                                </div> */}
+
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {bawahan?.unor?.atasan?.unor_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{bawahan?.unor?.atasan?.unor_nama}</p>
-                                            <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
+                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -465,7 +369,7 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
@@ -510,7 +414,7 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>

@@ -14,6 +14,7 @@ import { getBySKPAndPeriode } from '@/controller/penilaianController';
 import { getByPerilakuAndPeriode } from '@/controller/FeedbackPerilakuController';
 import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
 import { dateFormatter } from '@/utils';
+import { getHasilSkp } from '@/controller/ReportController';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
@@ -32,6 +33,9 @@ const page = () => {
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
+    const [jabatan, setJabatan] = useState(null);
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -40,26 +44,17 @@ const page = () => {
         setLoading(true)
         try {
             const skp = await getById(IdRhk);
-
-            const skpAtasan = skp.data.skp.find((item) => item._id === IdSkp);
-            const index = skp.data.skp.findIndex((item) => item._id === IdSkp);
-            const bawahan = skp.data.jabatan[index];
-            const jabatan = skpAtasan.jabatan;
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
             const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            console.log('nilai', nilai);
+
             setPenilaian(nilai.data);
-
-            const atasan = jabatan.find((item) => {
-                return item.unor.induk.id === bawahan.unor.induk.id;
-            });
-            const periode = await getPenilaian(IdPeriode);
-
-            setPeriode(periode.data);
-
+            setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
+            const periode = await getPenilaian(IdPeriode);
+            setPeriode(periode.data);
 
-            setData(skp.data);
-            setBawahan(bawahan);
             setAtasan(atasan);
         } catch (error) {
             console.log(error);
@@ -67,43 +62,65 @@ const page = () => {
         setLoading(false)
     };
 
-    // const onSubmit = async (value) => {
-    //     try {
-    //         let data;
-
-    //         if (penilaian) {
-    //             data = {
-    //                 ...penilaian,
-    //                 ratingKinerja: value.rating
-    //             };
-
-    //             console.log(data);
-
-    //             // Call the update function and handle response
-    //             const res = await update(penilaian._id, data);
-    //             console.log(res);
-    //         } else {
-    //             data = {
-    //                 ratingKinerja: value.rating,
-    //                 periodePenilaian: IdPeriode,
-    //                 skp: IdRhk
-    //             };
-
-    //             const res = await store(data);
-    //             console.log(res);
-    //         }
-    //         fetchData();
-
-    //         // Close modal on success
-    //         setModal((prev) => ({ ...prev, trigger: false }));
-    //     } catch (err) {
-    //         console.error(err); // Log the error
-    //     }
-    // };
-
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
+
+    const printHasilSkp = async (values) => {
+        setSubmitLoading(true)
+        const periode = await getPenilaian(IdPeriode);
+
+        if (data) {
+            const index = data.jabatan.length - 1;
+            const bawahan = data.jabatan[index];
+            const atasan = bawahan.unor.atasan;
+
+            const realisasi = {};
+
+            data.rhks.forEach((rhk) => {
+                if (!realisasi[rhk._id]) {
+                    realisasi[rhk._id] = {};
+                }
+
+                rhk.aspek.forEach(async (aspek) => {
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    realisasi[rhk._id][aspek._id] = data.data;
+                });
+            });
+
+            const query = {
+                atasan: atasan,
+                bawahan: bawahan,
+                skp: data,
+                utama: utama,
+                tambahan: tambahan,
+                realisasi: realisasi,
+                penilaian: penilaian,
+                periode: periode.data,
+                periodeStart: dateFormatter(periode.data.periodeStart),
+                periodeEnd: dateFormatter(periode.data.periodeEnd),
+                lokasi_tertanda_dinilai: values.lokasi_dinilai,
+                tanggal_tertanda_dinilai: values.tanggal_dinilai,
+                tanggal_tertanda_penilai: values.tanggal_penilai,
+                lokasi_tertanda_penilai: values.lokasi_penilai,
+
+            };
+
+            const pdfBlob = await getHasilSkp(query);
+
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hasil-skp.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSubmitLoading(false)
+        }
+    }
+
 
     const ratingFileds = [
         {
@@ -221,19 +238,57 @@ const page = () => {
         }
     };
 
+    const formHasilSkp = [
+        {
+            label: 'Lokasi Pegawai Dinilai',
+            name: 'lokasi_dinilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Dinilai',
+            name: 'tanggal_dinilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Lokasi Pegawai Penilai',
+            name: 'lokasi_penilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Penilai',
+            name: 'tanggal_penilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        }
+    ]
+
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+         
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -257,7 +312,18 @@ const page = () => {
                                     {renderPredikatTag(penilaian?.ratingPredikat)}
                                 </Title>
                                 <div className="flex items-center gap-x-2">
-                                    <Button type="default" icon={<PrinterOutlined />}>
+                                    <Button
+                                        type="default"
+                                        icon={<PrinterOutlined />}
+                                        onClick={() =>
+                                            setModal({
+                                                trigger: true,
+                                                title: `Cetak Hasil SKP`,
+                                                type: 'create',
+                                                formFields: formHasilSkp,
+                                                onSubmit: printHasilSkp
+                                            })
+                                        }>
                                         Cetak Hasil
                                     </Button>
                                     <Button
@@ -333,63 +399,52 @@ const page = () => {
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.nama_asn}
+                                            {jabatan?.nama_asn}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.id_asn}
+                                            {jabatan?.nip_asn}
                                         </p>
                                     </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {bawahan?.nama_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{bawahan?.unor.nama} </p>
-                                            <small>ID : {bawahan?.unor.id}</small>
+                                            <p>{jabatan?.unor.nama}</p>
+                                            <small>ID : {jabatan?.unor.id}</small>
                                         </div>
                                     </div>
                                 </div>
                             </Card>
-                            <Card type="inner" title="Pegawai Yang Penilai Kinerja" className="col-span-6 w-full">
+                            <Card type="inner" title="Pegawai Penilai Kinerja" className="col-span-6 w-full">
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.unor?.atasan?.asn?.nama_atasan}
+                                            {jabatan?.unor.atasan.asn.nama_atasan}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nip</span>
                                         <p color="blue" className="capitalize">
-                                            {bawahan?.unor?.atasan?.asn?.nip_atasan}
+                                            {jabatan?.unor.atasan.asn.nip_atasan}
                                         </p>
                                     </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                                    <p color="green" className="capitalize">
-                                                        Penata Tingkat I / III/d
-                                                    </p>
-                                                </div> */}
+
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {bawahan?.unor?.atasan?.unor_jabatan}</p>
+                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span className="uppercase font-semibold">unit kerja</span>
                                         <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{bawahan?.unor?.atasan?.unor_nama}</p>
-                                            <small>ID : {bawahan?.unor?.atasan?.unor_id}</small>
+                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -421,7 +476,7 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
@@ -779,7 +834,7 @@ const page = () => {
                                 </tr>
                             </tbody>
                         </table>
-                        <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
+                        <CrudModal isLoading={submitLoading} type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
                             {modal.isRating && (
                                 <CrudModal.Extra>
                                     <Card className="mt-6  mb-4">

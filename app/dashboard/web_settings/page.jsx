@@ -6,16 +6,6 @@ import React from 'react';
 const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Settings</Link>
-                    }
-                ]}
-            />
             <Card className="">
                 <Tabs defaultActiveKey="1" tabPosition="left" className="min-h-screen">
                     <Tabs.Items tab="Jumlah Menit" key="1">

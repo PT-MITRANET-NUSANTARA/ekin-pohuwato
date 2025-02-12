@@ -65,14 +65,14 @@ const page = () => {
         },
         {
             title: 'Nama Asn',
-            dataIndex: 'user_id',
-            key: 'nama_skp'
+            dataIndex: 'jabatan',
+            key: 'nama_skp',
+            render: (record) => record[record.length - 1].nama_asn
         },
         {
             title: 'NIP',
-            dataIndex: 'jabatan',
+            dataIndex: 'userId',
             key: 'nama_skp',
-            render: (record) => record[record.length - 1].userId
         },
         {
             title: 'Jabatan',
@@ -296,16 +296,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+           
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

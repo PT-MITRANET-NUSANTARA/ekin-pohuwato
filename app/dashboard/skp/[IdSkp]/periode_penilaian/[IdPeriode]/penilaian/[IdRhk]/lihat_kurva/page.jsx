@@ -161,16 +161,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+       
             <Card>
                 <div className="flex flex-col gap-y-4">
                     <div className="flex items-center justify-between mb-12">

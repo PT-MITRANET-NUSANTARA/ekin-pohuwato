@@ -27,11 +27,12 @@ const page = () => {
     const [atasan, setAtasan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [skp, setSkp] = useState(null);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
     const [jabatan, setJabatan] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     useEffect(() => {
         fetchData();
@@ -47,7 +48,7 @@ const page = () => {
             setData(skp.data);
             const nilai = await getBySKPAndPeriode(IdSkp, IdPeriode);
             console.log('nilai', nilai);
-            
+
             setPenilaian(nilai.data);
         } catch (error) {
             console.log(error);
@@ -55,10 +56,65 @@ const page = () => {
         setLoading(false);
     };
 
-    const customSubmit = (values, type, id, formData) => {
+    const printFormPenilaian = (values, type, id, formData) => {
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${IdSkp}/${IdNilai}/form_penilaian?${query}`);
     };
+
+    const printHasilSkp = async (values) => {
+        setSubmitLoading(true)
+        const periode = await getPenilaian(IdPeriode);
+
+        if (data) {
+            const index = data.jabatan.length - 1;
+            const bawahan = data.jabatan[index];
+            const atasan = bawahan.unor.atasan;
+
+            const realisasi = {};
+
+            data.rhks.forEach((rhk) => {
+                if (!realisasi[rhk._id]) {
+                    realisasi[rhk._id] = {};
+                }
+
+                rhk.aspek.forEach(async (aspek) => {
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    realisasi[rhk._id][aspek._id] = data.data;
+                });
+            });
+
+            const query = {
+                atasan: atasan,
+                bawahan: bawahan,
+                skp: data,
+                utama: utama,
+                tambahan: tambahan,
+                realisasi: realisasi,
+                penilaian: penilaian,
+                periode: periode.data,
+                periodeStart: dateFormatter(periode.data.periodeStart),
+                periodeEnd: dateFormatter(periode.data.periodeEnd),
+                lokasi_tertanda_dinilai: values.lokasi_dinilai,
+                tanggal_tertanda_dinilai: values.tanggal_dinilai,
+                tanggal_tertanda_penilai: values.tanggal_penilai,
+                lokasi_tertanda_penilai: values.lokasi_penilai,
+                
+            };
+
+            const pdfBlob = await getHasilSkp(query);
+
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hasil-skp.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSubmitLoading(false)
+        }
+    }
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -78,18 +134,56 @@ const page = () => {
         }
     ];
 
+    const formHasilSkp = [
+        {
+            label: 'Lokasi Pegawai Dinilai',
+            name: 'lokasi_dinilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Dinilai',
+            name: 'tanggal_dinilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Lokasi Pegawai Penilai',
+            name: 'lokasi_penilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Penilai',
+            name: 'tanggal_penilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        }
+    ]
+
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+          
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -101,7 +195,7 @@ const page = () => {
                                     Nilai
                                 </Title>
                                 <div className="flex items-center gap-x-2">
-                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Upload`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}>
+                                    <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, title: `Cetak Form Penilaian`, type: 'edit', formFields: formPerjanjian, onSubmit: printFormPenilaian })}>
                                         Cetak Form Penilaian
                                     </Button>
                                     <Button type="default" icon={<PrinterOutlined />}>
@@ -110,73 +204,15 @@ const page = () => {
                                     <Button
                                         type="primary"
                                         icon={<PrinterOutlined />}
-                                        onClick={async () => {
-                                            const periode = await getPenilaian(IdPeriode);
-                                            // console.log(periode);
-                                            // console.log(res);
-                                            if (data) {
-                                                const index = data.jabatan.length - 1;
-                                                const bawahan = data.jabatan[index];
-                                                // console.log(data);
-                                                const atasan = bawahan.unor.atasan;
-
-                                                // const realisasi = {};
-
-                                                // res.data.rhks.forEach(item, (index) => {
-                                                //     item.aspek.forEach((aspek) => {
-                                                //         {
-                                                //             getRealisasi(
-                                                //                 aspek,
-                                                //                 item.harians?.filter((h) => {
-                                                //                     const hDate = dayjs(h.date); // Convert h.date to Day.js object
-                                                //                     const endDateTime = dayjs(periode.data.periodeEnd); // Convert endDateTime to Day.js object
-                                                //                     return (hDate.isBefore(endDateTime) || hDate.isSame(endDateTime)) && h.isSKP === true;
-                                                //                 })
-                                                //             );
-                                                //         }
-                                                //     });
-                                                // });
-                                                const realisasi = {};
-
-                                                data.rhks.forEach((rhk) => {
-                                                    if (!realisasi[rhk._id]) {
-                                                        realisasi[rhk._id] = {}; // Inisialisasi objek untuk rhk._id jika belum ada
-                                                    }
-
-                                                    rhk.aspek.forEach(async (aspek) => {
-                                                        const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
-                                                        realisasi[rhk._id][aspek._id] = data.data;
-                                                    });
-                                                });
-
-                                                const query = {
-                                                    atasan: atasan,
-                                                    bawahan: bawahan,
-                                                    skp: data,
-                                                    utama: utama,
-                                                    tambahan: tambahan,
-                                                    realisasi: realisasi,
-                                                    penilaian: penilaian,
-                                                    periode: periode.data,
-                                                    periodeStart: dateFormatter(periode.data.periodeStart),
-                                                    periodeEnd: dateFormatter(periode.data.periodeEnd)
-                                                };
-
-                                                const pdfBlob = await getHasilSkp(query);
-                                                console.log(pdfBlob);
-
-                                                const url = window.URL.createObjectURL(pdfBlob);
-                                                const a = document.createElement('a');
-                                                a.href = url;
-                                                a.download = 'hasil-skp.pdf'; // Filename
-                                                document.body.appendChild(a);
-                                                a.click();
-                                                a.remove();
-                                                window.URL.revokeObjectURL(url);
-
-                                                console.log(realisasi);
-                                            }
-                                        }}
+                                        onClick={() =>
+                                            setModal({
+                                                trigger: true,
+                                                title: `Cetak Hasil SKP`,
+                                                type: 'create',
+                                                formFields: formHasilSkp,
+                                                onSubmit: printHasilSkp
+                                            })
+                                        }
                                     >
                                         Cetak Hasil SKP
                                     </Button>
@@ -302,6 +338,7 @@ const page = () => {
                                 </tr>
                                 {utama?.map((item, index) => (
                                     <>
+                                        {console.log("utama", data)}
                                         <tr>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
@@ -485,7 +522,7 @@ const page = () => {
                             </tbody>
                         </table>
                     </Card>
-                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+                    <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={handleClose} data={modal.modalData} formFields={modal.formFields} type={modal.type} isLoading={submitLoading}/>
                 </>
             )}
         </div>

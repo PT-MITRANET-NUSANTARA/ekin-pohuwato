@@ -109,16 +109,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+          
             <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
@@ -171,40 +162,6 @@ const page = () => {
                         </div> */}
                         </div>
                         <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                            <Card type="inner" title="Pegawai Yang Menilai" className="col-span-6 w-full">
-                                <div className="grid grid-flow-row divide-y text-xs">
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">nama</span>
-                                        <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nama_atasan}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">nip</span>
-                                        <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nip_atasan}
-                                        </p>
-                                    </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span className="uppercase font-semibold">unit kerja</span>
-                                        <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
-                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
-                                            {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
                             <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
@@ -234,6 +191,40 @@ const page = () => {
                                         <div className="flex flex-col gap-y-2 text-right items-end">
                                             <p>{jabatan?.unor.nama} </p>
                                             <small>ID : {jabatan?.unor.id}</small>
+                                            {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card type="inner" title="Pegawai Yang Penilai" className="col-span-6 w-full">
+                                <div className="grid grid-flow-row divide-y text-xs">
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">nama</span>
+                                        <p color="blue" className="capitalize">
+                                            {jabatan?.unor.atasan.asn.nama_atasan}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">nip</span>
+                                        <p color="blue" className="capitalize">
+                                            {jabatan?.unor.atasan.asn.nip_atasan}
+                                        </p>
+                                    </div>
+                                    {/* <div className="flex items-center justify-between py-2">
+                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
+                                <p color="green" className="capitalize">
+                                    Penata Tingkat I / III/d
+                                </p>
+                            </div> */}
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">jabatan</span>
+                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
+                                    </div>
+                                    <div className="flex justify-between py-2">
+                                        <span className="uppercase font-semibold">unit kerja</span>
+                                        <div className="flex flex-col gap-y-2 text-right items-end">
+                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                             {/* <Button type="primary" shape="circle" size="small" icon={<SearchOutlined />} /> */}
                                         </div>
                                     </div>

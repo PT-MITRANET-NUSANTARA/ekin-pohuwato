@@ -3,19 +3,20 @@
 import { CrudModal, DataLoading, DataTable, FilterField, InfoModal } from '@/components';
 import { dateFormatter } from '@/utils';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { getAll, store, update, destroy } from '@/controller/VisiController';
 import React, { useEffect, useState } from 'react';
 import { getAll as getAllPeriode } from '@/controller/PeriodeController';
 import useNotification from '@/app/hook/useNotification';
+import { useRouter } from 'next/navigation';
 const { Title } = Typography;
 
 const page = () => {
+    const route = useRouter()
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const { success, error } = useNotification()
-
     const [submitLoading, setSubmitLoading] = useState(false);
     const [periode, setPeriode] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -69,10 +70,10 @@ const page = () => {
             } else {
                 if (Array.isArray(response.data)) {
                     response.data.forEach((err) => {
-                        error('Gagal', err); 
+                        error('Gagal', err);
                     });
                 } else {
-                    error('Gagal', response.data); 
+                    error('Gagal', response.data);
                 }
             }
         } catch (err) {
@@ -232,19 +233,13 @@ const page = () => {
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
     };
-    
+
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+            <div className='inline-flex items-center gap-x-2'>
+                <Button icon={<ArrowLeftOutlined />} className='w-fit' onClick={() => route.back()} />
+                <Button icon={<ArrowRightOutlined />} className='w-fit' onClick={() => route.forward()} />
+            </div>
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

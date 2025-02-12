@@ -63,6 +63,8 @@ const page = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
 
+    console.log("skp", IdRhk);
+
     const ratingFields = [
         {
             label: 'Beri Rating',
@@ -187,16 +189,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
+        
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -280,51 +273,10 @@ const page = () => {
                                         {data?.status}
                                     </Tag>
                                 </div>
-                                {/* <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">Model SKP</span>
-                                    <p className="text-right capitalize">JAJF</p>
-                                </div>
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">jenis pegawai</span>
-                                    <p className="text-right capitalize">pemimpin</p>
-                                </div> */}
                             </div>
                         </div>
                         <div className="w-full grid grid-cols-12 gap-4 mb-6">
                             <Card type="inner" title="Pegawai Yang Dinilai" className="col-span-6 w-full">
-                                <div className="grid grid-flow-row divide-y text-xs">
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">nama</span>
-                                        <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nama_atasan}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">nip</span>
-                                        <p color="blue" className="capitalize">
-                                            {jabatan?.unor.atasan.asn.nip_atasan}
-                                        </p>
-                                    </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">jabatan</span>
-                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span className="uppercase font-semibold">unit kerja</span>
-                                        <div className="flex flex-col gap-y-2 text-right items-end">
-                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
-                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                            <Card type="inner" title="Pegawai Yang Penilai Kinerja" className="col-span-6 w-full">
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">nama</span>
@@ -338,12 +290,6 @@ const page = () => {
                                             {jabatan?.nip_asn}
                                         </p>
                                     </div>
-                                    {/* <div className="flex items-center justify-between py-2">
-                                <span className="uppercase font-semibold">pangkat / golongan / ruang</span>
-                                <p color="green" className="capitalize">
-                                    Penata Tingkat I / III/d
-                                </p>
-                            </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">jabatan</span>
                                         <p className="text-right capitalize"> {jabatan?.nama_jabatan}</p>
@@ -353,6 +299,34 @@ const page = () => {
                                         <div className="flex flex-col gap-y-2 text-right items-end">
                                             <p>{jabatan?.unor.nama}</p>
                                             <small>ID : {jabatan?.unor.id}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card type="inner" title="Pegawai Penilai Kinerja" className="col-span-6 w-full">
+                                <div className="grid grid-flow-row divide-y text-xs">
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">nama</span>
+                                        <p color="blue" className="capitalize">
+                                            {jabatan?.unor.atasan.asn.nama_atasan}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">nip</span>
+                                        <p color="blue" className="capitalize">
+                                            {jabatan?.unor.atasan.asn.nip_atasan}
+                                        </p>
+                                    </div>
+                                  
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">jabatan</span>
+                                        <p className="text-right capitalize"> {jabatan?.unor.atasan.unor_jabatan}</p>
+                                    </div>
+                                    <div className="flex justify-between py-2">
+                                        <span className="uppercase font-semibold">unit kerja</span>
+                                        <div className="flex flex-col gap-y-2 text-right items-end">
+                                            <p>{jabatan?.unor.atasan.unor_nama} </p>
+                                            <small>ID : {jabatan?.unor.atasan.unor_id}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -384,7 +358,8 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                {console.log(item)}
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
@@ -1004,47 +979,6 @@ const page = () => {
 
 export default page;
 
-// const RealisasiRow = ({ item, aspek, IdPeriode }) => {
-//     const [data, setData] = useState(undefined);
-
-//     useEffect(() => {
-//         getData();
-//     }, []);
-
-//     const getData = async () => {
-//         try {
-//             const res = await getRealisasi(item._id, "utama", aspek._id, IdPeriode);
-//             if (res.ok) {
-//                 setData(res.data);
-//             } else {
-//                 setData(null);
-//             }
-//         } catch (error) {
-//             setData(null);
-//         }
-//     };
-
-//     console.log("haha",data)
-
-//     return (
-//         <td>
-//             <div className="flex items-center justify-center">
-//                 {data === undefined ? (
-//                     <Skeleton.Input active size="small" />
-//                 ) : data ? (
-//                     data
-//                 ) : (
-//                     ""
-//                 )}
-//                 {aspek === 'deskriptif' && (
-//                     <Button>
-//                         Kirim
-//                     </Button>
-//                 )}
-//             </div>
-//         </td>
-//     );
-// };
 
 const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
     const { success, error } = useNotification();

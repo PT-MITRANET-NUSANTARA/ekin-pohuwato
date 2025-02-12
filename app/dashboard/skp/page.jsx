@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result, Pagination } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { ExclamationCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
 import React, { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/cont
 import { getByUnitId as getPeriodeByUnit } from '@/controller/PeriodeRKTController';
 import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
-import { dateFormatter } from '@/utils';
+import { dateFormatter, renderStatusTag } from '@/utils';
 import dayjs from 'dayjs';
 import useNotification from '@/app/hook/useNotification';
 
@@ -43,7 +43,7 @@ const page = () => {
 
     useEffect(() => {
         if (user) {
-           
+
             fetchData();
         }
     }, [user, pagination.page, pagination.limit]);
@@ -285,17 +285,7 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-            <Breadcrumb
-                items={[
-                    {
-                        title: 'Dashboard'
-                    },
-                    {
-                        title: <Link href="/dashboard/renstra">Renstra</Link>
-                    }
-                ]}
-            />
-
+           
             <Card>
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-4">
@@ -321,92 +311,104 @@ const page = () => {
                     ) : (
                         <div className="flex flex-col gap-y-4">
                             {data?.length > 0 ? (
-                                data.map((item) => (
-                                    <Card key={item._id} type="inner" title={<Tag color="blue">{item._id}</Tag>}>
-                                        <div className="w-full flex flex-col gap-y-4">
-                                            <div className="flex w-full items-center gap-x-2 ">
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/detail`)}>Detail SKP</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
-                                                {/* {isJT === false && <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>} */}
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
-                                            </div>
-                                            <div className="grid grid-flow-row divide-y text-xs">
-                                                <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">periode</span>
-                                                    <Tag color="blue" className="capitalize">
-                                                        {formatDateToDayMonthYear(item.periode_awal)} - {formatDateToDayMonthYear(item.periode_akhir)}
-                                                    </Tag>
-                                                </div>
-                                                <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">pendekatan</span>
-                                                    <Tag color="blue" className="capitalize">
-                                                        {item.pendekatan}
-                                                    </Tag>
-                                                </div>
-                                                <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">unit kerja</span>
-                                                    <p className="text-right uppercase">{item.jabatan.at(-1).unor.nama}</p>
-                                                </div>
-                                                <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">keterangan jabatan</span>
-                                                    <p className="text-right capitalize">{item.jabatan.at(-1).nama_jabatan}</p>
-                                                </div>
-                                                <div className="flex items-center justify-between py-2">
-                                                    <span className="uppercase font-semibold">jenis pegawai</span>
-                                                    <p className="text-right capitalize">{isAtasan ? 'Pimpinan' : 'Bawahan'}</p>
-                                                </div>
-                                            </div>
+                                data.map((item) => {
+                                    const isApprove = item.status === "approved";
+                                    return (
 
-                                            <div className="flex w-full items-center justify-end gap-x-2 ">
-                                                <Button
-                                                    type="primary"
-                                                    icon={<EditOutlined />}
-                                                    onClick={() =>
-                                                        setModal({
-                                                            modalData: {
-                                                                ...item,
-                                                                periode_awal: dateFormatter(item.periode_awal),
-                                                                periode_akhir: dateFormatter(item.periode_akhir),
-                                                                periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
-                                                                renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
-                                                            },
-                                                            title: `Edit ${item.skp}`,
-                                                            trigger: true,
-                                                            type: 'edit'
-                                                        })
-                                                    }
-                                                >
-                                                    Edit
-                                                </Button>
-                                                <Button
-                                                    onClick={() =>
-                                                        setModal({
-                                                            modalData: {
-                                                                ...item,
-                                                                periode_awal: dateFormatter(item.periode_awal),
-                                                                periode_akhir: dateFormatter(item.periode_akhir),
-                                                                periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
-                                                                renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
-                                                            },
-                                                            title: `Hapus ${item.skp}`,
-                                                            trigger: true,
-                                                            type: 'delete'
-                                                        })
-                                                    }
-                                                    danger
-                                                    variant="filled"
-                                                    type="primary"
-                                                    icon={<DeleteOutlined />}
-                                                >
-                                                    Hapus
-                                                </Button>
+                                        <Card key={item._id} type="inner" title={<Tag color="blue">{item._id}</Tag>}>
+                                            <div className="w-full flex flex-col gap-y-4">
+                                                {!isApprove && (
+                                                    <Card>
+                                                        <div className="flex gap-x-2">
+                                                            <ExclamationCircleFilled className="text-blue-500 text-lg" />
+                                                            <p>Aksi SKP hanya tersedia ketika SKP berstatus "Disetujui". Status SKP Saat ini : {renderStatusTag(item.status)}</p>
+                                                        </div>
+                                                    </Card>
+                                                )}
+                                                <div className="flex w-full items-center gap-x-2 ">
+                                                    <Button onClick={() => router.push(`/dashboard/skp/${item._id}/detail`)}>Detail SKP</Button>
+                                                    <Button disabled={!isApprove} onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
+                                                    <Button disabled={!isApprove} onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
+                                                    <Button disabled={!isApprove} onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
+                                                    {/* {isJT === false && <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>} */}
+                                                    <Button disabled={!isApprove} onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
+                                                    <Button disabled={!isApprove} onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
+                                                </div>
+                                                <div className="grid grid-flow-row divide-y text-xs">
+                                                    <div className="flex items-center justify-between py-2">
+                                                        <span className="uppercase font-semibold">periode</span>
+                                                        <Tag color="blue" className="capitalize">
+                                                            {formatDateToDayMonthYear(item.periode_awal)} - {formatDateToDayMonthYear(item.periode_akhir)}
+                                                        </Tag>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-2">
+                                                        <span className="uppercase font-semibold">pendekatan</span>
+                                                        <Tag color="blue" className="capitalize">
+                                                            {item.pendekatan}
+                                                        </Tag>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-2">
+                                                        <span className="uppercase font-semibold">unit kerja</span>
+                                                        <p className="text-right uppercase">{item.jabatan.at(-1).unor.nama}</p>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-2">
+                                                        <span className="uppercase font-semibold">keterangan jabatan</span>
+                                                        <p className="text-right capitalize">{item.jabatan.at(-1).nama_jabatan}</p>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-2">
+                                                        <span className="uppercase font-semibold">jenis pegawai</span>
+                                                        <p className="text-right capitalize">{isAtasan ? 'Pimpinan' : 'Bawahan'}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex w-full items-center justify-end gap-x-2 ">
+                                                    <Button
+                                                        type="primary"
+                                                        icon={<EditOutlined />}
+                                                        onClick={() =>
+                                                            setModal({
+                                                                modalData: {
+                                                                    ...item,
+                                                                    periode_awal: dateFormatter(item.periode_awal),
+                                                                    periode_akhir: dateFormatter(item.periode_akhir),
+                                                                    periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
+                                                                    renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
+                                                                },
+                                                                title: `Edit ${item.skp}`,
+                                                                trigger: true,
+                                                                type: 'edit'
+                                                            })
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() =>
+                                                            setModal({
+                                                                modalData: {
+                                                                    ...item,
+                                                                    periode_awal: dateFormatter(item.periode_awal),
+                                                                    periode_akhir: dateFormatter(item.periode_akhir),
+                                                                    periodeRKT: item.periodeRKT?.[item.periodeRKT.length - 1]?._id || null,
+                                                                    renstra: item.periodeRKT?.[item.periodeRKT.length - 1]?.renstra || null
+                                                                },
+                                                                title: `Hapus ${item.skp}`,
+                                                                trigger: true,
+                                                                type: 'delete'
+                                                            })
+                                                        }
+                                                        danger
+                                                        variant="filled"
+                                                        type="primary"
+                                                        icon={<DeleteOutlined />}
+                                                    >
+                                                        Hapus
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Card>
-                                ))
+                                        </Card>
+                                    )
+                                })
                             ) : (
                                 <Empty className="mb-6" />
                             )}

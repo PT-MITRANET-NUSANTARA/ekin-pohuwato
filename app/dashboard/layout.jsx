@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { DashboardSider, DashboardFooter } from '../../components';
-import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Breadcrumb, Button, Card, Dropdown, Layout, message, Modal, Space, theme } from 'antd';
+import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { Avatar, Badge, Button, Card, Dropdown, Layout, message, Modal, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getData, logOut } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
@@ -143,7 +143,7 @@ const layout = ({ children }) => {
                         <Button color='primary' variant='solid'>
                             Tandai telah dibaca
                         </Button>
-                        <Button onClick={() => setModal({trigger: false})}>
+                        <Button onClick={() => setModal({ trigger: false })}>
                             Batal
                         </Button>
 
@@ -155,12 +155,10 @@ const layout = ({ children }) => {
                         margin: '24px 16px 0'
                     }}
                 >
-                    {/* <Breadcrumb style={{ margin: '16px 0' }}>
-                        <Breadcrumb.Item>Home</Breadcrumb.Item>
-                        <Breadcrumb.Item>List</Breadcrumb.Item>
-                        <Breadcrumb.Item>App</Breadcrumb.Item>
-                    </Breadcrumb> */}
-
+                    <div className='inline-flex items-center gap-x-2 mb-4'>
+                        <Button icon={<ArrowLeftOutlined />} className='w-fit' onClick={() => router.back()} />
+                        <Button icon={<ArrowRightOutlined />} className='w-fit' onClick={() => router.forward()} />
+                    </div>
                     {children}
                 </Content>
 
