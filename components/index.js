@@ -18,3 +18,4 @@ export { default as FeedbackButton } from './feedbackButton/feedbackButton';
 export { default as PerilakuRow } from './PerilakuRow/PerilakuRow';
 export { default as RhkRow } from './RhkRow/RhkRow';
 export { default as RealisasiRow } from './RealisasiRow/RealisasiRow';
+export { default as Reload } from './Reload/Reload';

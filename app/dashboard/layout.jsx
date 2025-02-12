@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { DashboardSider, DashboardFooter } from '../../components';
-import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { DashboardSider, DashboardFooter, Reload } from '../../components';
+import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined, ArrowLeftOutlined, ArrowRightOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Avatar, Badge, Button, Card, Dropdown, Layout, message, Modal, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getData, logOut } from '@/controller/AuthorizationController';

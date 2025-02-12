@@ -236,10 +236,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            <div className='inline-flex items-center gap-x-2'>
-                <Button icon={<ArrowLeftOutlined />} className='w-fit' onClick={() => route.back()} />
-                <Button icon={<ArrowRightOutlined />} className='w-fit' onClick={() => route.forward()} />
-            </div>
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
