@@ -11,7 +11,8 @@ import Link from 'next/link';
 import { dummyHarian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
 import { getData } from '@/controller/AuthorizationController';
-import dayjs from 'dayjs';
+import { formatDateToDayMonthYear } from '@/utils/util';
+
 
 const { Title } = Typography;
 
@@ -54,7 +55,7 @@ const page = () => {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
-            render: (record) => dateFormatter(record)
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Status Kehadiran',

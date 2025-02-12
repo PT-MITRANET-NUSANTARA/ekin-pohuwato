@@ -527,7 +527,7 @@ const page = () => {
                                     Detail Data Harian
                                 </Title>
                                 <div>
-                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ formFields: formFields, modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ formFields: formFieldas, modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                         Tambah
                                     </Button>
                                 </div>

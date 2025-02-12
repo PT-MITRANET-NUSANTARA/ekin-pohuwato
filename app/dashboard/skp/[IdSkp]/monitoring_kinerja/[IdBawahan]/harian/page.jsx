@@ -13,6 +13,7 @@ import { dateFormatter } from '@/utils';
 import { getByUserId } from '@/controller/AbsenceController';
 import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -38,7 +39,7 @@ const page = () => {
             const skp = await getById(IdBawahan);
             const data = await getByUserId(skp.data.user_id, pagination.page, pagination.limit, {
                 ...pagination.filters,
-                date: { $gte: dateFormatter(skp.data.periode_awal), $lte: dateFormatter( skp.data.periode_akhir) }
+                date: { $gte: dateFormatter(skp.data.periode_awal), $lte: dateFormatter(skp.data.periode_akhir) }
             });
             console.log(data);
 
@@ -110,7 +111,7 @@ const page = () => {
             title: 'Tanggal',
             dataIndex: 'date',
             key: 'date',
-            render: (record) => (record ? dateFormatter(record) : 'undifined')
+            render: (record) => (record ? formatDateToDayMonthYear(record) : 'undifined')
         },
         {
             title: 'Status Kehadiran',
@@ -120,28 +121,41 @@ const page = () => {
                 <>
                     {(() => {
                         switch (status) {
-                            case 'hadir':
+                            case 'Hadir':
                                 return (
                                     <Tag color="blue" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'alpa':
+                            case 'Dinas diluar':
                                 return (
-                                    <Tag color="red" className="capitalize">
+                                    <Tag color="green" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
-                            case 'izin':
+                            case 'Izin':
                                 return (
                                     <Tag color="yellow" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+
+                            case 'Sakit':
+                                return (
+                                    <Tag color="orange" className="capitalize">
+                                        {status}
+                                    </Tag>
+                                );
+                            case 'Tanpa Keterangan':
+                                return (
+                                    <Tag color="red" className="capitalize">
                                         {status}
                                     </Tag>
                                 );
                             default:
                                 return (
                                     <Tag color="error" className="capitalize">
-                                        {status}
+                                        undefined
                                     </Tag>
                                 );
                         }
@@ -149,6 +163,16 @@ const page = () => {
                 </>
             ),
             searchable: true
+        },
+        {
+            title: 'Total Waktu',
+            dataIndex: '',
+            key: '',
+        },
+        {
+            title: 'Sisa Waktu',
+            dataIndex: '',
+            key: '',
         },
         {
             title: 'Action',
@@ -162,8 +186,9 @@ const page = () => {
                             size="middle"
                             color="primary"
                             variant="outlined"
-                            icon={<DatabaseOutlined />}
-                        />
+                        >
+                            Detail
+                        </Button>
                     </Space>
                 );
             }
@@ -205,17 +230,37 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
                 <Card className="">
                     <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center justify-between mb-6">
                             <Title className="mt-2" level={5}>
                                 Data Harian
                             </Title>
                         </div>
+                        <Card type="inner" title="Status" className="mb-6">
+                            <div className="grid grid-flow-row divide-y text-xs">
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Nama ASN</span>
+                                    <p className="text-right uppercase">{data[0]?.jabatan.nama_asn}</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Jabatan ASN</span>
+                                    <p className="text-right uppercase">{data[0]?.jabatan.nama_jabatan}</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">NIP ASN</span>
+                                    <p className="text-right uppercase">{data[0]?.jabatan.nip_asn}</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">UNIT ASN</span>
+                                    <p className="text-right uppercase">{data[0]?.jabatan.unor.nama}</p>
+                                </div>
+                            </div>
+                        </Card>
                         <DataTable columns={Column} data={data} loading={loading} />
                         <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                     </div>

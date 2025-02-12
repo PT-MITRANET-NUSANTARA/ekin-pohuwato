@@ -1,9 +1,9 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined, ExclamationOutlined, DownloadOutlined, OrderedListOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined, ExclamationOutlined, DownloadOutlined, OrderedListOutlined, HistoryOutlined, WarningOutlined, SendOutlined, LinkOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, InfoModal, DataLoading } from '@/components';
-import { dateFormatter } from '@/utils';
+import { dateFormatter, renderStatusTag } from '@/utils';
 import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
@@ -16,6 +16,8 @@ import { getByUnitId } from '@/controller/PeriodeRKTController';
 import { getByUserId as getSKPByUser } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
+import { formatDateToDayMonthYear } from '@/utils/util';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -27,8 +29,10 @@ const page = () => {
     const [data, setData] = useState(null);
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
+    const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
+    const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
@@ -42,17 +46,17 @@ const page = () => {
         }
     }, [user, pagination.page, pagination.limit]);
 
+    console.log(data);
     const fetchData = async () => {
         try {
             console.log(IdHarian);
             console.log(IdHarian);
-            
+
             const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, {
                 ...pagination.filters,
                 // status: { $in: ['approved', ] }
             });
 
-            console.log(data);
             setData(data.data.data)
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const harian = getAbsenceById(IdHarian);
@@ -110,38 +114,79 @@ const page = () => {
         },
         {
             title: 'Status',
-            dataIndex: 'msg',
-            key: 'msg',
+            dataIndex: 'status',
+            key: 'status',
             render: (_, record) => (
-                <>
-                    {(() => {
-                        switch (record.msg?.status) {
-                            case 'Periksa':
-                                return (
-                                    <Tag color="blue" className="capitalize w-fit">
-                                        {record.msg.status}
-                                    </Tag>
-                                );
-                            case 'Terima':
-                                return (
-                                    <Tag color="green" className="capitalize w-fit">
-                                        {record.msg.status}
-                                    </Tag>
-                                );
-                            case 'Tolak':
-                                return (
-                                    <div className="flex flex-col gap-y-2">
-                                        <Tag color="yellow" className="capitalize w-fit">
-                                            {record.msg.status}
-                                        </Tag>
-                                        <span className="text-red-500">{record.msg.message}</span>
-                                    </div>
-                                );
-                            default:
-                                return <div></div>;
-                        }
-                    })()}
-                </>
+                <div className="inline-flex items-center">
+                    {renderStatusTag(record.status)}
+                    <Button
+                        variant="link"
+                        icon={<HistoryOutlined />}
+                        color="primary"
+                        onClick={() => {
+                            setFeedbackModal({ trigger: true, modalData: record.messageHarian });
+                        }}
+                    />
+                    <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
+                        <div className="w-full grid grid-cols-12 items-start gap-4">
+                            <List
+                                className="w-full col-span-6 mt-6"
+                                itemLayout="horizontal"
+                                dataSource={feedBackModal.modalData}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        <button className="inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md" onClick={() => setSelectedFeedback(item)}>
+                                            <div className="inline-flex gap-x-2 items-center">
+                                                <HistoryOutlined />
+                                                <b>{dateFormatter(item.createdAt)}</b>
+                                            </div>
+                                            {renderStatusTag(item.status)}
+                                        </button>
+                                    </List.Item>
+                                )}
+                            />
+                            {/* Chat Bubble & Reply Input */}
+                            <div className="col-span-6 w-full p-6 border border-gray-300 mt-6 h-80 rounded-lg flex flex-col justify-between">
+                                <div className="flex flex-col gap-y-2">
+                                    {selectedFeedback ? (
+                                        <div className="p-3 rounded-md border border-gray-300 text-sm">{selectedFeedback.isi}</div>
+                                    ) : (
+                                        <Card className=" mb-4">
+                                            <div className="flex gap-x-6">
+                                                <WarningOutlined className="text-yellow-500 text-lg" width={200} />
+                                                <p className="text-xs">Pilih salah satu item histori disamping untuk melakukan feedback</p>
+                                            </div>
+                                        </Card>
+                                    )}
+                                </div>
+                                <div className="w-full grid grid-cols-12 gap-4">
+                                    <TextArea disabled={!selectedFeedback} placeholder="Masukkan feedback" className="col-span-9 text-sm" />
+                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
+                                        Kirim
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
+                </div>
+            )
+        },
+        {
+            title: 'Progress',
+            dataIndex: 'progress',
+            key: 'progress',
+            render: (_, record) => <span>{record.progress} %</span>,
+        },
+        {
+            title: 'Tautan',
+            dataIndex: 'tautan',
+            key: 'tautan',
+            render: (_, record) => (
+                <Button
+                    variant='solid'
+                    onClick={() => window.open(record.tautan, "_blank", "noopener,noreferrer")}
+                    icon={<LinkOutlined />}
+                />
             )
         },
         {
@@ -182,7 +227,6 @@ const page = () => {
                     </Modal>
                 </>
             ),
-            width: '240px'
         },
         {
             title: 'Action',
@@ -294,7 +338,7 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -310,8 +354,28 @@ const page = () => {
                             <Card type="inner" title="Status" className="mb-6">
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">Nama ASN</span>
+                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_asn}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">Jabatan ASN</span>
+                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_jabatan}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">Jabatan ASN</span>
+                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nip_asn}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">Jabatan ASN</span>
+                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].unor.nama}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">Status Kehadiran</span>
+                                        <p className="text-right uppercase"></p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Tanggal</span>
-                                        <p className="text-right uppercase">{data?.date}</p>
+                                        <p className="text-right uppercase">{formatDateToDayMonthYear(data?.date)}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Total Menit</span>

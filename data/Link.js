@@ -131,10 +131,10 @@ export const DashboardLink = [
                 label: 'UMPEG Settings',
                 path: '/dashboard/umpeg_settings'
             },
-            // {
-            //     label: 'Web Settings',
-            //     path: '/dashboard/web_settings'
-            // }
+            {
+                label: 'Web Settings',
+                path: '/dashboard/web_settings'
+            }
         ]
     },
 ];

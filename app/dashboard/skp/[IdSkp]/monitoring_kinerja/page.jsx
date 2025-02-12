@@ -72,7 +72,7 @@ const page = () => {
             }
         },
         {
-            title: 'Nama Organisasi',
+            title: 'Unit',
             dataIndex: 'unor',
             key: 'unor',
             searchable: true,
