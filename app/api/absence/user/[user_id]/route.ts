@@ -36,7 +36,8 @@ export async function GET(req: NextRequest, { params }: { params: { user_id: str
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let absences;
-
+        console.log();
+        
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
             if (unit_id && unit_id != 'undifined') {
                 absences = await Absence.find({ 'unit.id': unit_id, user_id: user_id });
