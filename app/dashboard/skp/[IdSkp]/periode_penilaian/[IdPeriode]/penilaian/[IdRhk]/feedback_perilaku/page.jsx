@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Progress, Select, Table, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Progress, Select, Table, Tag, Tooltip, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -188,7 +188,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-         
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -251,6 +251,9 @@ const page = () => {
                                     >
                                         Buat Rating Perilaku Kerja
                                     </Button>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
                                     {/* <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
                                 Buat Predikat Kinerja
                             </Button> */}

@@ -1,7 +1,7 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { FileOutlined, PrinterOutlined, } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Space, Tooltip, Typography } from 'antd';
+import { FileOutlined, PrinterOutlined, ReloadOutlined, } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -34,7 +34,7 @@ const page = () => {
         try {
             const data = await getBySKPId(IdSkp, pagination.page, pagination.limit, {
                 ...pagination.filters,
-                status: { $in: [ 'approved'] }
+                status: { $in: ['approved'] }
             });
             console.log(data);
             const skp = await getById(IdSkp);
@@ -186,7 +186,7 @@ const page = () => {
     ];
     return (
         <div className="flex flex-col gap-y-4">
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -195,6 +195,11 @@ const page = () => {
                         <Title className="mt-2" level={5}>
                             Penilaian SKP
                         </Title>
+                        <div>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
+                        </div>
                     </div>
                     <div className="grid grid-flow-row divide-y text-xs mb-12">
                         <div className="flex items-center justify-between py-2">
@@ -221,12 +226,9 @@ const page = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-x-2 mb-4">
-                        <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
+                        {/* <Button type="default" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/1/rekap_penilaian`)}>
                             Rekap Penilaian Bawahan
-                        </Button>
-                        <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, formFields: evaluasiKinerjaPrintFields, title: 'Cetak Dokumen Evaluasi Kinerja', onSubmit: () => { } })}>
-                            Cetak Dokumen Evaluasi Kinerja
-                        </Button>
+                        </Button> */}
                         <Button
                             size="middle"
                             onClick={() => router.push(window.location.pathname + `/rencana_aksi`)}

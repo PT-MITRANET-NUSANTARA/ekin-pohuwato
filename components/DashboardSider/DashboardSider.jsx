@@ -7,6 +7,38 @@ import Sider from 'antd/es/layout/Sider';
 
 const DashboardSider = ({ collapsed }) => {
     const router = useRouter();
+    const user = { role: "user" };
+    const filteredMenu = DashboardLink.map((item) => {
+        const hasChildren = Array.isArray(item.children);
+
+        const filteredChildren = hasChildren
+            ? item.children.filter((child) =>
+                child.permission?.includes(user.role)
+            )
+            : [];
+
+        if (
+            (item.permission && !item.permission.includes(user.role)) &&
+            filteredChildren.length === 0
+        ) {
+            return null;
+        }
+
+        return {
+            key: item.path || item.label, 
+            icon: item.icon ? React.createElement(item.icon) : null,
+            label: item.label,
+            onClick: hasChildren ? undefined : () => router.push(item.path),
+            children:
+                filteredChildren.length > 0
+                    ? filteredChildren.map((child) => ({
+                        key: child.path,
+                        label: child.label,
+                        onClick: () => router.push(child.path),
+                    }))
+                    : undefined,
+        };
+    }).filter(Boolean); 
 
 
     return (
@@ -30,26 +62,7 @@ const DashboardSider = ({ collapsed }) => {
                 className="px-2 font-semibold"
                 theme="light"
                 mode="inline"
-                items={DashboardLink.map((item) => {
-                    // If item has children, do not set a path for the parent
-                    const hasChildren = !!item.children;
-
-                    return {
-                        key: item.path , // Use path or label as key
-                        icon: item.icon ? React.createElement(item.icon) : null,
-                        label: item.label,
-                        onClick: hasChildren ? undefined : () => router.push(item.path), // Only allow navigation if no children
-                        children: hasChildren
-                            ? item.children.map((child) => {
-                                  return {
-                                      key: child.path,
-                                      label: child.label,
-                                      onClick: () => router.push(child.path),
-                                  };
-                              })
-                            : undefined,
-                    };
-                }).filter(Boolean)} // Filter out null values
+                items={filteredMenu} // Filter out null values
             />
         </Sider>
     );

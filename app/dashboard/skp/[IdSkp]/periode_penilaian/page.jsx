@@ -3,8 +3,8 @@
 import { CrudModal, DataLoading, DataTable } from '@/components';
 import { dummyPeriodePenilaian } from '@/data/dummyData';
 import { dateFormatter } from '@/utils';
-import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Space, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutline0, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -58,7 +58,7 @@ const page = () => {
             setIsJT(isJT);
 
             setData(data.data.data);
-            
+
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -284,7 +284,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-         
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -295,16 +295,22 @@ const page = () => {
                                 Data Periode Penilaian
                             </Title>
                             {isJT ? (
-                                <div>
+                                <div className='inline-flex gap-x-2 items-center'>
                                     <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', onSubmit: jptSubmitPeriode, formFields: formFields })}>
                                         Tambah
                                     </Button>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
                                 </div>
                             ) : (
-                                <div>
+                                <div className='inline-flex gap-x-2 items-center'>
                                     <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: isNotJtFormFields, onSubmit: SubmitPeriode })}>
                                         Tambah
                                     </Button>
+                                    <Tooltip title="Refresh Data">
+                                        <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                    </Tooltip>
                                 </div>
                             )}
                         </div>

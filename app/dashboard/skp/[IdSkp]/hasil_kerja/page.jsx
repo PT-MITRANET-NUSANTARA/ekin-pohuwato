@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { dummyAktivitas, dummyBawahan } from '@/data/dummyData';
 
 const { Title } = Typography;
-const {Option} = Select
+const { Option } = Select
 
 const page = () => {
     const router = useRouter();
@@ -137,23 +137,24 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
                             Aktivitas Hasil Kinerja
                         </Title>
+            
                     </div>
                     <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                     <Modal open={aktivitasModal} onClose={() => setAktivitasModal(false)} onCancel={() => setAktivitasModal(false)}>
                         <Form className="mt-6 " layout="vertical">
                             <Form.Item name="hasil_kerja" label="Masukan Hasil Kerja Sebagai SKP">
-                               <Select>
+                                <Select>
                                     <Option>Ya</Option>
                                     <Option>Tidak</Option>
-                               </Select>
+                                </Select>
                             </Form.Item>
                         </Form>
                     </Modal>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Line } from 'react-chartjs-2';
 import Link from 'next/link';
 import React from 'react';
@@ -68,7 +68,7 @@ const page = () => {
             sorter: (a, b) => a.penilaian.length - b.penilaian.length,
             width: '30%'
         },
-      
+
     ];
 
     const filterFileds = [
@@ -161,17 +161,22 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-       
+
             <Card>
                 <div className="flex flex-col gap-y-4">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
                             Data Kurva Penilaian Bawahan
                         </Title>
+                        <div>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
+                        </div>
                     </div>
                     <div className="w-full">
-                            <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
-                        </div>
+                        <FilterField fields={filterFileds} onSubmit={onFilter}></FilterField>
+                    </div>
                     <div className="">
                         <Card>
                             <Line data={penilaianChart} />

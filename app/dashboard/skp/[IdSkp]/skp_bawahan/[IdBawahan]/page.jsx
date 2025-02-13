@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, message, Skeleton, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, message, Skeleton, Tag, Tooltip, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const page = () => {
     const [bawahan, setBawahan] = useState(null);
     const [jabatan, setJabatan] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
@@ -132,7 +132,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-          
+
             <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
@@ -149,6 +149,9 @@ const page = () => {
                             <Button type="primary" icon={<UserOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: 'Edit Status SKP', type: 'edit', formFields: statusSkpFields })}>
                                 Edit Status
                             </Button>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, Button, Card, List, Skeleton, Tag, Typography } from 'antd';
+import { Breadcrumb, Button, Card, List, Skeleton, Tag, Tooltip, Typography } from 'antd';
 import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, EditFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -109,7 +109,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-          
+
             <Card>
                 <div className="flex flex-col gap-y-4 mb-6">
                     <div className="w-full flex items-center justify-between">
@@ -126,6 +126,9 @@ const page = () => {
                             <Button type="default" icon={<PrinterOutlined />} onClick={() => setModal({ trigger: true, modalData: null, title: `Cetak Rencana SKP`, type: 'create', formFields: cetakSkpFields, onSubmit: cetakSkpSubmit })}>
                                 Cetak
                             </Button>
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
                         </div>
                     </div>
                 </div>

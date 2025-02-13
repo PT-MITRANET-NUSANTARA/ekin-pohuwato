@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal, DataLoading } from '@/components';
 import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
@@ -112,7 +112,7 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -122,6 +122,11 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Bawahan Monitoring Kinerja
                             </Title>
+                            <div>
+                                <Tooltip title="Refresh Data">
+                                    <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                </Tooltip>
+                            </div>
                         </div>
                         <DataTable columns={Column} data={data} loading={loading} />
                     </div>

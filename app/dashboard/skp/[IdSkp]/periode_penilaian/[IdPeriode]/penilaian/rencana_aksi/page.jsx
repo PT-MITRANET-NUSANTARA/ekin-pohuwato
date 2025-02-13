@@ -1,21 +1,20 @@
 'use client';
 
-import { Breadcrumb, Button, Card, List, Tag, Typography } from 'antd';
+import {  Button, Card,  Tag, Tooltip, Typography } from 'antd';
+import { ReloadOutlined, } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { CrudModal, DataLoading, InfoModal, RencanaAksiButton } from '@/components';
 import { getById } from '@/controller/SKPController';
 import { getById as getByIdPenilaian } from '@/controller/periodePenilaianController';
 import { dateFormatter } from '@/utils';
-import { store } from '@/controller/RencanaAksiController';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
     const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -115,7 +114,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -125,6 +124,11 @@ const page = () => {
                             <Title className="mt-2" level={5}>
                                 Rencana Aksi
                             </Title>
+                            <div>
+                                <Tooltip title="Refresh Data">
+                                    <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                                </Tooltip>
+                            </div>
                         </div>
 
                         <div className="grid grid-flow-row divide-y text-xs">
@@ -263,7 +267,7 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                            <RencanaAksiButton  setSubmitLoading={setSubmitLoading} IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
+                                            <RencanaAksiButton setSubmitLoading={setSubmitLoading} IdPeriode={IdPeriode} fetchData={fetchData} getByIdPenilaian={getByIdPenilaian} item={item} rencanaAksiFields={rencanaAksiFields} setModal={setModal} />
                                         </td>
                                     </tr>
                                     {/* {item.aspek?.map((aspek) => (

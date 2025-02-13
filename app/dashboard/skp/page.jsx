@@ -1,7 +1,7 @@
 'use client';
 
-import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result, Pagination } from 'antd';
-import { ExclamationCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result, Pagination, Tooltip } from 'antd';
+import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
 import React, { useEffect, useState } from 'react';
@@ -284,19 +284,23 @@ const page = () => {
     return (
         <div className="w-full flex flex-col gap-y-4">
             {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             <Card>
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <Title className="mt-2" level={5}>
                             Data SKP
                         </Title>
-                        <div>
+
+                        <div className='inline-flex gap-x-2'>
                             {isJT && (
                                 <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
                                     Tambah
                                 </Button>
                             )}
+                            <Tooltip title="Refresh Data">
+                                <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
+                            </Tooltip>
                         </div>
                     </div>
                     <div className="w-full">
