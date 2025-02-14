@@ -101,7 +101,7 @@ const HarianSchema = new Schema<IHarian, HarianModel, IHarianMethods>(
             required: false
         }
     },
-    { timestamps: true }
+    { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
 );
 
 HarianSchema.method('cascadeDelete', async function cascadeDelete() {
@@ -145,6 +145,13 @@ HarianSchema.method('cascadeDelete', async function cascadeDelete() {
     await this.deleteOne();
 });
 
+HarianSchema.virtual('messageHarian', {
+    ref: 'MessageHarian',
+    localField: '_id',
+    foreignField: 'harian',
+    justOne: false
+});
+
 HarianSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters));
@@ -152,9 +159,7 @@ HarianSchema.static('getAll', async function getAll(page: number = 1, limit: num
         query
             .skip(skip)
             .limit(limit)
-            .populate({
-                path: 'messageHarian' // Ensure this matches your virtual field name
-            })
+            .populate('messageHarian')
             .populate({
                 path: 'rhk',
                 populate: {
@@ -179,13 +184,6 @@ HarianSchema.static('getAll', async function getAll(page: number = 1, limit: num
             pageSize: limit
         }
     };
-});
-
-HarianSchema.virtual('messageHarian', {
-    ref: 'MessageHarian',
-    localField: '_id',
-    foreignField: 'harian',
-    justOne: false
 });
 
 const Harian: HarianModel = (mongoose.models.Harian as HarianModel) || mongoose.model<IHarian>('Harian', HarianSchema);

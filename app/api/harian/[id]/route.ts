@@ -23,6 +23,8 @@ const harianSchema = Joi.object({
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),
+    messageHarian: Joi.optional(),
+
     msg: Joi.string().optional().label('msg'),
     __v: Joi.optional(),
     _id: Joi.optional(),

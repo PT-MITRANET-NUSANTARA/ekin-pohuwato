@@ -54,12 +54,17 @@ const page = () => {
 
             const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, {
                 ...pagination.filters,
-                // status: { $in: ['approved', ] }
+                status: { $in: ['approved', ] }
             });
+
+            console.log(data);
+            
 
             setData(data.data.data)
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const harian = getAbsenceById(IdHarian);
+            const harian = await getAbsenceById(IdHarian);
+            console.log(harian);
+            
             setHarian(harian.data);
             setLoading(false);
         } catch (error) {
@@ -161,9 +166,6 @@ const page = () => {
                                 </div>
                                 <div className="w-full grid grid-cols-12 gap-4">
                                     <TextArea disabled={!selectedFeedback} placeholder="Masukkan feedback" className="col-span-9 text-sm" />
-                                    <Button disabled={!selectedFeedback} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-3">
-                                        Kirim
-                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -245,10 +247,11 @@ const page = () => {
                                         ...record,
                                         isSKP: !record.isSKP,
                                         rhk: record.rhk._id,
-                                        user_id: String(record.user_id)
+                                        skp: record.skp._id
                                     };
                                     const res = await update(record._id, dt);
-
+                                    console.log(res);
+                                    
                                     if (res.ok) {
                                         fetchData();
                                     }

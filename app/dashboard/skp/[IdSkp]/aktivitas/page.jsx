@@ -1,21 +1,8 @@
 'use client';
 
 import { CrudModal, DataLoading, DataTable, InfoModal } from '@/components';
-import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Tooltip, Typography } from 'antd';
-import {
-    CheckCircleFilled,
-    CheckCircleOutlined,
-    CloseCircleFilled,
-    CloseCircleOutlined,
-    DownloadOutlined,
-    ExclamationOutlined,
-    HistoryOutlined,
-    LinkOutlined,
-    OrderedListOutlined,
-    ReloadOutlined,
-    SearchOutlined,
-    SendOutlined,
-} from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Typography } from 'antd';
+import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, DownloadOutlined, ExclamationOutlined, HistoryOutlined, LinkOutlined, OrderedListOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { getData } from '@/controller/AuthorizationController';
@@ -32,8 +19,8 @@ const { confirm } = Modal;
 const page = () => {
     const router = useRouter();
     const { IdSkp } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [data, setData] = useState(null);
     const [periode, setPeriode] = useState(null);
@@ -41,8 +28,7 @@ const page = () => {
     const [bawahan, setBawahan] = useState(null);
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
-    const { success, error } = useNotification()
-
+    const { success, error } = useNotification();
 
     const [form] = Form.useForm();
     const [messageValue, setMessageValue] = useState('');
@@ -54,12 +40,13 @@ const page = () => {
         }
     }, [user, pagination.page, pagination.limit]);
 
-
     const fetchData = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const data = await getByAtasanId(IdSkp);
-            setData(data.data)
+            console.log(data);
+
+            setData(data.data);
         } catch (error) {
             console.log(error);
         }
@@ -70,7 +57,7 @@ const page = () => {
         {
             title: 'No',
             dataIndex: 'index',
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) => index + 1
         },
         {
             title: 'RHK',
@@ -111,18 +98,18 @@ const page = () => {
             dataIndex: 'msg',
             key: 'msg',
             render: (_, record) => (
-                <div className='inline-flex items-center'>
+                <div className="inline-flex items-center">
                     {renderStatusTag(record.status)}
                     <Button
                         variant="link"
                         icon={<HistoryOutlined />}
                         color="default"
                         onClick={() => {
-                            setFeedbackModal({ trigger: true, modalData: data });
+                            setFeedbackModal({ trigger: true, modalData: record.messageHarian });
                         }}
                     />
                     {console.log(record)}
-                    <Modal open={feedBackModal.trigger} onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
+                    <Modal open={feedBackModal.trigger}  onCancel={() => setFeedbackModal({ modalData: null, trigger: false })} footer={null} width={800}>
                         <div className="w-full grid grid-cols-12 items-start gap-4">
                             <List
                                 className="w-full col-span-6 mt-6"
@@ -130,17 +117,12 @@ const page = () => {
                                 dataSource={feedBackModal.modalData}
                                 renderItem={(item) => (
                                     <List.Item>
-                                        <button className='w-full flex flex-col gap-y-2  items-center hover:bg-gray-100 p-3 rounded-md' onClick={() => setSelectedFeedback(item)}>
-                                            <div className='inline-flex items-center justify-between w-full '>
-                                                <div className='inline-flex gap-x-2 items-center'>
-                                                    <HistoryOutlined />
-                                                    <small>10 Januari 2024</small>
-                                                </div>
-                                                {renderStatusTag(item.status)}
+                                        <button className="inline-flex items-center justify-between w-full hover:bg-gray-100 p-3 rounded-md" onClick={() => setSelectedFeedback(item)}>
+                                            <div className="inline-flex gap-x-2 items-center">
+                                                <HistoryOutlined />
+                                                <b>{dateFormatter(item.createdAt)}</b>
                                             </div>
-                                            <div className='rounded-lg w-full text-sm text-left'>
-                                                Ini harusnya berisi pesan yang ada dalam history
-                                            </div>
+                                            {renderStatusTag(item.status)}
                                         </button>
                                     </List.Item>
                                 )}
@@ -151,7 +133,7 @@ const page = () => {
                                 </div>
                                 <div className="w-full grid grid-cols-12 gap-4">
                                     <TextArea placeholder="Masukkan feedback" className="col-span-10" />
-                                    <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-2" />
+                                    {/* <Button disabled={!selectedFeedback?.length} icon={<SendOutlined />} variant="solid" color="primary" className="col-span-2" /> */}
                                 </div>
                             </div>
                         </div>
@@ -163,13 +145,7 @@ const page = () => {
             title: 'Tautan',
             dataIndex: 'tautan',
             key: 'tautan',
-            render: (_, record) => (
-                <Button
-                    variant='solid'
-                    onClick={() => window.open(record.tautan, "_blank", "noopener,noreferrer")}
-                    icon={<LinkOutlined />}
-                />
-            )
+            render: (_, record) => <Button variant="solid" onClick={() => window.open(record.tautan, '_blank', 'noopener,noreferrer')} icon={<LinkOutlined />} />
         },
         {
             title: 'Bukti',
@@ -208,7 +184,7 @@ const page = () => {
                         />
                     </Modal>
                 </>
-            ),
+            )
         },
         {
             title: 'Action',
@@ -232,15 +208,15 @@ const page = () => {
                                         };
 
                                         const res = await update(record._id, dt);
-
+                                        console.log(res);
+                                        
                                         if (res.ok) {
                                             fetchData();
                                             success('Berhasil', 'Laporan aktivitas berhasil ditolak');
                                         }
                                     },
 
-                                    onCancel() {
-                                    }
+                                    onCancel() {}
                                 });
                             }}
                             size="middle"
@@ -289,11 +265,9 @@ const page = () => {
                                         if (res.ok) {
                                             fetchData();
                                             success('Berhasil', 'Laporan aktivitas berhasil ditolak');
-
                                         }
                                     },
-                                    onCancel() {
-                                    }
+                                    onCancel() {}
                                 });
                             }}
                             size="middle"
@@ -370,7 +344,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -396,9 +369,8 @@ const page = () => {
                                 </div>
                             )}
                         </div>
-
                     </Card>
-                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={() => { }} onClose={() => setModal({ trigger: false, modalData: null })} formFields={modal.formFields} type={modal.type} />
+                    <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={() => {}} onClose={() => setModal({ trigger: false, modalData: null })} formFields={modal.formFields} type={modal.type} />
                     <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
                 </>
             )}

@@ -18,6 +18,7 @@ const harianSchema = Joi.object({
     files: Joi.array().items(Joi.object()).label('Berkas'),
     createdAt: Joi.date().optional(),
     isSKP: Joi.boolean().optional(),
+    messageHarian: Joi.optional(),
     updatedAt: Joi.date().optional(),
     progress: Joi.number().required().label('Progress'),
     absence: Joi.string().required().label('Absensi'),

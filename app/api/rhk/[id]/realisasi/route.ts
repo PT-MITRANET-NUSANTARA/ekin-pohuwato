@@ -82,6 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
             const harian = await Harian.find({
                 rhk: rhk._id,
+                isSKP: true,
                 date: {
                     $gte: rhkPeriode.periodeStart,
                     $lte: rhkPeriode.periodeEnd
@@ -104,6 +105,7 @@ const kualitasRecursive = async (aspek: any, periode: any, rhk: any, realisasi: 
     // Ambil data harian untuk RHK saat ini
     const harian = await Harian.find({
         rhk: rhk._id,
+        isSKP: true,
         date: {
             $gte: periode.periodeStart,
             $lte: periode.periodeEnd
@@ -141,6 +143,7 @@ const kuantitasRecursive = async (aspek: any, periode: any, rhk: any, realisasi:
     // Ambil data harian untuk RHK saat ini
     const harian = await Harian.find({
         rhk: rhk._id,
+        isSKP: true,
         date: {
             $gte: periode.periodeStart,
             $lte: periode.periodeEnd
@@ -180,6 +183,7 @@ const waktuRecursive = async (aspek: any, periode: any, rhk: any, realisasi: num
     // Ambil data harian untuk RHK saat ini
     const harian = await Harian.find({
         rhk: rhk._id,
+        isSKP: true,
         date: {
             $gte: periode.periodeStart,
             $lte: periode.periodeEnd
