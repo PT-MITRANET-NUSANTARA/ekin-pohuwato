@@ -14,6 +14,8 @@ import { getByUserId } from '@/controller/AbsenceController';
 import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import { getByAbsenceDetail } from '@/controller/HarianController';
+import { get } from '@/controller/SettingsController';
 
 const { Title } = Typography;
 
@@ -27,6 +29,7 @@ const page = () => {
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [loading, setLoading] = useState();
+    const [settings, setSettings] = useState(null);
     useEffect(() => {
         if (user) {
             fetchData();
@@ -41,9 +44,25 @@ const page = () => {
                 ...pagination.filters,
                 date: { $gte: dateFormatter(skp.data.periode_awal), $lte: dateFormatter(skp.data.periode_akhir) }
             });
+            const settings = await get();
+
+            const updateData = data.data.data.map(async (record) => {
+                const res = await getByAbsenceDetail(record._id, settings.data.total_time);
+                console.log(res);
+                return {
+                    ...record,
+                    total: res.data.total ,
+                    mines: res.data.mines
+                };
+            });
+
+            const absence = await Promise.all(updateData);
+
+            console.log(absence);
+            setSettings(settings.data);
             console.log(data);
 
-            setData(data.data.data);
+            setData(absence);
         } catch (error) {
             console.log(error);
         }
@@ -166,13 +185,13 @@ const page = () => {
         },
         {
             title: 'Total Waktu',
-            dataIndex: '',
-            key: '',
+            dataIndex: 'total',
+            key: 'total'
         },
         {
             title: 'Sisa Waktu',
-            dataIndex: '',
-            key: '',
+            dataIndex: 'mines',
+            key: 'mines'
         },
         {
             title: 'Action',
@@ -276,3 +295,49 @@ const page = () => {
 };
 
 export default page;
+
+const TimeRow = ({ item, total_time }) => {
+    const [data, setData] = useState(undefined);
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByAbsenceDetail(item._id, total_time);
+            if (res.ok) {
+                setData(res.data);
+            } else {
+                setData(null);
+            }
+        } catch (error) {
+            setData(null);
+        }
+    };
+
+    return <td></td>;
+};
+
+const MinesRow = ({ item, total_time }) => {
+    const [data, setData] = useState(undefined);
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const getData = async () => {
+        try {
+            const res = await getByAbsenceDetail(item._id, total_time);
+            if (res.ok) {
+                setData(res.data);
+            } else {
+                setData(null);
+            }
+        } catch (error) {
+            setData(null);
+        }
+    };
+
+    return <td></td>;
+};

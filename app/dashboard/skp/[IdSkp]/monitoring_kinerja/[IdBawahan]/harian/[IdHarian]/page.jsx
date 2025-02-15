@@ -5,7 +5,7 @@ import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlin
 import { DataTable, CrudModal, InfoModal, DataLoading } from '@/components';
 import { dateFormatter, renderStatusTag } from '@/utils';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence, getByAbsenceDetail } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,11 +13,12 @@ import { dummyAktivitas, dummyfileList } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
 import { getById as getAbsenceById } from '@/controller/AbsenceController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
-import { getByUserId as getSKPByUser } from '@/controller/SKPController';
+import { getById as getSKP } from '@/controller/SKPController';
 import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import TextArea from 'antd/es/input/TextArea';
+import { get } from '@/controller/SettingsController';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -38,8 +39,9 @@ const page = () => {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     const { data: user, setData: setUser } = useFetchData(getData);
+    const [jabatan, setJabatan] = useState(null);
+    const [detail, setDetail] = useState(null);
 
-    const MENIT = process.env.NEXT_PUBLIC_TIME;
     useEffect(() => {
         if (user) {
             fetchData();
@@ -49,21 +51,22 @@ const page = () => {
     console.log(data);
     const fetchData = async () => {
         try {
-            console.log(IdHarian);
-            console.log(IdHarian);
-
             const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, {
                 ...pagination.filters,
                 status: { $in: ['approved', ] }
             });
 
-            console.log(data);
-            
+            const skp = await getSKP(IdBawahan);
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
+            const settings = await get()
+            const detail = await getByAbsenceDetail(IdHarian, settings.data.total_time);
+            console.log(detail);
 
+            
+            setDetail(detail.data)
             setData(data.data.data)
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             const harian = await getAbsenceById(IdHarian);
-            console.log(harian);
             
             setHarian(harian.data);
             setLoading(false);
@@ -362,35 +365,35 @@ const page = () => {
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Nama ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_asn}</p>
+                                        <p className="text-right uppercase">{jabatan?.nama_asn}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_jabatan}</p>
+                                        <p className="text-right uppercase">{jabatan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nip_asn}</p>
+                                        <span className="uppercase font-semibold">Nip ASN</span>
+                                        <p className="text-right uppercase">{jabatan?.nip_asn}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].unor.nama}</p>
+                                        <span className="uppercase font-semibold">Unor ASN</span>
+                                        <p className="text-right uppercase">{jabatan?.unor.nama}</p>
                                     </div>
-                                    <div className="flex items-center justify-between py-2">
+                                    {/* <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Status Kehadiran</span>
                                         <p className="text-right uppercase"></p>
-                                    </div>
+                                    </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Tanggal</span>
-                                        <p className="text-right uppercase">{formatDateToDayMonthYear(data?.date)}</p>
+                                        <p className="text-right uppercase">{detail?.date}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Total Menit</span>
-                                        <p className="text-right uppercase">{data?.menit} menit</p>
+                                        <p className="text-right uppercase">{detail?.total} menit</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Sisa Menit Yang Harus DIcapai</span>
-                                        <p className="text-right uppercase">{data?.menit - MENIT} Menit</p>
+                                        <p className="text-right uppercase">{detail?.mines} Menit</p>
                                     </div>
                                 </div>
                             </Card>

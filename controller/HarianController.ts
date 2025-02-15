@@ -42,6 +42,14 @@ export const getByAbsence = async (absence_id: string, page: number, limit: numb
     return response;
 };
 
+export const getByAbsenceDetail = async (absence_id: string, time: number) => {
+    const url = `/api/${path}/absence/${absence_id}/detail?time=${time}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
 export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;

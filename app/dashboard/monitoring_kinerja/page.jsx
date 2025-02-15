@@ -3,20 +3,49 @@
 import { Alert, Breadcrumb, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { DataTable, CrudModal } from '@/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { destroy, getAll, store, update } from '@/controller/RenstraController';
 import useFetchData from '@/hooks/useFetchData';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyOrganisasi } from '@/data/dummyData';
+import { getData } from '@/controller/AuthorizationController';
+import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        if (user) {
+            fetchData();
+        }
+    }, [user]);
+
+    const fetchData = async () => {
+        try {
+        
+
+            const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
+            console.log(unit);
+            
+            // setUnor(bawahan);
+            console.log(unit);
+            
+            setData(unit.mapData.data);
+            // setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
+            // setLoadingData(false);
+        } catch (error) {
+            console.log(error);
+        } finally{
+            setLoading(false);
+        }
+    };
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -80,40 +109,36 @@ const page = () => {
             dataIndex: 'name',
             key: 'name',
             searchable: true,
-            render: (_, record) => {
-                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
-                return lastJabatan ? lastJabatan.nip_asn : 'No Jabatan';
-            }
+            render: (_, record) => (
+                record.nip_asn
+            )
         },
         {
             title: 'Nama',
             dataIndex: 'name',
             key: 'name',
             searchable: true,
-            render: (_, record) => {
-                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
-                return lastJabatan ? lastJabatan.nama_asn : 'No Jabatan';
-            }
+            render: (_, record) => (
+                record.nama_asn
+            )
         },
         {
             title: 'Unit',
             dataIndex: 'unor',
             key: 'unor',
             searchable: true,
-            render: (_, record) => {
-                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
-                return lastJabatan ? lastJabatan.unor?.nama : 'No Organisasi';
-            }
+            render: (_, record) => (
+                record.unor.nama
+            )
         },
         {
             title: 'Jabatan',
             dataIndex: 'jabatan',
             key: 'jabatan',
             searchable: true,
-            render: (_, record) => {
-                const lastJabatan = record.jabatan?.[record.jabatan.length - 1];
-                return lastJabatan ? lastJabatan.nama_jabatan : 'No Jabatan';
-            }
+            render: (_, record) => (
+               record.nama_jabatan
+            )
         },
 
         {
@@ -122,7 +147,7 @@ const page = () => {
             render: (_, record) => (
                 <Space size="small">
                     <Button
-                        onClick={() => router.push(window.location.pathname + `/${record.id}`)}
+                        onClick={() => router.push(window.location.pathname + `/${record.nip_asn}`)}
                         // type='primary'
                         size="middle"
                     >
@@ -176,7 +201,7 @@ const page = () => {
                             Monitoring Kinerja
                         </Title>
                     </div>
-                    <DataTable columns={Column} data={dummyOrganisasi} loading={loading} />
+                    <DataTable columns={Column} data={data} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
             </Card>
