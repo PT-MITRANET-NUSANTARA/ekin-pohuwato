@@ -14,12 +14,14 @@ import { getByUserId } from '@/controller/AbsenceController';
 import { getData } from '@/controller/AuthorizationController';
 import { getById } from '@/controller/SKPController';
 import { formatDateToDayMonthYear } from '@/utils/util';
+import { get } from '@/controller/SettingsController';
+import { getByAbsenceDetail } from '@/controller/HarianController';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const { IdSkp, IdBawahan } = useParams();
+    const { idSkp, idBawahan } = useParams();
     const { IdOrganisasi, IdTanggal } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
@@ -36,14 +38,27 @@ const page = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const skp = await getById(IdBawahan);
+            const skp = await getById(idSkp);
             const data = await getByUserId(skp.data.user_id, pagination.page, pagination.limit, {
                 ...pagination.filters,
                 date: { $gte: dateFormatter(skp.data.periode_awal), $lte: dateFormatter(skp.data.periode_akhir) }
             });
             console.log(data);
+            const settings = await get();
 
-            setData(data.data.data);
+            const updateData = data.data.data.map(async (record) => {
+                const res = await getByAbsenceDetail(record._id, settings.data.total_time);
+                console.log(res);
+                return {
+                    ...record,
+                    total: res.data.total,
+                    mines: res.data.mines
+                };
+            });
+
+            const absence = await Promise.all(updateData);
+
+            setData(absence);
         } catch (error) {
             console.log(error);
         }
@@ -166,13 +181,13 @@ const page = () => {
         },
         {
             title: 'Total Waktu',
-            dataIndex: '',
-            key: '',
+            dataIndex: 'total',
+            key: 'total'
         },
         {
             title: 'Sisa Waktu',
-            dataIndex: '',
-            key: '',
+            dataIndex: 'mines',
+            key: 'mines'
         },
         {
             title: 'Action',
@@ -181,7 +196,7 @@ const page = () => {
                 return (
                     <Space size="small">
                         <Button
-                            onClick={() => router.push(`/dashboard/skp/${IdSkp}/monitoring_kinerja/${IdBawahan}/harian/${record._id}`)}
+                            onClick={() => router.push(`/dashboard/monitoring_kinerja/${idBawahan}/${idSkp}/${record._id}`)}
                             // type='primary'
                             size="middle"
                             color="primary"

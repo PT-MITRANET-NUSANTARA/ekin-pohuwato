@@ -1,11 +1,29 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, List, Modal, Progress, Space, Table, Tag, Tooltip, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, DatabaseOutlined, SearchOutlined, CheckCircleFilled, CheckCircleOutlined, CloseCircleOutlined, ExclamationOutlined, DownloadOutlined, OrderedListOutlined, HistoryOutlined, WarningOutlined, SendOutlined, LinkOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+    PlusOutlined,
+    EditOutlined,
+    EyeOutlined,
+    DeleteOutlined,
+    DatabaseOutlined,
+    SearchOutlined,
+    CheckCircleFilled,
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    ExclamationOutlined,
+    DownloadOutlined,
+    OrderedListOutlined,
+    HistoryOutlined,
+    WarningOutlined,
+    SendOutlined,
+    LinkOutlined,
+    ReloadOutlined
+} from '@ant-design/icons';
 import { DataTable, CrudModal, InfoModal, DataLoading } from '@/components';
 import { dateFormatter, renderStatusTag } from '@/utils';
 import React, { useEffect, useState } from 'react';
-import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence } from '@/controller/HarianController';
+import { destroy, getAll, store, update, getByUserId, getByUserIdAbsence, getByAbsence, getByAbsenceDetail } from '@/controller/HarianController';
 import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,28 +36,31 @@ import { getByNIP } from '@/controller/IDSN/JabatanController';
 import dayjs from 'dayjs';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import TextArea from 'antd/es/input/TextArea';
+import { getById as getSKP } from '@/controller/SKPController';
+import { get } from '@/controller/SettingsController';
 
 const { Title } = Typography;
 const { confirm } = Modal;
 
 const page = () => {
     const router = useRouter();
-    const { IdBawahan, IdHarian } = useParams();
+    const { idSkp, idHarian } = useParams();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
+    const [jabatan, setJabatan] = useState(null);
 
     const { data: user, setData: setUser } = useFetchData(getData);
+    const [detail, setDetail] = useState(null);
 
-    const MENIT = process.env.NEXT_PUBLIC_TIME;
     useEffect(() => {
         if (user) {
             fetchData();
@@ -49,24 +70,31 @@ const page = () => {
     console.log(data);
     const fetchData = async () => {
         try {
-            console.log(IdHarian);
-            console.log(IdHarian);
-
-            const data = await getByAbsence(IdHarian, pagination.page, pagination.limit, {
+            const data = await getByAbsence(idHarian, pagination.page, pagination.limit, {
                 ...pagination.filters,
-                // status: { $in: ['approved', ] }
+                status: { $in: ['approved'] }
             });
 
-            setData(data.data.data)
+            console.log("HERE", data);
+            
+
+            const skp = await getSKP(idSkp);
+            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
+            const settings = await get();
+            const detail = await getByAbsenceDetail(idHarian, settings.data.total_time);
+            console.log(detail);
+
+            setDetail(detail.data);
+            setData(data.data.data);
             setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const harian = getAbsenceById(IdHarian);
+            const harian = await getAbsenceById(idHarian);
+
             setHarian(harian.data);
             setLoading(false);
         } catch (error) {
             console.log(error);
         }
     };
-
 
     const calculateTotalMinutes = (data) => {
         let menit = 0;
@@ -175,19 +203,13 @@ const page = () => {
             title: 'Progress',
             dataIndex: 'progress',
             key: 'progress',
-            render: (_, record) => <span>{record.progress} %</span>,
+            render: (_, record) => <span>{record.progress} %</span>
         },
         {
             title: 'Tautan',
             dataIndex: 'tautan',
             key: 'tautan',
-            render: (_, record) => (
-                <Button
-                    variant='solid'
-                    onClick={() => window.open(record.tautan, "_blank", "noopener,noreferrer")}
-                    icon={<LinkOutlined />}
-                />
-            )
+            render: (_, record) => <Button variant="solid" onClick={() => window.open(record.tautan, '_blank', 'noopener,noreferrer')} icon={<LinkOutlined />} />
         },
         {
             title: 'Bukti',
@@ -226,7 +248,7 @@ const page = () => {
                         />
                     </Modal>
                 </>
-            ),
+            )
         },
         {
             title: 'Action',
@@ -359,35 +381,35 @@ const page = () => {
                                 <div className="grid grid-flow-row divide-y text-xs">
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Nama ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_asn}</p>
+                                        <p className="text-right uppercase">{jabatan?.nama_asn}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nama_jabatan}</p>
+                                        <p className="text-right uppercase">{jabatan?.nama_jabatan}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].nip_asn}</p>
+                                        <span className="uppercase font-semibold">Nip ASN</span>
+                                        <p className="text-right uppercase">{jabatan?.nip_asn}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">Jabatan ASN</span>
-                                        <p className="text-right uppercase">{data[0]?.skp.skp[0].jabatan[0].unor.nama}</p>
+                                        <span className="uppercase font-semibold">Unor ASN</span>
+                                        <p className="text-right uppercase">{jabatan?.unor.nama}</p>
                                     </div>
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="uppercase font-semibold">Status Kehadiran</span>
-                                        <p className="text-right uppercase"></p>
-                                    </div>
+                                    {/* <div className="flex items-center justify-between py-2">
+                                                                   <span className="uppercase font-semibold">Status Kehadiran</span>
+                                                                   <p className="text-right uppercase"></p>
+                                                               </div> */}
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Tanggal</span>
-                                        <p className="text-right uppercase">{formatDateToDayMonthYear(data?.date)}</p>
+                                        <p className="text-right uppercase">{detail?.date}</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Total Menit</span>
-                                        <p className="text-right uppercase">{data?.menit} menit</p>
+                                        <p className="text-right uppercase">{detail?.total} menit</p>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="uppercase font-semibold">Sisa Menit Yang Harus DIcapai</span>
-                                        <p className="text-right uppercase">{data?.menit - MENIT} Menit</p>
+                                        <p className="text-right uppercase">{detail?.mines} Menit</p>
                                     </div>
                                 </div>
                             </Card>
