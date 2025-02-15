@@ -1,21 +1,8 @@
 'use client';
 
 import { CrudModal, DataLoading, DataTable, InfoModal } from '@/components';
-import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Tooltip, Typography } from 'antd';
-import {
-    CheckCircleFilled,
-    CheckCircleOutlined,
-    CloseCircleFilled,
-    CloseCircleOutlined,
-    DownloadOutlined,
-    ExclamationOutlined,
-    HistoryOutlined,
-    LinkOutlined,
-    OrderedListOutlined,
-    ReloadOutlined,
-    SearchOutlined,
-    SendOutlined,
-} from '@ant-design/icons';
+import { Alert, Breadcrumb, Button, Card, Collapse, Form, List, Modal, Progress, Skeleton, Space, Tag, Typography } from 'antd';
+import { CheckCircleFilled, CheckCircleOutlined, CloseCircleFilled, CloseCircleOutlined, DownloadOutlined, ExclamationOutlined, HistoryOutlined, LinkOutlined, OrderedListOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { getData } from '@/controller/AuthorizationController';
@@ -357,7 +344,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

@@ -1,4 +1,4 @@
-import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { AuditOutlined, SnippetsOutlined, CalendarOutlined, FieldTimeOutlined, DashboardOutlined, SettingOutlined, RocketOutlined, BlockOutlined, UserSwitchOutlined, VerifiedOutlined, UsergroupAddOutlined, IdcardOutlined } from '@ant-design/icons';
 import path from 'path';
 
 export const DashboardLink = [
@@ -6,7 +6,7 @@ export const DashboardLink = [
         icon: DashboardOutlined,
         label: 'Dashboard',
         path: '/dashboard',
-        permission: ['admin'],
+        permission: ['admin', 'user'],
     },
 
     {
@@ -90,8 +90,12 @@ export const DashboardLink = [
         path: '/dashboard/harians',
         permission: ['admin', 'user']
     },
-
-
+    {
+        icon: IdcardOutlined,
+        label: 'JPT',
+        path: '/dashboard/jpt',
+        permission: ['admin', 'user'],
+    },
     {
         icon: UserSwitchOutlined,
         label: 'UMPEG',
@@ -113,6 +117,7 @@ export const DashboardLink = [
             },
         ]
     },
+
     {
         icon: UsergroupAddOutlined,
         label: 'Verifikator',
