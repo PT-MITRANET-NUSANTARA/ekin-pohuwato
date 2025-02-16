@@ -90,12 +90,7 @@ export const DashboardLink = [
         path: '/dashboard/harians',
         permission: ['admin', 'user']
     },
-    {
-        icon: IdcardOutlined,
-        label: 'JPT',
-        path: '/dashboard/jpt',
-        permission: ['admin', 'user'],
-    },
+   
     {
         icon: UserSwitchOutlined,
         label: 'UMPEG',
@@ -115,6 +110,11 @@ export const DashboardLink = [
                 path: '/dashboard/tpp',
                 permission: ['admin', 'user']
             },
+            {
+                label: 'JPT',
+                path: '/dashboard/jpt',
+                permission: ['admin', 'user'],
+            },  
         ]
     },
 
