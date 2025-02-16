@@ -17,7 +17,18 @@ const page = () => {
     const submitFinish = async (values) => {
         try {
             setSubmitLoading(true);
-            const res = await update(dataSettings?._id, values);
+            const data = {
+                ...values,
+                harian_end: dayjs(values.harian_end).format('HH:mm:ss').toString(),
+                harian_start: dayjs(values.harian_start).format('HH:mm:ss').toString(),
+                istirahat_start: dayjs(values.istirahat_start).format('HH:mm:ss').toString(),
+                istirahat_end: dayjs(values.istirahat_end).format('HH:mm:ss').toString(),
+            }
+            console.log(data);
+        
+            const res = await update(dataSettings?._id,data);
+            console.log(res);
+            
             if (res.ok) {
                 success('Berhasil', 'Berhasil mengubah data')
                 fetchData();
@@ -68,19 +79,19 @@ const page = () => {
                             <Form.Item name="total_feedback" label="Total Feedback" className="m-0">
                                 <InputNumber size="large" placeholder="masukan total feedback" className="w-full" />
                             </Form.Item>
-                            <Form.Item name="total_time" label="Total Waktu" className="m-0">
+                            <Form.Item name="total_time" label="Total Waktu (Menit)" className="m-0">
                                 <InputNumber size="large" placeholder="masukan total waktu" className="w-full" />
                             </Form.Item>
-                            <Form.Item name="harian_start" label="Harian Mulai" className="m-0">
+                            <Form.Item name="harian_start" label="Harian Mulai (Jam)" className="m-0">
                                 <TimePicker size="large" className="w-full" />
                             </Form.Item>
-                            <Form.Item name="harian_end" label="Harian Akhir" className="m-0">
+                            <Form.Item name="harian_end" label="Harian Akhir (Jam)" className="m-0">
                                 <TimePicker size="large" className="w-full" />
                             </Form.Item>
-                            <Form.Item name="istirahat_start" label="Istrahat Mulai" className="m-0">
+                            <Form.Item name="istirahat_start" label="Istrahat Mulai (Jam)" className="m-0">
                                 <TimePicker size="large" className="w-full" />
                             </Form.Item>
-                            <Form.Item name="istirahat_end" label="Istrahat Mulai" className="m-0">
+                            <Form.Item name="istirahat_end" label="Istrahat Mulai (Jam)" className="m-0">
                                 <TimePicker size="large" className="w-full" />
                             </Form.Item>
 
