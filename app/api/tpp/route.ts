@@ -10,7 +10,8 @@ const tppSchema = Joi.object({
     jabatan: Joi.object().required().label('Jabatan'),
     status: Joi.boolean().required().label('Status'),
     unit: Joi.object().required().label('Unit'),
-    periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT')
+    periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'),
+    date: Joi.date().required().label('Date')
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',

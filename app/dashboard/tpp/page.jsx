@@ -15,6 +15,7 @@ import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanControlle
 import { dateFormatter } from '@/utils';
 import { title } from 'process';
 import useNotification from '@/app/hook/useNotification';
+import { formatDateToDayMonthYear } from '@/utils/util';
 
 const { Title } = Typography;
 
@@ -42,6 +43,8 @@ const page = () => {
             const selectedJabatan = jabatan.mapData.data[0];
             const struktur = await getAllPosjabByUnit(data.token, selectedJabatan.unor.induk.id);
             setPegawai(struktur.mapData.data);
+            console.log(struktur);
+            
             const periode = await getAllPeriode(selectedJabatan.unor.induk.id);
             setPeriode(periode.data);
             setUnor(selectedJabatan.unor.induk.id);
@@ -63,8 +66,9 @@ const page = () => {
                 periodeRKT: values.periodeRKT,
                 jabatan: jabatan,
                 unit: jabatan.unor,
-                user_id: jabatan.id_asn,
-                status: values.status
+                user_id: jabatan.nip_asn,
+                status: values.status,
+                date: values.date
             };
 
             switch (type) {
@@ -119,9 +123,9 @@ const page = () => {
             render: (record) => dateFormatter(record.periode_start) + ' - ' + dateFormatter(record.periode_end)
         },
         {
-            title: 'ID ASN',
-            dataIndex: ['jabatan', 'id_asn'],
-            key: 'idasn',
+            title: 'NIP',
+            dataIndex: ['jabatan', 'nip_asn'],
+            key: 'nip_asn',
             sorter: (a, b) => a.idasn.length - b.idasn.length
         },
         {
@@ -141,6 +145,14 @@ const page = () => {
             dataIndex: ['jabatan', 'nama_jabatan'],
             key: 'jabatan',
             sorter: (a, b) => a.jabatan.length - b.jabatan.length
+        },
+        {
+            title: 'Tanggal Penerima',
+            dataIndex: 'date',
+            key: 'date',
+            // sorter: (a, b) => new Date(a.periode_start) - new Date(b.periode_start),
+
+            render: (record) => formatDateToDayMonthYear(record)
         },
         {
             title: 'Status',
@@ -255,7 +267,17 @@ const page = () => {
                 value: item._id
             }))
         },
-
+        {
+            label: 'Tanggal Penerima',
+            name: 'date',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field tanggal penerima wajib di isi'
+                }
+            ]
+        },
         {
             label: 'Pegawai',
             name: 'pegawai',
