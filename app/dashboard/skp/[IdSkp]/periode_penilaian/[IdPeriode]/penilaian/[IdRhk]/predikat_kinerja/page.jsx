@@ -150,41 +150,6 @@ const page = () => {
         }
     ];
 
-    const feedbackFields = [
-        {
-            label: 'Beri Feedback',
-            name: 'feedback',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field feedback wajib diisi'
-                }
-            ]
-        },
-        {
-            label: 'Kategori',
-            name: 'category',
-            type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field periode mulai wajib di isi'
-                }
-            ],
-            options: [
-                {
-                    label: 'baik',
-                    value: true
-                },
-                {
-                    label: 'buruk',
-                    value: false
-                }
-            ]
-        }
-    ];
-
     const predikatFields = [
         {
             label: 'Beri Rating',

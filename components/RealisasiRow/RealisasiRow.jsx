@@ -6,10 +6,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import { update } from '@/controller/AspekController';
 import useNotification from '@/app/hook/useNotification';
 
-const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = false }) => {
+const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = false, setSubmitLoading }) => {
     const [data, setData] = useState(undefined);
     const {error, success} = useNotification()
-    const [submitLoading, setSubmitLoading] = useState()
 
     useEffect(() => {
         getData();

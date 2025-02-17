@@ -22,9 +22,10 @@ import { dateFormatter } from '@/utils';
 
 const page = () => {
     const router = useRouter();
-    const {id, IdPeriode, IdPenilaian } = useParams();
+    const { id, idPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const [data, setData] = useState(null);
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
@@ -50,14 +51,14 @@ const page = () => {
         try {
             const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(id, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, idPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
             setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
-            const periode = await getPenilaian(IdPeriode);
+            const periode = await getPenilaian(idPeriode);
             setPeriode(periode.data);
 
             setAtasan(atasan);
@@ -227,24 +228,22 @@ const page = () => {
                                                 title: 'Tambah Rating Perilaku Kerja',
                                                 formFields: ratingFileds,
                                                 onSubmit: async (value) => {
-
+                                                    setSubmitLoading(true)
                                                     const dt = {
                                                         ...penilaian,
                                                         ratingPerilaku: value.rating,
                                                         penilai: id,
                                                         skp: id,
-                                                        periodePenilaian: IdPeriode
+                                                        periodePenilaian: idPeriode
                                                     };
 
                                                     const res = await storePenilaian(dt);
 
                                                     if (res.ok) {
-                                                        // setModal({
-                                                        //     trigger: false,
-                                                        //     modalData: { rating: data.perilaku ? data.perilaku[IdPeriode] : 1 }
-                                                        // });
+                                                        setModal({trigger: false})
                                                         fetchData();
                                                     }
+                                                    setSubmitLoading(false);
                                                 }
                                             })
                                         }
@@ -398,8 +397,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
-                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -443,8 +442,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
-                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -531,7 +530,7 @@ const page = () => {
                                         <td>
                                             <div className="flex items-center justify-center">{item.espektasi}</div>
                                         </td>
-                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={IdPeriode} fetchData={fetchData} formFields={formFields} setModal={setModal} />
+                                        <PerilakuRow setSubmitLoading={setSubmitLoading} IdSKP={id} item={item} IdPeriode={idPeriode} fetchData={fetchData} formFields={formFields} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>
@@ -724,7 +723,7 @@ const page = () => {
                                 </tr>
                             </tbody>
                         </table>
-                        <CrudModal type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
+                        <CrudModal isLoading={submitLoading} type="create" onClose={onClose} formFields={modal.formFields} data={modal.modalData} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} title={modal.title}>
                             {modal.isRating && (
                                 <CrudModal.Extra>
                                     <Card className="mt-6  mb-4">
@@ -747,7 +746,7 @@ const page = () => {
 
 export default page;
 
-const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }) => {
+const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP, setSubmitLoading }) => {
     const [data, setData] = useState(null);
     useEffect(() => {
         getData();
@@ -775,7 +774,7 @@ const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP }
                     ''
                 )}
                 <div className="flex items-center justify-center">
-                    <FeedbackButton IdSKP={IdSKP} item={item} IdPeriode={IdPeriode} fetchData={getData} formFields={formFields} setModal={setModal} />
+                    <FeedbackButton setSubmitLoading={setSubmitLoading} IdSKP={IdSKP} item={item} IdPeriode={IdPeriode} fetchData={getData} formFields={formFields} setModal={setModal} />
                 </div>
             </div>
         </td>

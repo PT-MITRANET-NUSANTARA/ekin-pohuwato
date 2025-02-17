@@ -18,7 +18,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
-    const { id, IdPeriode } = useParams();
+    const { id, idPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
@@ -42,14 +42,14 @@ const page = () => {
         try {
             const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(id, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, idPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
             setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
-            const periode = await getPenilaian(IdPeriode);
+            const periode = await getPenilaian(idPeriode);
             setPeriode(periode.data);
 
             setAtasan(atasan);
@@ -231,16 +231,14 @@ const page = () => {
                                                         ratingKinerja: value.rating,
                                                         penilai: id,
                                                         skp: id,
-                                                        periodePenilaian: IdPeriode
+                                                        periodePenilaian: idPeriode
                                                     };
                                                     const res = await storePenilaian(dt);
 
                                                     if (res.ok) {
-                                                        // setModal({
-                                                        //     trigger: false,
-                                                        //     modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 }
-                                                        // });
+                                                       
                                                         fetchData();
+                                                        setModal({trigger: false})
                                                     }
                                                     setSubmitLoading(false);
                                                 }
@@ -511,8 +509,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow  item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} isTambahan={false} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow setSubmitLoading={setSubmitLoading} item={item} aspek={aspek} IdPeriode={idPeriode} setModal={setModal} FormFields={deskriptifFormFields} isTambahan={false} />
+                                                    <RhkRow setSubmitLoading={setSubmitLoading} feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -681,8 +679,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} setModal={setModal} FormFields={deskriptifFormFields} />
+                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -765,7 +763,7 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td>{item.espektasi || ''}</td>
-                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={idPeriode} fetchData={fetchData} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>
@@ -981,7 +979,7 @@ const page = () => {
 export default page;
 
 
-const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
+const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields, setSubmitLoading }) => {
     const { success, error } = useNotification();
     const [data, setData] = useState(null);
     useEffect(() => {
@@ -1017,6 +1015,7 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
                             trigger: true,
                             formFields: feedbackFields,
                             onSubmit: async (values) => {
+                                setSubmitLoading(true);
                                 const dt = {
                                     penilai: IdSkp,
                                     periodePenilaian: IdPeriode,
@@ -1032,6 +1031,7 @@ const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
                                     setModal({ trigger: false, modalData: {} });
                                     success('Berhasil', 'Data Berhasil Di Ubah');
                                 }
+                                setSubmitLoading(false);
                             }
                         })
                     }
