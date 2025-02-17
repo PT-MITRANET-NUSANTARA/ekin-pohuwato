@@ -224,7 +224,7 @@ const page = () => {
                             Data SKP
                         </Title>
                     </div>
-                    
+
                     {loadingData ? (
                         <Skeleton active />
                     ) : errorData.show ? (
@@ -238,6 +238,8 @@ const page = () => {
                                             <div className="flex w-full items-center gap-x-2 ">
                                                 <Button onClick={() => router.push(window.location.pathname + `/${item.id}/detail`)}>Detail SKP</Button>
                                                 <Button onClick={() => router.push(window.location.pathname + `/${item.id}/periode`)}>Penilaian</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
 
                                             <div className="grid grid-flow-row divide-y text-xs">
