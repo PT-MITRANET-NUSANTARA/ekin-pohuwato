@@ -7,7 +7,8 @@ import { createResponse } from '@/utils/api';
 const aspekSchema = Joi.object({
   rhk: Joi.string().hex().length(24).required().label('RHK'), // Expecting ObjectId
   jenis: Joi.string().valid('kualitas', 'kuantitas', 'waktu', 'deskripsi').required().label('Jenis'),
-  indikator: Joi.string().required().label('Indikator'),
+  indikator: Joi.string().required().label('Indikator').allow(''),
+  realisasi: Joi.object().required().label('Realisasi').allow({}),
   target_tahunan: Joi.object().required().label('Target Tahunan'),
   feedback: Joi.object().optional().label('Feedback'),
   desc: Joi.string().optional().label('Deskripsi').allow(''),
