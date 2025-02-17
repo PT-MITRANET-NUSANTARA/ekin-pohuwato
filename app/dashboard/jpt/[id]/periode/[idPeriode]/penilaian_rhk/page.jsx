@@ -18,7 +18,7 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
-    const { IdSkp, IdRhk, IdPeriode } = useParams();
+    const { id, IdPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
@@ -40,9 +40,9 @@ const page = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const skp = await getById(IdRhk);
+            const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, IdPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
@@ -62,8 +62,6 @@ const page = () => {
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
-
-    console.log("skp", IdRhk);
 
     const ratingFields = [
         {
@@ -231,8 +229,8 @@ const page = () => {
                                                     const dt = {
                                                         ...penilaian,
                                                         ratingKinerja: value.rating,
-                                                        penilai: IdSkp,
-                                                        skp: IdRhk,
+                                                        penilai: id,
+                                                        skp: id,
                                                         periodePenilaian: IdPeriode
                                                     };
                                                     const res = await storePenilaian(dt);
@@ -513,8 +511,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} isTambahan={false} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow  item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} isTambahan={false} />
+                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -684,7 +682,7 @@ const page = () => {
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
                                                     <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -767,7 +765,7 @@ const page = () => {
                                             </div>
                                         </td>
                                         <td>{item.espektasi || ''}</td>
-                                        <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>

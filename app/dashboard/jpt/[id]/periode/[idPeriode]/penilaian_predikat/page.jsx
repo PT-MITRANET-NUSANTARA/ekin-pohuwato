@@ -1,48 +1,51 @@
 'use client';
 
-import { Breadcrumb, Button, Card, Form, Input, InputNumber, List, message, Modal, Progress, Skeleton, Table, Tag, Tooltip, Typography } from 'antd';
-import { PlusOutlined, DownloadOutlined, OrderedListOutlined, EyeOutlined, ExclamationOutlined, ExclamationCircleOutlined, ExclamationCircleFilled, WarningOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, List, Skeleton, Tag, Tooltip, Typography } from 'antd';
+import { PlusOutlined, ExclamationCircleFilled, WarningOutlined, PrinterOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { CrudModal, DataLoading, InfoModal, PerilakuRow, RealisasiRow } from '@/components';
-import { getById } from '@/controller/SKPController';
-import { store as storePenilaian, getBySKPAndPeriode } from '@/controller/penilaianController';
+import { CrudModal, DataLoading, InfoModal, PerilakuRow, RealisasiRow, RhkRow } from '@/components';
+import { getById, } from '@/controller/SKPController';
 import { getById as getPenilaian } from '@/controller/periodePenilaianController';
-import { dateFormatter } from '@/utils';
+import { store as storePenilaian } from '@/controller/penilaianController';
+import { getRealisasi } from '@/controller/RHKController';
+import { getBySKPAndPeriode } from '@/controller/penilaianController';
+import { getByPerilakuAndPeriode } from '@/controller/FeedbackPerilakuController';
 import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
-import useNotification from '@/app/hook/useNotification';
-import { formatDateToDayMonthYear } from '@/utils/util';
-
+import { dateFormatter } from '@/utils';
+import { getHasilSkp } from '@/controller/ReportController';
 const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
-    const { IdSkp, IdRhk, IdPeriode } = useParams();
+    const { id, IdPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
+
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
+    const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
+    const [tambahan, setTambahan] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false)
     const [jabatan, setJabatan] = useState(null);
 
-    const [tambahan, setTambahan] = useState(null);
-    const [submitLoading, setSubmitLoading] = useState(false);
     useEffect(() => {
         fetchData();
     }, []);
 
     const fetchData = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const skp = await getById(IdRhk);
+            const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, IdPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
@@ -56,16 +59,70 @@ const page = () => {
         } catch (error) {
             console.log(error);
         }
-        setLoading(false);
+        setLoading(false)
     };
 
     const onClose = () => {
         setModal((prev) => ({ ...prev, trigger: false }));
     };
 
-    console.log("skp", IdRhk);
+    const printHasilSkp = async (values) => {
+        setSubmitLoading(true)
+        const periode = await getPenilaian(IdPeriode);
 
-    const ratingFields = [
+        if (data) {
+            const index = data.jabatan.length - 1;
+            const bawahan = data.jabatan[index];
+            const atasan = bawahan.unor.atasan;
+
+            const realisasi = {};
+
+            data.rhks.forEach((rhk) => {
+                if (!realisasi[rhk._id]) {
+                    realisasi[rhk._id] = {};
+                }
+
+                rhk.aspek.forEach(async (aspek) => {
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    realisasi[rhk._id][aspek._id] = data.data;
+                });
+            });
+
+            const query = {
+                atasan: atasan,
+                bawahan: bawahan,
+                skp: data,
+                utama: utama,
+                tambahan: tambahan,
+                realisasi: realisasi,
+                penilaian: penilaian,
+                periode: periode.data,
+                periodeStart: dateFormatter(periode.data.periodeStart),
+                periodeEnd: dateFormatter(periode.data.periodeEnd),
+                lokasi_tertanda_dinilai: values.lokasi_dinilai,
+                tanggal_tertanda_dinilai: values.tanggal_dinilai,
+                tanggal_tertanda_penilai: values.tanggal_penilai,
+                lokasi_tertanda_penilai: values.lokasi_penilai,
+
+            };
+
+            const pdfBlob = await getHasilSkp(query);
+
+            const url = window.URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hasil-skp.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSubmitLoading(false)
+        }
+    }
+
+
+    const ratingFileds = [
         {
             label: 'Beri Rating',
             name: 'rating',
@@ -73,15 +130,15 @@ const page = () => {
             options: [
                 {
                     label: 'Diatas Ekspektasi',
-                    value: 3
+                    value: 'Diatas Ekspektasi'
                 },
                 {
                     label: 'Sesuai Ekspektasi',
-                    value: 2
+                    value: 'Sesuai Ekspektasi'
                 },
                 {
                     label: 'Dibawah Ekspektasi',
-                    value: 1
+                    value: 'Dibawah Ekspektasi'
                 }
             ],
             rules: [
@@ -128,64 +185,106 @@ const page = () => {
         }
     ];
 
-    const deskriptifFormFields = [
+    const predikatFields = [
         {
-            label: 'Isi Deskripsi',
-            name: 'deskriptif',
-            type: 'longtext',
+            label: 'Beri Rating',
+            name: 'rating',
+            type: 'select',
+            options: [
+                {
+                    label: 'Istimewa',
+                    value: 5
+                },
+                {
+                    label: 'Baik',
+                    value: 4
+                },
+                {
+                    label: 'Butuh Perbaikan',
+                    value: 3
+                },
+                {
+                    label: 'Kurang (Misconduct)',
+                    value: 2
+                },
+                {
+                    label: 'Sangat Kurang',
+                    value: 1
+                }
+            ],
             rules: [
                 {
                     required: true,
-                    message: 'Field deksripsi wajib diisi'
+                    message: 'Field rating wajib di isi'
                 }
             ]
         }
     ];
 
-    const getRealisasi = (aspek, harian) => {
-        if (aspek.jenis === 'kualitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-            if (percentase) {
-                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
-                return percent + '%';
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'kuantitas') {
-            const percentase = harian.reduce((max, item) => {
-                return item.progress > max.progress ? item : max;
-            }, harian[0]);
-
-            if (percentase) {
-                const target = aspek.target_tahunan.target;
-                const realisasi = percentase.progress;
-                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
-
-                return percent + ' ' + aspek.target_tahunan.satuan;
-            } else {
-                return '0%';
-            }
-        } else if (aspek.jenis === 'waktu') {
-            return harian.length + ' ' + aspek.target_tahunan.satuan;
-        } else {
-            return '';
-        }
-    };
-
-    const renderRatingKinerjaTag = (ratingPredikat) => {
+    const renderPredikatTag = (ratingPredikat) => {
         switch (ratingPredikat) {
-            case 2:
-                return <Tag color="blue">Sesuai Ekspektasi</Tag>;
+            case 5:
+                return <Tag color="blue">Istimewa</Tag>;
+            case 4:
+                return <Tag color="green">Baik</Tag>;
             case 3:
-                return <Tag color="green">Diatas Ekspektasi</Tag>;
+                return <Tag color="yellow">Butuh Perbaikan</Tag>;
+            case 2:
+                return <Tag color="orange">Kurang</Tag>;
             case 1:
-                return <Tag color="orange">Dibawah Ekspektasi</Tag>;
+                return <Tag color="magenta">Sangat Kurang</Tag>;
             default:
                 return <Tag color="error">Belum Dinilai</Tag>;
         }
     };
+
+    const formHasilSkp = [
+        {
+            label: 'Lokasi Pegawai Dinilai',
+            name: 'lokasi_dinilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Dinilai',
+            name: 'tanggal_dinilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Lokasi Pegawai Penilai',
+            name: 'lokasi_penilai',
+            type: 'text',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field lokasi wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Tanggal Tertanda Penilai',
+            name: 'tanggal_penilai',
+            type: 'date',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field Tanggal wajib di isi'
+                }
+            ]
+        }
+    ]
+
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -194,11 +293,11 @@ const page = () => {
                 <DataLoading loadingData={loading} />
             ) : (
                 <>
-                    {penilaian && penilaian.ratingKinerja ? (
+                    {penilaian && penilaian.ratingPredikat ? (
                         <Card>
                             <div className="flex gap-x-2">
                                 <ExclamationCircleFilled className="text-blue-500 text-lg" />
-                                <p>Rencana hasil kerja ini telah dilakukan penilaian, penilaian RHK hanya dapat dilakukan sekali, dan tidak dapat diubah.</p>
+                                <p>Predikat Kinerja ini telah dilakukan penilaian, penilaian predikat kinerja hanya dapat dilakukan sekali, dan tidak dapat diubah.</p>
                             </div>
                         </Card>
                     ) : (
@@ -208,48 +307,59 @@ const page = () => {
                         <div className="flex flex-col gap-y-4 mb-6">
                             <div className="w-full flex items-center justify-between">
                                 <Title className="mt-2" level={5}>
-                                    Sasaran Kinerja Pegawai {renderRatingKinerjaTag(penilaian?.ratingKinerja)}
+                                    Sasaran Kinerja Pegawai
+                                    {" "}
+                                    {renderPredikatTag(penilaian?.ratingPredikat)}
                                 </Title>
                                 <div className="flex items-center gap-x-2">
-                                    {/* <Button type="default" icon={<PrinterOutlined />}>
-                                Cetak Form Penilaian
-                            </Button> */}
-
                                     <Button
-                                        disabled={penilaian && penilaian.ratingKinerja}
+                                        type="default"
+                                        icon={<PrinterOutlined />}
+                                        onClick={() =>
+                                            setModal({
+                                                trigger: true,
+                                                title: `Cetak Hasil SKP`,
+                                                type: 'create',
+                                                formFields: formHasilSkp,
+                                                onSubmit: printHasilSkp
+                                            })
+                                        }>
+                                        Cetak Hasil
+                                    </Button>
+                                    <Button
                                         type="primary"
+                                        disabled={penilaian && penilaian.ratingPredikat}
                                         icon={<PlusOutlined />}
                                         onClick={() =>
                                             setModal({
                                                 trigger: true,
-                                                modalData: { rating: penilaian && penilaian?.ratingKinerja ? penilaian?.ratingKinerja : 1 },
+                                                title: 'Tambah Predikat Kinerja Pegawai',
                                                 isRating: true,
-                                                title: 'Tambah Rating Hasil Kerja',
-                                                formFields: ratingFields,
+                                                formFields: predikatFields,
+                                                modalData: { rating: penilaian && penilaian?.ratingPredikat ? penilaian?.ratingPredikat : 1 },
                                                 onSubmit: async (value) => {
-                                                    setSubmitLoading(true);
                                                     const dt = {
                                                         ...penilaian,
-                                                        ratingKinerja: value.rating,
-                                                        penilai: IdSkp,
-                                                        skp: IdRhk,
+                                                        ratingPredikat: value.rating,
+                                                        penilai: id,
+                                                        skp: id,
                                                         periodePenilaian: IdPeriode
                                                     };
+
                                                     const res = await storePenilaian(dt);
 
                                                     if (res.ok) {
                                                         // setModal({
                                                         //     trigger: false,
-                                                        //     modalData: { rating: data.hasil ? data.hasil[IdPeriode] : 1 }
+                                                        //     modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 }
                                                         // });
                                                         fetchData();
                                                     }
-                                                    setSubmitLoading(false);
                                                 }
                                             })
                                         }
                                     >
-                                        Buat Rating Hasil Kinerja
+                                        Buat Predikat Kinerja
                                     </Button>
                                     <Tooltip title="Refresh Data">
                                         <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
@@ -261,7 +371,7 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">periode</span>
                                     <Tag color="blue" className="capitalize">
-                                        {data?.periode_awal && data?.periode_akhir ? formatDateToDayMonthYear(data.periode_awal) + '-' + formatDateToDayMonthYear(data.periode_akhir) : 'Tanggal tidak tersedia'}
+                                        {data?.periode_awal && data?.periode_akhir ? dateFormatter(data.periode_awal) + '-' + dateFormatter(data.periode_akhir) : 'Tanggal tidak tersedia'}
                                     </Tag>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
@@ -275,6 +385,14 @@ const page = () => {
                                     <Tag color="green" className="capitalize">
                                         {data?.status}
                                     </Tag>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">Model SKP</span>
+                                    <p className="text-right capitalize">JAJF</p>
+                                </div>
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="uppercase font-semibold">jenis pegawai</span>
+                                    <p className="text-right capitalize">pemimpin</p>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +459,7 @@ const page = () => {
                                     <th>NO</th>
                                     <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                                     <th>RENCANA HASIL KERJA</th>
-                                    <th>BUKTI DUKUNG</th>
+                                    <th>RENCANA AKSI</th>
                                     <th>ASPEK</th>
                                     <th>INDIKATOR KINERJA</th>
                                     <th>TARGET TAHUNAN</th>
@@ -361,7 +479,6 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    {console.log(item)}
                                                     <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
@@ -377,129 +494,8 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                                <div className="flex items-center justify-center">
-                                                    {/* <Button type="primary" onClick={() => setBuktiModal({ modalData: null, trigger: true })}>
-                                                Lihat
-                                            </Button> */}
-                                                    <Button type="primary" onClick={() => router.push(window.location.pathname + '/1/bukti_dukung')}>
-                                                        Lihat
-                                                    </Button>
-                                                    <Modal open={buktiModal.trigger} onCancel={() => setBuktiModal({ modalData: null, trigger: false })} footer={null}>
-                                                        <Table
-                                                            className="mt-8"
-                                                            dataSource={item.harians}
-                                                            pagination={false}
-                                                            bordered
-                                                            columns={[
-                                                                {
-                                                                    title: 'Tanggal',
-                                                                    dataIndex: 'date',
-                                                                    key: 'date',
-                                                                    render: (record) => (record ? dateFormatter(record) : null)
-                                                                },
-                                                                {
-                                                                    title: 'Tautan',
-                                                                    dataIndex: 'tautan',
-                                                                    key: 'tautan',
-                                                                    render: (_, record) => (
-                                                                        <a href={record.tautan} target="_blank" rel="noopener noreferrer">
-                                                                            Lihat Tautan
-                                                                        </a>
-                                                                    )
-                                                                },
-                                                                {
-                                                                    title: 'Bukti',
-                                                                    dataIndex: 'files',
-                                                                    key: 'files',
-                                                                    render: (_, record) => (
-                                                                        <>
-                                                                            <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
-                                                                            <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                                                                                <List
-                                                                                    className="my-6"
-                                                                                    itemLayout="horizontal"
-                                                                                    dataSource={fileModal.modalData}
-                                                                                    renderItem={(item) => (
-                                                                                        <List.Item>
-                                                                                            <div className="w-full flex justify-between items-center">
-                                                                                                <div>
-                                                                                                    <p>{item.name}</p>
-                                                                                                    <small>{item.fileId}</small>
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                    <Button
-                                                                                                        size="small"
-                                                                                                        icon={<DownloadOutlined />}
-                                                                                                        onClick={() => {
-                                                                                                            const a = document.createElement('a');
-                                                                                                            a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                                                                            a.download = item.name;
-                                                                                                            a.click();
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </List.Item>
-                                                                                    )}
-                                                                                />
-                                                                            </Modal>
-                                                                        </>
-                                                                    )
-                                                                },
-                                                                {
-                                                                    title: 'action',
-                                                                    key: 'action',
-                                                                    render: (record) => (
-                                                                        <Button
-                                                                            icon={<ExclamationOutlined />}
-                                                                            type="default"
-                                                                            onClick={() => {
-                                                                                setInfoModal({
-                                                                                    title: 'Informasi Harian',
-                                                                                    trigger: true,
-                                                                                    type: 'desc',
-                                                                                    data: [
-                                                                                        {
-                                                                                            key: 'title',
-                                                                                            label: 'Nama Kegiatan',
-                                                                                            children: record.namaKegiatan
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'desc',
-                                                                                            label: 'Deskripsi',
-                                                                                            children: record.deskripsiKegiatan
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'start_time',
-                                                                                            label: 'Waktu Mulai',
-                                                                                            children: record.startDateTime
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'end_time',
-                                                                                            label: 'Waktu Selesai',
-                                                                                            children: record.endDateTime
-                                                                                        },
-                                                                                        // {
-                                                                                        //     key: 'skp',
-                                                                                        //     label: 'SKP',
-                                                                                        //     children: record.isSKP ? 'SKP' : 'Bukan SKP'
-                                                                                        // },
-                                                                                        {
-                                                                                            key: 'progress',
-                                                                                            label: 'Progress',
-                                                                                            children: <Progress type="circle" percent={record.progress} size={80} />
-                                                                                        }
-                                                                                    ],
-                                                                                    isLoading: false,
-                                                                                    onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                                                                                });
-                                                                            }}
-                                                                        />
-                                                                    )
-                                                                }
-                                                            ]}
-                                                        />
-                                                    </Modal>
+                                                <div className="flex flex-col gap-y-2 p-4">
+                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                                 </div>
                                             </td>
                                         </tr>
@@ -513,8 +509,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} isTambahan={false} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -547,129 +543,8 @@ const page = () => {
                                                 </div>
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                                <div className="flex items-center justify-center">
-                                                    {/* <Button type="primary" onClick={() => setBuktiModal({ modalData: null, trigger: true })}>
-                                                Lihat
-                                            </Button> */}
-                                                    <Button type="primary" onClick={() => router.push(window.location.pathname + '/1/bukti_dukung')}>
-                                                        Lihat
-                                                    </Button>
-                                                    <Modal open={buktiModal.trigger} onCancel={() => setBuktiModal({ modalData: null, trigger: false })} footer={null}>
-                                                        <Table
-                                                            className="mt-8"
-                                                            dataSource={item.harians}
-                                                            pagination={false}
-                                                            bordered
-                                                            columns={[
-                                                                {
-                                                                    title: 'Tanggal',
-                                                                    dataIndex: 'date',
-                                                                    key: 'date',
-                                                                    render: (record) => (record ? dateFormatter(record) : null)
-                                                                },
-                                                                {
-                                                                    title: 'Tautan',
-                                                                    dataIndex: 'tautan',
-                                                                    key: 'tautan',
-                                                                    render: (_, record) => (
-                                                                        <a href={record.tautan} target="_blank" rel="noopener noreferrer">
-                                                                            Lihat Tautan
-                                                                        </a>
-                                                                    )
-                                                                },
-                                                                {
-                                                                    title: 'Bukti',
-                                                                    dataIndex: 'files',
-                                                                    key: 'files',
-                                                                    render: (_, record) => (
-                                                                        <>
-                                                                            <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.files })} icon={<OrderedListOutlined />} />
-                                                                            <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                                                                                <List
-                                                                                    className="my-6"
-                                                                                    itemLayout="horizontal"
-                                                                                    dataSource={fileModal.modalData}
-                                                                                    renderItem={(item) => (
-                                                                                        <List.Item>
-                                                                                            <div className="w-full flex justify-between items-center">
-                                                                                                <div>
-                                                                                                    <p>{item.name}</p>
-                                                                                                    <small>{item.fileId}</small>
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                    <Button
-                                                                                                        size="small"
-                                                                                                        icon={<DownloadOutlined />}
-                                                                                                        onClick={() => {
-                                                                                                            const a = document.createElement('a');
-                                                                                                            a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                                                                            a.download = item.name;
-                                                                                                            a.click();
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </List.Item>
-                                                                                    )}
-                                                                                />
-                                                                            </Modal>
-                                                                        </>
-                                                                    )
-                                                                },
-                                                                {
-                                                                    title: 'action',
-                                                                    key: 'action',
-                                                                    render: (record) => (
-                                                                        <Button
-                                                                            icon={<ExclamationOutlined />}
-                                                                            type="default"
-                                                                            onClick={() => {
-                                                                                setInfoModal({
-                                                                                    title: 'Informasi Harian',
-                                                                                    trigger: true,
-                                                                                    type: 'desc',
-                                                                                    data: [
-                                                                                        {
-                                                                                            key: 'title',
-                                                                                            label: 'Nama Kegiatan',
-                                                                                            children: record.namaKegiatan
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'desc',
-                                                                                            label: 'Deskripsi',
-                                                                                            children: record.deskripsiKegiatan
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'start_time',
-                                                                                            label: 'Waktu Mulai',
-                                                                                            children: record.startDateTime
-                                                                                        },
-                                                                                        {
-                                                                                            key: 'end_time',
-                                                                                            label: 'Waktu Selesai',
-                                                                                            children: record.endDateTime
-                                                                                        },
-                                                                                        // {
-                                                                                        //     key: 'skp',
-                                                                                        //     label: 'SKP',
-                                                                                        //     children: record.isSKP ? 'SKP' : 'Bukan SKP'
-                                                                                        // },
-                                                                                        {
-                                                                                            key: 'progress',
-                                                                                            label: 'Progress',
-                                                                                            children: <Progress type="circle" percent={record.progress} size={80} />
-                                                                                        }
-                                                                                    ],
-                                                                                    isLoading: false,
-                                                                                    onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                                                                                });
-                                                                            }}
-                                                                        />
-                                                                    )
-                                                                }
-                                                            ]}
-                                                        />
-                                                    </Modal>
+                                                <div className="flex flex-col gap-y-2 p-4">
+                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                                 </div>
                                             </td>
                                         </tr>
@@ -683,8 +558,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} setModal={setModal} FormFields={deskriptifFormFields} />
-                                                    <RhkRow feedbackFields={feedbackFields} item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={IdPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -766,13 +641,15 @@ const page = () => {
                                                 </ol>
                                             </div>
                                         </td>
-                                        <td>{item.espektasi || ''}</td>
-                                        <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                                        <td>
+                                            <div className="flex items-center justify-center">{item.espektasi}</div>
+                                        </td>
+                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>
                                     <td colSpan={3}>Rating Perilaku</td>
-                                    <td colSpan={3}>
+                                    <td colSpan={4}>
                                         {penilaian?.ratingPerilaku
                                             ? (() => {
                                                 const perilaku = penilaian?.ratingPerilaku;
@@ -825,7 +702,7 @@ const page = () => {
                                     <td colSpan={3}>
                                         {penilaian?.ratingPredikat
                                             ? (() => {
-                                                const predikat = penilaian?.ratingPredikat;
+                                                const predikat = penilaian.ratingPredikat;
                                                 switch (predikat) {
                                                     case 5:
                                                         return (
@@ -937,7 +814,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <b>Dukungan Sumber Daya</b>
-                                            <List className="px-4" dataSource={data?.lampiran.sumber_daya} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                            <List dataSource={data?.lampiran.sumber_daya} className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                         {/* looping through here */}
                                     </td>
@@ -954,7 +831,7 @@ const page = () => {
                                     <td style={{ border: '1px solid black', padding: '8px' }}>
                                         <div className="flex flex-col gap-y-2 p-4">
                                             <p>Konsekuensi</p>
-                                            <List className="px-4" dataSource={data?.lampiran.konsekuensi} renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
+                                            <List dataSource={data?.lampiran.konsekuensi} className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
                                         </div>
                                     </td>
                                 </tr>
@@ -966,7 +843,7 @@ const page = () => {
                                     <Card className="mt-6  mb-4">
                                         <div className="flex gap-x-6">
                                             <WarningOutlined className="text-yellow-500 text-lg" width={200} />
-                                            <p className="text-xs">Penilaian RHK hanya bisa dilakukan sekali, setelah diberi nilai, nilai RHK tidak dapat berubah</p>
+                                            <p className="text-xs">Penilaian predikat kinerja hanya bisa dilakukan sekali, setelah diberi nilai, nilai predikat kinerja tidak dapat berubah</p>
                                         </div>
                                     </Card>
                                 </CrudModal.Extra>
@@ -983,64 +860,6 @@ const page = () => {
 export default page;
 
 
-const RhkRow = ({ item, IdSkp, IdPeriode, setModal, feedbackFields }) => {
-    const { success, error } = useNotification();
-    const [data, setData] = useState(null);
-    useEffect(() => {
-        getData();
-    }, []);
 
-    const getData = async () => {
-        try {
-            const res = await getByAspekAndPeriode(item._id, IdPeriode);
-            if (res.ok) {
-                setData(res.data);
-            }
-        } catch (error) { }
-    };
-    return (
-        <td>
-            <div className="p-3 flex flex-col item-center justify-center gap-y-2 ">
-                {data?.like !== undefined ? (
-                    <Tag className="m-0 w-fit" color={data?.like ? 'green' : 'red'}>
-                        {data?.like ? 'baik' : 'buruk'}
-                    </Tag>
-                ) : (
-                    ''
-                )}
-                {data?.isi}
-                <Button
-                    className="w-fit"
-                    size="small"
-                    icon={<PlusOutlined />}
-                    onClick={() =>
-                        setModal({
-                            title: 'Tambah Feedback',
-                            trigger: true,
-                            formFields: feedbackFields,
-                            onSubmit: async (values) => {
-                                const dt = {
-                                    penilai: IdSkp,
-                                    periodePenilaian: IdPeriode,
-                                    aspek: item._id,
-                                    like: values.category,
-                                    isi: values.feedback
-                                };
 
-                                const res = await storeRHKFeedback(dt);
 
-                                if (res.ok) {
-                                    getData();
-                                    setModal({ trigger: false, modalData: {} });
-                                    success('Berhasil', 'Data Berhasil Di Ubah');
-                                }
-                            }
-                        })
-                    }
-                >
-                    Edit
-                </Button>
-            </div>
-        </td>
-    );
-};

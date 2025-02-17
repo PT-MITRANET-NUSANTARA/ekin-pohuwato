@@ -4,9 +4,12 @@ import { getRealisasi } from '@/controller/RHKController';
 import { Button, Skeleton } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { update } from '@/controller/AspekController';
+import useNotification from '@/app/hook/useNotification';
 
 const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = false }) => {
     const [data, setData] = useState(undefined);
+    const {error, success} = useNotification()
+    const [submitLoading, setSubmitLoading] = useState()
 
     useEffect(() => {
         getData();
@@ -22,7 +25,7 @@ const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan
             } else {
                 setData(null);
             }
-        } catch (error) {
+        } catch (err) {
             setData(null);
         }
     };
@@ -44,6 +47,7 @@ const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan
                                     trigger: true,
                                     formFields: FormFields,
                                     onSubmit: async (values) => {
+                                        setSubmitLoading(true);
                                         console.log(values);
                                         const realisasi = aspek.realisasi ? aspek.realisasi : {};
                                         const dt = {
@@ -59,7 +63,9 @@ const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan
                                         console.log(res);
 
                                         if (res.ok) {
+                                            success('Berhasil', 'Berhasil Menambahkan Realisasi')
                                         }
+                                        setSubmitLoading(false)
                                     }
                                 });
                             }}
