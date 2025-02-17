@@ -34,6 +34,7 @@ const Page = () => {
         try {
             setSubmitLoading(true)  
             const response = await login(data.username, data.password);
+            console.log(response);
             if (response.success) {
                 const match = response.mapData.redirect_uri.match(/access_token=([^&]*)/);
                 if (match && match[1]) {
