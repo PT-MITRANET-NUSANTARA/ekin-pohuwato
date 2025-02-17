@@ -15,6 +15,13 @@ export const getRealisasi = async (id: string, jenis: string, aspek: string, per
     return response;
 };
 
+export const getBukti = async (id: string, periode: string) => {
+    const response = await apiRequest(`/api/${path}/${id}/bukti?periode=${periode}`, {
+        method: 'GET'
+    });
+    return response;
+};
+
 export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
@@ -24,14 +31,20 @@ export const getBySKPId = async (skp_id: string, page: number, limit: number, fi
     return response;
 };
 
-
-
-
 // Fetch all Visi records
 export const getAll = async (page: number, limit: number, filters: Object) => {
+    console.log("HERE", filters);
+    
     const filtersString = encodeURIComponent(JSON.stringify(filters));
     const url = `/api/${path}?page=${page}&limit=${limit}&filters=${filtersString}`;
     const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+export const getByRHK = async (id: string) => {
+    const response = await apiRequest(`/api/${path}/rhk/${id}`, {
         method: 'GET'
     });
     return response;
@@ -45,7 +58,6 @@ export const store = async (data: any) => {
     });
     return response;
 };
-
 
 export const update = async (id: string, data: any) => {
     const response = await apiRequest(`/api/${path}/${id}`, {

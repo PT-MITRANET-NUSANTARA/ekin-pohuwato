@@ -69,7 +69,7 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const rhks = await getByRHK(IdPenilaianRhk);
+            const rhks = await getByRHK(IdBukti);
             console.log(rhks);
             const menu = rhks.data.childUnique.map(setMenuItems);
             console.log(menu);
