@@ -28,6 +28,7 @@ const skpSchema = Joi.object({
     renstra: Joi.optional(),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
+    isJPT: Joi.object().optional(),
     posjab: Joi.array().items(Joi.optional()).label('Posjab'),
     updatedAt: Joi.date().optional(),
     periodeRKT: Joi.array().items(Joi.optional()).optional().label('PeriodeRKT'),

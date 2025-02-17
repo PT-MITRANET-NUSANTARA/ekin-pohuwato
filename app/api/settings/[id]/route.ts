@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         // if (errors.length > 0) {
         //     return NextResponse.json(createResponse(400, 'Failed', errors));
         // }
-
+        
         const updateSettings = await Settings.findOneAndUpdate({ _id: id }, body, { new: true });
 
         if (!updateSettings) {

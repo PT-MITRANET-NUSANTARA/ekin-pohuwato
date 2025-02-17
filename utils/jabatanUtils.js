@@ -18,3 +18,8 @@ export const cekJT = (node, jabatan) => {
     if (node.namaJabatan.toLowerCase() === jabatan.toLowerCase()) return true;
     return false;
 }
+
+export const getJT = (node, jabatan) => {
+    if (node.namaJabatan.toLowerCase() === jabatan.toLowerCase()) return true;
+    return false;
+}

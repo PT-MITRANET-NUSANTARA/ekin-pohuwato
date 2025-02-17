@@ -34,6 +34,7 @@ interface ISKP {
     keterangan?: string; // Optional
     jabatan: object[]; // Array of Object
     lampiran: ILampiran;
+    isJPT: Boolean,
     createdAt?: Date; // Automatically handled by Mongoose
     updatedAt?: Date; // Automatically handled by Mongoose
 }
@@ -57,6 +58,11 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
             type: [Schema.Types.ObjectId], // Array of ObjectId
             ref: 'SKP',
             required: false
+        },
+        isJPT: {
+            type: Boolean,
+            required: true,
+            default: false,
         },
         posjab: {
             type: [String],

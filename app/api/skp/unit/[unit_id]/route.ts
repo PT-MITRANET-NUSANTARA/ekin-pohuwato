@@ -25,6 +25,8 @@ const skpSchema = Joi.object({
     jabatan: Joi.array().items(Joi.object().required()).required().label('Jabatan'),
     createdAt: Joi.date().optional(),
     lampiran: Joi.object().optional(),
+        isJPT: Joi.object().optional(),
+    
     predikat: Joi.object().optional().label('Predikat'),
     hasil: Joi.object().optional().label('Hasil'),
     perilaku: Joi.object().optional().label('Perilaku'),

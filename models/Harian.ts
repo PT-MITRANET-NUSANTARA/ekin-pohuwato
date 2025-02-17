@@ -13,7 +13,7 @@ enum Status {
     REJECTED = 'rejected'
 }
 
-interface IHarian extends Document {
+export interface IHarian extends Document {
     absence: mongoose.Schema.Types.ObjectId;
     skp: mongoose.Schema.Types.ObjectId;
     date: Date;

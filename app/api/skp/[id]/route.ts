@@ -31,6 +31,8 @@ const skpSchema = Joi.object({
     lampiran: Joi.object().optional(),
     predikat: Joi.object().optional().label('Predikat'),
     hasil: Joi.object().optional().label('Hasil'),
+        isJPT: Joi.object().optional(),
+    
     perilaku: Joi.object().optional().label('Perilaku'),
     updatedAt: Joi.date().optional(),
     messageSKP: Joi.optional(),

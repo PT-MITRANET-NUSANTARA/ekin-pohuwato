@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { destroy, getAll, store, update, getByUserId } from '@/controller/SKPController';
-import { getByNIP } from '@/controller/IDSN/JabatanController';
+import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { getAll as getAllRenstra } from '@/controller/RenstraController';
 import { getByUnitId } from '@/controller/PeriodeRKTController';
@@ -27,7 +27,6 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
     const { Option } = Select;
     const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { data, setData, loading } = useFetchData(getData);
     const [skp, setSKP] = useState(null);
     const [jabatan, setJabatan] = useState(null);
     const [resntra, setRenstra] = useState(null);
@@ -36,28 +35,44 @@ const page = () => {
     const [isAtasan, setIsAtasan] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [errorData, setErrorData] = useState({ show: false, message: '' });
+    const { data: user, setData: setUser } = useFetchData(getData);
+    const [data, setData] = useState([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
-        if (data) {
+        if (user) {
+
             fetchData();
         }
-    }, [data]);
+    }, [user, pagination.page, pagination.limit]);
 
     const fetchData = async () => {
         try {
-            const skp = await getByUserId(data.user.idASN);
-            const jabatan = await getByNIP(data.token, data.user.nipBaru);
-            const selectedJabatan = jabatan.mapData.data[0];
-            const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
-            const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
-            const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
-            setIsJT(isJT);
-            setIsAtasan(isAtasan);
+            // const jabatan = await getByNIP(data.token, data.user.nipBaru);
+            // const selectedJabatan = jabatan.mapData.data[0];
+            // const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            // const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            // setIsJT(isJT);
+            // setIsAtasan(isAtasan);
+            const struktur = await getById(user.token, user.jabatan.unor.induk.id);
+            const jpt = struktur.mapData[0];
+            console.log(jpt);
+            
+            const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
+            console.log(unit);
+            
+            const jt = unit.mapData.data.find((item) => {
+                console.log("HERE", item);
+                return item.nama_jabatan.toLowerCase() === jpt.namaJabatan.toLowerCase(); // Add return statement
+            });
+            const skp = await getByUserId(jt.nip_asn);
+            
+            
             const resntra = await getAllRenstra();
-            const periodeRKT = await getByUnitId(selectedJabatan.unor.induk.id);
+            const periodeRKT = await getByUnitId(user.jabatan.unor.induk.id);
             setRenstra(resntra.data);
             setPeriodeRKT(periodeRKT.data);
-            setJabatan(jabatan.mapData.data[0]);
+            setJabatan(jt);
             setSKP(skp.data);
             setLoadingData(false);
         } catch (error) {
@@ -70,7 +85,7 @@ const page = () => {
         try {
             let response;
             let dt = values;
-            dt = { ...dt, jabatan: [jabatan], user_id: data.user.idASN };
+            dt = { ...dt, jabatan: [jabatan], user_id: data.user.idASN, isJPT: isJT };
             switch (type) {
                 case 'create':
                     response = await store(data.user.idASN, dt, '1');
