@@ -82,11 +82,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
             await msg.save();
             const notification = new Notification({
-                user_id: absence?.jabatan?.nip_asn,
+                user_id: (absence?.jabatan as { nip_asn: string })?.nip_asn,
                 message: `Harian ${body.status === 'rejected' ? 'ditolak' : 'disetujui'}`,
                 type: body.status === 'rejected' ? 'error' : 'success'
             });
-
+            
             await notification.save();
         }
 
