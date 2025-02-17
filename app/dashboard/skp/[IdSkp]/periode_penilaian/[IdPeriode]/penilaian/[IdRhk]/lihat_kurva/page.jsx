@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Alert, Breadcrumb, Button, Card, Space, Typography } from 'antd';
+import { Alert, Breadcrumb, Button, Card, Space, Tooltip, Typography } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Line } from 'react-chartjs-2';
 import Link from 'next/link';
 import React from 'react';
 import { Data, dummyHasilPenilaian } from '@/data/dummyData';
-import { CategoryScale, LinearScale, PointElement, LineElement, Title as ChartTitle, Tooltip, Legend, Chart } from 'chart.js';
+import { CategoryScale, LinearScale, PointElement, LineElement, Title as ChartTitle, Legend, Chart } from 'chart.js';
 import { DataTable, FilterField } from '@/components';
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTitle, Tooltip, Legend);
+Chart.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTitle, Legend);
 
 const { Title } = Typography;
 
@@ -183,9 +183,7 @@ const page = () => {
                         </Card>
                     </div>
                     <div>
-                        <Card>
                             <DataTable columns={Column} data={dummyHasilPenilaian} loading={false}></DataTable>
-                        </Card>
                     </div>
                 </div>
             </Card>
