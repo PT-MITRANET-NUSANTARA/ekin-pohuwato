@@ -1,9 +1,9 @@
-"use client"
-import { useEffect, useState } from "react";
+'use client';
+import { useEffect, useState } from 'react';
 import { getRealisasi } from '@/controller/RHKController';
-import { Button, Skeleton } from "antd";
+import { Button, Skeleton } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-
+import { update } from '@/controller/AspekController';
 
 const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan = false }) => {
     const [data, setData] = useState(undefined);
@@ -14,6 +14,8 @@ const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan
 
     const getData = async () => {
         try {
+            console.log('REALISASI', aspek);
+
             const res = await getRealisasi(item._id, isTambahan ? 'tambahan' : 'utama', aspek._id, IdPeriode);
             if (res.ok) {
                 setData(res.data);
@@ -28,30 +30,43 @@ const RealisasiRow = ({ item, aspek, IdPeriode, setModal, FormFields, isTambahan
     return (
         <td>
             <div className="flex  flex-col gap-y-2 items-center justify-center">
-                {data === undefined ? (
-                    <Skeleton.Input active size="small" />
-                ) : data ? (
-                    data
-                ) : (
-                    ""
-                )}
+                {data === undefined ? <Skeleton.Input active size="small" /> : data ? data : ''}
                 {setModal && aspek.jenis === 'deskripsi' && (
-                    <Button
-                        className="w-fit mb-4"
-                        size="small"
-                        icon={<PlusOutlined />}
-                        onClick={() => {
-                            setModal({
-                                title: 'Tambah Feedback',
-                                trigger: true,
-                                formFields: FormFields,
-                                onSubmit: async (values) => {
-                                    // Logika submit form di sini
-                                }
-                            })
-                        }}>
-                        Kirim
-                    </Button>
+                    <>
+                    { aspek.realisasi?  aspek.realisasi[IdPeriode] : ''}
+                        <Button
+                            className="w-fit mb-4"
+                            size="small"
+                            icon={<PlusOutlined />}
+                            onClick={() => {
+                                setModal({
+                                    title: 'Tambah Feedback',
+                                    trigger: true,
+                                    formFields: FormFields,
+                                    onSubmit: async (values) => {
+                                        console.log(values);
+                                        const realisasi = aspek.realisasi ? aspek.realisasi : {};
+                                        const dt = {
+                                            ...aspek,
+                                            realisasi: {
+                                                ...realisasi,
+                                                [IdPeriode]: values.deskriptif
+                                            }
+                                        };
+                                        console.log(dt);
+
+                                        const res = await update(aspek._id, dt);
+                                        console.log(res);
+
+                                        if (res.ok) {
+                                        }
+                                    }
+                                });
+                            }}
+                        >
+                            Kirim
+                        </Button>
+                    </>
                 )}
             </div>
         </td>
