@@ -43,7 +43,10 @@ export async function GET(req: NextRequest) {
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let rhks;
-
+        console.log(filters);
+        
+        console.log(getFilterQuery(filters));
+        
         if (page === 'undefined' || limit === 'undefined') {
             rhks = await RHK.find(getFilterQuery(filters)).populate('aspek');
         } else {
