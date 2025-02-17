@@ -27,12 +27,12 @@ const page = () => {
     const [atasan, setAtasan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [skp, setSkp] = useState(null);
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [periode, setPeriode] = useState(null);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
     const [jabatan, setJabatan] = useState(null);
-    const [submitLoading, setSubmitLoading] = useState(false)
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -57,7 +57,7 @@ const page = () => {
     };
 
     const printFormPenilaian = async (values) => {
-        setSubmitLoading(true)
+        setSubmitLoading(true);
         const periode = await getPenilaian(IdPeriode);
 
         if (data) {
@@ -92,8 +92,7 @@ const page = () => {
                 lokasi_tertanda_dinilai: values.lokasi_dinilai,
                 tanggal_tertanda_dinilai: values.tanggal_dinilai,
                 tanggal_tertanda_penilai: values.tanggal_penilai,
-                lokasi_tertanda_penilai: values.lokasi_penilai,
-
+                lokasi_tertanda_penilai: values.lokasi_penilai
             };
 
             const pdfBlob = await getFormPenilaian(query);
@@ -107,12 +106,12 @@ const page = () => {
             a.remove();
             window.URL.revokeObjectURL(url);
 
-            setSubmitLoading(false)
+            setSubmitLoading(false);
         }
     };
 
     const printEvaluasiKinerja = async (values) => {
-        setSubmitLoading(true)
+        setSubmitLoading(true);
         const periode = await getPenilaian(IdPeriode);
 
         if (data) {
@@ -147,8 +146,7 @@ const page = () => {
                 lokasi_tertanda_dinilai: values.lokasi_dinilai,
                 tanggal_tertanda_dinilai: values.tanggal_dinilai,
                 tanggal_tertanda_penilai: values.tanggal_penilai,
-                lokasi_tertanda_penilai: values.lokasi_penilai,
-
+                lokasi_tertanda_penilai: values.lokasi_penilai
             };
 
             const pdfBlob = await getEvaluasiKinerja(query);
@@ -162,12 +160,12 @@ const page = () => {
             a.remove();
             window.URL.revokeObjectURL(url);
 
-            setSubmitLoading(false)
+            setSubmitLoading(false);
         }
-    }
+    };
 
     const printHasilSkp = async (values) => {
-        setSubmitLoading(true)
+        setSubmitLoading(true);
         const periode = await getPenilaian(IdPeriode);
 
         if (data) {
@@ -202,8 +200,7 @@ const page = () => {
                 lokasi_tertanda_dinilai: values.lokasi_dinilai,
                 tanggal_tertanda_dinilai: values.tanggal_dinilai,
                 tanggal_tertanda_penilai: values.tanggal_penilai,
-                lokasi_tertanda_penilai: values.lokasi_penilai,
-
+                lokasi_tertanda_penilai: values.lokasi_penilai
             };
 
             const pdfBlob = await getHasilSkp(query);
@@ -217,9 +214,9 @@ const page = () => {
             a.remove();
             window.URL.revokeObjectURL(url);
 
-            setSubmitLoading(false)
+            setSubmitLoading(false);
         }
-    }
+    };
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -270,11 +267,10 @@ const page = () => {
                 }
             ]
         }
-    ]
+    ];
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
@@ -432,7 +428,7 @@ const page = () => {
                                 </tr>
                                 {utama?.map((item, index) => (
                                     <>
-                                        {console.log("utama", data)}
+                                        {console.log('utama', data)}
                                         <tr>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
@@ -459,7 +455,7 @@ const page = () => {
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
                                                 <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdNilai}/penilaian/${IdSkp}/${item.id}/bukti_dukung`)}>
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdPeriode}/penilaian/lihat_hasil/bukti_dukung/${item._id}`)}>
                                                         Lihat
                                                     </Button>
                                                 </div>
@@ -515,7 +511,7 @@ const page = () => {
                                             </td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
                                                 <div className="flex items-center justify-center">
-                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdNilai}/penilaian/${IdSkp}/${item.id}/bukti_dukung`)}>
+                                                    <Button type="primary" onClick={() => router.push(`/dashboard/skp/${IdSkp}/periode_penilaian/${IdNilai}/penilaian/${IdSkp}/bukti_dukung/${item._id}`)}>
                                                         Lihat
                                                     </Button>
                                                 </div>
