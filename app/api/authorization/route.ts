@@ -75,7 +75,7 @@ export async function PUT(req: NextRequest) {
         };
         const userCookie = serialize('user', JSON.stringify(data), {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
             maxAge: 60 * 60 * 24 * 7, // 1 minggu
             path: '/'
         });
@@ -83,15 +83,14 @@ export async function PUT(req: NextRequest) {
         // Serialisasi cookie untuk token
         const cookie = serialize('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
             maxAge: 60 * 60 * 24 * 7, // 1 minggu
             path: '/'
         });
 
         // Membuat response redirect ke '/dashboard'
-        const response = NextResponse.redirect(new URL('/dashboard', req.url), 307);
+        const response = NextResponse.json({ message: 'Successfully set cookie!', token: token });
 
-        // Set kedua cookie pada header response
         response.headers.append('Set-Cookie', cookie);
         response.headers.append('Set-Cookie', userCookie);
 
@@ -133,7 +132,8 @@ export async function POST(req: NextRequest) {
         };
         const userCookie = serialize('user', JSON.stringify(data), {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
+
             maxAge: 60 * 60 * 24 * 7, // 1 minggu
             path: '/'
         });
@@ -153,14 +153,16 @@ export async function DELETE(req: NextRequest) {
         // Set the cookies to expire by setting maxAge to 0 or an expiration date in the past
         const tokenCookie = serialize('token', '', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
+
             expires: new Date(0), // Set expiration to the past
             path: '/'
         });
 
         const userCookie = serialize('user', '', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
+
             expires: new Date(0), // Set expiration to the past
             path: '/'
         });
