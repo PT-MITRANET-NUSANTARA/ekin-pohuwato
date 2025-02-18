@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: { unit_id: str
         let verifikasi;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            verifikasi = await Verifikasi.find({ 'unit.id': unit_id });
+            verifikasi = await Verifikasi.findOne({ 'unit.id_sapk': unit_id });
         } else {
             const f = JSON.parse(filters as string);
             f['unit.id'] = unit_id;
