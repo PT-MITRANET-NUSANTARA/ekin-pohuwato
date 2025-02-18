@@ -243,7 +243,7 @@ const page = () => {
                                                         // });
                                                         fetchData();
                                                     }
-                                                    setSubmitLoading(falsse);
+                                                    setSubmitLoading(false);
                                                 }
                                             })
                                         }

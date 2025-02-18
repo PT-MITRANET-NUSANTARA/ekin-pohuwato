@@ -1,40 +1,46 @@
 'use client';
 
-import { Breadcrumb, Button, Card, List, Skeleton, Tag, Tooltip, Typography } from 'antd';
-import { PlusOutlined, ExclamationCircleFilled, WarningOutlined, PrinterOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Form, InputNumber, List, message, Modal, Progress, Select, Table, Tag, Tooltip, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, PlusOutlined, EditOutlined, OrderedListOutlined, DownloadOutlined, ExclamationOutlined, ExclamationCircleFilled, WarningOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { CrudModal, DataLoading, InfoModal, PerilakuRow, RealisasiRow, RhkRow } from '@/components';
-import { getById, } from '@/controller/SKPController';
-import { getById as getPenilaian } from '@/controller/periodePenilaianController';
+import { CrudModal, DataLoading, FeedbackButton, InfoModal, RealisasiRow, RhkRow } from '@/components';
+import { dummyFeedback } from '@/data';
+import { title } from 'process';
+import { useParams } from 'next/navigation';
+import { getById, update } from '@/controller/SKPController';
 import { store as storePenilaian } from '@/controller/penilaianController';
-import { getRealisasi } from '@/controller/RHKController';
-import { getBySKPAndPeriode } from '@/controller/penilaianController';
+import { useRouter } from 'next/navigation';
 import { getByPerilakuAndPeriode } from '@/controller/FeedbackPerilakuController';
 import { getByAspekAndPeriode, store as storeRHKFeedback } from '@/controller/FeedbackRHKController';
-import { dateFormatter } from '@/utils';
-import { getHasilSkp } from '@/controller/ReportController';
+
 const { Title } = Typography;
+const { Option } = Select;
+import { store, destroy, getBySKPAndPeriode } from '@/controller/penilaianController';
+import dayjs from 'dayjs';
+import { dateFormatter } from '@/utils';
+
 const page = () => {
     const router = useRouter();
-
-    const { IdSkp, IdRhk, IdPeriode } = useParams();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
+    const { id, idPeriode } = useParams();
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [submitLoading, setSubmitLoading] = useState(false)
+
+    const [data, setData] = useState(null);
     const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
 
-    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [atasan, setAtasan] = useState(null);
     const [bawahan, setBawahan] = useState(null);
     const [penilaian, setPenilaian] = useState(null);
     const [periode, setPeriode] = useState(null);
+    const [index, setIndex] = useState(0);
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
-    const [submitLoading, setSubmitLoading] = useState(false)
     const [jabatan, setJabatan] = useState(null);
+
 
     useEffect(() => {
         fetchData();
@@ -43,16 +49,16 @@ const page = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
-            const skp = await getById(IdRhk);
+            const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, idPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
             setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
-            const periode = await getPenilaian(IdPeriode);
+            const periode = await getPenilaian(idPeriode);
             setPeriode(periode.data);
 
             setAtasan(atasan);
@@ -62,65 +68,41 @@ const page = () => {
         setLoading(false)
     };
 
-    const onClose = () => {
-        setModal((prev) => ({ ...prev, trigger: false }));
-    };
 
-    const printHasilSkp = async (values) => {
-        setSubmitLoading(true)
-        const periode = await getPenilaian(IdPeriode);
-
-        if (data) {
-            const index = data.jabatan.length - 1;
-            const bawahan = data.jabatan[index];
-            const atasan = bawahan.unor.atasan;
-
-            const realisasi = {};
-
-            data.rhks.forEach((rhk) => {
-                if (!realisasi[rhk._id]) {
-                    realisasi[rhk._id] = {};
+    const formFields = [
+        {
+            label: 'Isi Feedback',
+            name: 'content',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field content wajib di isi'
                 }
-
-                rhk.aspek.forEach(async (aspek) => {
-                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
-                    realisasi[rhk._id][aspek._id] = data.data;
-                });
-            });
-
-            const query = {
-                atasan: atasan,
-                bawahan: bawahan,
-                skp: data,
-                utama: utama,
-                tambahan: tambahan,
-                realisasi: realisasi,
-                penilaian: penilaian,
-                periode: periode.data,
-                periodeStart: dateFormatter(periode.data.periodeStart),
-                periodeEnd: dateFormatter(periode.data.periodeEnd),
-                lokasi_tertanda_dinilai: values.lokasi_dinilai,
-                tanggal_tertanda_dinilai: values.tanggal_dinilai,
-                tanggal_tertanda_penilai: values.tanggal_penilai,
-                lokasi_tertanda_penilai: values.lokasi_penilai,
-
-            };
-
-            const pdfBlob = await getHasilSkp(query);
-
-            const url = window.URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'hasil-skp.pdf';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
-            setSubmitLoading(false)
+            ]
+        },
+        {
+            label: 'Kategori',
+            name: 'category',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'baik',
+                    value: true
+                },
+                {
+                    label: 'buruk',
+                    value: false
+                }
+            ]
         }
-    }
-
+    ];
 
     const ratingFileds = [
         {
@@ -130,50 +112,14 @@ const page = () => {
             options: [
                 {
                     label: 'Diatas Ekspektasi',
-                    value: 'Diatas Ekspektasi'
-                },
-                {
-                    label: 'Sesuai Ekspektasi',
-                    value: 'Sesuai Ekspektasi'
-                },
-                {
-                    label: 'Dibawah Ekspektasi',
-                    value: 'Dibawah Ekspektasi'
-                }
-            ],
-            rules: [
-                {
-                    required: true,
-                    message: 'Field rating wajib di isi'
-                }
-            ]
-        }
-    ];
-
-    const predikatFields = [
-        {
-            label: 'Beri Rating',
-            name: 'rating',
-            type: 'select',
-            options: [
-                {
-                    label: 'Istimewa',
-                    value: 5
-                },
-                {
-                    label: 'Baik',
-                    value: 4
-                },
-                {
-                    label: 'Butuh Perbaikan',
                     value: 3
                 },
                 {
-                    label: 'Kurang (Misconduct)',
+                    label: 'Sesuai Ekspektasi',
                     value: 2
                 },
                 {
-                    label: 'Sangat Kurang',
+                    label: 'Dibawah Ekspektasi',
                     value: 1
                 }
             ],
@@ -186,70 +132,60 @@ const page = () => {
         }
     ];
 
-    const renderPredikatTag = (ratingPredikat) => {
+    const onClose = () => {
+        setModal((prev) => ({ ...prev, trigger: false }));
+    };
+
+    const getRealisasi = (aspek, harian) => {
+        if (aspek.jenis === 'kualitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+            if (percentase) {
+                const percent = (percentase.progress / 100) * aspek.target_tahunan.target;
+                return percent + '%';
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'kuantitas') {
+            const percentase = harian.reduce((max, item) => {
+                return item.progress > max.progress ? item : max;
+            }, harian[0]);
+
+            if (percentase) {
+                const target = aspek.target_tahunan.target;
+                const realisasi = percentase.progress;
+                const percent = Math.floor((realisasi / 100) * target); // Round down the percentage
+
+                return percent + ' ' + aspek.target_tahunan.satuan;
+            } else {
+                return '0%';
+            }
+        } else if (aspek.jenis === 'waktu') {
+            return harian.length + ' ' + aspek.target_tahunan.satuan;
+        } else {
+            return '';
+        }
+    };
+
+    const renderPerilakuTag = (ratingPredikat) => {
         switch (ratingPredikat) {
-            case 5:
-                return <Tag color="blue">Istimewa</Tag>;
-            case 4:
-                return <Tag color="green">Baik</Tag>;
-            case 3:
-                return <Tag color="yellow">Butuh Perbaikan</Tag>;
             case 2:
-                return <Tag color="orange">Kurang</Tag>;
+                return (
+                    <Tag color='blue'>Sesuai Ekspektasi</Tag>
+                );
+            case 3:
+                return (
+                    <Tag color='green'>Diatas Ekspektasi</Tag>
+                );
             case 1:
-                return <Tag color="magenta">Sangat Kurang</Tag>;
+                return (
+                    <Tag color='orange'>Dibawah Ekspektasi</Tag>
+                );
             default:
                 return <Tag color="error">Belum Dinilai</Tag>;
         }
     };
-
-    const formHasilSkp = [
-        {
-            label: 'Lokasi Pegawai Dinilai',
-            name: 'lokasi_dinilai',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field lokasi wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Tanggal Tertanda Dinilai',
-            name: 'tanggal_dinilai',
-            type: 'date',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field Tanggal wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Lokasi Pegawai Penilai',
-            name: 'lokasi_penilai',
-            type: 'text',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field lokasi wajib di isi'
-                }
-            ]
-        },
-        {
-            label: 'Tanggal Tertanda Penilai',
-            name: 'tanggal_penilai',
-            type: 'date',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field Tanggal wajib di isi'
-                }
-            ]
-        }
-    ]
-
 
     return (
         <div className="w-full flex flex-col gap-y-4">
@@ -258,77 +194,68 @@ const page = () => {
                 <DataLoading loadingData={loading} />
             ) : (
                 <>
-                    {penilaian && penilaian.ratingPredikat ? (
+                    {penilaian && penilaian.ratingPerilaku ? (
                         <Card>
                             <div className="flex gap-x-2">
                                 <ExclamationCircleFilled className="text-blue-500 text-lg" />
-                                <p>Predikat Kinerja ini telah dilakukan penilaian, penilaian predikat kinerja hanya dapat dilakukan sekali, dan tidak dapat diubah.</p>
+                                <p>Perilaku kerja ini telah dilakukan penilaian, penilaian perilaku kerja hanya dapat dilakukan sekali, dan tidak dapat diubah.</p>
                             </div>
                         </Card>
                     ) : (
                         <></>
                     )}
+
                     <Card>
                         <div className="flex flex-col gap-y-4 mb-6">
                             <div className="w-full flex items-center justify-between">
                                 <Title className="mt-2" level={5}>
-                                    Sasaran Kinerja Pegawai
+                                    Pengisian Feedback Atasan
                                     {" "}
-                                    {renderPredikatTag(penilaian?.ratingPredikat)}
+                                    {renderPerilakuTag(penilaian?.ratingPerilaku)}
                                 </Title>
                                 <div className="flex items-center gap-x-2">
                                     <Button
-                                        type="default"
-                                        icon={<PrinterOutlined />}
-                                        onClick={() =>
-                                            setModal({
-                                                trigger: true,
-                                                title: `Cetak Hasil SKP`,
-                                                type: 'create',
-                                                formFields: formHasilSkp,
-                                                onSubmit: printHasilSkp
-                                            })
-                                        }>
-                                        Cetak Hasil
-                                    </Button>
-                                    <Button
+                                        disabled={penilaian && penilaian.ratingPerilaku}
                                         type="primary"
-                                        disabled={penilaian && penilaian.ratingPredikat}
                                         icon={<PlusOutlined />}
                                         onClick={() =>
                                             setModal({
                                                 trigger: true,
-                                                title: 'Tambah Predikat Kinerja Pegawai',
                                                 isRating: true,
-                                                formFields: predikatFields,
-                                                modalData: { rating: penilaian && penilaian?.ratingPredikat ? penilaian?.ratingPredikat : 1 },
+                                                modalData: {
+                                                    rating: penilaian && penilaian?.ratingPerilaku ? penilaian?.ratingPerilaku : 1
+                                                },
+                                                title: 'Tambah Rating Perilaku Kerja',
+                                                formFields: ratingFileds,
                                                 onSubmit: async (value) => {
+                                                    setSubmitLoading(true)
                                                     const dt = {
                                                         ...penilaian,
-                                                        ratingPredikat: value.rating,
-                                                        penilai: IdSkp,
-                                                        skp: IdRhk,
-                                                        periodePenilaian: IdPeriode
+                                                        ratingPerilaku: value.rating,
+                                                        penilai: id,
+                                                        skp: id,
+                                                        periodePenilaian: idPeriode
                                                     };
 
                                                     const res = await storePenilaian(dt);
 
                                                     if (res.ok) {
-                                                        // setModal({
-                                                        //     trigger: false,
-                                                        //     modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 }
-                                                        // });
+                                                        setModal({trigger: false})
                                                         fetchData();
                                                     }
+                                                    setSubmitLoading(false);
                                                 }
                                             })
                                         }
                                     >
-                                        Buat Predikat Kinerja
+                                        Buat Rating Perilaku Kerja
                                     </Button>
                                     <Tooltip title="Refresh Data">
                                         <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
                                     </Tooltip>
+                                    {/* <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ trigger: true, modalData: dummyFeedback, title: 'Tambah Predikat Kinerja Pegawai', formFields: predikatFields })}>
+                                Buat Predikat Kinerja
+                            </Button> */}
                                 </div>
                             </div>
 
@@ -336,7 +263,7 @@ const page = () => {
                                 <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">periode</span>
                                     <Tag color="blue" className="capitalize">
-                                        {data?.periode_awal && data?.periode_akhir ? dateFormatter(data.periode_awal) + '-' + dateFormatter(data.periode_akhir) : 'Tanggal tidak tersedia'}
+                                        {data?.periode_awal && data?.periode_akhir ? dateFormatter(data?.periode_awal) + ' - ' + dateFormatter(data?.periode_akhir) : 'tanggal tinggal tersedia'}
                                     </Tag>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
@@ -355,10 +282,10 @@ const page = () => {
                                     <span className="uppercase font-semibold">Model SKP</span>
                                     <p className="text-right capitalize">JAJF</p>
                                 </div>
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">jenis pegawai</span>
-                                    <p className="text-right capitalize">pemimpin</p>
-                                </div>
+                                {/* <div className="flex items-center justify-between py-2">
+                            <span className="uppercase font-semibold">jenis pegawai</span>
+                            <p className="text-right capitalize">pemimpin</p>
+                        </div> */}
                             </div>
                         </div>
                         <div className="w-full grid grid-cols-12 gap-4 mb-6">
@@ -418,13 +345,13 @@ const page = () => {
                                 </div>
                             </Card>
                         </div>
+
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr>
                                     <th>NO</th>
                                     <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
                                     <th>RENCANA HASIL KERJA</th>
-                                    <th>RENCANA AKSI</th>
                                     <th>ASPEK</th>
                                     <th>INDIKATOR KINERJA</th>
                                     <th>TARGET TAHUNAN</th>
@@ -434,7 +361,7 @@ const page = () => {
                             </thead>
                             <tbody className="capitalize text-sm">
                                 <tr>
-                                    <td colSpan={9} className="text-left px-2">
+                                    <td colSpan={6} className="text-left px-2">
                                         Utama
                                     </td>
                                 </tr>
@@ -458,11 +385,7 @@ const page = () => {
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
                                             </td>
-                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                                <div className="flex flex-col gap-y-2 p-4">
-                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
-                                                </div>
-                                            </td>
+
                                         </tr>
                                         {item.aspek?.map((aspek) => (
                                             <>
@@ -474,8 +397,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
-                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -483,7 +406,7 @@ const page = () => {
                                     </>
                                 ))}
                                 <tr>
-                                    <td colSpan={9} className="text-left px-2">
+                                    <td colSpan={6} className="text-left px-2">
                                         Tambahan
                                     </td>
                                 </tr>
@@ -493,7 +416,7 @@ const page = () => {
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>{index + 1}</td>
                                             <td rowSpan={item.aspek ? item.aspek.length + 1 : 1} style={{ maxWidth: '12rem', padding: '8px' }}>
                                                 <div className="flex flex-col gap-y-2 text-left">
-                                                    <p>{item.rhk.rkt ? item.rhk.rkt.name : item.rhk.desc}</p>
+                                                    <p>{item.rkt ? item.rkt.name : item.desc}</p>
 
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
@@ -507,11 +430,7 @@ const page = () => {
                                                     {/* <Button size="small" type="primary" className="w-fit" shape="circle" icon={<SearchOutlined />} /> */}
                                                 </div>
                                             </td>
-                                            <td rowSpan={item.aspek ? item.aspek.length + 1 : 1}>
-                                                <div className="flex flex-col gap-y-2 p-4">
-                                                    <List className="px-4" renderItem={(item) => <List.Item>{item.isi_lampiran}</List.Item>} />
-                                                </div>
-                                            </td>
+
                                         </tr>
                                         {item.aspek?.map((aspek) => (
                                             <>
@@ -523,20 +442,21 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
-                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
                                         ))}
                                     </>
                                 ))}
+
                                 <tr>
                                     <td colSpan={6}>Rating Hasil Kinerja</td>
                                     <td colSpan={4}>
                                         {penilaian?.ratingKinerja
                                             ? (() => {
-                                                const hasil = penilaian?.ratingKinerja;
+                                                const hasil = penilaian?.ratingKinerja
                                                 switch (hasil) {
                                                     case 2:
                                                         return (
@@ -583,6 +503,7 @@ const page = () => {
                                 </tr>
                             </tbody>
                         </table>
+
                         <table className="normaltable mb-6">
                             <thead>
                                 <tr className="uppercase">
@@ -609,7 +530,7 @@ const page = () => {
                                         <td>
                                             <div className="flex items-center justify-center">{item.espektasi}</div>
                                         </td>
-                                        <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                                        <PerilakuRow setSubmitLoading={setSubmitLoading} IdSKP={id} item={item} IdPeriode={idPeriode} fetchData={fetchData} formFields={formFields} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>
@@ -808,7 +729,7 @@ const page = () => {
                                     <Card className="mt-6  mb-4">
                                         <div className="flex gap-x-6">
                                             <WarningOutlined className="text-yellow-500 text-lg" width={200} />
-                                            <p className="text-xs">Penilaian predikat kinerja hanya bisa dilakukan sekali, setelah diberi nilai, nilai predikat kinerja tidak dapat berubah</p>
+                                            <p className="text-xs">Penilaian perilaku kerja hanya bisa dilakukan sekali, setelah diberi nilai, nilai perilaku kerja tidak dapat berubah</p>
                                         </div>
                                     </Card>
                                 </CrudModal.Extra>
@@ -818,13 +739,44 @@ const page = () => {
                     </Card>
                 </>
             )}
+
         </div>
     );
 };
 
 export default page;
 
+const PerilakuRow = ({ item, IdPeriode, fetchData, formFields, setModal, IdSKP, setSubmitLoading }) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        getData();
+    }, []);
 
+    const getData = async () => {
+        try {
 
+            const res = await getByPerilakuAndPeriode(item._id, IdPeriode);
+            if (res.ok) {
+                setData(res.data);
+            }
+        } catch (error) { }
+    };
 
-
+    return (
+        <td>
+            <div className="flex flex-col items-center justify-center gap-y-2">
+                {data?.isi}
+                {data?.like !== undefined ? (
+                    <Tag className="m-0" color={data?.like ? 'green' : 'red'}>
+                        {data?.like ? 'baik' : 'buruk'}
+                    </Tag>
+                ) : (
+                    ''
+                )}
+                <div className="flex items-center justify-center">
+                    <FeedbackButton setSubmitLoading={setSubmitLoading} IdSKP={IdSKP} item={item} IdPeriode={IdPeriode} fetchData={getData} formFields={formFields} setModal={setModal} />
+                </div>
+            </div>
+        </td>
+    );
+};

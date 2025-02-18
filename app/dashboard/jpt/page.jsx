@@ -57,17 +57,17 @@ const page = () => {
             const struktur = await getById(user.token, user.jabatan.unor.induk.id);
             const jpt = struktur.mapData[0];
             console.log(jpt);
-            
+
             const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
             console.log(unit);
-            
+
             const jt = unit.mapData.data.find((item) => {
                 console.log("HERE", item);
                 return item.nama_jabatan.toLowerCase() === jpt.namaJabatan.toLowerCase(); // Add return statement
             });
             const skp = await getByUserId(jt.nip_asn);
-            
-            
+
+
             const resntra = await getAllRenstra();
             const periodeRKT = await getByUnitId(user.jabatan.unor.induk.id);
             setRenstra(resntra.data);
@@ -209,48 +209,6 @@ const page = () => {
         }
     ];
 
-    const filterFileds = [
-        {
-            id: 1,
-            name: 'renstra',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode rkt',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode mulai',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        },
-        {
-            id: 1,
-            name: 'periode akhir',
-            options: [
-                {
-                    label: 'sample',
-                    value: 'sample'
-                }
-            ]
-        }
-    ];
 
     const handleClose = () => {
         setModal({ trigger: false, modalData: null });
@@ -266,9 +224,7 @@ const page = () => {
                             Data SKP
                         </Title>
                     </div>
-                    <div className="w-full mb-4">
-                        <FilterField fields={filterFileds}></FilterField>
-                    </div>
+
                     {loadingData ? (
                         <Skeleton active />
                     ) : errorData.show ? (
@@ -280,13 +236,10 @@ const page = () => {
                                     <Card key={item._id} type="inner" title={<Tag color="blue">{item._id}</Tag>}>
                                         <div className="w-full flex flex-col gap-y-4">
                                             <div className="flex w-full items-center gap-x-2 ">
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/detail`)}>Detail SKP</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/matriks_peran_hasil`)}>Matriks Peran Hasil</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/skp_bawahan`)}>SKP Bawahan</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/periode_penilaian`)}>Penilaian</Button>
-                                                {isJT === false && <Button onClick={() => router.push(`/dashboard/skp/${item._id}/nilai`)}>Nilai</Button>}
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
-                                                <Button onClick={() => router.push(`/dashboard/skp/${item._id}/aktivitas`)}>Aktivitas</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/detail`)}>Detail SKP</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/periode`)}>Penilaian</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/monitoring_kinerja`)}>Monitoring Kinerja</Button>
+                                                <Button onClick={() => router.push(window.location.pathname + `/${item.id}/aktivitas`)}>Aktivitas</Button>
                                             </div>
 
                                             <div className="grid grid-flow-row divide-y text-xs">
@@ -301,6 +254,10 @@ const page = () => {
                                                     <Tag color="blue" className="capitalize">
                                                         {item.pendekatan}
                                                     </Tag>
+                                                </div>
+                                                <div className="flex items-center justify-between py-2">
+                                                    <span className="uppercase font-semibold">Nama Pegawai</span>
+                                                    <p className="text-right uppercase">{item.jabatan.at(-1).nama_asn}</p>
                                                 </div>
                                                 <div className="flex items-center justify-between py-2">
                                                     <span className="uppercase font-semibold">unit kerja</span>

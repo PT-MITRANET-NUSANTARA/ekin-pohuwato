@@ -19,11 +19,9 @@ const { Title } = Typography;
 const page = () => {
     const router = useRouter();
 
-    const { IdSkp, IdRhk, IdPeriode } = useParams();
+    const { id, idPeriode } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { }, isRating: false });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-    const [buktiModal, setBuktiModal] = useState({ trigger: false, modalData: [] });
-    const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -43,16 +41,16 @@ const page = () => {
     const fetchData = async () => {
         setLoading(true)
         try {
-            const skp = await getById(IdRhk);
+            const skp = await getById(id);
             setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            const nilai = await getBySKPAndPeriode(IdRhk, IdPeriode);
+            const nilai = await getBySKPAndPeriode(id, idPeriode);
             console.log('nilai', nilai);
 
             setPenilaian(nilai.data);
             setData(skp.data);
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
-            const periode = await getPenilaian(IdPeriode);
+            const periode = await getPenilaian(idPeriode);
             setPeriode(periode.data);
 
             setAtasan(atasan);
@@ -68,7 +66,7 @@ const page = () => {
 
     const printHasilSkp = async (values) => {
         setSubmitLoading(true)
-        const periode = await getPenilaian(IdPeriode);
+        const periode = await getPenilaian(idPeriode);
 
         if (data) {
             const index = data.jabatan.length - 1;
@@ -83,7 +81,7 @@ const page = () => {
                 }
 
                 rhk.aspek.forEach(async (aspek) => {
-                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, IdPeriode);
+                    const data = await getRealisasi(rhk._id, rhk.jenis, aspek._id, idPeriode);
                     realisasi[rhk._id][aspek._id] = data.data;
                 });
             });
@@ -145,6 +143,41 @@ const page = () => {
                 {
                     required: true,
                     message: 'Field rating wajib di isi'
+                }
+            ]
+        }
+    ];
+
+    const feedbackFields = [
+        {
+            label: 'Beri Feedback',
+            name: 'feedback',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field feedback wajib diisi'
+                }
+            ]
+        },
+        {
+            label: 'Kategori',
+            name: 'category',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field periode mulai wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    label: 'baik',
+                    value: true
+                },
+                {
+                    label: 'buruk',
+                    value: false
                 }
             ]
         }
@@ -303,23 +336,22 @@ const page = () => {
                                                 formFields: predikatFields,
                                                 modalData: { rating: penilaian && penilaian?.ratingPredikat ? penilaian?.ratingPredikat : 1 },
                                                 onSubmit: async (value) => {
+                                                    setSubmitLoading(true)
                                                     const dt = {
                                                         ...penilaian,
                                                         ratingPredikat: value.rating,
-                                                        penilai: IdSkp,
-                                                        skp: IdRhk,
-                                                        periodePenilaian: IdPeriode
+                                                        penilai: id,
+                                                        skp: id,
+                                                        periodePenilaian: idPeriode
                                                     };
 
                                                     const res = await storePenilaian(dt);
 
                                                     if (res.ok) {
-                                                        // setModal({
-                                                        //     trigger: false,
-                                                        //     modalData: { rating: data.predikat ? data.predikat[IdPeriode] : 1 }
-                                                        // });
+                                                        setModal({ trigger: false })
                                                         fetchData();
                                                     }
+                                                    setSubmitLoading(false)
                                                 }
                                             })
                                         }
@@ -474,8 +506,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} isTambahan={false} />
-                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} isTambahan={false} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -523,8 +555,8 @@ const page = () => {
                                                         </div>
                                                     </td>
                                                     <td>{aspek.target_tahunan.target + aspek.target_tahunan.satuan} </td>
-                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={IdPeriode} />
-                                                    <RhkRow item={aspek} IdSkp={IdSkp} IdPeriode={IdPeriode} setModal={setModal} />
+                                                    <RealisasiRow item={item} aspek={aspek} IdPeriode={idPeriode} />
+                                                    <RhkRow item={aspek} IdSkp={id} IdPeriode={idPeriode} setModal={setModal} />
                                                     {/* <td></td> */}
                                                 </tr>
                                             </>
@@ -609,7 +641,7 @@ const page = () => {
                                         <td>
                                             <div className="flex items-center justify-center">{item.espektasi}</div>
                                         </td>
-                                        <PerilakuRow IdSKP={IdSkp} item={item} IdPeriode={IdPeriode} fetchData={fetchData} setModal={setModal} />
+                                        <PerilakuRow IdSKP={id} item={item} IdPeriode={idPeriode} fetchData={fetchData} setModal={setModal} />
                                     </tr>
                                 ))}
                                 <tr>

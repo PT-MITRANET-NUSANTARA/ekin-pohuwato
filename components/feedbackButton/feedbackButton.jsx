@@ -5,7 +5,7 @@ import { perilaku } from '@/utils/blueprint';
 import { EditOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 
-const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSKP }) => {
+const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSKP, setSubmitLoading }) => {
     const handleClick = () => {
         setModal({
             trigger: true,
@@ -13,7 +13,7 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSK
             title: 'Edit Feedback',
             formFields: formFields,
             onSubmit: async (values) => {
-
+                setSubmitLoading(true)
                 const dt = {
                     isi: values.content,
                     like: values.category,
@@ -22,13 +22,14 @@ const feedbackButton = ({ item, IdPeriode, setModal, formFields, fetchData, IdSK
                     penilai: IdSKP
                 };
 
-                const res = await store( dt);
+                const res = await store(dt);
 
                 if (res.ok) {
                     fetchData();
                     setModal({ trigger: false, modalData: {} });
                     message.success('Data Berhasil Diubah');
                 }
+                setSubmitLoading(false)
             }
         });
     };
