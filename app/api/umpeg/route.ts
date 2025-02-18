@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       umpegs = await UMPEG.findOne({ _id: id });
     } else if (unit_id) {
-      umpegs = await UMPEG.find({ "unit.id": Number(unit_id) });
+      umpegs = await UMPEG.findOne({ "unit.id_sapk": unit_id });
     } else {
       umpegs = await UMPEG.find({});
     }

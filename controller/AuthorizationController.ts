@@ -29,6 +29,7 @@ export const verifyToken = async (token: any, req: NextRequest) => {
 }
 
 
+
 export const getData = async () => {
     try {
         const response = await apiRequest('/api/authorization', {
