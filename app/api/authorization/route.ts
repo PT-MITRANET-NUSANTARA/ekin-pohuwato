@@ -21,7 +21,7 @@ const getKey = (header: any, callback: any) => {
             return callback(new Error('Invalid token'), null);
         }
 
-        const signingKey = key.getPublicKey() ;
+        const signingKey = key.getPublicKey();
 
         callback(null, signingKey);
     });
@@ -31,14 +31,14 @@ export async function GET(req: NextRequest) {
     try {
         const token = cookies().get('token')?.value;
         const dt: any = cookies().get('user')?.value;
-        const cookie:any = JSON.parse(dt);
+        const cookie: any = JSON.parse(dt);
         const data = {
             token: token,
             user: cookie.user,
             jabatan: cookie.jabatan
         };
         console.log(data);
-        
+
         return NextResponse.json(createResponse(200, 'Success', data));
     } catch (error) {
         console.error('GET error:', error);
@@ -56,10 +56,31 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ message: 'Token is required' }, { status: 400 });
         }
 
-        // Log token yang diterima
-        console.log('Token received:', token);
+        // Verifikasi token menggunakan JWKS
+        const decoded: any = await new Promise((resolve, reject) => {
+            jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+                if (err) return reject(err);
+                resolve(decoded);
+            });
+        });
 
-        // Serialisasi cookie
+        // Ambil data tambahan berdasarkan NIP
+        const respon: any = await getByNIP(token, decoded.mapData.nipBaru);
+        const jabatan = respon.mapData.data[0];
+
+        // Serialisasi data untuk cookie 'user'
+        const data = {
+            user: decoded.mapData,
+            jabatan: jabatan
+        };
+        const userCookie = serialize('user', JSON.stringify(data), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 minggu
+            path: '/'
+        });
+
+        // Serialisasi cookie untuk token
         const cookie = serialize('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -67,9 +88,12 @@ export async function PUT(req: NextRequest) {
             path: '/'
         });
 
-        // Set cookie ke header response
-        const response = NextResponse.json({ message: 'Successfully set cookie!', token: token });
-        response.headers.set('Set-Cookie', cookie);
+        // Membuat response redirect ke '/dashboard'
+        const response = NextResponse.redirect(new URL('/dashboard', req.url), 307);
+
+        // Set kedua cookie pada header response
+        response.headers.append('Set-Cookie', cookie);
+        response.headers.append('Set-Cookie', userCookie);
 
         return response;
     } catch (error) {
@@ -99,17 +123,14 @@ export async function POST(req: NextRequest) {
             });
         });
 
-        const respon:any = await getByNIP(token,decoded.mapData.nipBaru);
+        const respon: any = await getByNIP(token, decoded.mapData.nipBaru);
         const jabatan = respon.mapData.data[0];
-  
-        
-        
 
         // Jika perlu, serialisasi data yang relevan ke cookie
         const data = {
             user: decoded.mapData,
             jabatan: jabatan
-        }
+        };
         const userCookie = serialize('user', JSON.stringify(data), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

@@ -41,6 +41,8 @@ const Page = () => {
                     const cookies = await setToken(match[1]);
                     if (cookies.ok) {
                         message.success('Login Berhasil');
+                        console.log("HERE");
+                        
                         router.push('/dashboard');
                     } else {
                         message.error('Failed to fetch cookies. Please try again.');
