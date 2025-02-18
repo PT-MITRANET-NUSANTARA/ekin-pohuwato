@@ -6,7 +6,6 @@ export async function verifyJWT(req: NextRequest) {
     // Bangun URL absolut berdasarkan request yang masuk
     try {
         const cookie = cookies().get('token')?.value;
-        console.log('token',cookie);
         
         const response = await verifyToken(cookie, req);
         if (response.status === 200) {
