@@ -43,9 +43,7 @@ const layout = ({ children }) => {
                 )
             }));
 
-            // console.log(notif);
-            
-
+        
             setNotif(notif);
             setFoto(foto);
         } catch (error) {
