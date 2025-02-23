@@ -127,12 +127,12 @@ export const DashboardLink = [
     {
         icon: UsergroupAddOutlined,
         label: 'Verifikator',
-        permission: ['admin', 'verifikator'],
+        permission: ['admin', 'verificator'],
         children: [
             {
                 label: 'Verifikasi SKP',
                 path: '/dashboard/verifikasi_skp',
-                permission: ['admin', 'verifikator']
+                permission: ['admin', 'verificator']
             }
             // {
             //     label: 'JPT',
