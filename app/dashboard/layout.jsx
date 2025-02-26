@@ -1,14 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { DashboardSider, DashboardFooter, Reload } from '../../components';
-import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined, ArrowLeftOutlined, ArrowRightOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Button, Card, Dropdown, Layout, message, Modal, Space, theme } from 'antd';
+import { LogoutOutlined, MenuOutlined, UserOutlined, SettingOutlined, BellOutlined, ExclamationCircleOutlined, ArrowLeftOutlined, ArrowRightOutlined, ReloadOutlined, UpOutlined } from '@ant-design/icons';
+import { Avatar, Badge, Button, Card, Dropdown, FloatButton, Layout, message, Modal, Space, theme } from 'antd';
 import { useRouter } from 'next/navigation';
 import { getData, logOut } from '@/controller/AuthorizationController';
 import useFetchData from '@/hooks/useFetchData';
 import { getFotoByNIP } from '@/controller/IDSN/DataUtamaController';
 import Image from 'next/image';
-import { getByUserId,update } from '@/controller/NotificationController';
+import { getByUserId, update } from '@/controller/NotificationController';
 const { Header, Content } = Layout;
 
 const layout = ({ children }) => {
@@ -27,6 +27,10 @@ const layout = ({ children }) => {
         }
     }, [data]);
 
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     const fetchData = async () => {
         try {
             const foto = await getFotoByNIP(data?.token, data?.user.nipBaru);
@@ -43,8 +47,6 @@ const layout = ({ children }) => {
                 )
             }));
 
-            // console.log(notif);
-            
 
             setNotif(notif);
             setFoto(foto);
@@ -153,23 +155,23 @@ const layout = ({ children }) => {
                     <Card>{modal.data?.message}</Card>
 
                     <div className="mt-4 inline-flex gap-x-2">
-                        <Button onClick={async() => {
+                        <Button onClick={async () => {
                             const res = await update(modal.data?._id, {
                                 ...modal.data,
                                 read: true,
                             });
                             console.log(res);
-                            
+
                             if (res.ok) {
-                                
+
                             }
-                            setModal({trigger:false})
+                            setModal({ trigger: false })
                         }} color="primary" variant="solid">
                             Tandai telah dibaca
                         </Button>
-                        <Button onClick={async() => {
-                           
-                            setModal({trigger:false})
+                        <Button onClick={async () => {
+
+                            setModal({ trigger: false })
                         }}>Batal</Button>
                     </div>
                 </Modal>
@@ -184,8 +186,8 @@ const layout = ({ children }) => {
                         <Button icon={<ArrowRightOutlined />} className="w-fit" onClick={() => router.forward()} />
                     </div>
                     {children}
+                    <FloatButton  icon={<UpOutlined />} tooltip="Kembali ke atas" onClick={scrollToTop} />
                 </Content>
-
                 <DashboardFooter />
             </Layout>
         </Layout>

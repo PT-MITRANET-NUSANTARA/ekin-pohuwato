@@ -206,7 +206,7 @@ const page = () => {
                         <FilterField fields={filterFileds}></FilterField>
                     </div>
                     <div className="overflow-x-auto">
-                        <DataTable columns={Column} data={unit} loading={loading} />
+                        <DataTable columns={Column} data={unit} loading={loading}  />
                     </div>
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>
                 </div>
