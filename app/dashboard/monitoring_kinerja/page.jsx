@@ -11,13 +11,15 @@ import Link from 'next/link';
 import { dummyOrganisasi } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const { success, error } = useNotification()
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,20 +31,20 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-        
+
 
             const unit = await getAllPosjabByUnit(user.token, user.jabatan.unor.induk.id);
             console.log(unit);
-            
+
             // setUnor(bawahan);
             console.log(unit);
-            
+
             setData(unit.mapData.data);
             // setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
             // setLoadingData(false);
         } catch (error) {
             console.log(error);
-        } finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -71,27 +73,18 @@ const page = () => {
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Monitoring Kinerja' : type === 'edit' ? 'Berhasil Mengedit Monitoring Kinerja' : 'Berhasil Menambahkan Monitoring Kinerja')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
 
         handleClose();
@@ -137,7 +130,7 @@ const page = () => {
             key: 'jabatan',
             searchable: true,
             render: (_, record) => (
-               record.nama_jabatan
+                record.nama_jabatan
             )
         },
 

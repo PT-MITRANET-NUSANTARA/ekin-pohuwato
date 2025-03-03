@@ -13,13 +13,14 @@ import Link from 'next/link';
 import useFetchData from '@/hooks/useFetchData';
 import { getData } from '@/controller/AuthorizationController';
 import { useRouter } from 'next/navigation';
+import useNotification from '@/app/hook/useNotification';
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
+    const { success, error } = useNotification()
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedUnor, setSelectedUnor] = useState(null);
@@ -78,27 +79,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Misi' : type === 'edit' ? 'Berhasil Mengedit Misi' : 'Berhasil Menambahkan Misi',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Admin Verifikator' : type === 'edit' ? 'Berhasil Mengedit Admin Verifikator' : 'Berhasil Menambahkan Admin Verifikator')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
-        } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+        } catch (err) {
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -252,8 +244,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

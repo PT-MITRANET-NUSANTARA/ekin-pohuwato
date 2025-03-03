@@ -26,7 +26,6 @@ const page = () => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
 
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { success, error } = useNotification()
 
     const [kegiatan, setKegiatan] = useState(null);
@@ -144,7 +143,7 @@ const page = () => {
                                 },
                                 {
                                     key: 'total_anggaran',
-                                    label: 'Total Anggaran',
+                                    label: 'Rencana Anggaran',
                                     children: record.kegiatan.total_anggaran
                                 }
                             ],
@@ -202,7 +201,7 @@ const page = () => {
             )
         },
         {
-            title: 'Total Anggaran',
+            title: 'Rencana Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran.length - b.total_anggaran.length
@@ -232,7 +231,7 @@ const page = () => {
                                     },
                                     {
                                         key: 'total_anggaran',
-                                        label: 'Total Anggaran',
+                                        label: 'Rencana Anggaran',
                                         children: record.total_anggaran
                                     },
                                     {
@@ -435,13 +434,13 @@ const page = () => {
             ]
         },
         {
-            label: 'Total Anggaran',
+            label: 'Rencana Anggaran',
             name: 'total_anggaran',
             type: 'number',
             rules: [
                 {
                     required: true,
-                    message: 'Field total anggaran selesai wajib di isi'
+                    message: 'Field rencana anggaran selesai wajib di isi'
                 }
             ],
             min: 0
@@ -569,8 +568,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

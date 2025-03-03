@@ -18,7 +18,6 @@ const page = () => {
     const { IdSkp } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [data, setData] = useState(null);
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -78,7 +77,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
 
             <Card className="">
                 <div className="flex flex-col">

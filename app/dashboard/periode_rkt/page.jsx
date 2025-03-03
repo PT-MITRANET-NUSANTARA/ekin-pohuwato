@@ -23,9 +23,7 @@ const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { success, error } = useNotification()
-
     const [submitLoading, setSubmitLoading] = useState(false);
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const { data: user, setData: setUser } = useFetchData(getData);
@@ -177,19 +175,15 @@ const page = () => {
 
         if (response.ok) {
             fetchData();
-            setAlert({
-                show: true,
-                message: response.msg,
-                description: 'Berhasil Mengupload Perjanjian Kinerja',
-                type: 'success'
-            });
+            success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Perjanjian Kinerja' : type === 'edit' ? 'Berhasil Mengedit Perjanjian Kinerja' : 'Berhasil Menambahkan Perjanjian Kinerja')
         } else {
-            setAlert({
-                show: true,
-                message: 'Gagal',
-                description: response.msg,
-                type: 'error'
-            });
+            if (Array.isArray(response.data)) {
+                response.data.forEach((err) => {
+                    error('Gagal', err);
+                });
+            } else {
+                error('Gagal', response.data);
+            }
         }
         handleClose();
     };
@@ -542,8 +536,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

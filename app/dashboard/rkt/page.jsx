@@ -26,7 +26,6 @@ const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { success, error } = useNotification()
 
     const [periodeRKT, setPeriodeRKT] = useState(null);
@@ -148,7 +147,7 @@ const page = () => {
             )
         },
         {
-            title: 'Total Anggaran',
+            title: 'Rencana Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran - b.total_anggaran
@@ -175,7 +174,7 @@ const page = () => {
                                         },
                                         {
                                             key: 'total_anggaran',
-                                            label: 'Total Anggaran',
+                                            label: 'Rencana Anggaran',
                                             children: record.total_anggaran
                                         },
                                         {
@@ -192,7 +191,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -212,7 +211,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -232,7 +231,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -442,13 +441,13 @@ const page = () => {
         },
 
         {
-            label: 'Total Anggaran',
+            label: 'Rencana Anggaran',
             name: 'total_anggaran',
             type: 'number',
             rules: [
                 {
                     required: true,
-                    message: 'Field total anggaran wajib di isi'
+                    message: 'Field rencana anggaran wajib di isi'
                 }
             ],
             min: 1
@@ -478,8 +477,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loadingData ? (
                 <DataLoading loadingData={loadingData} />
             ) : (

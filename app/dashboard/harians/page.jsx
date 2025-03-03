@@ -14,12 +14,12 @@ import { getData } from '@/controller/AuthorizationController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 
 
+
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [absence, setAbsence] = useState(null);
     const [loading, setLoading] = useState(false);
     const { data: user, setData: setUser } = useFetchData(getData);

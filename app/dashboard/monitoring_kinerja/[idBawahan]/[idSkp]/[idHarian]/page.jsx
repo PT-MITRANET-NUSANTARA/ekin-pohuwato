@@ -53,7 +53,6 @@ const page = () => {
     const [fileModal, setFileModal] = useState({ trigger: false, modalData: [] });
     const [feedBackModal, setFeedbackModal] = useState({ trigger: false, modalData: [] });
     const [selectedFeedback, setSelectedFeedback] = useState(null);
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [harian, setHarian] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [jabatan, setJabatan] = useState(null);
@@ -359,8 +358,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

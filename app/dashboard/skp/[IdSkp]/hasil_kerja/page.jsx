@@ -9,6 +9,8 @@ import useFetchData from '@/hooks/useFetchData';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { dummyAktivitas, dummyBawahan } from '@/data/dummyData';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 const { Option } = Select
@@ -18,8 +20,9 @@ const page = () => {
     const { IdOrganisasi, IdTanggal } = useParams();
     const { data, setData, loading, msg, status } = useFetchData(getAll);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [aktivitasModal, setAktivitasModal] = useState(false)
+    const { success, error } = useNotification()
+
 
     const onSubmit = async (values, type, id) => {
         try {
@@ -45,27 +48,18 @@ const page = () => {
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Visi' : type === 'edit' ? 'Berhasil Mengedit Visi' : 'Berhasil Menambahkan Visi')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
 
         handleClose();
@@ -136,15 +130,13 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">
                         <Title className="mt-2" level={5}>
                             Aktivitas Hasil Kinerja
                         </Title>
-            
+
                     </div>
                     <DataTable columns={Column} data={dummyAktivitas} loading={loading} />
                     <CrudModal title={modal.title} isModalOpen={modal.trigger} data={modal.modalData} onSubmit={onSubmit} onClose={handleClose} formFields={formFields} type={modal.type}></CrudModal>

@@ -17,7 +17,6 @@ const { Title } = Typography;
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { success, error } = useNotification()
     const [submitLoading, setSubmitLoading] = useState(false);
     const [visi, setVisi] = useState(null);
@@ -286,8 +285,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (
