@@ -113,44 +113,35 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
-
             width: '5%'
         },
         {
-            title: 'Output',
-            dataIndex: 'output',
-            key: 'output',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
-                    Info
-                </Button>
-            )
-        },
-        {
-            title: 'Input',
-            dataIndex: 'input',
-            key: 'input',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
-                    Info
-                </Button>
-            )
-        },
-        {
-            title: 'Outcome',
-            dataIndex: 'outcome',
-            key: 'outcome',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.outcome, trigger: true })}>
-                    Info
-                </Button>
-            )
+            title: 'Nama RKT',
+            dataIndex: 'name',
+            width: '5%'
         },
         {
             title: 'Rencana Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran - b.total_anggaran
+        },
+        {
+            title: 'Indikator',
+            key: 'indikator',
+            render: (_, record) => (
+                <Space>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
+                        Output
+                    </Button>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
+                        Input
+                    </Button>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.outcome, trigger: true })}>
+                        Outcome
+                    </Button>
+                </Space>
+            )
         },
         {
             title: 'Action',
