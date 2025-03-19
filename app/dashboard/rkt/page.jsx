@@ -130,6 +130,45 @@ const page = () => {
             width: '10%'
         },
         {
+            title: 'Sub Kegiatan',
+            dataIndex: 'subKegiatan',
+            key: 'subKegiatan',
+            // width: '30%',
+            render: (_, record) => (
+                <>
+                    <Button icon={<SearchOutlined />} onClick={() => {
+                        setInfoModal({
+                            title: 'Informasi Sub Kegiatan',
+                            trigger: true,
+                            type: 'desc',
+                            data: [
+                                {
+                                    key: 'subKegiatan',
+                                    label: 'Sub Kegiatan',
+                                    children: (
+                                        <List
+                                            dataSource={record.subKegiatan}
+                                            renderItem={(item) => (
+                                                <List.Item>
+                                                    <div className="flex flex-col">
+                                                        <Typography.Text>{item.name}</Typography.Text>
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )
+                                }
+                            ],
+                            isLoading: false,
+                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                        });
+                    }}>
+                        Info
+                    </Button>
+                </>
+            )
+        },
+        {
             title: 'Rencana Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
@@ -152,6 +191,7 @@ const page = () => {
                 </Space>
             )
         },
+     
         {
             title: 'Action',
             key: 'action',
