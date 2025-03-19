@@ -6,7 +6,7 @@ import Program from '@/models/Program';
 import RKT from '@/models/RKT';
 
 const rktSchema = Joi.object({
-    subKegiatan: Joi.string().hex().length(24).required().label('SubKegiatan'),
+    subKegiatan: Joi.array().items(Joi.string().hex().length(24)).required().label('SubKegiatan'),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'), // Referensi ObjectId ke SubKegiatan
     // Referensi ObjectId ke SubKegiatan
     name: Joi.string().required().label('Nama'),
@@ -53,7 +53,8 @@ const rktSchema = Joi.object({
 
     unit: Joi.object().required().label('Unit'),
     createdAt: Joi.date().optional(),
-    updatedAt: Joi.date().optional()
+    updatedAt: Joi.date().optional(),
+    label: Joi.optional()
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',

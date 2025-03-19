@@ -7,14 +7,20 @@ interface base {
     satuan: string;
 }
 
+enum Label {
+    KINERJA_BERBASIS_ANGGARAN = 'KINERJA BERBASIS ANGGARAN',
+    KINERJA_NON_ANGGARAN = 'KINERJA NON ANGGARAN'
+}
+
 interface IRKT extends Document {
     periodeRKT: mongoose.Types.ObjectId;
     name: string;
     input: base[];
     output: base[];
     outcome: base[];
-    subKegiatan: mongoose.Schema.Types.ObjectId;
+    subKegiatan: mongoose.Schema.Types.ObjectId[];
     unit: Object;
+    label:Label;
     total_anggaran: number;
 }
 
@@ -34,13 +40,19 @@ const RKTSchema = new Schema<IRKT, RKTModel, IRKTMethods>(
             required: true
         },
         subKegiatan: {
-            type: Schema.Types.ObjectId,
+            type: [Schema.Types.ObjectId],
             ref: 'SubKegiatan', // Single reference to SubKegiatan model
             required: true
         },
         name: {
             type: String,
             required: true
+        },
+        label: {
+            type: String,
+            enum: Object.values(Label),
+            required: false,
+            default: Label.KINERJA_BERBASIS_ANGGARAN  
         },
         input: [
             {
