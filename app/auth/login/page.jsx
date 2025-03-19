@@ -37,6 +37,8 @@ const Page = () => {
             console.log(response);
             if (response.success) {
                 const match = response.mapData.redirect_uri.match(/access_token=([^&]*)/);
+                console.log(match);
+                
                 if (match && match[1]) {
                     const cookies = await setToken(match[1]);
                     if (cookies.ok) {
