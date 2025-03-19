@@ -12,6 +12,8 @@ import { dummyHarian, dummyUnit } from '@/data/dummyData';
 import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit } from '@/controller/IDSN/JabatanController';
 import { store, update, getAll as getAllUmpeg } from '@/controller/UMPEGController';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -20,8 +22,9 @@ const page = () => {
     const { data, setData, loading, msg, status } = useFetchData(getData);
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [unit, setUnit] = useState(null);
+    const { success, error } = useNotification()
+
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedUnor, setSelectedUnor] = useState(null);
     const [UMPEG, setUMPEG] = useState(null);
@@ -66,27 +69,18 @@ const page = () => {
                 const umpeg = await getAllUmpeg();
                 setUMPEG(umpeg.data);
                 setUnit(unit.mapData);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Data' : type === 'edit' ? 'Berhasil Mengedit Data' : 'Berhasil Menambahkan Data')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
 
         handleClose();
@@ -143,7 +137,7 @@ const page = () => {
                                 }))
                                 .filter((item, index, self) => index === self.findIndex((t) => t.value === item.value));
                             setSelectedUnor(record);
-                        setSelectedUnit(jabatan_nama);
+                            setSelectedUnit(jabatan_nama);
                             setModal({
                                 trigger: true,
                                 modalData: record,
@@ -193,8 +187,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             <Card className="">
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-12">

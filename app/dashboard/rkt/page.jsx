@@ -12,22 +12,19 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
 
-
 import { getData } from '@/controller/AuthorizationController';
 import { dateFormatter } from '@/utils';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import useNotification from '@/app/hook/useNotification';
-
 
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
     const [customModal, setCustomModal] = useState({ trigger: false, modalData: null });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
-    const { success, error } = useNotification()
+    const { success, error } = useNotification();
 
     const [periodeRKT, setPeriodeRKT] = useState(null);
     const [subKegiatan, setSubkegiatans] = useState(null);
@@ -48,19 +45,26 @@ const page = () => {
 
     const fetchData = async () => {
         try {
-            const data = await getByUnitId(user.jabatan?.unor?.induk.id, pagination.page, pagination.limit, pagination.filters);
-            setData(data.data.data);
-            setPagination({ ...pagination, page: data.data.pagination.currentPage, limit: data.data.pagination.pageSize, total: data.data.pagination.totalItems });
-            const sub = await getSubByUnit(user.jabatan?.unor?.induk.id);
-            const renstra = await getRenstraByUnit(user.jabatan?.unor?.induk.id);
-            const periode = await getPeriodeByUnit(user.jabatan?.unor?.induk.id);
+            setLoadingData(true);
 
+            const unitId = user.jabatan?.unor?.induk.id;
+
+            const [mainData, sub, renstra, periode] = await Promise.all([getByUnitId(unitId, pagination.page, pagination.limit, pagination.filters), getSubByUnit(unitId), getRenstraByUnit(unitId), getPeriodeByUnit(unitId)]);
+
+            setData(mainData.data.data);
+            setPagination((prev) => ({
+                ...prev,
+                page: mainData.data.pagination.currentPage,
+                limit: mainData.data.pagination.pageSize,
+                total: mainData.data.pagination.totalItems
+            }));
             setPeriodeRKT(periode.data);
             setSubkegiatans(sub.data);
             setRenstra(renstra.data);
-            setLoadingData(false);
         } catch (error) {
-            console.log(error);
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoadingData(false);
         }
     };
 
@@ -88,10 +92,9 @@ const page = () => {
                     throw new Error('Tipe operasi tidak valid');
             }
 
-
             if (response.ok) {
                 fetchData();
-                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus RKT' : type === 'edit' ? 'Berhasil Mengedit RKT' : 'Berhasil Menambahkan RKT')
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus RKT' : type === 'edit' ? 'Berhasil Mengedit RKT' : 'Berhasil Menambahkan RKT');
             } else {
                 if (Array.isArray(response.data)) {
                     response.data.forEach((err) => {
@@ -114,45 +117,81 @@ const page = () => {
             title: 'No',
             dataIndex: 'index',
             render: (text, record, index) => index + 1,
-
             width: '5%'
         },
         {
-            title: 'Output',
-            dataIndex: 'output',
-            key: 'output',
+            title: 'Nama RKT',
+            dataIndex: 'name',
+            width: '10%'
+        },
+        {
+            title: 'Label RKT',
+            dataIndex: 'label',
+            width: '10%'
+        },
+        {
+            title: 'Sub Kegiatan',
+            dataIndex: 'subKegiatan',
+            key: 'subKegiatan',
+            // width: '30%',
             render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
-                    Info
-                </Button>
+                <>
+                    <Button icon={<SearchOutlined />} onClick={() => {
+                        setInfoModal({
+                            title: 'Informasi Sub Kegiatan',
+                            trigger: true,
+                            type: 'desc',
+                            data: [
+                                {
+                                    key: 'subKegiatan',
+                                    label: 'Sub Kegiatan',
+                                    children: (
+                                        <List
+                                            dataSource={record.subKegiatan}
+                                            renderItem={(item) => (
+                                                <List.Item>
+                                                    <div className="flex flex-col">
+                                                        <Typography.Text>{item.name}</Typography.Text>
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )
+                                }
+                            ],
+                            isLoading: false,
+                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                        });
+                    }}>
+                        Info
+                    </Button>
+                </>
             )
         },
         {
-            title: 'Input',
-            dataIndex: 'input',
-            key: 'input',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
-                    Info
-                </Button>
-            )
-        },
-        {
-            title: 'Outcome',
-            dataIndex: 'outcome',
-            key: 'outcome',
-            render: (_, record) => (
-                <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.outcome, trigger: true })}>
-                    Info
-                </Button>
-            )
-        },
-        {
-            title: 'Total Anggaran',
+            title: 'Rencana Anggaran',
             dataIndex: 'total_anggaran',
             key: 'total_anggaran',
             sorter: (a, b) => a.total_anggaran - b.total_anggaran
         },
+        {
+            title: 'Indikator',
+            key: 'indikator',
+            render: (_, record) => (
+                <Space>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.output, trigger: true })}>
+                        Output
+                    </Button>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.input, trigger: true })}>
+                        Input
+                    </Button>
+                    <Button icon={<SearchOutlined />} onClick={() => setCustomModal({ modalData: record.outcome, trigger: true })}>
+                        Outcome
+                    </Button>
+                </Space>
+            )
+        },
+     
         {
             title: 'Action',
             key: 'action',
@@ -175,7 +214,7 @@ const page = () => {
                                         },
                                         {
                                             key: 'total_anggaran',
-                                            label: 'Total Anggaran',
+                                            label: 'Rencana Anggaran',
                                             children: record.total_anggaran
                                         },
                                         {
@@ -192,7 +231,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -212,7 +251,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -232,7 +271,7 @@ const page = () => {
                                                     renderItem={(item) => (
                                                         <List.Item>
                                                             <div className="flex flex-col">
-                                                                <Typography.Title level={5} className="m-0">
+                                                                <Typography.Title style={{ color: '#5E9EA0' }} level={5} className="m-0">
                                                                     Indikator : {item.name}
                                                                 </Typography.Title>
                                                                 <Typography.Text>Satuan : {item.satuan}</Typography.Text>
@@ -256,7 +295,7 @@ const page = () => {
                             onClick={() =>
                                 setModal({
                                     trigger: true,
-                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id, subKegiatan: record.subKegiatan._id }, // Data yang sudah di-reverse transform
+                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id, subKegiatan: record.subKegiatan?.map((item) => ({ value: item._id, label: item.name }))}, // Data yang sudah di-reverse transform
                                     title: `Edit Renstra ${record._id}`,
                                     type: 'edit'
                                 })
@@ -271,7 +310,7 @@ const page = () => {
                             onClick={() =>
                                 setModal({
                                     trigger: true,
-                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id, subKegiatan: record.subKegiatan._id }, // Data yang sudah di-reverse transform
+                                    modalData: { ...record, renstra: record.periodeRKT.renstra, periodeRKT: record.periodeRKT._id,subKegiatan: record.subKegiatan?.map((item) => ({ value: item._id, label: item.name })) }, // Data yang sudah di-reverse transform
                                     title: `Delete Renstra ${record._id}`,
                                     type: 'delete'
                                 })
@@ -389,7 +428,8 @@ const page = () => {
                     message: 'Field sub kegiatan wajib di isi'
                 }
             ],
-            options: subKegiatan?.map((item) => ({ value: item._id, label: item.name }))
+            options: subKegiatan?.map((item) => ({ value: item._id, label: item.name })),
+            mode: 'multiple'
         },
         {
             label: 'Nama',
@@ -399,6 +439,27 @@ const page = () => {
                 {
                     required: true,
                     message: 'Field nama wajib di isi'
+                }
+            ]
+        },
+        {
+            label: 'Label RKT',
+            name: 'label',
+            type: 'select',
+            rules: [
+                {
+                    required: true,
+                    message: 'Field sub kegiatan wajib di isi'
+                }
+            ],
+            options: [
+                {
+                    value: 'KINERJA BERBASIS ANGGARAN',
+                    label: 'KINERJA BERBASIS ANGGARAN'
+                },
+                {
+                    value: 'KINERJA NON ANGGARAN',
+                    label: 'KINERJA NON ANGGARAN'
                 }
             ]
         },
@@ -442,13 +503,13 @@ const page = () => {
         },
 
         {
-            label: 'Total Anggaran',
+            label: 'Rencana Anggaran',
             name: 'total_anggaran',
             type: 'number',
             rules: [
                 {
                     required: true,
-                    message: 'Field total anggaran wajib di isi'
+                    message: 'Field rencana anggaran wajib di isi'
                 }
             ],
             min: 1
@@ -478,8 +539,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
             {loadingData ? (
                 <DataLoading loadingData={loadingData} />
             ) : (

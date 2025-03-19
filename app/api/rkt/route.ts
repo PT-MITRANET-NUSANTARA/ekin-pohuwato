@@ -6,7 +6,7 @@ import { createResponse } from '@/utils/api';
 import getFilterQuery from '@/utils/getFilterQuery';
 
 const rktSchema = Joi.object({
-    subKegiatan: Joi.string().hex().length(24).required().label('SubKegiatan'),
+    subKegiatan: Joi.array().items( Joi.string().hex().length(24)).required().label('SubKegiatan'),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'), // Referensi ObjectId ke SubKegiatan
     // Referensi ObjectId ke SubKegiatan
     name: Joi.string().required().label('Nama'),
@@ -49,6 +49,7 @@ const rktSchema = Joi.object({
     __v: Joi.optional(),
     _id: Joi.optional(),
     id: Joi.optional(),
+    label: Joi.optional(),
     renstra: Joi.string().hex().length(24).required().label('Renstra'), // Expecting a string ObjectId
 
     unit: Joi.object().required().label('Unit'),

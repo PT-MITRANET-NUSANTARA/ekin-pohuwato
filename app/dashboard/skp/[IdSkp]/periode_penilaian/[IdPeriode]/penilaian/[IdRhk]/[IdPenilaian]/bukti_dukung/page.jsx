@@ -49,7 +49,6 @@ const page = () => {
     
 
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
 
     const Column = [
         {
@@ -209,7 +208,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
          
             <Card className="">
                 <div className="flex flex-col">

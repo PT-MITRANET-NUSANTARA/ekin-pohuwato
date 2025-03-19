@@ -5,7 +5,7 @@ import { Button, Input, Skeleton, Space, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 
-const DataTable = ({ columns, data, pagination, setPagination}) => {
+const DataTable = ({ columns, data, pagination, setPagination }) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -132,22 +132,20 @@ const DataTable = ({ columns, data, pagination, setPagination}) => {
         <Table
             columns={enhancedColumns}
             dataSource={data}
-            pagination={
-                pagination
-                    ? {
-                          current: pagination.page,
-                          pageSize: pagination.limit,
-                          total: pagination.total
-                      }
-                    : false
-            }
-            onChange={pagination?(async (p) => {
-                setPagination({
-                    ...pagination,
-                    page: p.current,
-                    pageSize: p.pageSize
-                });
-            }): {}}
+            {...(pagination && {
+                pagination: {
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.total
+                },
+                onChange: async (p) => {
+                    setPagination({
+                        ...pagination,
+                        page: p.current,
+                        pageSize: p.pageSize
+                    });
+                }
+            })}
         />
     );
 };

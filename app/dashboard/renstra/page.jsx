@@ -24,7 +24,6 @@ const page = () => {
     const [data, setData] = useState([]);
     const { success, error } = useNotification()
     const [misiModal, setMisiModal] = useState({ trigger: false, modalData: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const { data: user, setData: setUser } = useFetchData(getData);
     const [misi, setMisi] = useState(null);
@@ -54,37 +53,39 @@ const page = () => {
     };
 
     console.log(pagination);
-    
+
 
     const onSubmit = async (values, type, id) => {
         try {
             setSubmitLoading(true);
             let response;
-            let dt = values;
-            dt = { ...dt, unit: user.jabatan.unor.induk };
+
+
+            const formattedValues = {
+                ...values,
+                misi: values.misi?.map((item) => (typeof item === "object" ? item.value : item)),
+                unit: user.jabatan.unor.induk
+            };
+
+            console.log("After Processing:", formattedValues);
 
             switch (type) {
                 case 'create':
-                    response = await store(dt);
+                    response = await store(formattedValues);
                     break;
-
                 case 'edit':
-                    response = await update(id, dt);
+                    response = await update(id, formattedValues);
                     break;
-
                 case 'delete':
                     response = await destroy(id);
                     break;
-
                 default:
                     throw new Error('Tipe operasi tidak valid');
             }
 
-
             if (response.ok) {
                 fetchData();
-                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra')
-
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra');
             } else {
                 if (Array.isArray(response.data)) {
                     response.data.forEach((err) => {
@@ -436,8 +437,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-          
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

@@ -9,15 +9,18 @@ import React, { useEffect, useState } from 'react';
 import useFetchData from '@/hooks/useFetchData';
 import { getAll, store, update, destroy } from '@/controller/PeriodeController';
 import { dummyVisi } from '@/data/dummyData';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
 const page = () => {
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { success, error } = useNotification()
+
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
 
     useEffect(() => {
@@ -63,27 +66,18 @@ const page = () => {
 
             if (response.ok) {
                 fetchData();
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Periode' : type === 'edit' ? 'Berhasil Mengedit Periode' : 'Berhasil Menambahkan Periode',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Periode' : type === 'edit' ? 'Berhasil Mengedit Periode' : 'Berhasil Menambahkan Periode')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
         setSubmitLoading(false);
 
@@ -268,8 +262,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
-           
+
             {loading ? (
                 <DataLoading loadingData={loading} />
             ) : (

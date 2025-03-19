@@ -1,7 +1,8 @@
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, FloatButton } from 'antd';
 import { NotificationProvider } from "./provider"
+import { UpOutlined } from '@ant-design/icons';
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
@@ -11,6 +12,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+ 
   return (
     <html lang="en">
       <head>
@@ -35,8 +37,6 @@ export default function RootLayout({ children }) {
             {children}
           </ConfigProvider>
         </NotificationProvider>
-
-
       </body>
     </html>
   );
