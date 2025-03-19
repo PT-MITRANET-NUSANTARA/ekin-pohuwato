@@ -21,7 +21,6 @@ const page = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [indikatorModal, setIndikatorModal] = useState({ trigger: false, modalData: [] });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { success, error } = useNotification()
     const [renstra, setRenstra] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -433,7 +432,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
           
             {loading ? (
                 <DataLoading loadingData={loading} />

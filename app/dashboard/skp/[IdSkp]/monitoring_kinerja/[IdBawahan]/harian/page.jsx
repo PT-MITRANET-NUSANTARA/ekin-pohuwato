@@ -16,6 +16,8 @@ import { getById } from '@/controller/SKPController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import { getByAbsenceDetail } from '@/controller/HarianController';
 import { get } from '@/controller/SettingsController';
+import useNotification from '@/app/hook/useNotification';
+
 
 const { Title } = Typography;
 
@@ -24,9 +26,9 @@ const page = () => {
     const { IdSkp, IdBawahan } = useParams();
     const { IdOrganisasi, IdTanggal } = useParams();
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '' });
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const { data: user, setData: setUser } = useFetchData(getData);
     const [data, setData] = useState([]);
+    const { success, error } = useNotification()
     const [pagination, setPagination] = useState({ page: 1, limit: 10, filters: {}, total: 0 });
     const [loading, setLoading] = useState();
     const [settings, setSettings] = useState(null);
@@ -51,7 +53,7 @@ const page = () => {
                 console.log(res);
                 return {
                     ...record,
-                    total: res.data.total ,
+                    total: res.data.total,
                     mines: res.data.mines
                 };
             });
@@ -93,27 +95,18 @@ const page = () => {
             if (response.ok) {
                 const data = await getAll();
                 setData(data.data);
-                setAlert({
-                    show: true,
-                    message: response.msg,
-                    description: type === 'delete' ? 'Berhasil Menghapus Renstra' : type === 'edit' ? 'Berhasil Mengedit Renstra' : 'Berhasil Menambahkan Renstra',
-                    type: 'success'
-                });
+                success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Harian' : type === 'edit' ? 'Berhasil Mengedit Harian' : 'Berhasil Menambahkan Harian')
             } else {
-                setAlert({
-                    show: true,
-                    message: 'Gagal',
-                    description: response.msg,
-                    type: 'error'
-                });
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
         } catch (error) {
-            setAlert({
-                show: true,
-                message: 'Error',
-                description: error.message,
-                type: 'error'
-            });
+            error('Gagal', err.message);
         }
 
         handleClose();

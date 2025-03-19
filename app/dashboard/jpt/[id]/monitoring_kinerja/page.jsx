@@ -11,12 +11,12 @@ import { dummyBawahan } from '@/data/dummyData';
 import { getBySKP, getBySKPId } from '@/controller/SKPController';
 import { getData } from '@/controller/AuthorizationController';
 
+
 const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
     const {id } = useParams();
-    const [alert, setAlert] = useState({ show: false, message: null, description: null, type: 'info' });
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const { data: user, setData: setUser } = useFetchData(getData);
