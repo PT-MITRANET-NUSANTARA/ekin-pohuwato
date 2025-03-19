@@ -185,7 +185,7 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-            {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />}
+            {/* {alert.show !== false && <Alert message={alert.message} description={alert.description} type={alert.type} showIcon closable />} */}
 
             <Card className="">
                 <div className="flex flex-col">
