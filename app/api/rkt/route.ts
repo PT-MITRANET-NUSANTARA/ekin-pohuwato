@@ -4,12 +4,13 @@ import Joi from 'joi';
 import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import getFilterQuery from '@/utils/getFilterQuery';
+import SubKegiatan from '@/models/SubKegiatan';
 
 const rktSchema = Joi.object({
-    subKegiatan: Joi.array().items( Joi.string().hex().length(24)).required().label('SubKegiatan'),
+    subKegiatan: Joi.array().items(Joi.string().hex().length(24)).required().label('SubKegiatan'),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'), // Referensi ObjectId ke SubKegiatan
     // Referensi ObjectId ke SubKegiatan
-    name: Joi.string().required().label('Nama'),
+    // name: Joi.string().required().label('Nama'),
     input: Joi.array()
         .items(
             Joi.object({
@@ -103,12 +104,17 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const errors = validateRKTData(body);
+        const subKegiatan = await SubKegiatan.find({ _id: { $in: body.subKegiatan } })
+            .select('name')
+            .lean();
+        const subKegiatanString = subKegiatan.map((item) => item.name).join(', ');
+        console.log(subKegiatanString);
 
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
 
-        const newRKT = new RKT(body);
+        const newRKT = new RKT({ ...body, name: subKegiatanString });
         await newRKT.save();
         return NextResponse.json(createResponse(201, 'Success', newRKT, true));
     } catch (error) {

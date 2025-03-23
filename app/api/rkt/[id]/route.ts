@@ -4,12 +4,13 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import Program from '@/models/Program';
 import RKT from '@/models/RKT';
+import SubKegiatan from '@/models/SubKegiatan';
 
 const rktSchema = Joi.object({
     subKegiatan: Joi.array().items(Joi.string().hex().length(24)).required().label('SubKegiatan'),
     periodeRKT: Joi.string().hex().length(24).required().label('PeriodeRKT'), // Referensi ObjectId ke SubKegiatan
     // Referensi ObjectId ke SubKegiatan
-    name: Joi.string().required().label('Nama'),
+    // name: Joi.string().required().label('Nama'),
     input: Joi.array()
         .items(
             Joi.object({
@@ -100,10 +101,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         if (errors.length > 0) {
             return NextResponse.json(createResponse(400, 'Failed', errors));
         }
-
-        const updatedRKT = await RKT.findOneAndUpdate({ _id: id }, body, {
-            new: true
-        });
+        const subKegiatan = await SubKegiatan.find({ _id: { $in: body.subKegiatan } })
+            .select('name')
+            .lean();
+        const subKegiatanString = subKegiatan.map((item) => item.name).join(', ');
+        const updatedRKT = await RKT.findOneAndUpdate(
+            { _id: id },
+            { ...body, name: subKegiatanString },
+            {
+                new: true
+            }
+        );
 
         if (!updatedRKT) {
             return NextResponse.json(createResponse(404, 'RKT not found', null));

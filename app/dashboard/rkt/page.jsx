@@ -431,17 +431,17 @@ const page = () => {
             options: subKegiatan?.map((item) => ({ value: item._id, label: item.name })),
             mode: 'multiple'
         },
-        {
-            label: 'Nama',
-            name: 'name',
-            type: 'longtext',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field nama wajib di isi'
-                }
-            ]
-        },
+        // {
+        //     label: 'Nama',
+        //     name: 'name',
+        //     type: 'longtext',
+        //     rules: [
+        //         {
+        //             required: true,
+        //             message: 'Field nama wajib di isi'
+        //         }
+        //     ]
+        // },
         {
             label: 'Label RKT',
             name: 'label',
