@@ -79,6 +79,11 @@ export const DashboardLink = [
                 label: 'RKT',
                 path: '/dashboard/rkt',
                 permission: ['admin']
+            },
+            {
+                label: 'Perjanjian Kinerja',
+                path: '/dashboard/perjanjian_kinerja',
+                permission: ['admin']
             }
         ]
     },
