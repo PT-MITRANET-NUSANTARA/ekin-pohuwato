@@ -246,54 +246,54 @@ const page = () => {
 
             render: (record) => formatDateToDayMonthYear(record)
         },
-        {
-            title: 'Perjanjian Kinerja',
-            dataIndex: 'perjanjianKinerja',
-            key: 'perjanjianKinerja',
-            render: (_, record) => (
-                <>
-                    <Space size="small">
-                        <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
-                        <Button
-                            size="middle"
-                            color="default"
-                            onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
-                            icon={<DownloadOutlined />}
-                        />
-                        <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.perjanjianKinerja })} icon={<OrderedListOutlined />} />
-                        <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
-                            <List
-                                className="my-6"
-                                itemLayout="horizontal"
-                                dataSource={fileModal.modalData}
-                                renderItem={(item) => (
-                                    <List.Item>
-                                        <div className="w-full flex justify-between items-center">
-                                            <div>
-                                                <p>{item.name}</p>
-                                                <small>{item.fileId}</small>
-                                            </div>
-                                            <div>
-                                                <Button
-                                                    size="small"
-                                                    icon={<DownloadOutlined />}
-                                                    onClick={() => {
-                                                        const a = document.createElement('a');
-                                                        a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
-                                                        a.download = item.name;
-                                                        a.click();
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </List.Item>
-                                )}
-                            />
-                        </Modal>
-                    </Space>
-                </>
-            )
-        },
+        // {
+        //     title: 'Perjanjian Kinerja',
+        //     dataIndex: 'perjanjianKinerja',
+        //     key: 'perjanjianKinerja',
+        //     render: (_, record) => (
+        //         <>
+        //             <Space size="small">
+        //                 <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
+        //                 <Button
+        //                     size="middle"
+        //                     color="default"
+        //                     onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
+        //                     icon={<DownloadOutlined />}
+        //                 />
+        //                 <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.perjanjianKinerja })} icon={<OrderedListOutlined />} />
+        //                 <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
+        //                     <List
+        //                         className="my-6"
+        //                         itemLayout="horizontal"
+        //                         dataSource={fileModal.modalData}
+        //                         renderItem={(item) => (
+        //                             <List.Item>
+        //                                 <div className="w-full flex justify-between items-center">
+        //                                     <div>
+        //                                         <p>{item.name}</p>
+        //                                         <small>{item.fileId}</small>
+        //                                     </div>
+        //                                     <div>
+        //                                         <Button
+        //                                             size="small"
+        //                                             icon={<DownloadOutlined />}
+        //                                             onClick={() => {
+        //                                                 const a = document.createElement('a');
+        //                                                 a.href = process.env.NEXT_PUBLIC_API_IMAGE_URL + '/' + item.fileId;
+        //                                                 a.download = item.name;
+        //                                                 a.click();
+        //                                             }}
+        //                                         />
+        //                                     </div>
+        //                                 </div>
+        //                             </List.Item>
+        //                         )}
+        //                     />
+        //                 </Modal>
+        //             </Space>
+        //         </>
+        //     )
+        // },
         {
             title: 'Action',
             key: 'action',

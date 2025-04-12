@@ -1,14 +1,15 @@
 'use client';
 
-import { Breadcrumb, Button, Card, List, Skeleton, Tag, Tooltip, Typography } from 'antd';
-import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, EditFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Card, List, Popconfirm, Skeleton, Space, Tag, Tooltip, Typography } from 'antd';
+import { UserOutlined, DotChartOutlined, PrinterOutlined, ReloadOutlined, SearchOutlined, EditFilled, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getById, update } from '@/controller/SKPController';
 import { formatDateToDayMonthYear } from '@/utils/util';
-import { CrudModal, ItemRow } from '@/components';
+import { CrudModal, DataTable, InfoModal, ItemRow } from '@/components';
 import useNotification from '@/app/hook/useNotification';
+import { dummyMisi } from '@/data/dummyData';
 const { Title } = Typography;
 const page = () => {
     const { success, error } = useNotification();
@@ -19,6 +20,7 @@ const page = () => {
     const [skp, setSkp] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
     const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
 
@@ -44,6 +46,74 @@ const page = () => {
         const query = new URLSearchParams(values).toString();
         router.push(`/document/${IdSkp}/1/rencana_skp?${query}`);
     };
+
+    const rktTambahanColumn = [
+        {
+            title: 'No',
+            dataIndex: 'index',
+            render: (text, record, index) => index + 1,
+            width: '5%'
+        },
+        {
+            title: 'Visi',
+            dataIndex: 'visi',
+            key: 'visi',
+            render: (_, record) => (
+                <>
+                    <Button
+                        onClick={() => {
+                            setInfoModal({
+                                title: 'Informasi Visi',
+                                trigger: true,
+                                type: 'desc',
+                                data: [
+                                    {
+                                        key: 'visi',
+                                        label: 'Visi',
+                                        children: record.visi.name
+                                    }
+                                ],
+                                isLoading: false,
+                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                            });
+                        }}
+                        icon={<SearchOutlined />}
+                    >
+                        Info
+                    </Button>
+                </>
+            )
+        },
+        {
+            title: 'Misi',
+            dataIndex: 'name',
+            key: 'name',
+            sorter: (a, b) => a.name.length - b.name.length
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="small">
+                    <Popconfirm
+                        title="Hapus"
+                        description="Hapus data ini?"
+                        onConfirm={() => {}}
+                        onCancel={() => {}}
+                        okText="Yakin"
+                        cancelText="Batal"
+                    >
+                        <Button
+                            size="middle"
+                            danger
+                            icon={<DeleteOutlined />}
+                        />
+                    </Popconfirm>
+
+                </Space>
+            )
+        }
+    ];
 
 
     const cetakSkpFields = [
@@ -256,8 +326,39 @@ const page = () => {
                                     <ItemRow key={index} item={item} index={index} />
                                 ))}
                                 <tr>
-                                    <td colSpan={6} className="text-left px-2">
-                                        Tambahan
+                                    <td colSpan={6} className="text-left p-4">
+                                        <div className='w-full flex items-center justify-between px-4'>
+                                            Tambahan
+                                            <div className='inline-flex gap-x-2'>
+                                                <Button icon={<PlusOutlined />}>
+                                                    Dari RKT
+                                                </Button>
+                                                <Button
+                                                    icon={<DeleteOutlined />}
+                                                    onClick={() => {
+                                                        setInfoModal({
+                                                            title: 'Informasi Harian',
+                                                            trigger: true,
+                                                            type: 'paragraf',
+                                                            data: {
+
+                                                                content: (
+                                                                    <>
+                                                                        <DataTable columns={rktTambahanColumn} data={dummyMisi} />
+                                                                    </>
+                                                                )
+                                                            },
+                                                            isLoading: false,
+                                                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                                                        });
+                                                    }}
+                                                >
+                                                    Dari RKT
+                                                </Button>
+                                            </div>
+
+                                        </div>
+
                                     </td>
                                 </tr>
                                 {tambahan?.map((item, index) => (
@@ -505,6 +606,7 @@ const page = () => {
                 )}
             </Card>
             <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={() => setModal({ trigger: false, modalData: null })} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+            <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
         </div>
     );
 };
