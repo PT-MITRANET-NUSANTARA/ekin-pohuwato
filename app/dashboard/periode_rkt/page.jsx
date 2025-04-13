@@ -18,6 +18,7 @@ import { getPerjanjianKinerja } from '@/controller/ReportController';
 import { getAll as getAllRenstra, getByUnitId as getRenstraByUnit } from '@/controller/RenstraController';
 import { formatDateToDayMonthYear } from '@/utils/util';
 import useNotification from '@/app/hook/useNotification';
+import { store as storePerjanjianKinerja, getByPeriodeRKTId } from '@/controller/PerjanjianKinerjaController';
 
 const page = () => {
     const router = useRouter();
@@ -151,41 +152,48 @@ const page = () => {
     };
 
     const perjanjianSubmit = async (values, type, id, listImage, fileList) => {
+        try {
+            const updatedListImage = listImage.map((img) => {
+                const matchingFile = fileList.find((file) => file.uid === img.uid);
 
-        const updatedListImage = listImage.map((img) => {
-            const matchingFile = fileList.find((file) => file.uid === img.uid);
+                if (matchingFile) {
+                    return {
+                        ...img,
+                        name: matchingFile.name,
+                        type: matchingFile.type
+                    };
+                }
 
-            if (matchingFile) {
-                return {
-                    ...img,
-                    name: matchingFile.name,
-                    type: matchingFile.type
-                };
-            }
+                return img;
+            });
+            handleClose();
 
-            return img;
-        });
-        handleClose();
-
-
-        const periode = data.find((item) => item._id === id);
-        periode.perjanjianKinerja = updatedListImage;
-
-        const response = await update(id, periode);
-
-        if (response.ok) {
-            fetchData();
-            success('Berhasil', type === 'delete' ? 'Berhasil Menghapus Perjanjian Kinerja' : type === 'edit' ? 'Berhasil Mengedit Perjanjian Kinerja' : 'Berhasil Menambahkan Perjanjian Kinerja')
-        } else {
-            if (Array.isArray(response.data)) {
-                response.data.forEach((err) => {
-                    error('Gagal', err);
-                });
+            // Create a new perjanjian kinerja record instead of updating the periode RKT
+            const periodeRKT = data.find((item) => item._id === id);
+            
+            const perjanjianData = {
+                periodeRKT: id,
+                unit: user.jabatan.unor.induk,
+                file_perjanjian: updatedListImage
+            };
+            
+            const response = await storePerjanjianKinerja(perjanjianData);
+            
+            if (response.ok) {
+                fetchData();
+                success('Berhasil', 'Berhasil Menambahkan Perjanjian Kinerja');
             } else {
-                error('Gagal', response.data);
+                if (Array.isArray(response.data)) {
+                    response.data.forEach((err) => {
+                        error('Gagal', err);
+                    });
+                } else {
+                    error('Gagal', response.data);
+                }
             }
+        } catch (err) {
+            error('Gagal', err.message);
         }
-        handleClose();
     };
 
     const Column = [
@@ -253,15 +261,40 @@ const page = () => {
         //     render: (_, record) => (
         //         <>
         //             <Space size="small">
-        //                 <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
+        //                 <Button icon={<UploadOutlined />} onClick={() => setModal({ trigger: true, modalData: record, title: `Upload Perjanjian Kinerja`, type: 'edit', formFields: perjanjianFields, onSubmit: perjanjianSubmit })}></Button>
         //                 <Button
         //                     size="middle"
         //                     color="default"
-        //                     onClick={() => setModal({ trigger: true, modalData: record, title: `Upload ${record._id}`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
+        //                     onClick={() => setModal({ trigger: true, modalData: record, title: `Unduh Template Perjanjian Kinerja`, type: 'edit', formFields: formPerjanjian, onSubmit: customSubmit })}
         //                     icon={<DownloadOutlined />}
         //                 />
-        //                 <Button size="middle" color="default" onClick={() => setFileModal({ trigger: true, modalData: record.perjanjianKinerja })} icon={<OrderedListOutlined />} />
-        //                 <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null}>
+        //                 <Button 
+        //                     size="middle" 
+        //                     color="default" 
+        //                     onClick={async () => {
+        //                         try {
+        //                             // Fetch perjanjian kinerja for this periodeRKT
+        //                             const response = await getByPeriodeRKTId(record._id, 1, 100, {});
+        //                             if (response.ok && response.data.data) {
+        //                                 // Collect all file_perjanjian from all perjanjian kinerja records
+        //                                 let allFiles = [];
+        //                                 response.data.data.forEach(pk => {
+        //                                     if (pk.file_perjanjian && pk.file_perjanjian.length > 0) {
+        //                                         allFiles = [...allFiles, ...pk.file_perjanjian];
+        //                                     }
+        //                                 });
+        //                                 setFileModal({ trigger: true, modalData: allFiles });
+        //                             } else {
+        //                                 setFileModal({ trigger: true, modalData: [] });
+        //                             }
+        //                         } catch (err) {
+        //                             console.error(err);
+        //                             setFileModal({ trigger: true, modalData: [] });
+        //                         }
+        //                     }} 
+        //                     icon={<OrderedListOutlined />} 
+        //                 />
+        //                 <Modal open={fileModal.trigger} onCancel={() => setFileModal({ modalData: null, trigger: false })} footer={null} title="Daftar File Perjanjian Kinerja">
         //                     <List
         //                         className="my-6"
         //                         itemLayout="horizontal"

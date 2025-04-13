@@ -10,7 +10,6 @@ import getFilterQuery from '@/utils/getFilterQuery';
 const periodeRKTSchema = Joi.object({
     periode_start: Joi.date().required().label('Periode Mulai'),
     periode_end: Joi.date().required().label('Periode Selesai'),
-    perjanjianKinerja: Joi.array().label('Perjanjian Kinerja'),
     RKTS: Joi.optional(),
     __v: Joi.optional(),
     _id: Joi.optional(),
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
 
         const errors = validatePeriodeRKTData(body);
         if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
+            return NextResponse.json(createResponse(400, 'Failed', errors, false));
         }
 
         const newPeriodeRKT = new PeriodeRKT(body);

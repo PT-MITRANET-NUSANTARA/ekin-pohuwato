@@ -5,10 +5,8 @@ interface IPeriodeRKT extends Document {
     periode_start: Date;
     periode_end: Date;
     createdAt?: Date;
-    perjanjianKinerja: [string];
     unit: Object;
-        renstra: mongoose.Types.ObjectId 
-    
+    renstra: mongoose.Types.ObjectId;
     updatedAt?: Date;
 }
 
@@ -34,15 +32,11 @@ const PeriodeRKTSchema = new Schema<IPeriodeRKT, PeriodeRKTModel, IPeriodeRKTMet
             type: Date,
             required: true
         },
-
-        perjanjianKinerja: {
-            type: [Object]
-        },
         renstra: {
             type: Schema.Types.ObjectId,
             ref: 'Renstra',
-            required: true,
-        },
+            required: true
+        }
     },
     {
         timestamps: true, // Automatically manage createdAt and updatedAt fields
@@ -52,11 +46,11 @@ const PeriodeRKTSchema = new Schema<IPeriodeRKT, PeriodeRKTModel, IPeriodeRKTMet
 );
 
 PeriodeRKTSchema.method('cascadeDelete', async function cascadeDelete() {
-   
-    const rkt = await mongoose.model('RKT').find({ periodeRKT: this.id});
-    const skp = await mongoose.model('SKP').find({ periodeRKT: this.id});
-    const tpp = await mongoose.model('TPP').find({ periodeRKT: this.id});
-    
+    const rkt = await mongoose.model('RKT').find({ periodeRKT: this.id });
+    const skp = await mongoose.model('SKP').find({ periodeRKT: this.id });
+    const tpp = await mongoose.model('TPP').find({ periodeRKT: this.id });
+    const perjanjianKinerja = await mongoose.model('PerjanjianKinerja').find({ periodeRKT: this.id });
+
     rkt.forEach(async (r) => {
         await r.cascadeDelete();
     });
@@ -66,6 +60,9 @@ PeriodeRKTSchema.method('cascadeDelete', async function cascadeDelete() {
     tpp.forEach(async (t) => {
         await t.cascadeDelete();
     });
+    perjanjianKinerja.forEach(async (pk) => {
+        await pk.cascadeDelete();
+    });
 
     await this.deleteOne();
 });
@@ -73,14 +70,7 @@ PeriodeRKTSchema.method('cascadeDelete', async function cascadeDelete() {
 PeriodeRKTSchema.static('getAll', async function getAll(page: number = 1, limit: number = 10, filters: Object = {}) {
     const skip = (page - 1) * limit;
     const query = this.find(buildFilterQuery(filters));
-    const [results, total] = await Promise.all([
-        query
-            .skip(skip)
-            .limit(limit)
-            .populate('renstra')
-            ,
-        this.countDocuments(buildFilterQuery(filters))
-    ]);
+    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('renstra'), this.countDocuments(buildFilterQuery(filters))]);
 
     return {
         data: results,
@@ -114,6 +104,13 @@ PeriodeRKTSchema.virtual('TPPS', {
     justOne: false
 });
 
-const PeriodeRKT: PeriodeRKTModel = mongoose.models.PeriodeRKT as PeriodeRKTModel || mongoose.model<IPeriodeRKT, PeriodeRKTModel>('PeriodeRKT', PeriodeRKTSchema);
+PeriodeRKTSchema.virtual('perjanjianKinerjas', {
+    ref: 'PerjanjianKinerja',
+    localField: '_id',
+    foreignField: 'periodeRKT',
+    justOne: false
+});
+
+const PeriodeRKT: PeriodeRKTModel = (mongoose.models.PeriodeRKT as PeriodeRKTModel) || mongoose.model<IPeriodeRKT, PeriodeRKTModel>('PeriodeRKT', PeriodeRKTSchema);
 
 export default PeriodeRKT;
