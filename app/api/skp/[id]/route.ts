@@ -83,17 +83,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 }
             })
             .populate({
-                path: 'rhks',
-                populate: [
-                    { path: 'rhk', populate: [{ path: 'rkt' }, { path: 'harians' }] }, // Populate 'rhk' dan 'rkt' di dalamnya
-                    { path: 'aspek' }, // Populate 'aspek'
-                    { path: 'harians' }, // Populate 'harians'
-                    { path: 'rkt' },
-                    { path: 'FeedbackRHKs' } // Populate 'rkt' secara langsung dari 'rhks'
-                ]
+                path: 'rhks'
             })
-            .populate('skp') // Populate 'skp'
-            .populate('penilaians'); // Populate 'penilaians'
+            .populate('skp')
+            .populate('penilaians');
+
+        // Perform a second query to get RHKs related to this SKP's UserRHKs
+        if (skp && skp.rhks && skp.rhks.length > 0) {
+            // Get all UserRHK ids
+            const userRhkIds = skp.rhks.map((rhk: any) => rhk._id);
+            
+            // Find all RHKs that reference these UserRHKs
+            const rhks = await RHK.find({ userRHK: { $in: userRhkIds } })
+                .populate('aspek')
+                .populate('harians')
+                .populate('rkt');
+                
+            // Add the rhks data to the response
+            const enrichedSkp = skp.toObject();
+            (enrichedSkp as any).rhkData = rhks;
+            
+            return NextResponse.json(createResponse(200, 'Success', enrichedSkp, true));
+        }
 
         return NextResponse.json(createResponse(200, 'Success', skp, true));
     } catch (error) {

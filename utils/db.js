@@ -29,36 +29,37 @@ async function dbConnect() {
 
   cached.conn = await cached.promise;
 
+  // Make sure all models are loaded
+  require('../models/Periode');
+  require('../models/Visi');
+  require('../models/Misi');
+  require('../models/Renstra');
+  require('../models/Tujuan');
+  require('../models/Program');
+  require('../models/Kegiatan');
+  require('../models/SubKegiatan');
+  require('../models/PeriodeRKT');
+  require('../models/RKT');
+  require('../models/SKP');
+  require('../models/RHK');
+  require('../models/PeriodePenilaian');
+  require('../models/Aspek');
+  require('../models/Penilaian');
+  require('../models/Harian');
+  require('../models/UMPEG');
+  require('../models/Verifikasi');
+  require('../models/TPP');
+  require('../models/Perilaku');
+  require('../models/Absence');
+  require('../models/FeedbackPerilaku');
+  require('../models/FeedbackRHK');
+  require('../models/MessageHarian');
+  require('../models/MessageSKP');
+  require('../models/Settings');
+  require('../models/Notification');
+  require('../models/UserRHK');
+
   return cached.conn;
 }
-
-// Import models
-require('../models/Periode');
-require('../models/Visi');
-require('../models/Misi');
-require('../models/Renstra');
-require('../models/Tujuan');
-require('../models/Program');
-require('../models/Kegiatan');
-require('../models/SubKegiatan');
-require('../models/PeriodeRKT');
-require('../models/RKT');
-require('../models/SKP');
-require('../models/RHK');
-require('../models/PeriodePenilaian');
-require('../models/Aspek');
-require('../models/Penilaian');
-require('../models/Harian');
-require('../models/UMPEG');
-require('../models/Verifikasi');
-require('../models/TPP');
-require('../models/Perilaku');
-require('../models/Absence');
-require('../models/FeedbackPerilaku');
-require('../models/FeedbackRHK');
-require('../models/MessageHarian');
-require('../models/MessageSKP');
-require('../models/Settings');
-require('../models/Notification');
 
 export default dbConnect;

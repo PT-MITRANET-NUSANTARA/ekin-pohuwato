@@ -9,7 +9,7 @@ enum Jenis {
 }
 
 interface IAspek extends Document {
-  rhk: mongoose.Schema.Types.ObjectId; 
+  userRHK: mongoose.Schema.Types.ObjectId;
   jenis: Jenis; 
   indikator: string; 
   realisasi: Object; 
@@ -27,9 +27,9 @@ interface AspekModel extends mongoose.Model<IAspek, {},IAspekMethods> {
 }
 
 const AspekSchema = new Schema<IAspek, AspekModel, IAspekMethods>({
-  rhk: {
+  userRHK: {
     type: Schema.Types.ObjectId,
-    ref: 'RHK',
+    ref: 'UserRHK',
     required: true
   },
   jenis: {
@@ -69,7 +69,7 @@ AspekSchema.static('getAll', async function getAll(page: number = 1, limit: numb
         query
             .skip(skip)
             .limit(limit)
-            .populate('rhk'),
+            .populate('userRHK'),
         this.countDocuments(buildFilterQuery(filters))
     ]);
 

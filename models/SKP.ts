@@ -113,7 +113,7 @@ const SKPSchema = new Schema<ISKP, SKPModel, ISKPMethods>(
 
 // Virtual fields
 SKPSchema.virtual('rhks', {
-    ref: 'RHK',
+    ref: 'UserRHK',
     localField: '_id',
     foreignField: 'skp',
     justOne: false
@@ -157,7 +157,7 @@ SKPSchema.static('findBySKPId', function (skpId: string) {
 });
 
 SKPSchema.method('cascadeDelete', async function cascadeDelete() {
-    const rhks = await mongoose.model('RHK').find({ skp: this._id });
+    const rhks = await mongoose.model('UserRHK').find({ skp: this._id });
     const perilakus = await mongoose.model('Perilaku').find({ skp: this._id });
     const penilaian = await mongoose.model('Penilaian').find({ skp: this._id });
     const periodePenilaian = await mongoose.model('PeriodePenilaian').find({ skp: this._id });
@@ -186,7 +186,22 @@ SKPSchema.static('getAll', async function getAll(page: number = 1, limit: number
     console.log('filters', filters);
     
     const query = this.find(buildFilterQuery(filters));
-    const [results, total] = await Promise.all([query.skip(skip).limit(limit).populate('skp').populate('periodeRKT').populate('messageSKP'), this.countDocuments(buildFilterQuery(filters))]);
+    const [results, total] = await Promise.all([
+        query.skip(skip).limit(limit)
+            .populate('skp')
+            .populate('periodeRKT')
+            .populate('messageSKP')
+            .populate({
+                path: 'rhks',
+                populate: {
+                    path: 'rhk',
+                    populate: {
+                        path: 'aspek'
+                    }
+                }
+            }), 
+        this.countDocuments(buildFilterQuery(filters))
+    ]);
 
     return {
         data: results,

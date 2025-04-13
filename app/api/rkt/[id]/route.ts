@@ -82,7 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     try {
         const { id } = params;
 
-        const rkt = await RKT.findOne({ _id: id });
+        const rkt = await RKT.findOne({ _id: id }).populate('subKegiatan').populate('periodeRKT');
 
         return NextResponse.json(createResponse(200, 'Success', rkt, true));
     } catch (error) {
