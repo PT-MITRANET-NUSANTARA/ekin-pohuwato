@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Breadcrumb, Button, Card, Empty, Select, Skeleton, Tag, Typography, Result, Pagination, Tooltip } from 'antd';
-import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { dummySkp } from '@/data';
 import React, { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const { Title } = Typography;
 
 const page = () => {
     const router = useRouter();
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '' });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', type: '', formFields: [], extra: false });
     const { Option } = Select;
     const { success, error } = useNotification();
 
@@ -193,6 +193,14 @@ const page = () => {
         }
     ];
 
+    const perjanjianKinerjaFields = [
+        {
+            label: 'Upload Perjanjian Kinerja',
+            name: 'files',
+            type: 'upload'
+        },
+    ];
+
     const onFilter = async (values) => {
         filterFileds.forEach((field) => {
             let value = values[field.name];
@@ -282,7 +290,6 @@ const page = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-4">
-
             <Card>
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between mb-4">
@@ -292,9 +299,15 @@ const page = () => {
 
                         <div className='inline-flex gap-x-2'>
                             {isJT && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create' })}>
-                                    Tambah
-                                </Button>
+                                <>
+                                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setModal({ modalData: null, title: 'Tambah Data', trigger: true, type: 'create', formFields: formFields, extra: true })}>
+                                        Tambah
+                                    </Button>
+                                    <Button type="primary" icon={<UploadOutlined />} onClick={() => setModal({ modalData: null, title: 'Upload Perjanjian Kinerja', trigger: true, type: 'create', formFields: perjanjianKinerjaFields, extra: false })}>
+                                        Perjanjian Kinerja
+                                    </Button>
+                                </>
+
                             )}
                             <Tooltip title="Refresh Data">
                                 <Button icon={<ReloadOutlined />} onClick={() => fetchData()} />
@@ -377,7 +390,9 @@ const page = () => {
                                                                 },
                                                                 title: `Edit ${item.skp}`,
                                                                 trigger: true,
-                                                                type: 'edit'
+                                                                type: 'edit',
+                                                                formFields: formFields,
+                                                                extra: true,
                                                             })
                                                         }
                                                     >
@@ -395,7 +410,10 @@ const page = () => {
                                                                 },
                                                                 title: `Hapus ${item.skp}`,
                                                                 trigger: true,
-                                                                type: 'delete'
+                                                                type: 'delete',
+                                                                formFields: formFields,
+                                                                extra: true,
+
                                                             })
                                                         }
                                                         danger
@@ -418,25 +436,26 @@ const page = () => {
                     )}
                 </div>
             </Card>
-            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={formFields} onClose={handleClose} type={modal.type}>
-                <CrudModal.Extra>
-                    <div className="flex flex-col">
-                        <Card className="mt-12 bg-color-primary-600 text-white mb-6">
-                            <p className="text-xs">
-                                Cek terlebih dahulu data Unit Kerja dan Atasan sebelum membuat SKP. Jika terdapat kesalahan bisa dilakukan perubahan pada menu <b>Profil</b>.
-                            </p>
-                        </Card>
-                        {modal.type === 'create' && (
-                            <div className="grid grid-flow-row divide-y text-xs px-4 mb-6">
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">unit kerja</span>
-                                    <p className="text-right">{user.jabatan?.unor.nama}</p>
-                                </div>
-                                <div className="flex items-center justify-between py-2">
-                                    <span className="uppercase font-semibold">jenis pegawai</span>
-                                    <Tag color="blue">Pimpinan</Tag>
-                                </div>
-                                {/* <div className="flex items-center justify-between py-2">
+            <CrudModal isLoading={submitLoading} width={800} isModalOpen={modal.trigger} title={modal.title} data={modal.modalData} onSubmit={onSubmit} formFields={modal.formFields} onClose={handleClose} type={modal.type}>
+                {modal.extra && (
+                    <CrudModal.Extra>
+                        <div className="flex flex-col">
+                            <Card className="mt-12 bg-color-primary-600 text-white mb-6">
+                                <p className="text-xs">
+                                    Cek terlebih dahulu data Unit Kerja dan Atasan sebelum membuat SKP. Jika terdapat kesalahan bisa dilakukan perubahan pada menu <b>Profil</b>.
+                                </p>
+                            </Card>
+                            {modal.type === 'create' && (
+                                <div className="grid grid-flow-row divide-y text-xs px-4 mb-6">
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">unit kerja</span>
+                                        <p className="text-right">{user.jabatan?.unor.nama}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="uppercase font-semibold">jenis pegawai</span>
+                                        <Tag color="blue">Pimpinan</Tag>
+                                    </div>
+                                    {/* <div className="flex items-center justify-between py-2">
                                     <span className="uppercase font-semibold">atasan</span>
                                     <div className="flex flex-col gap-y-1">
                                         <p className="text-right">SUPRATMAN NENTO</p>
@@ -447,16 +466,18 @@ const page = () => {
                                     <span className="uppercase font-semibold">unit kerja atasan</span>
                                     <p className="text-right">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA</p>
                                 </div> */}
-                            </div>
-                        )}
+                                </div>
+                            )}
 
-                        <Card className=" bg-color-primary-600 text-white">
-                            <p className="text-xs">
-                                Periode Rencana SKP yang dibuat pada menu ini adalah <b>TAHUNAN</b>. Periode Penilaian Periodik (BULANAN / TRIWULANAN) dan FINAL dibuat di menu Penilaian.
-                            </p>
-                        </Card>
-                    </div>
-                </CrudModal.Extra>
+                            <Card className=" bg-color-primary-600 text-white">
+                                <p className="text-xs">
+                                    Periode Rencana SKP yang dibuat pada menu ini adalah <b>TAHUNAN</b>. Periode Penilaian Periodik (BULANAN / TRIWULANAN) dan FINAL dibuat di menu Penilaian.
+                                </p>
+                            </Card>
+                        </div>
+                    </CrudModal.Extra>
+                )}
+
             </CrudModal>
         </div>
     );

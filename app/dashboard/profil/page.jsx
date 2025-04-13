@@ -12,6 +12,7 @@ import { getAllPosjabByUnit, getByNIP as getJabatanByNIP } from '@/controller/ID
 const { Title } = Typography;
 import { cekJabatan } from '@/utils/jabatanUtils';
 import { getById } from '@/controller/IDSN/UnitController';
+import { getById as getSubUnitById } from '@/controller/IDSN/UnitController';
 
 const page = () => {
     const { data, loading } = useFetchData(getData); // Assuming getData is the function fetching the token and NIP
@@ -36,8 +37,11 @@ const page = () => {
             });
             const selectedJabatan = jabatan.mapData.data[0];
             const unit = await getAllPosjabByUnit(data?.token, selectedJabatan.unor.induk.id);
+            const subUnit = await getSubUnitById(data?.token, selectedJabatan.unor.induk.id);
+            console.log(subUnit);
             const struktur = await getById(data?.token, selectedJabatan.unor.induk.id);
-
+            console.log(unit);
+            
             const isAtasan = cekJabatan(struktur.mapData[0], selectedJabatan.nama_jabatan);
 
             let bawahan = [];
