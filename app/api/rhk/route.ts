@@ -66,30 +66,60 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
 
-        const errors = validateRHKData(body);
-
-        if (errors.length > 0) {
-            return NextResponse.json(createResponse(400, 'Failed', errors));
-        }
-
-        const skp = await SKP.findById(body.skp);
-        if (!skp) {
-            return NextResponse.json(createResponse(400, 'Failed', 'SKP not found'));
-        }
-        const newRHK = new RHK(body);
-        await newRHK.save();
-        for (const a of aspek[skp['pendekatan']]) {
-            const newAspek = new Aspek({
-                rhk: newRHK._id,
-                jenis: a.jenis,
-                indikator: a.indikator,
-                target_tahunan: a.target_tahunan
+        // Adjust validation for userRHK field
+        if (body.userRHK) {
+            // If userRHK is provided, use a different validation schema
+            // This is for the template aspects functionality
+            const newRHK = new RHK({
+                userRHK: body.userRHK,
+                periodePenilaian: body.periodePenilaian,
+                desc: body.desc || ''
             });
+            
+            await newRHK.save();
+            
+            // If pendekatan is provided, use it to assign template aspects
+            if (body.pendekatan && aspek[body.pendekatan as keyof typeof aspek]) {
+                for (const a of aspek[body.pendekatan as keyof typeof aspek]) {
+                    const newAspek = new Aspek({
+                        rhk: newRHK._id,
+                        jenis: a.jenis,
+                        indikator: a.indikator,
+                        target_tahunan: a.target_tahunan
+                    });
+                    
+                    await newAspek.save();
+                }
+            }
+            
+            return NextResponse.json(createResponse(201, 'Success', newRHK, true));
+        } else {
+            // Standard RHK creation flow
+            const errors = validateRHKData(body);
 
-            await newAspek.save();
+            if (errors.length > 0) {
+                return NextResponse.json(createResponse(400, 'Failed', errors));
+            }
+
+            const skp = await SKP.findById(body.skp);
+            if (!skp) {
+                return NextResponse.json(createResponse(400, 'Failed', 'SKP not found'));
+            }
+            const newRHK = new RHK(body);
+            await newRHK.save();
+            for (const a of aspek[skp['pendekatan']]) {
+                const newAspek = new Aspek({
+                    rhk: newRHK._id,
+                    jenis: a.jenis,
+                    indikator: a.indikator,
+                    target_tahunan: a.target_tahunan
+                });
+
+                await newAspek.save();
+            }
+
+            return NextResponse.json(createResponse(201, 'Success', newRHK, true));
         }
-
-        return NextResponse.json(createResponse(201, 'Success', newRHK, true));
     } catch (error) {
         console.error('POST error:', error);
         return NextResponse.json({ error: 'Failed to create RHK' }, { status: 500 });

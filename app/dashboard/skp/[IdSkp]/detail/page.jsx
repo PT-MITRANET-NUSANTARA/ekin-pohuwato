@@ -10,6 +10,12 @@ import { formatDateToDayMonthYear } from '@/utils/util';
 import { CrudModal, DataTable, InfoModal, ItemRow } from '@/components';
 import useNotification from '@/app/hook/useNotification';
 import { dummyMisi } from '@/data/dummyData';
+import { cekJabatan, cekJT } from '@/utils/jabatanUtils';
+import { getData } from '@/controller/AuthorizationController';
+import { getById as getUnitById } from '@/controller/IDSN/UnitController';
+import useFetchData from '@/hooks/useFetchData';
+import { getById as getStruktur } from '@/controller/IDSN/UnitController';
+
 const { Title } = Typography;
 const page = () => {
     const { success, error } = useNotification();
@@ -23,22 +29,111 @@ const page = () => {
     const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
     const [utama, setUtama] = useState(null);
     const [tambahan, setTambahan] = useState(null);
+    const [rktData, setRktData] = useState([]);
+    const [loadingRkt, setLoadingRkt] = useState(false);
+    const [selectedRkt, setSelectedRkt] = useState(null);
+    const [userRhkModal, setUserRhkModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [isJT, setIsJT] = useState(false);
+    const { data: user, setData: setUser } = useFetchData(getData);
 
     useEffect(() => {
+        if (user) {
         fetchData();
-    }, []);
+                        
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (skp && skp.jabatan && skp.jabatan.length > 0 && skp.periodeRKT) {
+            fetchRktData();
+            fetchUserRhkData();
+        }
+    }, [skp]);
 
     const fetchData = async () => {
         try {
             const skp = await getById(IdSkp);
             setSkp(skp.data);
-            setJabatan(skp.data.jabatan[skp.data.jabatan.length - 1]);
-            setLoadingData(false);
+            const lastJabatan = skp.data.jabatan[skp.data.jabatan.length - 1];
+            setJabatan(lastJabatan);
+            const selectedJabatan = user.jabatan;
+            const struktur = await getStruktur(user.token, selectedJabatan.unor.induk.id);
 
+            const isJT = cekJT(struktur.mapData[0], selectedJabatan.nama_jabatan);
+            console.log(isJT);
+            
+            setIsJT(isJT);
+            
             setUtama(skp.data.rhks.filter((item) => item.jenis === 'utama'));
             setTambahan(skp.data.rhks.filter((item) => item.jenis === 'tambahan'));
         } catch (error) {
             console.log(error);
+            setLoadingData(false);
+        }finally{
+            setLoadingData(false);
+        }
+    };
+
+    const fetchRktData = async () => {
+        try {
+            setLoadingRkt(true);
+            // Get the unit ID from the last jabatan in the array
+            const lastJabatan = skp.jabatan[skp.jabatan.length - 1];
+            const unitId = lastJabatan?.unor?.id;
+            
+            if (!unitId) {
+                error("Gagal", "Tidak dapat menemukan ID unit dari jabatan");
+                setLoadingRkt(false);
+                return;
+            }
+
+            // Fetch RKT data for the unit and periodeRKT
+            const response = await fetch(`/api/rkt?filters=${encodeURIComponent(JSON.stringify({
+                'unit.id': unitId,
+                periodeRKT: skp.periodeRKT._id || skp.periodeRKT
+            }))}`);
+            
+            const result = await response.json();
+            
+            if (result.ok) {
+                setRktData(result.data);
+            } else {
+                error("Gagal", "Gagal mengambil data RKT");
+            }
+        } catch (err) {
+            console.error("Error fetching RKT data:", err);
+            error("Gagal", "Terjadi kesalahan saat mengambil data RKT");
+        } finally {
+            setLoadingRkt(false);
+        }
+    };
+
+    const fetchUserRhkData = async () => {
+        try {
+            // Fetch UserRHK data for this SKP with RKT populated
+            const response = await fetch(`/api/user-rhk?filters=${encodeURIComponent(JSON.stringify({
+                skp: IdSkp
+            }))}`);
+            
+            const result = await response.json();
+            
+            if (result.ok) {
+                // Handle both array and paginated response formats
+                const responseData = Array.isArray(result.data) ? result.data : 
+                                   (result.data && result.data.data) ? result.data.data : [];
+                
+                // Split the results into utama and tambahan
+                const utamaRhks = responseData.filter(rhk => rhk.jenis === 'utama');
+                const tambahanRhks = responseData.filter(rhk => rhk.jenis === 'tambahan');
+                
+                setUtama(utamaRhks);
+                setTambahan(tambahanRhks);
+            } else {
+                error("Gagal", "Gagal mengambil data RHK");
+            }
+        } catch (err) {
+            console.error("Error fetching UserRHK data:", err);
+            error("Gagal", "Terjadi kesalahan saat mengambil data RHK");
         }
     };
 
@@ -55,61 +150,50 @@ const page = () => {
             width: '5%'
         },
         {
-            title: 'Visi',
-            dataIndex: 'visi',
-            key: 'visi',
-            render: (_, record) => (
-                <>
-                    <Button
-                        onClick={() => {
-                            setInfoModal({
-                                title: 'Informasi Visi',
-                                trigger: true,
-                                type: 'desc',
-                                data: [
-                                    {
-                                        key: 'visi',
-                                        label: 'Visi',
-                                        children: record.visi.name
-                                    }
-                                ],
-                                isLoading: false,
-                                onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                            });
-                        }}
-                        icon={<SearchOutlined />}
-                    >
-                        Info
-                    </Button>
-                </>
-            )
-        },
-        {
-            title: 'Misi',
+            title: 'Nama/Deskripsi',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.length - b.name.length
+            render: (text, record) => (
+                <div>
+                    <div className="font-bold">{text || record.description || 'RKT tanpa nama'}</div>
+                    {record.unit && <div className="text-sm text-gray-500">Unit: {record.unit.nama || record.unit.id}</div>}
+                </div>
+            ),
+            sorter: (a, b) => {
+                const aText = a.name || a.description || '';
+                const bText = b.name || b.description || '';
+                return aText.length - bText.length;
+            }
         },
         {
             title: 'Action',
             key: 'action',
+            width: '120px',
             render: (_, record) => (
                 <Space size="small">
-                    <Popconfirm
-                        title="Hapus"
-                        description="Hapus data ini?"
-                        onConfirm={() => {}}
-                        onCancel={() => {}}
-                        okText="Yakin"
-                        cancelText="Batal"
+                    <Button
+                        size="middle"
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                            // Get the last jabatan for posjab
+                            const lastJabatan = skp.jabatan[skp.jabatan.length - 1];
+                            
+                            setUserRhkModal({
+                                trigger: true,
+                                title: 'Tambah RHK dari RKT',
+                                formFields: userRhkFields,
+                                onSubmit: handleUserRhkSubmit,
+                                modalData: {
+                                    rkt: record._id,
+                                    description: record.description || record.name || ''
+                                }
+                            });
+                            setInfoModal({ ...infoModal, trigger: false });
+                        }}
                     >
-                        <Button
-                            size="middle"
-                            danger
-                            icon={<DeleteOutlined />}
-                        />
-                    </Popconfirm>
-
+                        Pilih
+                    </Button>
                 </Space>
             )
         }
@@ -177,6 +261,160 @@ const page = () => {
 
     };
 
+    const userRhkFields = [
+        {
+            label: 'RKT',
+            name: 'rkt',
+            type: 'select',
+            options: rktData.map(rkt => ({
+                label: rkt.name || rkt.description || 'RKT tanpa nama',
+                value: rkt._id
+            })),
+            rules: [
+                {
+                    required: true,
+                    message: 'Silakan pilih RKT'
+                }
+            ]
+        },
+        {
+            label: 'Deskripsi',
+            name: 'description',
+            type: 'longtext',
+            rules: [
+                {
+                    required: true,
+                    message: 'Deskripsi wajib diisi'
+                }
+            ]
+        },
+        {
+            label: 'Jenis',
+            name: 'jenis',
+            type: 'select',
+            options: [
+                { label: 'Utama', value: 'utama' },
+                { label: 'Tambahan', value: 'tambahan' }
+            ],
+            rules: [
+                {
+                    required: true,
+                    message: 'Jenis wajib dipilih'
+                }
+            ]
+        },
+        {
+            label: 'Klasifikasi',
+            name: 'klasifikasi',
+            type: 'select',
+            options: [
+                { label: 'Organisasi', value: 'organisasi' },
+                { label: 'Individu', value: 'individu' }
+            ],
+            rules: [
+                {
+                    required: false
+                }
+            ]
+        }
+    ];
+
+    const handleUserRhkDelete = async (userRhkId) => {
+        try {
+            const response = await fetch(`/api/user-rhk/${userRhkId}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            
+            if (result.ok) {
+                success('Berhasil', 'RHK berhasil dihapus');
+                // Refresh data
+                fetchUserRhkData();
+            } else {
+                error('Gagal', result.msg || 'Gagal menghapus RHK');
+            }
+        } catch (err) {
+            console.error('Error deleting UserRHK:', err);
+            error('Gagal', 'Terjadi kesalahan saat menghapus RHK');
+        }
+    };
+
+    // Function to create aspect templates for a UserRHK
+    const createAspectTemplates = async (userRhkId, pendekatan) => {
+        try {
+            const response = await fetch('/api/aspek/template', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userRHK: userRhkId,
+                    pendekatan: pendekatan
+                })
+            });
+            
+            const result = await response.json();
+            if (!result.ok) {
+                console.error('Failed to create aspect templates:', result.msg);
+            }
+        } catch (err) {
+            console.error('Error creating aspect templates:', err);
+        }
+    };
+
+    const handleUserRhkSubmit = async (values, type, id) => {
+        try {
+            // Get the last jabatan for posjab value
+            const lastJabatan = skp.jabatan[skp.jabatan.length - 1];
+            
+            // Prepare the data for creating/updating a UserRHK
+            const userRhkData = {
+                ...values,
+                user: jabatan?.nip_asn || '', // Using the NIP as string
+                skp: IdSkp,
+                // Always use the posjab from lastJabatan
+                posjab: lastJabatan?.nama_jabatan || ''
+            };
+
+            let response;
+            let method = 'POST';
+            let url = '/api/user-rhk';
+            
+            if (type === 'edit') {
+                method = 'PUT';
+                url = `/api/user-rhk/${id}`;
+            }
+
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userRhkData)
+            });
+
+            const result = await response.json();
+
+            if (result.ok) {
+                const successMessage = type === 'edit' ? 'RHK berhasil diperbarui' : 'RHK berhasil ditambahkan';
+                success('Berhasil', successMessage);
+                
+                // If creating a new UserRHK, create aspect templates directly
+                if (type !== 'edit' && result.data && result.data._id) {
+                    await createAspectTemplates(result.data._id, skp.pendekatan);
+                }
+                
+                setUserRhkModal({ trigger: false, modalData: null });
+                // Refresh UserRHK data
+                fetchUserRhkData();
+            } else {
+                error('Gagal', result.msg || 'Gagal ' + (type === 'edit' ? 'memperbarui' : 'menambahkan') + ' RHK');
+            }
+        } catch (err) {
+            console.error('Error creating/updating UserRHK:', err);
+            error('Gagal', 'Terjadi kesalahan saat ' + (type === 'edit' ? 'memperbarui' : 'menambahkan') + ' RHK');
+        }
+    };
+
     return (
         <div className="w-full flex flex-col gap-y-4">
 
@@ -202,10 +440,70 @@ const page = () => {
                         </div>
                     </div>
                 </div>
+                
                 {loadingData ? (
                     <Skeleton active />
                 ) : (
                     <>
+                        <div className="w-full flex items-center justify-between mb-4">
+                            <div>
+                                <h2 className="text-xl font-semibold mb-2">Rencana Hasil Kerja</h2>
+                                <p className="text-sm text-gray-500">Tambahkan RHK dari RKT unit</p>
+                            </div>
+                            <div className='inline-flex gap-x-2'>
+                                {isJT ? (
+                                    <>
+                                        <Button 
+                                            type="primary"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setUserRhkModal({
+                                                trigger: true,
+                                                title: 'Tambah RHK dari RKT',
+                                                formFields: userRhkFields,
+                                                onSubmit: handleUserRhkSubmit,
+                                                modalData: {}
+                                            })}
+                                            loading={loadingRkt}
+                                            disabled={loadingRkt || rktData.length === 0}
+                                        >
+                                            Tambah dari RKT
+                                        </Button>
+                                        <Button
+                                            icon={<SearchOutlined />}
+                                            onClick={() => {
+                                                setInfoModal({
+                                                    title: 'Daftar RKT',
+                                                    trigger: true,
+                                                    type: 'paragraf',
+                                                    data: {
+                                                        content: (
+                                                            <>
+                                                                <DataTable 
+                                                                    columns={rktTambahanColumn} 
+                                                                    data={rktData.length > 0 ? rktData : []} 
+                                                                    loading={loadingRkt}
+                                                                />
+                                                            </>
+                                                        )
+                                                    },
+                                                    isLoading: loadingRkt,
+                                                    onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
+                                                });
+                                            }}
+                                        >
+                                            Lihat RKT
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Card style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }} size="small">
+                                        <p className="text-sm">
+                                            Fitur tambah, edit, dan hapus RHK hanya tersedia untuk pengguna JPT.
+                                        </p>
+                                    </Card>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="grid grid-flow-row divide-y text-xs mb-6">
                             <div className="flex items-center justify-between py-2">
                                 <span className="uppercase font-semibold">periode</span>
@@ -318,51 +616,64 @@ const page = () => {
                             </thead>
                             <tbody className="capitalize text-sm">
                                 <tr>
-                                    <td colSpan={6} className="text-left px-2">
-                                        Utama
+                                    <td colSpan={6} className="text-left px-4">
+                                        <div className='w-full flex items-center justify-between px-4'>
+                                            Utama
+                                        </div>
                                     </td>
                                 </tr>
                                 {utama?.map((item, index) => (
-                                    <ItemRow key={index} item={item} index={index} />
+                                    <ItemRow 
+                                        key={index} 
+                                        item={item} 
+                                        index={index} 
+                                        onEdit={() => {
+                                            setUserRhkModal({
+                                                trigger: true,
+                                                title: 'Edit RHK',
+                                                formFields: userRhkFields,
+                                                onSubmit: handleUserRhkSubmit,
+                                                modalData: {
+                                                    ...item,
+                                                    rkt: item.rkt?._id
+                                                },
+                                                type: 'edit',
+                                                id: item._id
+                                            });
+                                        }}
+                                        onDelete={() => handleUserRhkDelete(item._id)}
+                                        isJT={isJT}
+                                    />
                                 ))}
                                 <tr>
-                                    <td colSpan={6} className="text-left p-4">
+                                    <td colSpan={6} className="text-left px-4">
                                         <div className='w-full flex items-center justify-between px-4'>
                                             Tambahan
-                                            <div className='inline-flex gap-x-2'>
-                                                <Button icon={<PlusOutlined />}>
-                                                    Dari RKT
-                                                </Button>
-                                                <Button
-                                                    icon={<DeleteOutlined />}
-                                                    onClick={() => {
-                                                        setInfoModal({
-                                                            title: 'Informasi Harian',
-                                                            trigger: true,
-                                                            type: 'paragraf',
-                                                            data: {
-
-                                                                content: (
-                                                                    <>
-                                                                        <DataTable columns={rktTambahanColumn} data={dummyMisi} />
-                                                                    </>
-                                                                )
-                                                            },
-                                                            isLoading: false,
-                                                            onClose: () => setInfoModal({ ...infoModal, trigger: false, data: null })
-                                                        });
-                                                    }}
-                                                >
-                                                    Dari RKT
-                                                </Button>
-                                            </div>
-
                                         </div>
-
                                     </td>
                                 </tr>
                                 {tambahan?.map((item, index) => (
-                                    <ItemRow key={index} item={item} index={index} />
+                                    <ItemRow 
+                                        key={index} 
+                                        item={item} 
+                                        index={index} 
+                                        onEdit={() => {
+                                            setUserRhkModal({
+                                                trigger: true,
+                                                title: 'Edit RHK',
+                                                formFields: userRhkFields,
+                                                onSubmit: handleUserRhkSubmit,
+                                                modalData: {
+                                                    ...item,
+                                                    rkt: item.rkt?._id
+                                                },
+                                                type: 'edit',
+                                                id: item._id
+                                            });
+                                        }}
+                                        onDelete={() => handleUserRhkDelete(item._id)}
+                                        isJT={isJT}
+                                    />
                                 ))}
                             </tbody>
                         </table>
@@ -606,6 +917,15 @@ const page = () => {
                 )}
             </Card>
             <CrudModal title={modal.title} onSubmit={modal.onSubmit} isModalOpen={modal.trigger} onClose={() => setModal({ trigger: false, modalData: null })} data={modal.modalData} formFields={modal.formFields} type={modal.type} />
+            <CrudModal 
+                title={userRhkModal.title} 
+                onSubmit={userRhkModal.onSubmit} 
+                isModalOpen={userRhkModal.trigger && isJT} 
+                onClose={() => setUserRhkModal({ trigger: false, modalData: null })} 
+                data={userRhkModal.modalData} 
+                formFields={userRhkModal.formFields} 
+                type={userRhkModal.type || "create"} 
+            />
             <InfoModal close={infoModal.onClose} data={infoModal.data} isModalOpen={infoModal.trigger} title={infoModal.title} columns={infoModal.column} isLoading={infoModal.isLoading} type={infoModal.type} />
         </div>
     );

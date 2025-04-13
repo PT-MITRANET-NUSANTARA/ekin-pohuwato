@@ -1,27 +1,13 @@
 import buildFilterQuery from '@/utils/buildFilterQuery';
 import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 
-enum Jenis {
-    UTAMA = 'utama',
-    TAMBAHAN = 'tambahan'
-}
-
-enum Klasifikasi {
-    ORGANISASI = 'organisasi',
-    INDIVIDU = 'individu'
-}
-
 interface IRHK extends Document {
-    skp: mongoose.Schema.Types.ObjectId;
-    rhk?: mongoose.Schema.Types.ObjectId; 
-    rkt?: mongoose.Schema.Types.ObjectId; 
+    userRHK: mongoose.Schema.Types.ObjectId; // Reference to the higher-level UserRHK (required now)
+    periodePenilaian: mongoose.Schema.Types.ObjectId; // Reference to evaluation period (required now)
     aspek?: mongoose.Schema.Types.ObjectId[];
-    jenis: Jenis;
-    posjab: string;
-    klasifikasi?: Klasifikasi;
+    desc: string;
     createdAt?: Date; 
     updatedAt?: Date;
-    desc: string;
 }
 
 interface IRHKMethods {
@@ -34,42 +20,21 @@ interface RHKModel extends mongoose.Model<IRHK,{}, IRHKMethods> {
 
 const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
     {
-        skp: {
+        userRHK: {
             type: Schema.Types.ObjectId,
-            ref: 'SKP',
+            ref: 'UserRHK',
             required: true
         },
-        posjab: {
-            type: String,
-            required: true,
+        periodePenilaian: {
+            type: Schema.Types.ObjectId,
+            ref: 'PeriodePenilaian',
+            required: true
         },
         desc: {
             type: String,
             required: false,
-        default: ''
-        },
-  
-        rhk: {
-            type: Schema.Types.ObjectId,
-            ref: 'RHK',
-            required: false
-        },
-        rkt: {
-            type: Schema.Types.ObjectId,
-            ref: 'RKT',
-            required: false
-        },
-        jenis: {
-            type: String,
-            enum: Object.values(Jenis),
-            required: true
-        },
-        klasifikasi: {
-            type: String,
-            enum: Object.values(Klasifikasi),
-            required: false
-        },
-
+            default: ''
+        }
     },
     {
         timestamps: true,
@@ -93,7 +58,15 @@ RHKSchema.static('getAll', async function getAll(page: number = 1, limit: number
         query
             .skip(skip)
             .limit(limit)
-            .populate('aspek'),
+            .populate('aspek')
+            .populate({
+                path: 'userRHK',
+                populate: [
+                    { path: 'rkt' },
+                    { path: 'skp' }
+                ]
+            })
+            .populate('periodePenilaian'),
         this.countDocuments(buildFilterQuery(filters))
     ]);
 

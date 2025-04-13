@@ -49,7 +49,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     await dbConnect();
     try {
         const { id } = params;
-        const kegiatan = await Kegiatan.findOne({ _id: id }).populate('subKegiatans');
+        const kegiatan = await Kegiatan.findOne({ _id: id }).populate('subKegiatans').populate('program');
 
         return NextResponse.json(createResponse(200, 'Success', kegiatan, true));
     } catch (error) {
