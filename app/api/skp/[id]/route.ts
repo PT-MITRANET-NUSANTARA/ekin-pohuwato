@@ -9,6 +9,7 @@ import SKP from '@/models/SKP';
 import RHK from '@/models/RHK';
 import MessageSKP from '@/models/MessageSKP';
 import Notification from '@/models/Notification';
+import UserRHK from '@/models/UserRHK';
 
 const skpSchema = Joi.object({
     periode_awal: Joi.date().required().label('Periode Awal'),
@@ -31,8 +32,7 @@ const skpSchema = Joi.object({
     lampiran: Joi.object().optional(),
     predikat: Joi.object().optional().label('Predikat'),
     hasil: Joi.object().optional().label('Hasil'),
-        isJPT: Joi.object().optional(),
-    
+    isJPT: Joi.boolean().optional(),
     perilaku: Joi.object().optional().label('Perilaku'),
     updatedAt: Joi.date().optional(),
     messageSKP: Joi.optional(),
@@ -83,26 +83,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 }
             })
             .populate({
-                path: 'rhks'
+                path: 'rhks',
             })
             .populate('skp')
             .populate('penilaians');
 
+        console.log(skp);
+        
         // Perform a second query to get RHKs related to this SKP's UserRHKs
         if (skp && skp.rhks && skp.rhks.length > 0) {
             // Get all UserRHK ids
             const userRhkIds = skp.rhks.map((rhk: any) => rhk._id);
-            
+
             // Find all RHKs that reference these UserRHKs
-            const rhks = await RHK.find({ userRHK: { $in: userRhkIds } })
-                .populate('aspek')
-                .populate('harians')
-                .populate('rkt');
-                
+            const rhks = await UserRHK.find({ _id: { $in: userRhkIds } })
+                .populate('aspects')
+                .populate('rkt')
+                .populate('parentUserRHK');
+
             // Add the rhks data to the response
             const enrichedSkp = skp.toObject();
             (enrichedSkp as any).rhkData = rhks;
-            
+
             return NextResponse.json(createResponse(200, 'Success', enrichedSkp, true));
         }
 

@@ -40,6 +40,16 @@ export const store = async (data: Object) => {
     }
 };
 
+export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+
 export const update = async (id: string, data: Object) => {
     try {
         const response = await apiRequest(`/api/${path}/${id}`, {

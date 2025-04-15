@@ -152,8 +152,11 @@ const page = () => {
                                     content: <span>Klik ok untuk mengajukan SKP ini</span>,
                                     async onOk() {
                                         const data = { ...record, status: 'submitted' };
-
+                                        console.log('data', data);
+                                        
                                         const res = await update(data._id, data);
+                                        console.log("ajukan", res);
+                                        
                                         if (res.ok) {
                                             fetchData();
                                         }

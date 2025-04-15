@@ -13,6 +13,7 @@ const userRHKSchema = Joi.object({
     jenis: Joi.string().valid('utama', 'tambahan').required().label('Jenis'),
     klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),
     posjab: Joi.string().required().label('Position/Jabatan'),
+    parentUserRHK: Joi.string().optional().allow(null).label('Parent UserRHK'),
     __v: Joi.optional(),
     _id: Joi.optional(),
 }).messages({
@@ -44,7 +45,9 @@ export async function GET(req: NextRequest) {
             const filterQuery = getFilterQuery(filters);
             const results = await UserRHK.find(filterQuery)
                 .populate('aspects')
-                .populate('rkt');
+                .populate('rkt')
+                .populate('parentUserRHK')
+                .populate('childUserRHKs');
             userRHKs = results; // Return the array directly
         } else {
             // Paginated query with the same population pattern
@@ -52,6 +55,8 @@ export async function GET(req: NextRequest) {
                 .populate('aspects')
                 .populate('rkt')
                 .populate('skp')
+                .populate('parentUserRHK')
+                .populate('childUserRHKs')
                 .skip((Number(page) - 1) * Number(limit))
                 .limit(Number(limit));
                 

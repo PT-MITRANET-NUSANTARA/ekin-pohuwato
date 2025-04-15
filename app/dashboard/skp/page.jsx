@@ -113,7 +113,7 @@ const page = () => {
                     // Only fetch perjanjian kinerja if we have necessary data
                     if (skp.periodeRKT?.length > 0 && skp.jabatan?.length > 0) {
                         const periodeRKTId = skp.periodeRKT[skp.periodeRKT.length - 1]._id;
-                        const unitId = skp.jabatan[0].unor.induk.id;
+                        const unitId = skp.jabatan[0].unor.id;
 
                         try {
                             const pkResponse = await getAllPerjanjianKinerja(1, 100, {
@@ -257,7 +257,7 @@ const page = () => {
 
             // Get the periodeRKT ID and unit ID from the SKP
             const periodeRKTId = skpToUpdate.periodeRKT && skpToUpdate.periodeRKT.length > 0 ? skpToUpdate.periodeRKT[skpToUpdate.periodeRKT.length - 1]._id : null;
-            const unitId = skpToUpdate.jabatan && skpToUpdate.jabatan.length > 0 ? skpToUpdate.jabatan[0].unor.induk.id : null;
+            const unitId = skpToUpdate.jabatan && skpToUpdate.jabatan.length > 0 ? skpToUpdate.jabatan[0].unor.id : null;
 
             if (!periodeRKTId || !unitId) {
                 error('Gagal', 'Data periode RKT atau unit tidak ditemukan');
@@ -290,14 +290,12 @@ const page = () => {
                 response = await updatePerjanjianKinerja(existingPK._id, updatedData);
             } else {
                 // Create new perjanjian kinerja record
-                const unit = skpToUpdate.jabatan[0].unor.induk;
+                const unit = skpToUpdate.jabatan[0].unor;
 
                 const newPKData = {
                     periodeRKT: periodeRKTId,
                     unit: {
                         id: unit.id,
-                        id_sapk: unit.id_sapk,
-                        id_simpeg: unit.id_simpeg,
                         nama: unit.nama
                     },
                     file_perjanjian: files
@@ -348,7 +346,7 @@ const page = () => {
 
         // Get the periodeRKT ID and unit ID from the SKP
         const periodeRKTId = skpToUpdate.periodeRKT && skpToUpdate.periodeRKT.length > 0 ? skpToUpdate.periodeRKT[skpToUpdate.periodeRKT.length - 1]._id : null;
-        const unitId = skpToUpdate.jabatan && skpToUpdate.jabatan.length > 0 ? skpToUpdate.jabatan[0].unor.induk.id : null;
+        const unitId = skpToUpdate.jabatan && skpToUpdate.jabatan.length > 0 ? skpToUpdate.jabatan[0].unor.id : null;
 
         if (!periodeRKTId || !unitId) {
             error('Gagal', 'Data periode RKT atau unit tidak ditemukan');
@@ -748,7 +746,7 @@ const page = () => {
                 return;
             }
 
-            // Get the SKP data with populated rhks
+            // Get the SKP data with populated rhks (UserRHK objects)
             const skpResponse = await getById(skpId);
 
             if (!skpResponse.ok || !skpResponse.data) {
@@ -759,34 +757,38 @@ const page = () => {
 
             const skp = skpResponse.data;
 
-            // Check if the SKP has rhks
+            // Check if the SKP has UserRHKs
             if (!skp.rhks || skp.rhks.length === 0) {
                 error('Gagal', 'SKP tidak memiliki data RHK');
                 setGenerateModal((prev) => ({ ...prev, submitting: false }));
                 return;
             }
 
-            console.log('SKP Data:', skp);
+            console.log('SKP Data with UserRHKs:', skp);
 
             // Get all RKT IDs from the UserRHKs
-            const rktIds = skp.rhks.filter((userRhk) => userRhk.rkt).map((userRhk) => userRhk.rkt);
+            const rktIds = skp.rhks
+                .filter(userRhk => userRhk.rkt)
+                .map(userRhk => userRhk.rkt);
 
-            console.log('RKT IDs:', rktIds);
+            console.log('RKT IDs from UserRHKs:', rktIds);
 
             if (rktIds.length === 0) {
-                error('Gagal', 'Tidak ditemukan data RKT dari RHK');
+                error('Gagal', 'Tidak ditemukan data RKT dari UserRHK');
                 setGenerateModal((prev) => ({ ...prev, submitting: false }));
                 return;
             }
 
             // Fetch each RKT to get the populated subKegiatan data
-            const rktPromises = rktIds.map((rktId) => getRKTById(rktId));
+            const rktPromises = rktIds.map(rktId => getRKTById(rktId));
             const rktResponses = await Promise.all(rktPromises);
 
             // Filter successful responses and get the RKT data
-            const rkts = rktResponses.filter((response) => response.ok && response.data).map((response) => response.data);
+            const rkts = rktResponses
+                .filter(response => response.ok && response.data)
+                .map(response => response.data);
 
-            console.log('Fetched RKTs:', rkts);
+            console.log('Fetched RKTs from UserRHKs:', rkts);
 
             if (rkts.length === 0) {
                 error('Gagal', 'Gagal mengambil data RKT');
@@ -799,7 +801,7 @@ const page = () => {
             const uniqueRkts = rkts.filter((item, index, self) => index === self.findIndex((rkt) => rkt._id === item._id));
 
             // Extract subKegiatan
-            let allSubKegiatan = uniqueRkts.filter((rkt) => rkt.subKegiatan).flatMap((rkt) => rkt.subKegiatan);
+            let allSubKegiatan = uniqueRkts.filter(rkt => rkt.subKegiatan).flatMap(rkt => rkt.subKegiatan);
 
             console.log('allSubKegiatan', allSubKegiatan);
 
@@ -811,7 +813,7 @@ const page = () => {
 
             const kegiatan = kegiatanResponses.filter((response) => response.ok && response.data).map((response) => response.data);
 
-            console.log('Fetched kegaitans:', kegiatan);
+            console.log('Fetched kegiatans:', kegiatan);
 
             if (kegiatan.length === 0) {
                 error('Gagal', 'Gagal mengambil data Kegiatan');
@@ -830,7 +832,7 @@ const page = () => {
             const tujuan = tujuanResponses.filter((response) => response.ok && response.data).map((response) => response.data);
 
             if (tujuan.length === 0) {
-                error('Gagal', 'Gagal mengambil data Kegiatan');
+                error('Gagal', 'Gagal mengambil data Tujuan');
                 setGenerateModal((prev) => ({ ...prev, submitting: false }));
                 return;
             }
@@ -867,7 +869,7 @@ const page = () => {
             // Generate the PDF
             const pdfBlob = await getPerjanjianKinerja(query);
             console.log(pdfBlob);
-
+            
             // Reset UI state
             setGenerateModal({ visible: false, skpId: null, submitting: false });
 
@@ -886,6 +888,81 @@ const page = () => {
             console.error('Error generating perjanjian kinerja:', err);
             error('Gagal', err.message);
             setGenerateModal((prev) => ({ ...prev, submitting: false }));
+        }
+    };
+
+    // Function that creates a RHK linked to its parent UserRHK
+    const linkRHKToUserRHK = async (userRHK, periodePenilaianId, description = "") => {
+        if (!userRHK || !userRHK._id || !periodePenilaianId) {
+            console.error("Missing required data:", { userRHK, periodePenilaianId });
+            return null;
+        }
+        
+        const rhkData = {
+            userRHK: userRHK._id, // Parent relationship
+            periodePenilaian: periodePenilaianId,
+            desc: description || userRHK.description || ""
+        };
+        
+        console.log("Creating RHK with parent UserRHK:", rhkData);
+        // Implementation would require the appropriate controller method
+        // const response = await storeRHK(rhkData);
+        // return response.ok ? response.data : null;
+        return null;
+    };
+
+    // Function to create a new assessment period and link all UserRHKs to new RHKs
+    const createPeriodAssessmentWithRHKs = async (skpId, periodData) => {
+        try {
+            if (!skpId || !periodData) {
+                error('Gagal', 'Data tidak lengkap untuk membuat penilaian periode');
+                return null;
+            }
+
+            // 1. First get the SKP data with its UserRHKs
+            const skpResponse = await getById(skpId);
+            if (!skpResponse.ok || !skpResponse.data) {
+                error('Gagal', 'Gagal mendapatkan data SKP');
+                return null;
+            }
+
+            const skp = skpResponse.data;
+            if (!skp.rhks || skp.rhks.length === 0) {
+                error('Gagal', 'SKP tidak memiliki data UserRHK');
+                return null;
+            }
+
+            // 2. Create a new period assessment
+            // const periodResponse = await storePeriodePenilaian(periodData);
+            // if (!periodResponse.ok || !periodResponse.data) {
+            //     error('Gagal', 'Gagal membuat periode penilaian baru');
+            //     return null;
+            // }
+            
+            // const newPeriodId = periodResponse.data._id;
+            const mockPeriodId = "example_period_id"; // For demonstration only
+
+            // 3. For each UserRHK in the SKP, create a related RHK for this period
+            const rhkPromises = skp.rhks.map(userRHK => 
+                linkRHKToUserRHK(userRHK, mockPeriodId)
+            );
+            
+            // Wait for all RHKs to be created
+            const results = await Promise.all(rhkPromises);
+            const successCount = results.filter(r => r !== null).length;
+            
+            console.log(`Created ${successCount} RHKs linked to UserRHKs for period assessment`);
+            
+            return {
+                // periodId: newPeriodId,
+                periodId: mockPeriodId,
+                createdRHKs: successCount,
+                totalUserRHKs: skp.rhks.length
+            };
+        } catch (err) {
+            console.error("Error creating period assessment with RHKs:", err);
+            error('Gagal', `Terjadi kesalahan: ${err.message}`);
+            return null;
         }
     };
 
@@ -997,7 +1074,7 @@ const page = () => {
                                                                         try {
                                                                             // Get the periodeRKT ID and unit ID
                                                                             const periodeRKTId = item.periodeRKT && item.periodeRKT.length > 0 ? item.periodeRKT[item.periodeRKT.length - 1]._id : null;
-                                                                            const unitId = item.jabatan && item.jabatan.length > 0 ? item.jabatan[0].unor.induk.id : null;
+                                                                            const unitId = item.jabatan && item.jabatan.length > 0 ? item.jabatan[0].unor.id : null;
 
                                                                             if (!periodeRKTId || !unitId) {
                                                                                 error('Gagal', 'Data periode RKT atau unit tidak ditemukan');
@@ -1042,7 +1119,7 @@ const page = () => {
                                                                         try {
                                                                             // Get the periodeRKT ID and unit ID
                                                                             const periodeRKTId = item.periodeRKT && item.periodeRKT.length > 0 ? item.periodeRKT[item.periodeRKT.length - 1]._id : null;
-                                                                            const unitId = item.jabatan && item.jabatan.length > 0 ? item.jabatan[0].unor.induk.id : null;
+                                                                            const unitId = item.jabatan && item.jabatan.length > 0 ? item.jabatan[0].unor.id : null;
 
                                                                             if (!periodeRKTId || !unitId) {
                                                                                 error('Gagal', 'Data periode RKT atau unit tidak ditemukan');

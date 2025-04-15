@@ -10,8 +10,9 @@ import { getData } from '@/controller/AuthorizationController';
 import { getAllPosjabByUnit, getByNIP } from '@/controller/IDSN/JabatanController';
 import { useParams } from 'next/navigation';
 import { getById, getBySKPId, store as storeSKP } from '@/controller/SKPController';
-import { update as updateRHK, destroy as destroyRHK, getBySKPId as getRHKBySkp } from '@/controller/RHKController';
+import { update as updateRHK, destroy as destroyRHK } from '@/controller/RHKController';
 import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
+import {  getBySKPId as getRHKBySkp } from '@/controller/UserRHKController';
 import { dummyIntervensiRhk } from '@/data';
 import { dummyAspeks, dummyRencanaAksi } from '@/data/dummyData';
 import { useRouter } from 'next/navigation';
@@ -204,12 +205,12 @@ const page = () => {
             label: 'Klasifikasi',
             name: 'klasifikasi',
             type: 'select',
-            rules: [
-                {
-                    required: true,
-                    message: 'Field klasifikasi wajib di isi'
-                }
-            ],
+            // rules: [
+            //     {
+            //         required: true,
+            //         message: 'Field klasifikasi wajib di isi'
+            //     }
+            // ],
             options: [
                 {
                     value: 'organisasi',
