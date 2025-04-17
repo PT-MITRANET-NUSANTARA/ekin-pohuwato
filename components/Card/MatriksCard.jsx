@@ -6,6 +6,7 @@ import { getByUserIdAndPeriode } from '@/controller/SKPController';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
 import { store as storeRHK, destroy as destroyRHK, update as updateRHK } from '@/controller/RHKController';
+import { store as storeUserRHK, destroy as destroyUserRHK, update as updateUserRHK } from '@/controller/UserRHKController';
 import { store as storeAspek } from '@/controller/AspekController';
 import { getById, store as storeSKP, getBySKPAndPeriode } from '@/controller/SKPController';
 import { update as updateAspek, destroy as destroyAspek } from '@/controller/AspekController';
@@ -13,21 +14,53 @@ import CrudModal from '../Modal/CrudModal';
 import useNotification from '@/app/hook/useNotification';
 
 const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => {
-    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => { }, data: null, type: '', isLoading: false, column: [] });
-    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => { } });
+    const [infoModal, setInfoModal] = useState({ trigger: false, title: '', onClose: () => {}, data: null, type: '', isLoading: false, column: [] });
+    const [modal, setModal] = useState({ trigger: false, modalData: null, title: '', formFields: [], onSubmit: () => {} });
     const [submitLoading, setSubmitLoading] = useState(false);
-    const { success, error } = useNotification()
+    const { success, error } = useNotification();
     const [data, setData] = useState(null);
     const [rhk, setRhk] = useState([]);
+
+    // Function to create aspect templates for a given UserRHK
+    const createAspectTemplates = async (userRhkId, pendekatan) => {
+        try {
+            const response = await fetch('/api/aspek/template', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userRHK: userRhkId,
+                    pendekatan: pendekatan
+                })
+            });
+
+            const result = await response.json();
+            if (!result.ok) {
+                console.error('Failed to create aspect templates:', result.msg);
+                return false;
+            }
+            return true;
+        } catch (err) {
+            console.error('Error creating aspect templates:', err);
+            return false;
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
     const fetchData = async () => {
         try {
             const response = await getById(dataItem._id);
+            console.log(response.data);
             const jabatan = response.data.jabatan[response.data.jabatan.length - 1];
-            const rhks = response.data.rhks.filter(rhk => rhk.posjab === jabatan.id_posjab);
-            setRhk(rhks)
+            let rhks = [];
+            if (response.data.rhkData) {
+                rhks = response.data.rhkData.filter((rhk) => rhk.posjab === jabatan.id_posjab);
+            }
+
+            console.log('rhks', rhks);
+
+            setRhk(rhks);
             setData(response.data);
         } catch (error) {
             console.log(error);
@@ -54,8 +87,9 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         satuan: String(value.satuan)
                     }
                 };
-                await updateAspek(id, updatedData);
-                success('Berhasil', 'Berhasil Mengedit Aspek')
+                const res = await updateAspek(id, updatedData);
+                console.log('update', res);
+                success('Berhasil', 'Berhasil Mengedit Aspek');
             } else {
                 const newData = {
                     rhk: value.rhk,
@@ -66,7 +100,8 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         satuan: String(value.satuan)
                     }
                 };
-                await storeAspek(newData);
+                const res = await storeAspek(newData);
+                console.log('store', res);
                 success('Berhasil', 'Berhasil Menambahkan Aspek');
             }
 
@@ -87,13 +122,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                 modalData: { ...item, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
                 onSubmit: async (value) => await handleModalSubmit(key, value, item._id)
             },
-            2: {
-                title: 'Delete Aspek',
-                type: 'delete',
-                formFields: AspekFields,
-                modalData: { ...item, rhk: item.rhk._id, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
-                onSubmit: async (value) => await handleModalSubmit(key, value)
-            }
+            // 2: {
+            //     title: 'Delete Aspek',
+            //     type: 'delete',
+            //     formFields: AspekFields,
+            //     modalData: { ...item, userRHK: item.rhk._id, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
+            //     onSubmit: async (value) => await handleModalSubmit(key, value)
+            // }
         };
 
         const config = modalConfig[key];
@@ -200,18 +235,18 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
             dataIndex: 'rhk',
             key: 'rhk',
             sorter: (a, b) => a.rhk.length - b.rhk.length,
-            render: (_, record) => (record.rhk?.desc ? record.rhk.desc : record.rhk.rkt.name)
+            render: (_, record) => (record.parentUserRHK?.description ? record.parentUserRHK?.description : record.parentUserRHK.rkt.name)
         },
         {
             title: 'Hasil RHK',
             dataIndex: 'desc',
             key: 'desc',
             sorter: (a, b) => a.desc.length - b.desc.length,
-            render: (_, record) => record.desc
+            render: (_, record) => record.description
         },
         {
             title: 'Aspek',
-            dataIndex: 'aspek',
+            dataIndex: 'aspects',
             key: 'aspek',
             render: (record) => (
                 <div className="flex flex-col gap-y-1">
@@ -227,7 +262,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                                 Edit
                                             </Button>
                                         )
-                                    },
+                                    }
                                     // {
                                     //     key: '2',
                                     //     label: (
@@ -291,7 +326,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, rhk: record.rhk._id },
+                                modalData: { ...record, userRHK: record.parentUserRHK._id },
                                 title: 'Edit RHK Intervensi',
                                 type: 'edit',
                                 formFields: rhkData.fields,
@@ -300,14 +335,23 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
 
                                     let dt = values;
 
-                                    dt = { ...dt, skp: record.skp, posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab };
-                                    const response = await updateRHK(record._id, dt);
+                                    dt = {
+                                        ...dt,
+                                        skp: record.skp,
+                                        posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab,
+                                        user: record.user,
+                                        status: record.status,
+                                        description: values.desc || record.description || ''
+                                    };
+                                    const response = await updateUserRHK(record._id, dt);
+                                    console.log('updateUserRHK', response);
 
                                     if (response.ok) {
-                                        success('Berhasil', 'Berhasil Mengubah RHK');
+                                        success('Berhasil', 'Berhasil Mengubah UserRHK');
                                         setModal({ trigger: false });
+                                        fetchData();
                                     } else {
-                                        error('Gagal', 'Gagal Mengubah RHK');
+                                        error('Gagal', 'Gagal Mengubah UserRHK');
                                     }
                                     setSubmitLoading(false);
                                 }
@@ -322,19 +366,22 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, rhk: record.rhk._id },
+                                modalData: { userRHK: record.parentUserRHK._id, jenis: record.jenis, klasifikasi: record.klasifikasi, desc: record.description },
                                 title: 'Delete RHK Intervensi',
                                 type: 'delete',
                                 formFields: rhkData.fields,
                                 onSubmit: async (values) => {
                                     setSubmitLoading(true);
 
-                                    const response = await destroyRHK(record._id);
+                                    const response = await destroyUserRHK(record._id);
+                                    console.log('destroyUserRHK', response);
+
                                     if (response.ok) {
-                                        success('Berhasil', 'Berhasil Menghapus RHK');
+                                        success('Berhasil', 'Berhasil Menghapus UserRHK');
                                         setModal({ trigger: false });
+                                        fetchData();
                                     } else {
-                                        error('Gagal', 'Gagal Menghapus RHK');
+                                        error('Gagal', 'Gagal Menghapus UserRHK');
                                     }
                                     setSubmitLoading(false);
                                 }
@@ -379,15 +426,40 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         const skp = data;
                                         setSubmitLoading(true);
                                         const dt = {
-                                            ...value,
+                                            parentUserRHK: value.userRHK || null,
+                                            jenis: value.jenis || 'utama',
                                             posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab,
-                                            skp: dataItem._id
+                                            skp: dataItem._id,
+                                            klasifikasi: value.klasifikasi || 'organisasi',
+                                            user: dataItem.user_id,
+                                            description: value.desc || ''
                                         };
-                                        const rhk = await storeRHK(dt);
 
+                                        console.log(dt);
 
-                                        success('Berhasil', 'Berhasil Menambahkan RHK');
-                                        fetchData();
+                                        // Using UserRHK instead of RHK
+                                        const userRhkResponse = await storeUserRHK(dt);
+                                        console.log('storeUserRHK', userRhkResponse);
+
+                                        if (userRhkResponse.ok) {
+                                            success('Berhasil', 'Berhasil Menambahkan UserRHK');
+
+                                            // Create aspect templates based on the pendekatan
+                                            if (userRhkResponse.data && data.pendekatan) {
+                                                const userRhkId = userRhkResponse.data._id;
+                                                const templateResult = await createAspectTemplates(userRhkId, data.pendekatan);
+                                                if (templateResult) {
+                                                    success('Berhasil', 'Template aspek berhasil dibuat');
+                                                } else {
+                                                    error('Peringatan', 'Template aspek tidak berhasil dibuat');
+                                                }
+                                            }
+
+                                            fetchData();
+                                        } else {
+                                            error('Gagal', 'Gagal Menambahkan UserRHK');
+                                        }
+
                                         setSubmitLoading(false);
                                         setModal({ trigger: false });
                                     }

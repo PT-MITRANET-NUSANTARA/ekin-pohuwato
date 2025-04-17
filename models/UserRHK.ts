@@ -17,6 +17,7 @@ interface IUserRHK extends Document {
     klasifikasi?: string;
     posjab: string;
     skp: mongoose.Schema.Types.ObjectId;
+    parentUserRHK?: mongoose.Schema.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -59,7 +60,7 @@ const UserRHKSchema = new Schema<IUserRHK, UserRHKModel, IUserRHKMethods>(
         klasifikasi: {
             type: String,
             enum: ['organisasi', 'individu'],
-            required: false
+            required: true
         },
         posjab: {
             type: String,
@@ -69,6 +70,12 @@ const UserRHKSchema = new Schema<IUserRHK, UserRHKModel, IUserRHKMethods>(
             type: Schema.Types.ObjectId,
             ref: 'SKP',
             required: true
+        },
+        parentUserRHK: {
+            type: Schema.Types.ObjectId,
+            ref: 'UserRHK',
+            required: false,
+            default: null
         }
     },
     {
@@ -87,6 +94,14 @@ UserRHKSchema.method('cascadeDelete', async function cascadeDelete() {
         await rhk.cascadeDelete();
     }
     
+    // Find all child UserRHKs that reference this UserRHK as parent
+    const childUserRHKs = await mongoose.model('UserRHK').find({ parentUserRHK: this._id });
+    
+    // Delete each child UserRHK (which will cascade delete its own dependencies)
+    for (const childUserRHK of childUserRHKs) {
+        await childUserRHK.cascadeDelete();
+    }
+    
     // Delete this UserRHK
     await this.deleteOne();
 });
@@ -99,12 +114,11 @@ UserRHKSchema.static('getAll', async function getAll(page: number = 1, limit: nu
             .skip(skip)
             .limit(limit)
             .populate('aspects')
-            .populate({
-                path: 'childRHKs',
-                populate: { path: 'aspek' }
-            })
+            
             .populate('rkt')
-            .populate('skp'),
+            .populate('skp')
+            .populate('parentUserRHK')
+            .populate('childUserRHKs'),
         this.countDocuments(buildFilterQuery(filters))
     ]);
 
@@ -127,19 +141,21 @@ UserRHKSchema.virtual('aspects', {
     justOne: false
 });
 
-// Virtual for getting all RHKs that reference this UserRHK
-UserRHKSchema.virtual('childRHKs', {
-    ref: 'RHK',
-    localField: '_id',
-    foreignField: 'userRHK',
-    justOne: false
-});
+
 
 // Virtual for 'rhk' to allow nested population of 'rhks.rhk'
 UserRHKSchema.virtual('rhk', {
     ref: 'RHK',
     localField: '_id',
     foreignField: 'userRHK',
+    justOne: false
+});
+
+// Virtual for getting all child UserRHKs that reference this UserRHK as parent
+UserRHKSchema.virtual('childUserRHKs', {
+    ref: 'UserRHK',
+    localField: '_id',
+    foreignField: 'parentUserRHK',
     justOne: false
 });
 

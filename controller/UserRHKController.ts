@@ -40,6 +40,26 @@ export const store = async (data: Object) => {
     }
 };
 
+export const getBySKPId = async (skp_id: string, page: number, limit: number, filters: Object) => {
+    const filtersString = encodeURIComponent(JSON.stringify(filters));
+    const url = `/api/${path}/skp/${skp_id}?page=${page}&limit=${limit}&filters=${filtersString}`;
+    const response = await apiRequest(url, {
+        method: 'GET'
+    });
+    return response;
+};
+
+export const getBySkp = async (skp_id: string) => {
+    try {
+        // Use default pagination (page 1, limit 100) and empty filters
+        const response = await getBySKPId(skp_id, 1, 100, {});
+        return response;
+    } catch (error) {
+        console.error(`Error fetching UserRHKs with SKP ID ${skp_id}:`, error);
+        throw error;
+    }
+};
+
 export const update = async (id: string, data: Object) => {
     try {
         const response = await apiRequest(`/api/${path}/${id}`, {
@@ -67,7 +87,8 @@ export const destroy = async (id: string) => {
 
 export const deriveRHK = async (data: {
     userRHKId: string,
-    periodePenilaianId: string
+    periodePenilaianId: string,
+    skpId: string
 }) => {
     try {
         const response = await apiRequest(`/api/${path}/derive`, {

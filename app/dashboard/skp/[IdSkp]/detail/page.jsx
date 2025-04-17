@@ -116,6 +116,8 @@ const page = () => {
             }))}`);
             
             const result = await response.json();
+
+            console.log(result);
             
             if (result.ok) {
                 // Handle both array and paginated response formats

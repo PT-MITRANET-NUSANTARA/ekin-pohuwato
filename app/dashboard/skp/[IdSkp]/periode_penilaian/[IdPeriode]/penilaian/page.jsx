@@ -122,6 +122,13 @@ const page = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small" direction="vertical">
+                    <Button
+                        type='primary'
+                        size="middle"
+                        onClick={() => router.push(window.location.pathname + `/${record._id}/management_rhk`)}
+                    >
+                        Detail
+                    </Button>
 
                     <Button
                         // type='primary'
