@@ -11,6 +11,7 @@ import SKP from '@/models/SKP';
 const deriveRHKSchema = Joi.object({
     userRHKId: Joi.string().required().label('User RHK ID'),
     periodePenilaianId: Joi.string().required().label('Periode Penilaian ID'),
+    skpId: Joi.string().required().label('SKP ID'),
 }).messages({
     'any.required': '{{#label}} wajib diisi.',
     'string.base': '{{#label}} harus berupa teks.',
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { userRHKId, periodePenilaianId } = body;
+        const { userRHKId, periodePenilaianId, skpId } = body;
 
         const errors = validateDeriveRHKData(body);
         if (errors.length > 0) {
@@ -50,6 +51,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(createResponse(404, 'SKP not found', null));
         }
 
+        // Verify that the target SKP exists
+        const targetSKP = await SKP.findById(skpId);
+        if (!targetSKP) {
+            return NextResponse.json(createResponse(404, 'Target SKP not found', null));
+        }
+
         // Check if an RHK already exists for this UserRHK and periodePenilaian
         const existingRHK = await RHK.findOne({
             userRHK: userRHKId,
@@ -64,6 +71,7 @@ export async function POST(req: NextRequest) {
         const newRHK = new RHK({
             userRHK: userRHKId,
             periodePenilaian: periodePenilaianId,
+            skp: skpId, // Use the provided SKP ID
             desc: userRHK.description || '', 
         });
 

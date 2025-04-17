@@ -4,40 +4,18 @@ import dbConnect from '@/utils/db';
 import { createResponse } from '@/utils/api';
 import RHK from '@/models/RHK';
 
-const rhkSchema = Joi.object({
-    userRHK: Joi.string().required().label('UserRHK'),
-    periodePenilaian: Joi.string().required().label('Periode Penilaian'),
-    skp: Joi.string().required().label('SKP'),
-    desc: Joi.string().optional().label('Deskripsi').allow(''),
-    __v: Joi.optional(),
-    _id: Joi.optional()
-}).messages({
-    'any.required': '{{#label}} wajib diisi.',
-    'string.base': '{{#label}} harus berupa teks.',
-    'string.empty': '{{#label}} tidak boleh kosong.',
-    'string.valid': '{{#label}} harus salah satu dari {{#valids}}.'
-});
-
-function validateRHKData(data: any) {
-    const { error } = rhkSchema.validate(data, { abortEarly: false });
-    if (error) {
-        return error.details.map((err) => err.message);
-    }
-    return [];
-}
-
-export async function GET(req: NextRequest, { params }: { params: { skp_id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { periodePenilaian_id: string } }) {
     await dbConnect();
 
     try {
-        const { skp_id } = params;
+        const { periodePenilaian_id } = params;
         const page = req.nextUrl.searchParams.get('page');
         const limit = req.nextUrl.searchParams.get('limit');
         const filters = req.nextUrl.searchParams.get('filters');
         let rhks;
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
-            rhks = await RHK.find({ skp: skp_id })
+            rhks = await RHK.find({ periodePenilaian: periodePenilaian_id })
                 .populate('aspek')
                 .populate({
                     path: 'userRHK',
@@ -50,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
                 .populate('skp');
         } else {
             const f = JSON.parse(filters as string);
-            f['skp'] = skp_id;
+            f['periodePenilaian'] = periodePenilaian_id;
             rhks = await RHK.getAll(Number(page), Number(limit), f);
         }
 
@@ -59,4 +37,4 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
         console.error('GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch RHK data' }, { status: 500 });
     }
-}
+} 

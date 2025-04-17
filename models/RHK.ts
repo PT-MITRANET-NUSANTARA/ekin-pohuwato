@@ -4,6 +4,7 @@ import mongoose, { Document, HydratedDocument, Schema } from 'mongoose';
 interface IRHK extends Document {
     userRHK: mongoose.Schema.Types.ObjectId; // Reference to the higher-level UserRHK (required now)
     periodePenilaian: mongoose.Schema.Types.ObjectId; // Reference to evaluation period (required now)
+    skp: mongoose.Schema.Types.ObjectId; // Reference to the SKP (required now)
     aspek?: mongoose.Schema.Types.ObjectId[];
     desc: string;
     createdAt?: Date; 
@@ -28,6 +29,11 @@ const RHKSchema = new Schema<IRHK,  RHKModel, IRHKMethods>(
         periodePenilaian: {
             type: Schema.Types.ObjectId,
             ref: 'PeriodePenilaian',
+            required: true
+        },
+        skp: {
+            type: Schema.Types.ObjectId,
+            ref: 'SKP',
             required: true
         },
         desc: {
@@ -66,7 +72,8 @@ RHKSchema.static('getAll', async function getAll(page: number = 1, limit: number
                     { path: 'skp' }
                 ]
             })
-            .populate('periodePenilaian'),
+            .populate('periodePenilaian')
+            .populate('skp'),
         this.countDocuments(buildFilterQuery(filters))
     ]);
 

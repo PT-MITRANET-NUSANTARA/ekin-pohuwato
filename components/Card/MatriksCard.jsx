@@ -122,13 +122,13 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                 modalData: { ...item, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
                 onSubmit: async (value) => await handleModalSubmit(key, value, item._id)
             },
-            2: {
-                title: 'Delete Aspek',
-                type: 'delete',
-                formFields: AspekFields,
-                modalData: { ...item, rhk: item.rhk._id, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
-                onSubmit: async (value) => await handleModalSubmit(key, value)
-            }
+            // 2: {
+            //     title: 'Delete Aspek',
+            //     type: 'delete',
+            //     formFields: AspekFields,
+            //     modalData: { ...item, userRHK: item.rhk._id, target_tahunan: item.target_tahunan.target, satuan: item.target_tahunan.satuan },
+            //     onSubmit: async (value) => await handleModalSubmit(key, value)
+            // }
         };
 
         const config = modalConfig[key];
@@ -326,7 +326,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { ...record, rhk: record.rhk._id },
+                                modalData: { ...record, userRHK: record.parentUserRHK._id },
                                 title: 'Edit RHK Intervensi',
                                 type: 'edit',
                                 formFields: rhkData.fields,
@@ -366,7 +366,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                         onClick={() =>
                             setModal({
                                 trigger: true,
-                                modalData: { rhk: record.parentUserRHK._id, jenis: record.jenis, klasifikasi: record.klasifikasi, desc: record.description },
+                                modalData: { userRHK: record.parentUserRHK._id, jenis: record.jenis, klasifikasi: record.klasifikasi, desc: record.description },
                                 title: 'Delete RHK Intervensi',
                                 type: 'delete',
                                 formFields: rhkData.fields,
@@ -426,7 +426,7 @@ const MatriksCard = ({ SKP, dataItem, rhkData, aspekData, rencanaAksiData }) => 
                                         const skp = data;
                                         setSubmitLoading(true);
                                         const dt = {
-                                            parentUserRHK: value.rhk || null,
+                                            parentUserRHK: value.userRHK || null,
                                             jenis: value.jenis || 'utama',
                                             posjab: dataItem.jabatan[dataItem.jabatan.length - 1].id_posjab,
                                             skp: dataItem._id,

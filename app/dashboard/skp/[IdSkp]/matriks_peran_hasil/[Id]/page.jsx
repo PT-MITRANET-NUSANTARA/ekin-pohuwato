@@ -191,7 +191,7 @@ const page = () => {
     const RhkFields = [
         {
             label: 'RHK',
-            name: 'rhk',
+            name: 'userRHK',
             type: 'select',
             rules: [
                 {
