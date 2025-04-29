@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  nextjs:
+    container_name: nextjs-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/ekin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORDD=ekinredispassword
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    container_name: mongodb
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express:latest
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=password
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8081"
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    restart: always
+    command: redis-server --requirepass ekinredispassword
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - nextjs
+      - mongo-express
+
+volumes:
+  mongo-data:
+  redis-data: 
