@@ -98,7 +98,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             // Find all RHKs that reference these UserRHKs
             const rhks = await UserRHK.find({ _id: { $in: userRhkIds } })
                 .populate('aspects')
-                .populate('rkt')
+                .populate('rkts')
                 .populate('parentUserRHK');
 
             // Add the rhks data to the response

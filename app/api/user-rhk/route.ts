@@ -8,10 +8,11 @@ import getFilterQuery from '@/utils/getFilterQuery';
 const userRHKSchema = Joi.object({
     user: Joi.string().required().label('User'),
     description: Joi.string().optional().label('Description'),
-    rkt: Joi.string().optional().label('RKT').allow(null),
+    rkts: Joi.array().items(Joi.string()).default([]).optional().label('RKTs'),
     skp: Joi.string().required().label('SKP'),
     jenis: Joi.string().valid('utama', 'tambahan').required().label('Jenis'),
     klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),
+    penugasan: Joi.string().optional().allow('').default('').label('Penugasan'),
     posjab: Joi.string().required().label('Position/Jabatan'),
     parentUserRHK: Joi.string().optional().allow(null).label('Parent UserRHK'),
     __v: Joi.optional(),
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
             const filterQuery = getFilterQuery(filters);
             const results = await UserRHK.find(filterQuery)
                 .populate('aspects')
-                .populate('rkt')
+                .populate('rkts')
                 .populate('parentUserRHK')
                 .populate('childUserRHKs');
             userRHKs = results; // Return the array directly
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
             // Paginated query with the same population pattern
             const query = UserRHK.find(getFilterQuery(filters))
                 .populate('aspects')
-                .populate('rkt')
+                .populate('rkts')
                 .populate('skp')
                 .populate('parentUserRHK')
                 .populate('childUserRHKs')

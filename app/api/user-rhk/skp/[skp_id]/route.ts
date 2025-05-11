@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: { skp_id: stri
 
         if (!(page && limit) || page === 'undefined' || limit === 'undefined') {
             userRhks = await UserRHK.find({ skp: skp_id })
-                .populate('rkt')
+                .populate('rkts')
                 .populate('aspects')
                 .populate('parentUserRHK')
                 .populate('childUserRHKs');

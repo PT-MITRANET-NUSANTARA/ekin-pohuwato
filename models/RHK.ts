@@ -68,7 +68,7 @@ RHKSchema.static('getAll', async function getAll(page: number = 1, limit: number
             .populate({
                 path: 'userRHK',
                 populate: [
-                    { path: 'rkt' },
+                    { path: 'rkts' },
                     { path: 'skp' }
                 ]
             })
