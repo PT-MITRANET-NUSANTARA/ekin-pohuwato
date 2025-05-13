@@ -187,7 +187,7 @@ const page = () => {
                                 formFields: userRhkFields,
                                 onSubmit: handleUserRhkSubmit,
                                 modalData: {
-                                    rkt: record._id,
+                                    rkts: [record._id],
                                     description: record.description || record.name || ''
                                 }
                             });
@@ -266,21 +266,22 @@ const page = () => {
     const userRhkFields = [
         {
             label: 'RKT',
-            name: 'rkt',
+            name: 'rkts',
             type: 'select',
+            mode: 'multiple',
             options: rktData.map(rkt => ({
                 label: rkt.name || rkt.description || 'RKT tanpa nama',
                 value: rkt._id
             })),
             rules: [
                 {
-                    required: true,
+                    required: false,
                     message: 'Silakan pilih RKT'
                 }
             ]
         },
         {
-            label: 'Deskripsi',
+            label: 'RHK',
             name: 'description',
             type: 'longtext',
             rules: [
@@ -313,6 +314,16 @@ const page = () => {
                 { label: 'Organisasi', value: 'organisasi' },
                 { label: 'Individu', value: 'individu' }
             ],
+            rules: [
+                {
+                    required: false
+                }
+            ]
+        },
+        {
+            label: 'Penugasan',
+            name: 'penugasan',
+            type: 'text',
             rules: [
                 {
                     required: false
@@ -368,13 +379,18 @@ const page = () => {
             // Get the last jabatan for posjab value
             const lastJabatan = skp.jabatan[skp.jabatan.length - 1];
             
+            // Ensure rkts is an array
+            const rkts = values.rkts || [];
+            
             // Prepare the data for creating/updating a UserRHK
             const userRhkData = {
                 ...values,
                 user: jabatan?.nip_asn || '', // Using the NIP as string
                 skp: IdSkp,
                 // Always use the posjab from lastJabatan
-                posjab: lastJabatan?.nama_jabatan || ''
+                posjab: lastJabatan?.nama_jabatan || '',
+                // Ensure penugasan has a default value if not provided
+                penugasan: values.penugasan || ''
             };
 
             let response;
@@ -463,7 +479,9 @@ const page = () => {
                                                 title: 'Tambah RHK dari RKT',
                                                 formFields: userRhkFields,
                                                 onSubmit: handleUserRhkSubmit,
-                                                modalData: {}
+                                                modalData: {
+                                                    rkts: []
+                                                }
                                             })}
                                             loading={loadingRkt}
                                             disabled={loadingRkt || rktData.length === 0}
@@ -609,7 +627,7 @@ const page = () => {
                             <thead>
                                 <tr>
                                     <th>NO</th>
-                                    <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>
+                                    {!isJT && <th style={{ maxWidth: '12rem' }}>RENCANA HASIL KERJA PIMPINAN YANG DIINTERVENSI</th>}
                                     <th>RENCANA HASIL KERJA</th>
                                     <th>ASPEK</th>
                                     <th>INDIKATOR KINERJA INDIVIDU</th>
@@ -618,7 +636,7 @@ const page = () => {
                             </thead>
                             <tbody className="capitalize text-sm">
                                 <tr>
-                                    <td colSpan={6} className="text-left px-4">
+                                    <td colSpan={isJT ? 5 : 6} className="text-left px-4">
                                         <div className='w-full flex items-center justify-between px-4'>
                                             Utama
                                         </div>
@@ -637,7 +655,7 @@ const page = () => {
                                                 onSubmit: handleUserRhkSubmit,
                                                 modalData: {
                                                     ...item,
-                                                    rkt: item.rkt?._id
+                                                    rkts: item.rkts?.map(rkt => rkt._id || rkt) || []
                                                 },
                                                 type: 'edit',
                                                 id: item._id
@@ -648,7 +666,7 @@ const page = () => {
                                     />
                                 ))}
                                 <tr>
-                                    <td colSpan={6} className="text-left px-4">
+                                    <td colSpan={isJT ? 5 : 6} className="text-left px-4">
                                         <div className='w-full flex items-center justify-between px-4'>
                                             Tambahan
                                         </div>
@@ -667,7 +685,7 @@ const page = () => {
                                                 onSubmit: handleUserRhkSubmit,
                                                 modalData: {
                                                     ...item,
-                                                    rkt: item.rkt?._id
+                                                    rkts: item.rkts?.map(rkt => rkt._id || rkt) || []
                                                 },
                                                 type: 'edit',
                                                 id: item._id

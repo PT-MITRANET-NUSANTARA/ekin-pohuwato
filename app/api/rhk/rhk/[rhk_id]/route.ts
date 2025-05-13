@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: { rhk_id: stri
 
     try {
         const { rhk_id } = params;
-        const rhk = await RHK.findById(rhk_id).populate('skp').populate('rhk').populate('rkt');
+        const rhk = await RHK.findById(rhk_id).populate('skp').populate('userRHK');
         if (!rhk) {
             return NextResponse.json({ error: 'RHK not found' }, { status: 404 });
         }
@@ -52,7 +52,7 @@ const rhkRecursive = async (rhk: any) => {
     const data = { ...rhk.toObject(), child: [], childUnique: [] };
 
     // Ambil child berdasarkan parent ID
-    const children = await RHK.find({ rhk: rhk._id }).populate('skp').populate('rhk').populate('rkt');
+    const children = await RHK.find({ rhk: rhk._id }).populate('skp').populate('userRHK');
     console.log(children);
 
     if (children && children.length > 0) {

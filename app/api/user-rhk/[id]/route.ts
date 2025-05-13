@@ -8,10 +8,11 @@ const userRHKSchema = Joi.object({
     user: Joi.string().required().label('User'),
     description: Joi.string().optional().label('Description'),
     status: Joi.string().valid(...Object.values(Status)).optional().label('Status'),
-    rkt: Joi.string().optional().label('RKT').allow(null),
+    rkts: Joi.array().items(Joi.string()).default([]).optional().label('RKTs'),
     skp: Joi.string().required().label('SKP'),
     jenis: Joi.string().valid('utama', 'tambahan').required().label('Jenis'),
     klasifikasi: Joi.string().valid('organisasi', 'individu').optional().label('Klasifikasi'),
+    penugasan: Joi.string().optional().allow('').default('').label('Penugasan'),
     posjab: Joi.string().required().label('Position/Jabatan'),
     __v: Joi.optional(),
     _id: Joi.optional(),
@@ -35,7 +36,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     try {
         const id = params.id;
-        const userRHK = await UserRHK.findById(id).populate('childRHKs');
+        const userRHK = await UserRHK.findById(id)
+            .populate('childRHKs')
+            .populate('rkts');
 
         if (!userRHK) {
             return NextResponse.json(createResponse(404, 'UserRHK not found', null));

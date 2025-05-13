@@ -12,9 +12,10 @@ interface IUserRHK extends Document {
     user: string;
     description: string;
     status: Status;
-    rkt?: mongoose.Schema.Types.ObjectId;
+    rkts?: mongoose.Schema.Types.ObjectId[];
     jenis: string;
     klasifikasi?: string;
+    penugasan: string;
     posjab: string;
     skp: mongoose.Schema.Types.ObjectId;
     parentUserRHK?: mongoose.Schema.Types.ObjectId;
@@ -47,10 +48,11 @@ const UserRHKSchema = new Schema<IUserRHK, UserRHKModel, IUserRHKMethods>(
             default: Status.DRAFT,
             required: true
         },
-        rkt: {
-            type: Schema.Types.ObjectId,
+        rkts: {
+            type: [Schema.Types.ObjectId],
             ref: 'RKT',
-            required: false
+            required: false,
+            default: []
         },
         jenis: {
             type: String,
@@ -61,6 +63,11 @@ const UserRHKSchema = new Schema<IUserRHK, UserRHKModel, IUserRHKMethods>(
             type: String,
             enum: ['organisasi', 'individu'],
             required: true
+        },
+        penugasan: {
+            type: String,
+            required: false,
+            default: ''
         },
         posjab: {
             type: String,
@@ -115,7 +122,7 @@ UserRHKSchema.static('getAll', async function getAll(page: number = 1, limit: nu
             .limit(limit)
             .populate('aspects')
             
-            .populate('rkt')
+            .populate('rkts')
             .populate('skp')
             .populate('parentUserRHK')
             .populate('childUserRHKs'),
